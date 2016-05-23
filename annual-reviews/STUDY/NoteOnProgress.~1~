@@ -1,0 +1,57 @@
+First, let me apologies for not actually managing all this very
+well. I am notoriously bad at this sort of thing, and I am not good at
+"pushing things along" ... I am accused of being entirely too task
+focussed for my own good. Apologies, too, for the delay in emailing
+this to you --- I've been breathing life back into my computer this
+week and have just now managed to make my historical email
+and work accessible. 
+
+In August of 2011, Simon and I had "Increasing model efficiency by
+dynamically changing model representations" in \textbf{Environmental
+Modelling and Software} (DOI:10.1016/j.envsoft.2011.08.012), and I
+believe that this is included in the progress reports to date.
+
+I can't recall just when Barry Gardner retired, but I know that the
+last review was done just before he did. We did it in a little room
+with a photocopier or printer, perhaps off toward the geologists's
+lair on level two or three?
+
+I can fill in the missing reports relatively quickly once I can get to
+them. I will use previous years as a model to address the points for
+the missing years so that we can deal with things quickly.
+
+During 2012, 2013 and much of 2014, I was working on a mathematical
+structure to encode the state of a diverse set of submodels. My aim
+was (and is) to allow us to use already existing techniques (such as
+clustering) to assess how the current state of a set of models
+compared with "known-good" and "known-bad" configurations. The result
+is a (commutative) ring whose elements are rooted trees which form a
+metric space. I believe that this structure will be amenable to common
+clustering and categorising techniques.
+
+At the end of August in 2014, I was invited to submit a paper for a
+special issue of \textbf{Frontiers in Environmental Science}, on the
+propositions rooted in the first paper. From Sept. 2014 to Sept 2015,
+I constructed a credible thought-model (and have partially implemented
+it), finished the groundwork on the tree-structures and wrote the
+paper (DOI:10.3389/fenvs.2015.00058) which was published in Aug 2015.
+
+
+I submitted a request to sispend study sometime in the second half of
+2014 -- I cannot actually see the status of the request in iGrad. I
+prodded Simon in face-to-face meetings after a month or so had elapsed
+and emailed him in January and was assured that it would be sorted out
+soon, and would retroactively apply from Sept. 2014. Unfortunately, I
+didn't draft the submission on my machine and cut-and-paste it in as I
+usually do, though I do have emails discussing the process (or lack of
+process).
+
+Many thanks, I hope it is possible to sort this out,
+
+Best regards,
+
+Randall
+
+
+
+

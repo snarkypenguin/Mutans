@@ -1,0 +1,88 @@
+%% t.bib:109:Unexpected value in ``year = "1798"''.
+%% t.bib:109:Suspicious year in ``year = "1798"''.
+%% t.bib:169:Expected http://dx.doi.org/ prefix in DOI value ``"10.4108/ICST.SIMUTOOLS2010.8822"''.
+%% t.bib:242:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.063"''.
+%% t.bib:347:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.2000.0723"''.
+%% t.bib:456:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2011.03.012"''.
+%% t.bib:471:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.tree.2011.05.003"''.
+%% t.bib:485:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/0308-521X(95)93644-S"''.
+%% t.bib:503:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.techfore.2008.06.002"''.
+%% t.bib:568:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%% t.bib:583:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%% t.bib:654:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "97-81742-322-5-9 9"''.
+%% t.bib:654:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "97-81742-322-5-9 9"''.
+%% t.bib:665:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%% t.bib:665:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%% t.bib:682:Expected http://dx.doi.org/ prefix in DOI value ``"10.1002/wcc.157"''.
+%% t.bib:696:Unexpected value in ``pages = "669â679"''.
+%% t.bib:712:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%% t.bib:712:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%% t.bib:712:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%% t.bib:712:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%% t.bib:739:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.envsoft.2010.08.001"''.
+%% t.bib:758:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.015"''.
+%% t.bib:777:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f92-102"''.
+%% t.bib:792:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f97-100"''.
+%% t.bib:870:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%% t.bib:870:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%% t.bib:870:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%% t.bib:870:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%% t.bib:1008:Unexpected value in ``volume = "11(4)"''.
+%% t.bib:1036:Unexpected value in ``year = "2009/2010"''.
+%% t.bib:1037:Expected protocol://... in URL value ``%v%''.
+%% t.bib:1053:Expected protocol://... in URL value ``%v%''.
+%% t.bib:1054:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.envsoft.2011.08.012"''.
+%% t.bib:1065:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "97-81461-461-3-3-3"''.
+%% t.bib:1065:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "97-81461-461-3-3-3"''.
+%% t.bib:1069:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/978-1-4614-6134-0_4"''.
+%% t.bib:1071:Expected protocol://... in URL value ``%v%''.
+%% t.bib:1152:Expected http://dx.doi.org/ prefix in DOI value ``"10.1046/j.1523-1739.1994.08010027.x"''.
+%% t.bib:1180:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.gloenvcha.2012.12.006"''.
+%% t.bib:1199:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/s10584-012-0444-2"''.
+%% t.bib:1229:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f79-215"''.
+%% t.bib:1242:Expected http://dx.doi.org/ prefix in DOI value ``"10.1787/5kmd77jhvkjf-en"''.
+%% t.bib:1295:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
+%% t.bib:1315:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0304-3800(00)00256-8"''.
+%% t.bib:1347:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2010.11.022"''.
+%% t.bib:1401:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/978-3-642-27216-5{\_}30"''.
+%% t.bib:1402:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "97-83642-272-1-5-8"''.
+%% t.bib:1402:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "97-83642-272-1-5-8"''.
+%% t.bib:1413:Unexpected value in ``number = "2–3"''.
+%% t.bib:1416:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/0166-218X(90)90100-Q"''.
+%% t.bib:1433:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0921-3449(01)00090-8"''.
+%% t.bib:1459:Unexpected value in ``number = "1–2"''.
+%% t.bib:1462:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0169-2046(01)00162-1"''.
+%% t.bib:1571:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ecolmodel.2012.09.016"''.
+?? "t.bib", line 1586: Non-alphabetic character begins a field name.
+?? "t.bib", line 1586: Expected "=" after field ``??''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commenta{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentd{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentj{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentw{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentf{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentc{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentb{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentb{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentv{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentd{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commentb{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commenta{,''.
+?? "t.bib", line 1586: Expected open brace or parenthesis.  Last entry = ``@Commenty{,''.
+%% t.bib:1683:Unexpected value in ``year = "1798"''.
+%% t.bib:1683:Suspicious year in ``year = "1798"''.
+%% t.bib:1762:Expected http://dx.doi.org/ prefix in DOI value ``"10.1098/rsbl.2010.0588"''.
+%% t.bib:1848:Expected http://dx.doi.org/ prefix in DOI value ``"10.1145/1122012.1122013"''.
+%% t.bib:2087:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.1999.0554"''.
+%% t.bib:2107:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2010.07.031"''.
+%% t.bib:2139:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.012"''.
+%% t.bib:2158:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ecolmodel.2005.02.001"''.
+%% t.bib:2190:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.2000.0737"''.
+%% t.bib:2209:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/11881216{\_}9"''.
+%% t.bib:2210:Invalid checksum for ISBN 978-35404-5-9 in ``ISBN = "97-83540-459-1-4-9"''.
+%% t.bib:2254:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ocecoaman.2010.11.007"''.
+%% t.bib:2306:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0304-3800(96)01904-7"''.
+%% t.bib:2337:Unexpected value in ``volume = "3(1)"''.
+%% t.bib:2350:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f76-017"''.
+%% t.bib:2462:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.039"''.
+%% t.bib:2493:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/s10462-009-9105-x"''.
+%% t.bib:2537:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0140-6701(99)98197-3"''.

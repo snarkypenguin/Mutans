@@ -1,0 +1,3 @@
+#!/bin/bash
+rm -f *.blg *.bbl *.spl *.aux  && pdflatex $1 && bibtex $1 && pdflatex $1&& pdflatex $1
+

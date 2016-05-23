@@ -1,0 +1,2771 @@
+@article{Botkin72:1,
+  author={D.B. Botkin and J.F. Janak and J.R. Wallis},
+  year={1972},
+  title={Rationale, limitations,  and assumptions of a northeastern forest growth simulator},
+  journal={IBM J. Res. Dev.},
+  volume={16},
+  pages={101--116}
+}
+
+@article{Botkin72:2,
+  author={D.B. Botkin and J.F. Janak and J.R. Wallis},
+  year={1972},
+  title={Some ecological consequences of a computer model of forest growth},
+  journal={J. Ecol.},
+  volume={60},
+  pages={849--872}
+}
+
+@article{DeAngelis98:1,
+  author={D.L. DeAngelis and L.J. Gross and M.J. Huston and W.F. Wolff and D.M. Fleming and E.J. Comiskey and S.M. Sylvester},
+  year={1998},
+  title={ Landscape Modelling for Everglades Ecosystem Restoration},
+  journal={Ecosystems},
+  volume={1},
+  pages={64--75}
+}
+
+@book{DeAngelis92:1,
+  editor={D.L. DeAngelis and L.J. Gross},
+  year={1992},
+  title={Individual-Based Models and Approaches in Ecology: Populations, Communities and Ecosystems},
+  publisher={Chapman and Hall},
+  edition={ISBN-10: 0412031612}
+}
+
+@article{Fulton04:1,
+  author={E.A. Fulton and A.D.M. Smith and A.E. Punt},
+  year={2004},
+  title={Which ecological indicators can robustly detect effects of fishing},
+  journal={ICES Journal of Marine Science},
+  series={Journal du Conseil},
+  volume={62},
+  number={3},
+  pages={540--551},
+  eprint={doi:10.1016/j.icesjms.2004.12.012}
+}
+
+@techreport{Gray06:1,
+  author={R. Gray and E. Fulton and R. Little and R. Scott},
+  year={2006},
+  title={Ecosystem model specification within an agent based framework},
+  type={Final Report},
+  institution={CSIRO Australia},
+  series={CSIRO-CMAR NWSJEMS Technical Reports},
+  number={16},
+  note={ISBN 1 921061 80 4 (pbk), ISBN 1 921061 82 0 (pdf)},
+  address={Hobart, Tasmania}
+}
+
+@book {Grimm05:1,
+  author={V. Grimm and S.F. Railsback},
+  year={2005},
+  title={Individual-based Modeling and Ecology},
+  publisher={Princeton University Press},
+  address={Princeton, New Jersey}
+}
+
+@article{Harvey03:1,
+  author={C.J. Harvey and S.P. Cox and T.E. Essington and S. Hansson and J.F. Kitchell},
+  year={2003},
+  title={An ecosystem model of food web and fisheries interactions in the Baltic Sea},
+  journal={ ICES Journal of Marine Science},
+  volume={60},
+  pages={939--950}
+}
+
+@article{Huston88:1,
+  author={M. Huston and D.L. DeAngelis and  W. Post},
+  year={1988},
+  title={New computer models unify ecological theory},
+  journal={BioScience},
+  volume={38},
+  pages={682--691}
+}
+
+@techreport{Lyne94:1,
+  author={V. Lyne and R. Gray and K. Sainsbury and R. Scott},
+  year={1994},
+  title={Integrated Biophysical Model Investications},
+  type={Final Report},
+  series={Research on Jarosite Dumping at  Sea},
+  volume={5},
+  institution={CSIRO Australia, Division of Fisheries},
+  address={Hobart, Tasmania}
+}
+
+@book{Malthus:1,
+  author={Thomas Robert Malthus},
+  year=1798,
+  title={An Essay on the Principle of Population},
+  note={First edition, originally published by J. Johnson, London},
+  publisher={Library of Economics and Liberty},
+  edition={16 Feb 2010},
+  url={http://www.econlib.org/library/Malthus/malPop.html},
+  date={16 February 2010},
+  address={Internet}
+}
+
+@article{Monte09:1,
+  author={L. Monte},
+  year={2009},
+  title={A methodological approach to develop {\em contaminant migration-population effects} models},
+  journal={Ecological Modelling},
+  volume={220},
+  pages={3280--3290}
+}
+
+@misc{Ningaloo:1,
+  month={August},
+  year={2009},
+  url={http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm},
+  institution={Ningaloo Research Program},
+  publisher={Ningaloo Research Program}
+}
+
+@article{Scheffer95:1,
+  author={M. Scheffer and J.M. Baveco and D.L. DeAngelis and K.A. Rose},
+  year={1995},
+  title={Super-individuals: a simple solution for modelling large populations on an individual basis},
+  journal={Ecological Modelling},
+  volume={80},
+  pages={161--170}
+}
+% This file was created with JabRef 2.10.
+% Encoding: UTF-8
+
+
+@InProceedings{Aaby2010,
+  Title                    = {Efficient simulation of agent-based models on
+ multi-{GPU and} multi-core clusters},
+  Author                   = {Aaby, Brandon G. and Perumalla, Kalyan S. and Seal,
+ Sudip K.},
+  Booktitle                = {Proceedings of the 3\textsuperscript{rd} International ICST Conference
+ on Simulation Tools {and} Techniques},
+  Year                     = {2010},
+
+  Address                  = {ICST, Brussels, Belgium, Belgium},
+  Pages                    = {1--10},
+  Publisher                = {ICST (Institute for Computer Sciences,
+ Social-Informatics {and} Telecommunications Engineering)},
+  Series                   = {SIMUTools '10},
+
+  Acmid                    = {1808181},
+  Articleno                = {29},
+  Doi                      = {10.4108/ICST.SIMUTOOLS2010.8822},
+  %ISBN                     = {978-963-979-987-5},
+  Keywords                 = {CUDA, GPU, MPI, agent-based simulation, cluster,
+ computational hierarchy, latency hiding, multi-core, threads},
+  Location                 = {Torremolinos, Malaga, Spain},
+  Numpages                 = {10},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{ABS2012,
+  Title                    = {State {and} Territory Statistical Indicators},
+  Author                   = {ABS},
+  Institution              = {Australian Bueau of Statistics},
+  Year                     = {2012},
+  Month                    = jun,
+  Number                   = {1367.0},
+
+  Owner                    = {randall},
+  Publisher                = {{Commonwealth of Australia.}},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Adelsman2012,
+  Title                    = {Preparing for a Changing Climate: Washington State's Integrated Climate Response Strategy},
+  Author                   = {H. Adelsman and J. Ekrem and L. Whitely~Binder and K. Cook and K. Cooper and L. M. Helbrecht and
+ R. Jamison and J. Phillips and P. Pickett and C. L. Roalkvam and S. Salisbury and D. Siemann
+ and P. Speaks},
+  Institution              = {Dept.of Ecology and Washington State, USA},
+  Year                     = {2012},
+  Month                    = apr,
+  Number                   = {12--01-004},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{Aldinucci2012,
+  Title                    = {Targeting Distributed Systems in FastFlow},
+
+  Author                   = {Aldinucci, M. and Campa, S. and Danelutto, M. and Kilpatrick, P. and Torquati, M.},
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://calvados.di.unipi.it/storage/paper{\_}files/2012{\_}distr{\_}ff{\_}cgsymph.pdf}
+}
+
+@InProceedings{Aldinucci2012a,
+  Title                    = {Fastflow: high-level and efficient streaming on multi-core},
+  Author                   = {Marco Aldinucci and Marco Danelutto and Peter Kilpatrick and Massimo Torquati},
+  Booktitle                = {in Programming Multi-core and Many-core Computing Systems, ser. Parallel and Distributed Computing, S. Pllana},
+  Year                     = {2012},
+  Pages                    = {13},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Allen2011,
+  Title                    = {Pathology {and} failure in the design {and} implementation of adaptive management},
+  Author                   = {Craig R. Allen and Lance H. Gunderson},
+  Journal                  = {Journal of Environmental Management},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for Natural Resources</ce:title>},
+  Number                   = {5},
+  Pages                    = {1379 -- 1384},
+  Volume                   = {92},
+
+  Doi                      = {10.1016/j.jenvman.2010.10.063},
+  ISSN                     = {0301-4797},
+  Keywords                 = {Inference},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0301479710003956}
+}
+
+@Misc{Archer2013(thisissue),
+  Title                    = {Re-conceptualising adaptation to climate change as part of pathways of change and response},
+
+  Author                   = {Emma Archer and Bruce Campbell and Hallie Eakin and Ioan Fazey and Sara Park and Mark Stafford-Smith and Russel Wise},
+  Note                     = {This issue},
+  Year                     = {2013},
+
+  Journal                  = {Global Environmental Change},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{Australian2000,
+  Title                    = {{Australia}n {and N}ew {Z}ealand Guidelines for fresh {and} marine water quality},
+
+  Author                   = {Australian and New Zealand},
+  Note                     = {National Guidelines},
+  Year                     = {2000},
+
+  ISBN                     = {09578245 0 5},
+  Owner                    = {randall},
+  Pages                    = {101--302},
+  Timestamp                = {2015.02.06},
+  Volume                   = {2}
+}
+
+@TechReport{Babcock2009,
+  Title                    = {Lagoon invertebrates final report and monitoring recommendations},
+  Author                   = {R. Babcock and M. Haywood and M. Vanderklift and N. Murphy and G. Clapin and A. Limbourn and D. Kozak and D. Thomson and I. McCleod I and D. Milton and et al.},
+  Institution              = {Western Australia Marine Science Institute},
+  Year                     = {2009},
+  Number                   = {3.2.2d},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Pages                    = {1 -- 40},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{Bakkes2008,
+  Title                    = {The Cost of Policy Inaction: The case of not meeting the 2010~{b}iodiversity target},
+
+  Author                   = {J. Bakkes and K. Bolt and I. Braeuer and B. ten Brink and A. Chiabai and H. Ding and H. Gerdes and M. Jeuken and M. Kettunen and U. Kirchholtes and C. Klok and A. Markandya and P. Nunes and M. van Oorschot and N. Peralta-Bezerra and M. Rayment and C. Travisi and M. Walpole.},
+  Month                    = may,
+  Year                     = {2008},
+
+  Editor                   = {L. Braat and P. ten Brink},
+  Institution              = {{Commision of the European Communities}},
+  Owner                    = {randall},
+  Publisher                = {{Commission of the European Communities}},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Bennett2010,
+  Title                    = {Climate change response strategy},
+  Author                   = {A. Bennett},
+  Institution              = {Department of Agriculture and Food, Western Australia},
+  Year                     = {2010},
+  Month                    = feb,
+  Number                   = {4790},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Berger2001,
+  Title                    = {Agent-based spatial models applied to agriculture: a simulation tool for technology diffusion, resource use changes {and} policy analysis},
+  Author                   = {T. Berger},
+  Journal                  = {Agricultural Economics},
+  Year                     = {2001},
+  Pages                    = {245--260},
+  Volume                   = {25},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Blaber2000,
+  Title                    = {Effects of fishing on the structure {and} functioning of estuarine {and} nearshore ecosystems},
+  Author                   = {Blaber, S.J.M. and Cyrus, D.P. and Albaret, J.-J. and Ching, Chong Ving and Day, J.W. and Elliott, M. and Fonseca, M.S. and Hoss, D.E. and Orensanz, J. and Potter, I.C. and Silvert, W.},
+  Journal                  = {ICES Journal of Marine Science: Journal du Conseil},
+  Year                     = {2000},
+  Number                   = {3},
+  Pages                    = {590--602},
+  Volume                   = {57},
+
+  %Abstract                 = {Estuaries {and} associated coastal waters support many essential fisheries, a fact which contributes to their disproportionately high economic value. They are, however, also among the most extensively modified {and} threatened of aquatic environments. Almost all have been strongly affected by human beings, {and} fisheries are an integral part of human activities on the coast. We have taken a global perspective in synthesizing the effects of fishing on estuaries {and} coastal waters. Rather than attempt to cover all regions of the world in detail, we review eight process-orientated categories affected by fishing, with case studies for each of them: target organisms, non-target organisms, nursery functions, trophic effects, habitat change, reduced water quality, human environment, {and} potential for local extinctions. Fishing in the estuarine {and} nearshore environment has clear impacts on the structure {and} functioning of these ecosystems, although other, non-fishing issues also effect these ecosystems. This creates multiple interactions {and} reinforces the need for an integrated approach to coastal zone management. Nonetheless, some form of fish-based action plan could be created, especially within estuaries, which would provide management objectives for a particular system.},
+  Doi                      = {10.1006/jmsc.2000.0723},
+  Eprint                   = {http://icesjms.oxfordjournals.org/content/57/3/590.full.pdf+html},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://icesjms.oxfordjournals.org/content/57/3/590.abstract}
+}
+
+@InCollection{Boschetti2008,
+  Title                    = {A Turing test for Emergence},
+  Author                   = {Boschetti, Fabio and Gray, Randall},
+  Booktitle                = {Advances in applied self-organizing systems},
+  Publisher                = {Springer},
+  Year                     = {2008},
+  Pages                    = {349--364},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Boschetti2007,
+  Title                    = {Emergence and computability},
+  Author                   = {Boschetti, F and Gray, R},
+  Journal                  = {EMERGENCE-MAHWAH-LAWRENCE ERLBAUM-},
+  Year                     = {2007},
+  Number                   = {1/2},
+  Pages                    = {120},
+  Volume                   = {9},
+
+  Owner                    = {randall},
+  Publisher                = {LAWRENCE ERLBAUM},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Boschetti2008a,
+  Title                    = {Complexity of a modelling exercise: A discussion of the role of computer simulation in complex system science},
+  Author                   = {Boschetti, Fabio and McDonald, David and Gray, Randall},
+  Journal                  = {Complexity},
+  Year                     = {2008},
+  Number                   = {6},
+  Pages                    = {21--28},
+  Volume                   = {13},
+
+  Owner                    = {randall},
+  Publisher                = {Wiley Online Library},
+  Timestamp                = {2015.02.06}
+}
+
+@article{botkin1972some,
+  title={Some ecological consequences of a computer model of forest growth},
+  author={Botkin, Daniel B and Janak, James F and Wallis, James R},
+  journal={The Journal of Ecology},
+  pages={849--872},
+  Volume                   = {60},
+  year={1972},
+  publisher={JSTOR}
+}
+
+@Article{Botkin1972,
+  Title                    = {Rationale, limitations, and assumptions of a northeastern forest growth simulator},
+  Author                   = {D.B. Botkin and J.F. Janak and J.R. Wallis},
+  Journal                  = {IBM J. Res. Dev.},
+  Year                     = {1972},
+  Pages                    = {101--116},
+  Volume                   = {16},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Botkin1972a,
+  Title                    = {Some ecological consequences of a computer model of forest growth},
+  Author                   = {D.B. Botkin and J.F. Janak and J.R. Wallis},
+  Journal                  = {J. Ecol.},
+  Year                     = {1972},
+  Pages                    = {849--872},
+  Volume                   = {60},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Briggs2010,
+  Title                    = {Structured population dynamics: An introduction to integral modeling},
+  Author                   = {Briggs, Joseph and Dabbs, Kathryn and Holm, Michael and Lubben, Joan and Rebarber, Richard and Tenhumberg, Brigitte and Riser-Espinoza, Daniel},
+  Journal                  = {Mathematics Magazine},
+  Year                     = {2010},
+  Number                   = {4},
+  Pages                    = {243--257},
+  Volume                   = {83},
+
+  Owner                    = {randall},
+  Publisher                = {JSTOR},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Buhnerkempe2011,
+  Title                    = {The utility of transient sensitivity for wildlife management and conservation: Bison as a case study},
+  Author                   = {Michael G. Buhnerkempe and Nathanial Burch and Sarah Hamilton and Kerry M. Byrne and Eddie Childers and Kirstin A. Holfelder and Lindsay N. McManus and Matthew I. Pyne and Greg Schroeder and Paul F. Doherty Jr.},
+  Journal                  = {Biological Conservation},
+  Year                     = {2011},
+  Number                   = {6},
+  Pages                    = {1808 -- 1815},
+  Volume                   = {144},
+
+  Doi                      = {10.1016/j.biocon.2011.03.012},
+  ISSN                     = {0006-3207},
+  Keywords                 = {Badlands National Park},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0006320711001066}
+}
+
+@Article{Bunnefeld2011,
+  Title                    = {Management strategy evaluation: a powerful tool for conservation?},
+  Author                   = {N. Bunnefeld and E. Hoshino and E.J. Milner-Gulland},
+  Journal                  = {Trends in ecology and evolution},
+  Year                     = {2011},
+  Volume                   = {26},
+
+  Doi                      = {10.1016/j.tree.2011.05.003},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Cacho1995,
+  Title                    = {A simulation model of grazing sheep: II. Whole farm model},
+  Author                   = {O.J. Cacho and J.D. Finlayson and A.C. Bywater},
+  Journal                  = {Agricultural Systems},
+  Year                     = {1995},
+  Number                   = {1},
+  Pages                    = {27 -- 50},
+  Volume                   = {48},
+
+  Doi                      = {10.1016/0308-521X(95)93644-S},
+  ISSN                     = {0308-521X},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/0308521X9593644S}
+}
+
+@Article{Chi2009,
+  Title                    = {Dynamics of the UK natural gas industry: System dynamics modelling and long-term energy policy analysis},
+  Author                   = {Kong Chyong Chi and William J. Nuttall and David M. Reiner},
+  Journal                  = {Technological Forecasting and Social Change},
+  Year                     = {2009},
+  Number                   = {3},
+  Pages                    = {339 -- 357},
+  Volume                   = {76},
+
+  Doi                      = {10.1016/j.techfore.2008.06.002},
+  ISSN                     = {0040-1625},
+  Keywords                 = {System dynamics},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S004016250800125X}
+}
+
+@InProceedings{Cioffi-Revilla2009,
+  Title                    = {MASON AfriLand: A regional multi-country agent-based model with cultural and environmental dynamics},
+  Author                   = {Cioffi-Revilla, C. and Rouleau, M.},
+  Booktitle                = {Proceedings of the Human Behavior-Computational Modeling and Interoperability Conference},
+  Year                     = {2009},
+  Organization             = {Citeseer},
+  Pages                    = {23--24},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{ClarenceCityCouncil2008,
+  Title                    = {Climate change impacts on Clarence coastal areas},
+
+  Author                   = {Clarence City Council, Tasmania},
+  Month                    = dec,
+  Note                     = {Report prepared by the UNSW Water Research Laboratory and SGS Economics {and} Planning},
+  Year                     = {2008},
+
+  Institution              = {Clarence City Council, Tasmania},
+  Owner                    = {randall},
+  Publisher                = {Clarence City Council, Tasmania},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{ClimAID2011,
+  Title                    = {Responding to Climate Change in New York State},
+
+  Author                   = {ClimAID, New York State},
+  Month                    = nov,
+  Year                     = {2011},
+
+  Editor                   = {Cynthia Rosenzweig and William Solecki and Arthur DeGaetano and Megan O’Grady and Susan Hassol and Paul Grabhorn (eds)},
+  Institution              = {New York State Energy Research and Development Authority},
+  Number                   = {11--18},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{Collier2003,
+  Title                    = {Onward and upward: the transition to Repast 2.0},
+  Author                   = {Collier, N. and Howe, T. and North, M.},
+  Booktitle                = {First Annual North American Association for Computational Social and Organizational Science Conference, Pittsburgh, PA},
+  Year                     = {2003},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+
+@article{Collier06112012,
+author = {Collier, Nicholson and North, Michael}, 
+title = {Parallel agent-based simulation with Repast for High Performance Computing},
+year = {2012}, 
+doi = {10.1177/0037549712462620}, 
+%abstract ={In the last decade, agent-based modeling and simulation (ABMS) has been applied to a variety of domains, demonstrating the potential of this technique to advance science, engineering, and policy analysis. However, realizing the full potential of ABMS to find breakthrough research results requires far greater computing capability than is available through current ABMS tools. The Repast for High Performance Computing (Repast HPC) project addresses this need by developing a useful and useable next-generation ABMS system explicitly focusing on larger-scale distributed computing platforms. Repast HPC is intended to smooth the path from small-scale simulations to large-scale distributed simulations through the use of a Logo-like system. This article’s contribution is its detailed presentation of the implementation of Repast HPC as a useful and usable framework, a complete ABMS platform developed explicitly for larger-scale distributed computing systems that leverages modern C++ techniques and the ReLogo language.}, 
+URL = {http://sim.sagepub.com/content/early/2012/10/22/0037549712462620.abstract}, 
+eprint = {http://sim.sagepub.com/content/early/2012/10/22/0037549712462620.full.pdf+html}, 
+journal = {SIMULATION} 
+}
+
+@article{Collier01102013,
+author = {Collier, Nicholson and North, Michael}, 
+title = {Parallel agent-based simulation with Repast for High Performance Computing},
+volume = {89}, 
+number = {10}, 
+pages = {1215-1235}, 
+year = {2013}, 
+doi = {10.1177/0037549712462620}, 
+%abstract ={In the last decade, agent-based modeling and simulation (ABMS) has been applied to a variety of domains, demonstrating the potential of this technique to advance science, engineering, and policy analysis. However, realizing the full potential of ABMS to find breakthrough research results requires far greater computing capability than is available through current ABMS tools. The Repast for High Performance Computing (Repast HPC) project addresses this need by developing a useful and useable next-generation ABMS system explicitly focusing on larger-scale distributed computing platforms. Repast HPC is intended to smooth the path from small-scale simulations to large-scale distributed simulations through the use of a Logo-like system. This article’s contribution is its detailed presentation of the implementation of Repast HPC as a useful and usable framework, a complete ABMS platform developed explicitly for larger-scale distributed computing systems that leverages modern C++ techniques and the ReLogo language.}, 
+URL = {http://sim.sagepub.com/content/89/10/1215.abstract}, 
+eprint = {http://sim.sagepub.com/content/89/10/1215.full.pdf+html}, 
+journal = {SIMULATION} 
+}
+
+
+@TechReport{CEC2009,
+  Title                    = {Adapting to climate change: Toward a {E}uropean framework for action},
+  Author                   = {{Commission of the European Communities}},
+  Institution              = {{Commision of the European Communities}},
+  Year                     = {2009},
+  Month                    = apr,
+
+  Owner                    = {randall},
+  Publisher                = {{Commission of the European Communities}},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{Dam2007,
+  Title                    = {Planning the Location of Intermodal Freight Hubs: An Agent Based Approach},
+  Author                   = {K.H. van Dam and Z. Lukszo and L. Ferreira L and A. Sirikijpanichkul},
+  Booktitle                = {Proceedings of the 2007 IEEE International Conference on Networking, Sensing and Control},
+  Year                     = {2007},
+  Month                    = apr,
+  Pages                    = {187--192},
+
+  Date                     = {15-17 April 2007},
+  Location                 = {London, UK},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{DeAngelis1998,
+  Title                    = {Landscape Modelling for Everglades Ecosystem Restoration},
+  Author                   = {D.L. DeAngelis and L.J. Gross and M.J. Huston and W.F. Wolff and D.M. Fleming and E.J. Comiskey and S.M. Sylvester},
+  Journal                  = {Ecosystems},
+  Year                     = {1998},
+  Pages                    = {64--75},
+  Volume                   = {1},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Unpublished{DepartmentofFisheries,
+  Title                    = {Creel survey},
+  Author                   = {Department of Fisheries, W.A.},
+  Note                     = {personal communication},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{DepartmentofFisheriesa,
+  Title                    = {Regulatory environment},
+
+  Author                   = {Department of Fisheries, W.A.},
+  Note                     = {public records},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Dept.ofClimateChangeandWater2010,
+  Title                    = {NSW Climate Impact Profile},
+  Author                   = {Dept. of Climate Change {and} Water, NSW},
+  Institution              = {Department of Climate Change and Water, NSW},
+  Year                     = {2010},
+  Month                    = jun,
+
+  ISBN                     = {978 1 74232 259 9},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{ClimateChange2010,
+  Title                    = {Adapting to climate change: An {A}ustralian {G}overnment white paper},
+  Author                   = {{Dept. of Climate Change, Australian Govt}},
+  Institution              = {Department of Climate Change},
+  Year                     = {2010},
+
+  ISBN                     = {978-1-921298-81-3},
+  Owner                    = {randall},
+  Publisher                = {{Department of Climate Change, Commonwealth of Australia}},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.climatechange.gov.au}
+}
+
+@Article{Downing2012,
+  Title                    = {Views of the frontiers in climate change adaptation economics},
+  Author                   = {Downing, Thomas E.},
+  Journal                  = {Wiley Interdisciplinary Reviews: Climate Change},
+  Year                     = {2012},
+  Number                   = {2},
+  Pages                    = {161--170},
+  Volume                   = {3},
+
+  Doi                      = {10.1002/wcc.157},
+  ISSN                     = {1757-7799},
+  Owner                    = {randall},
+  Publisher                = {John Wiley \& Sons, Inc.},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Dyson2005,
+  Title                    = {Forecasting municipal solid waste generation in a fast-growing urban region with system dynamics modeling},
+  Author                   = {B. Dyson and N.B. Chang},
+  Journal                  = {Waste Management},
+  Year                     = {2005},
+  Pages                    = {669--679},
+  Volume                   = {25},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Dzidic2011,
+  Title                    = {Ningaloo Collaboration Cluster: Ningaloo Client Outreach},
+  Author                   = {P.L. Dzidic and G.J. Syme and J.M. Dambacher and S. Malkin},
+  Institution              = {Ningaloo Collaboration Cluster},
+  Year                     = {2011},
+
+  Address                  = {Hobart, Tasmania},
+  Month                    = jun,
+  Number                   = {5.4},
+
+  ISBN                     = {Print: 781921826399, Web: 9781921826405 (ebook) www.Ningaloo.org.au},
+  Owner                    = {randall},
+  Series                   = {Ningaloo Cluster Final Reports},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm}
+}
+
+@Misc{Environment,
+  Title                    = {Regulatory environment},
+
+  Author                   = {Department of Environment and Conservation, W.A.},
+  Note                     = {public records},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Filatova2011,
+  Title                    = {Land market mechanisms for preservation of space for coastal ecosystems: An agent-based analysis},
+  Author                   = {Tatiana Filatova and Alexey Voinov and Anne van der Veen},
+  Journal                  = {Environmental Modelling \& Software},
+  Year                     = {2011},
+  Number                   = {2},
+  Pages                    = {179--190},
+  Volume                   = {26},
+
+  Akeywords                = {Ecosystem services},
+  Doi                      = {10.1016/j.envsoft.2010.08.001},
+  ISSN                     = {1364-8152},
+  Keywords                 = {Agent-based modelling},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S1364815210002136}
+}
+
+@Article{Fontaine2011,
+  Title                    = {Improving our legacy: Incorporation of adaptive management into state wildlife action plans},
+  Author                   = {Joseph J. Fontaine},
+  Journal                  = {Journal of Environmental Management},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for Natural Resources</ce:title>},
+  Number                   = {5},
+  Pages                    = {1403--1408},
+  Volume                   = {92},
+
+  Doi                      = {10.1016/j.jenvman.2010.10.015},
+  ISSN                     = {0301-4797},
+  Keywords                 = {Adaptive management},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0301479710003440}
+}
+
+@Article{Francis1992,
+  Title                    = {Use of Risk Analysis to Assess Fishery Management Strategies: A Case Study using Orange Roughy (Hoplostethus atlanticus) on the Chatham Rise, {New Zealand}},
+  Author                   = {Francis, R.I.C.C.},
+  Journal                  = {Canadian Journal of Fisheries and Aquatic Sciences},
+  Year                     = {1992},
+  Number                   = {5},
+  Pages                    = {922--930},
+  Volume                   = {49},
+
+  Doi                      = {10.1139/f92-102},
+  Eprint                   = {http://www.nrcresearchpress.com/doi/pdf/10.1139/f92-102},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Francis1997,
+  Title                    = {{\^{a}}Risk{\^{a}} in fisheries management: a review},
+  Author                   = {R.I.C.C. Francis and R. Shotton},
+  Journal                  = {Canadian Journal of Fisheries and Aquatic Sciences},
+  Year                     = {1997},
+  Number                   = {8},
+  Pages                    = {1699--1715},
+  Volume                   = {54},
+
+  Doi                      = {10.1139/f97-100},
+  Eprint                   = {http://www.nrcresearchpress.com/doi/pdf/10.1139/f97-100},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@article{fulton2011lessons,
+  title={Lessons in modelling and management of marine ecosystems: the Atlantis experience},
+  author={Fulton, Elizabeth A and Link, Jason S and Kaplan, Isaac C and Savina-Rolland, Marie and Johnson, Penelope and Ainsworth, Cameron and Horne, Peter and Gorton, Rebecca and Gamble, Robert J and Smith, Anthony DM and others},
+  journal={Fish and Fisheries},
+  volume={12},
+  number={2},
+  pages={171--188},
+  year={2011},
+  publisher={Wiley Online Library}
+}
+
+@Misc{Fulton2011pcomm,
+  Author                   = {E.A. Fulton},
+  Note                     = {Personal communication},
+  Year                     = {2011},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+
+@Article{Fulton2010approaches,
+  Title                    = {Approaches to end-to-end ecosystem models},
+  Author                   = {E.A. Fulton},
+  Journal                  = {Journal of Marine Systems},
+  Year                     = {2010},
+  Number                   = {1},
+  Pages                    = {171--183},
+  Volume                   = {81},
+
+  Owner                    = {randall},
+  Publisher                = {Elsevier},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2008,
+  Title                    = {Modelling for management: news from Ningaloo},
+  Author                   = {Fulton, EA and Gray, R and Scott, R and Sporcic, M},
+  Journal                  = {DiscoveringNingaloo},
+  Year                     = {2008},
+  Pages                    = {91},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2009crossingscales,
+  Title                    = {Challenges of crossing scales and drivers in modelling marine systems},
+  Author                   = {Fulton, EA and Gray, R and Sporcic, M and Scott, R and Hepburn, M},
+  Journal                  = {18th World IMACS Congress and MODSIM09 International Congress on Modelling and Simulation’, July},
+  Year                     = {2009},
+  Pages                    = {2108--2114},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Fulton2011ningaloo,
+  Title                    = {Ningaloo Collaboration Cluster: Adaptive Futures for Ningaloo},
+  Author                   = {E.A. Fulton and R. Gray and M. Sporcic and R. Scott and L.R. Little and M. Hepburn and B. Gorton and B. Hatfield and M. Fuller and T. Jones and W. De la Mare and F. Boschetti and K. Chapman and P. Dzidic and G. Syme and Dambacher J and D. McDonald},
+  Institution              = {Ningaloo Collaboration Cluster},
+  Year                     = {2011},
+
+  Address                  = {Hobart, Tasmania},
+  Month                    = oct,
+  Number                   = {5.3},
+
+  ISBN                     = {Print: 978-0-643-10716-8, Web: 978-0-643-10717-5},
+  Owner                    = {randall},
+  Series                   = {Ningaloo Cluster Final Reports},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm}
+}
+
+@Article{Fulton,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro-Input data},
+  Author                   = {Fulton, Elizabeth and Little, L Richard and Gray, Randall and Scott, Roger},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fultona,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-3x3x3~{C}onfiguration files},
+  Author                   = {Fulton, Elizabeth and Little, L Richard and Gray, Randall and Scott, Roger},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Fulton2006,
+  Title                    = {Multiple Use Management Strategy Evaluation for the North West Shelf specification for {A}ustralia's {N}orth {W}est {S}helf},
+  Author                   = {E.A. Fulton and A.D. McDonald and D. Hayes and V. Lyne and L.R. Little and R. Gray and M. Fuller and S. Condie and R. Scott and H. Webb and B. Hatfield and M. Martin and K. Sainsbury},
+  Institution              = {CSIRO Australia},
+  Year                     = {2006},
+
+  Address                  = {Hobart, Tasmania},
+  Number                   = {15},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Series                   = {CSIRO-CMAR NWSJEMS Technical Reports},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2004b,
+  Title                    = {Biogeochemical marine ecosystem models. II: the effect of physiological detail on model performance},
+  Author                   = {E.A. Fulton and J.S. Parslow and A.D.M. Smith and C.R. Johnson},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2004},
+  Pages                    = {371--406},
+  Volume                   = {173},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2004c,
+  Title                    = {Biogeochemical marine ecosystem models. I: IGBEM -- a model of marine bay ecosystems},
+  Author                   = {E.A. Fulton and A.D.M. Smith and C.R. Johnson},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2004},
+  Pages                    = {267--307},
+  Volume                   = {174},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2004d,
+  Title                    = {Effects of spatial resolution on the performance and interpretation of marine ecosystem models},
+  Author                   = {E.A. Fulton and A.D.M. Smith and C.R. Johnson},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2004},
+  Pages                    = {27--42},
+  Volume                   = {176},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@PhdThesis{Fulton2003,
+  Title                    = {Effect of complexity on marine ecosystem models},
+  Author                   = {Fulton, E.A. and Smith, A.D.M. and Johnson, C.R.},
+  Year                     = {2003},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Fulton2004,
+  Title                    = {Which ecological indicators can robustly detect effects of fishing},
+  Author                   = {E.A. Fulton and A.D.M. Smith and A.E. Punt},
+  Journal                  = {ICES Journal of Marine Science},
+  Year                     = {2004},
+  Number                   = {3},
+  Pages                    = {540--551},
+  Volume                   = {62},
+
+  Eprint                   = {doi:10.1016/j.icesjms.2004.12.012},
+  Owner                    = {randall},
+  Series                   = {Journal du Conseil},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Fulton2007,
+  Title                    = {Alternative management strategies for {S}outheast {A}ustralian {C}ommonwealth {F}isheries: Stage 2: Quantitative Management Strategy Evaluation},
+  Author                   = {E.A. Fulton and A.D.M. Smith and D.C. Smith},
+  Institution              = {CSIRO Australia},
+  Year                     = {2007},
+  Month                    = jun,
+
+  Owner                    = {randall},
+  Publisher                = {CSIRO Australia},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Gao2011,
+  Title                    = {Ranking management strategies with complex outcomes: An AHP-fuzzy evaluation of recreational fishing using an integrated agent-based model of a coral reef ecosystem},
+  Author                   = {Gao, L. and Hailu, A.},
+  Journal                  = {Environmental Modelling \& Software},
+  Year                     = {2011},
+
+  Owner                    = {randall},
+  Publisher                = {Elsevier},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Gimblett2003,
+  Title                    = {Deriving artificial models of visitors from dispersed patterns of use in the Sierra Nevada Wilderness, California},
+  Author                   = {Randy Gimblett and John Lynch and Terry Daniel and Lisa Ribes and Garry Oye},
+  Journal                  = {Journal for Nature Conservation},
+  Year                     = {2003},
+  Pages                    = {287--296},
+  Volume                   = {11},
+  number                   = {4},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{Gray2006nws,
+  Title                    = {Operating model specification within an agent based framework. North West Shelf Joint Environmental Management Study Technical Report},
+  Author                   = {Gray, R and Fulton, EA and Little, LR and Scott, R},
+  Publisher                = {CSIRO, Hobart, Tasmania},
+  Year                     = {2006},
+
+  Address                  = {Hobart, Tasmania},
+  Note                     = {ISBN 1 921061 80 4 (pbk), ISBN 1 921061 82 0 (pdf)},
+  Number                   = {16},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Series                   = {CSIRO-CMAR NWSJEMS Technical Reports},
+  Timestamp                = {2015.02.06}
+}
+
+@Unpublished{GrayUnpublishedGape,
+ author = {Gray, Randall},
+ title = {Gape limited predation in InVitro},
+ Note = {Working document, available from Randall.Gray@limnal.net},
+ type = {Working paper},
+ organization = {CSIRO},
+ year = {2009},
+ email = {Randall.Gray\@limnal.net},
+ pages = {5}
+}
+
+@article{Gray2012adaptive,
+ author = {Gray, Randall and Wotherspoon, Simon},
+ title = {Increasing Model Efficiency by Dynamically Changing Model Representations},
+ journal = {Environ. Model. Softw.},
+ issue_date = {April, 2012},
+ volume = {30},
+ month = apr,
+ year = {2012},
+ issn = {1364-8152},
+ pages = {115--122},
+ numpages = {8},
+ doi = {10.1016/j.envsoft.2011.08.012},
+ acmid = {2108432},
+ publisher = {Elsevier Science Publishers B. V.},
+ address = {Amsterdam, The Netherlands, The Netherlands},
+ keywords = {Contaminant uptake, Equation-based model, Individual-based model, Integrated model, Model efficiency, Model structure},
+}
+  
+@incollection{Gray2014,
+year={2014},
+isbn={978-1-4614-6133-3},
+booktitle={Empirical Agent-Based Modelling - Challenges and Solutions},
+editor={Smajgl, Alexander and Barreteau, Olivier},
+doi={10.1007/978-1-4614-6134-0_4},
+title={Human-Ecosystem Interaction in Large Ensemble-Models},
+publisher={Springer New York},
+author={Gray, Randall and Fulton, Elizabeth A. and Little, Richard},
+pages={53-83}
+}
+
+@TechReport{RSA2011,
+  Title                    = {National Climate Change Response White Paper},
+  Author                   = {{Govt. of the Republic of South Africa}},
+  Institution              = {{Government of the Republic of South Africa}},
+  Year                     = {2011},
+  Month                    = oct,
+
+  Owner                    = {randall},
+  Publisher                = {{Government of the Republic of South Africa}},
+  Timestamp                = {2015.02.06}
+}
+  
+@Book{Grimm2005,
+  Title                    = {Individual-based Modeling and Ecology},
+  Author                   = {V. Grimm and S.F. Railsback},
+  Publisher                = {Princeton University Press},
+  Year                     = {2005},
+
+  Address                  = {Princeton, New Jersey},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{Grimm2005a,
+  Title                    = {Individual-based Modeling and Ecology: (Princeton Series in Theoretical and Computational Biology)},
+  Author                   = {Grimm, Volker and Railsback, Steven F.},
+  Publisher                = {Princeton University Press},
+  Year                     = {2005},
+  Month                    = jul,
+
+  Citeulike-linkout-3      = {http://www.amazon.jp/exec/obidos/ASIN/069109666X},
+  Citeulike-linkout-4      = {http://www.amazon.co.uk/exec/obidos/ASIN/069109666X/citeulike00-21},
+  Citeulike-linkout-9      = {http://www.librarything.com/isbn/069109666X},
+  Day                      = {05},
+  HowPublished             = {Paperback},
+  ISBN                     = {069109666X},
+  Keywords                 = {ecology, modeling},
+  Owner                    = {randall},
+  Posted-at                = {2011-08-02 11:39:32},
+  Priority                 = {2},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.worldcat.org/isbn/069109666X}
+}
+
+@article{Grimm2010odd,
+  title={The ODD protocol: a review and first update},
+  author={Grimm, Volker and Berger, Uta and DeAngelis, Donald L and Polhill, J Gary and Giske, Jarl and Railsback, Steven F},
+  journal={Ecological modelling},
+  volume={221},
+  number={23},
+  pages={2760--2768},
+  year={2010},
+  publisher={Elsevier}
+}
+
+
+
+@article{CowAreaCoverage,
+  Title                      = {GPS Tracking to boost sustainability},
+  Author                     = {Tomkins, Nigel and Filmer, Mark},
+  Publisher                  = {Kondinin Group},
+  Year                       = {2007},
+  Month                      = {June},
+  Journal                    = {Farming Ahead},
+  Volume                     = {185},
+  Pages                      = {68--71},
+  HowPublished               = {Magazine}
+}
+
+
+
+@Article{Grumbine1994,
+  Title                    = {What Is Ecosystem Management?},
+  Author                   = {Grumbine, R.E.},
+  Journal                  = {Conservation Biology},
+  Year                     = {1994},
+  Number                   = {1},
+  Pages                    = {27--38},
+  Volume                   = {8},
+
+  Doi                      = {10.1046/j.1523-1739.1994.08010027.x},
+  ISSN                     = {1523-1739},
+  Owner                    = {randall},
+  Publisher                = {Blackwell Science Inc},
+  Timestamp                = {2015.02.06}
+}
+
+@inproceedings{johnson1992damage,
+  title={Damage, scale and recovery in model coral communities: the importance of system state},
+  author={Johnson, Craig R and Preece, Ann L},
+  booktitle={Proceedings of the 7th International Coral Reef Symposium},
+  volume={1},
+  pages={606--615},
+  year={1992}
+}
+
+@Article{Haasnoot2013,
+  Title                    = {Dynamic adaptive policy pathways: A method for crafting robust decisions for a deeply uncertain world},
+  Author                   = {Marjolijn Haasnoot and Jan H. Kwakkel and Warren E. Walker and Judith ter Maat},
+  Journal                  = {Global Environmental Change},
+  Year                     = {2013},
+  Number                   = {0},
+  Volume                   = {in press},
+
+  Doi                      = {10.1016/j.gloenvcha.2012.12.006},
+  ISSN                     = {0959-3780},
+  Keywords                 = {Uncertainty},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S095937801200146X}
+}
+
+@Article{Haasnoot2012,
+  Title                    = {Exploring pathways for sustainable water management in river deltas in a changing environment},
+  Author                   = {Haasnoot, Marjolijn and Middelkoop, Hans and Offermans, Astrid and Beek, Eelcovan and Deursen, WillemP.A.van},
+  Journal                  = {Climatic Change},
+  Year                     = {2012},
+  Number                   = {3-4},
+  Pages                    = {795--819},
+  Volume                   = {115},
+
+  Doi                      = {10.1007/s10584-012-0444-2},
+  ISSN                     = {0165-0009},
+  Language                 = {English},
+  Owner                    = {randall},
+  Publisher                = {Springer Netherlands},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Harvey2003,
+  Title                    = {An ecosystem model of food web and fisheries interactions in the Baltic Sea},
+  Author                   = {C.J. Harvey and S.P. Cox and T.E. Essington and S. Hansson and J.F. Kitchell},
+  Journal                  = { ICES Journal of Marine Science},
+  Year                     = {2003},
+  Pages                    = {939--950},
+  Volume                   = {60},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Hilborn1979,
+Title                    = {Comparison of Fisheries Control Systems That Utilize Catch and Effort Data},
+  Author                   = {Hilborn, Ray},
+  Journal                  = {Journal of the Fisheries Research Board of Canada},
+  Year                     = {1979},
+  Number                   = {12},
+  Pages                    = {1477--1489},
+  Volume                   = {36},
+
+  Doi                      = {10.1139/f79-215},
+  Eprint                   = {http://www.nrcresearchpress.com/doi/pdf/10.1139/f79-215},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Holl2010,
+  Title                    = {Management Strategy Evaluation and Management Procedures: Tools for Rebuilding and Sustaining Fisheries},
+  Author                   = {D. Holland},
+  Year                     = {2010},
+  Number                   = {25},
+
+  Doi                      = {10.1787/5kmd77jhvkjf-en},
+  Owner                    = {randall},
+  Publisher                = {OECD Publishing},
+  Series                   = {OECD Food, Agriculture and Fisheries Working Papers},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Huston1988,
+  Title                    = {New computer models unify ecological theory},
+  Author                   = {M. Huston and D.L. DeAngelis and W. Post},
+  Journal                  = {BioScience},
+  Year                     = {1988},
+  Pages                    = {682--691},
+  Volume                   = {38},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{2012,
+  Title                    = {$\emptyset${MQ}: {T}he {I}ntelligent {T}ransport {L}ayer},
+
+  Author                   = {{iMatix Corp.}},
+  Month                    = nov,
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.zeromq.org}
+}
+
+@InBook{IPCC2007,
+  Title                    = {The physical science basis},
+  Author                   = {IPCC},
+  Pages                    = {1--996},
+  Publisher                = {Cambridge University Press},
+  Year                     = {2007},
+
+  Booktitle                = {Contribution of Working Group I to the Fourth Assessement Report of the Intergovernmental Panel on Climate Change},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{Isidoro2009,
+  Title                    = {Artificial Life Model of Dengue Host-Vector Disease Propagation},
+  Author                   = {Carlos Filipe Fernandes Isidoro and Nuno Fachada and F\'abio Andr\'e dos Santos Barata and Agostinho Cl\'audio da Rosa},
+  Booktitle                = {INSTICC, International Conference on Evolutionary Computation 2009},
+  Year                     = {2009},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf}
+}
+
+@Article{Janssen2000,
+  Title                    = {{An adaptive agent model for analysing co-evolution of management and policies in a complex rangeland system}},
+  Author                   = {Janssen, Marco A. and Walker, Brian H. and Langridge, Jenny and Abel, Nick},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2000},
+
+  Month                    = jul,
+  Number                   = {2--3},
+  Pages                    = {249--268},
+  Volume                   = {131},
+
+%  Abstract                 = {{This paper describes an adaptive agent model of rangelands based on concepts of complex adaptive systems. The behavioural and biological processes of pastoralists, regulators, livestock, grass and shrubs are modelled as well as the interactions between these components. The evolution of the rangeland system is studied under different policy and institutional regimes that affect the behaviour and learning of pastoralists, and hence the state of the ecological system. Adaptive agent models show that effective learning and effective ecosystem management do not necessarily coincide and can suggest potentially useful alternatives to the design of policies and institutions.}},
+  Citeulike-article-id     = {1938657},
+  Citeulike-linkout-0      = {10.1016/S0304-3800(00)00256-8},
+  Citeulike-linkout-1      = {http://www.sciencedirect.com/science/article/B6VBS-40V4BS0-B/2/f29bb5aa277b61472fd511cf1341f8c5},
+  Day                      = {1},
+  Doi                      = {10.1016/S0304-3800(00)00256-8},
+  Keywords                 = {agent, agriculture, ecology, model, simulation},
+  Owner                    = {randall},
+  Posted-at                = {2008-11-03 15:32:18},
+  Priority                 = {2},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Jones2010,
+  Title                    = {Building a sustainable planning tool for {A}ustralian tourism destinations},
+  Author                   = {T. Jones and D. Wood and et al.},
+  Institution              = {Ningaloo Collaboration Cluster},
+  Year                     = {2010},
+
+  Address                  = {Perth, Western Australia},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Keith2011,
+  Title                    = {Uncertainty and adaptive management for biodiversity conservation},
+  Author                   = {David A. Keith and Tara G. Martin and Eve McDonald-Madden and Carl Walters},
+  Journal                  = {Biological Conservation},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for biodiversity conservation in an uncertain world</ce:title>},
+  Number                   = {4},
+  Pages                    = {1175 -- 1178},
+  Volume                   = {144},
+
+  Doi                      = {10.1016/j.biocon.2010.11.022},
+  ISSN                     = {0006-3207},
+  Keywords                 = {Experimental management},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0006320710004933}
+}
+
+@InProceedings{Kennedy2010,
+  Title                    = {An agent-based model of conflict in East {Africa} and the effect of watering holes},
+  Author                   = {Kennedy, W.G. and Hailegiorgis, A.B. and Rouleau, M. and Bassett, J.K. and Coletti, M. and Balan, G.C. and Gulden, T.},
+  Booktitle                = {Proceedings of the 19\textsuperscript{th} Conference on Behavior Representation in Modeling and Simulation (BRiMS)},
+  Year                     = {2010},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Lopez-Sanchez2005,
+  Title                    = {Multi-Agent Based Simulation of News Digital Markets},
+  Author                   = {M. L\`opez-S\`anchez and X. Noria and J.A. Rodr\'iguez and N. Gilbert},
+  Journal                  = {International Journal of Computer Science \& Applications},
+  Year                     = {2005},
+  Number                   = {1},
+  Pages                    = {7--14},
+  Volume                   = {2},
+
+  Owner                    = {randall},
+  Rurl                     = {http://www.tmrfindia.org/ijcsa/v21.html},
+  Timestamp                = {2015.02.06}
+}
+
+@InCollection{Laclavik2012,
+  Title                    = {Agent-Based Simulation Platform Evaluation in the Context of Human Behavior Modeling},
+  Author                   = {Laclav{\'{\i}}k, Michal and Dlugolinsk{\'{y}}, {\v{S}}tefan and {\v{S}}eleng, Martin and Kvassay, Marcel and Schneider, Bernhard and Bracker, Holger and Wrzeszcz, Micha{\l} and Kitowski, Jacek and Hluch{\'{y}}, Ladislav},
+  Booktitle                = {Advanced Agent Technology},
+  Publisher                = {Springer Berlin Heidelberg},
+  Year                     = {2012},
+  Editor                   = {Dechesne, Francien and Hattori, Hiromitsu and Mors, Adriaan and Such, JoseMiguel and Weyns, Danny and Dignum, Frank},
+  Pages                    = {396--410},
+  Series                   = {Lecture Notes in Computer Science},
+  Volume                   = {7068},
+
+  Doi                      = {10.1007/978-3-642-27216-5{\_}30},
+  ISBN                     = {978-3-642-27215-8},
+  Keywords                 = {agent-based simulation; human behavior modeling},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Laporte1990,
+  Title                    = {The selective travelling salesman problem},
+  Author                   = {Gilbert Laporte and Silvano Martello},
+  Journal                  = {Discrete Applied Mathematics},
+  Year                     = {1990},
+  Number                   = {2–3},
+  Pages                    = {193 -- 207},
+  Volume                   = {26},
+
+  Doi                      = {10.1016/0166-218X(90)90100-Q},
+  ISSN                     = {0166-218X},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/0166218X9090100Q}
+}
+
+@Article{Leao2001,
+  Title                    = {Assessing the demand of solid waste disposal in urban region by urban dynamics modelling in a {GIS} environment},
+  Author                   = {Simone Leao and Ian Bishop and David Evans},
+  Journal                  = {Resources, Conservation and Recycling},
+  Year                     = {2001},
+  Number                   = {4},
+  Pages                    = {289 -- 313},
+  Volume                   = {33},
+
+  Doi                      = {10.1016/S0921-3449(01)00090-8},
+  ISSN                     = {0921-3449},
+  Keywords                 = {Urban solid waste},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0921344901000908}
+}
+
+@Article{Ligtenberg1999,
+  Title                    = {An Integrated Model of Oil Production},
+  Author                   = {A. Ligtenberg and A.K. Bregt and J.R. Moroney and M.D. Berg},
+  Journal                  = {The Energy Journal},
+  Year                     = {1999},
+  Volume                   = {20},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Ligtenberg2001,
+  Title                    = {Multi-actor-based land use modelling: spatial planning using agents},
+  Author                   = {Arend Ligtenberg and Arnold K. Bregt and Ron van Lammeren},
+  Journal                  = {Landscape and Urban Planning},
+  Year                     = {2001},
+  Number                   = {1–2},
+  Pages                    = {21 -- 33},
+  Volume                   = {56},
+
+  Doi                      = {10.1016/S0169-2046(01)00162-1},
+  ISSN                     = {0169-2046},
+  Keywords                 = {Multi-agent systems},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0169204601001621}
+}
+
+@Unpublished{Little2012,
+  Author                   = {L.R. Little},
+  Note                     = {personal communication, unpublished paper},
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Little2006a,
+  Title                    = {Multiple use management strategy evaluation for the North West Shelf: results and discussion. North West Shelf joint environmental management study},
+  Author                   = {Little, LR and Fulton, EA and Gray, R and Hayes, D and Lyne, V and Scott, R and Sainsbury, K and McDonald, AD},
+  Institution              = {Technical Report 14, CSIRO, Hobart, Tasmania. p 516},
+  Year                     = {2006},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Little2006nws,
+  Title                    = {Management Strategy Evaluation results and discussion for the North West Shelf},
+  Author                   = {L.R. Little and E.A. Fulton and R. Gray and D. Hayes and R. Scott and A.D. McDonald and K. Sainsbury},
+  Institution              = {CSIRO Australia},
+  Year                     = {2006},
+
+  Address                  = {Hobart, Tasmania},
+  Note                     = {ISBN 1 921061 74 X (pbk), ISBN 1 921061 76 6 (pdf)},
+  Number                   = {14},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Series                   = {CSIRO-CMAR NWSJEMS Technical Reports},
+  Timestamp                = {2015.02.06}
+}
+
+@Unpublished{Little,
+  Title                    = {Evaluation of fisheries related management strategies for integrated regional marine management on the {N}orth {W}est {S}helf of {A}ustralia},
+  Author                   = {L.R. Little and R. Gray and E.A. Fulton and A.D. McDonald and K.J. Sainsbury},
+  Note                     = {personal communication, unpublished paper},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Little2011,
+  Title                    = {An Evaluation of Management Strategies for Line Fishing in the Ningaloo Marine Park},
+  Author                   = {L.R. Little and O. Th\'ebaud and F. Boschetti and A.D. McDonald and R. Marriott and B. Wise and R. Lenanton},
+  Institution              = {Ningaloo Collaboration Cluster},
+  Year                     = {2011},
+
+  Address                  = {Hobart, Tasmania},
+  Number                   = {3.2.3},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Series                   = {Ningaloo Cluster Final Reports},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm}
+}
+
+@Article{Littlea,
+  Title                    = {InVitro--Agents in a glass-a spatially explicit agent based model for regional marine ecosystems and economies},
+  Author                   = {Little, L Richard and Gray, Randall and Fulton, Beth},
+  Journal                  = {In Hot Water: preparing for climate change in Australia’s coastal and marine systems},
+  Pages                    = {67},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Liu2013,
+  Title                    = {Linking pesticide exposure and spatial dynamics: An individual-based model of wood mouse ( Apodemus sylvaticus) populations in agricultural landscapes},
+  Author                   = {Liu, C. and Sibly, R.M. and Grimm, V. and Thorbek, P.},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2013},
+  Pages                    = {92--102},
+  Volume                   = {248},
+
+  Owner                    = {randall},
+  Publisher                = {Elsevier},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Liu2013a,
+  Title                    = {Linking pesticide exposure and spatial dynamics: An individual-based model of wood mouse (Apodemus sylvaticus) populations in agricultural landscapes},
+  Author                   = {Chun Liu and Richard M. Sibly and Volker Grimm and Pernille Thorbek},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2013},
+  Number                   = {0},
+  Pages                    = {92--102},
+  Volume                   = {248},
+
+  Doi                      = {10.1016/j.ecolmodel.2012.09.016},
+  ISSN                     = {0304-3800},
+  Keywords                 = {Population dynamics},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0304380012004826}
+}
+
+@InProceedings{Luke2004,
+  Title                    = {MASON: A New Multi-Agent Simulation Toolkit},
+  Author                   = {S. Luke and C. Cioffi-Revilla and L.
+ Panait and K. Sullivan},
+  Booktitle                = {Proceedings of the 2004 SwarmFest Workshop},
+  Year                     = {2004},
+  Download1                = {PDF,http://cs.gmu.edu/~eclab/projects/mason/publications/SwarmFest04.pdf},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Lyne1994pmez5,
+  Title                    = {Integrated Biophysical Model Investigations},
+  Author                   = {V. Lyne and R. Gray and K. Sainsbury and R. Scott},
+  Institution              = {CSIRO Australia, Division of Fisheries},
+  Year                     = {1994},
+
+  Address                  = {Hobart, Tasmania},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Series                   = {Research on Jarosite Dumping at Sea},
+  Timestamp                = {2015.02.06},
+  Volume                   = {5}
+}
+
+@TechReport{Lyne1994currents,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Statistical extrapolation of currents},
+  Author                   = {Lyne, Vincent and Gray, Randall and Scott, Roger},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{Lyne1998sbt,
+  Title                    = {Quantitative Interpretation \& Fine-scale Catch-per-unit-effort for Southern Bluefin Tuna Off South Eastern {Australia}},
+  Author                   = {Lyne, Vincent David and Scott, RA and Gray, RC and Bradford, RW},
+  Publisher                = {CSIRO Division of Marine Research},
+  Year                     = {1998},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{Macal2005,
+  Title                    = {Validation of an Agent-based Model of Deregulated Electric Power Markets},
+  Author                   = {C.M. Macal and M.J. North},
+  Booktitle                = {Proceedings of the North American Association for Computational Social and Organizational Science (NAACSOS) Conference, June 2005},
+  Year                     = {2005},
+  Month                    = jun,
+
+  Institution              = {NAACSOS},
+  Location                 = {Notre Dame, USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{Malthus1798,
+  Title                    = {An Essay on the Principle of Population},
+  Author                   = {Thomas Robert Malthus},
+  Publisher                = {Library of Economics and Liberty},
+  Year                     = {1798},
+
+  Address                  = {Internet},
+  Edition                  = {16 Feb 2010},
+  Note                     = {First edition, originally published by J. Johnson, London},
+
+  Date                     = {16 February 2010},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.econlib.org/library/Malthus/malPop.html}
+}
+
+@Article{Mare1998,
+  Title                    = {Tidier fisheries management requires a new MOP (management oriented paradigm)},
+  Author                   = {W.K. de la Mare},
+  Journal                  = {Reviews in Fish Biology and Fisheries},
+  Year                     = {1998},
+  Pages                    = {349--356},
+  Volume                   = {8},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Matthews2002,
+  Title                    = {Applications of crop/soil simulation models in tropical agricultural systems},
+  Author                   = {Matthews, R. and Stephens, W. and Hess, T. and Middleton, T. and Graves, A.},
+  Journal                  = {Advances in Agronomy},
+  Year                     = {2002},
+  Pages                    = {31--124},
+  Volume                   = {76},
+
+  Owner                    = {randall},
+  Publisher                = {Elsevier},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{McDonald2006,
+  Title                    = {13. Multiple-Use Management Strategy Evaluation for Coastal Marine Ecosystems Using InVitro},
+  Author                   = {McDonald, AD and Fulton, E and Little, LR and Gray, R and Sainsbury, KJ and Lyne, VD},
+  Journal                  = {Complex Science for a Complex World: Exploring Human Ecosystems with Agents},
+  Year                     = {2006},
+  Pages                    = {283},
+
+  Owner                    = {randall},
+  Publisher                = {ANU E Press},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{McDonald2008,
+  Title                    = {An agent-based modelling approach to evaluation of multiple-use management strategies for coastal marine ecosystems},
+  Author                   = {McDonald, AD and Little, LR and Gray, R and Fulton, E and Sainsbury, KJ and Lyne, VD},
+  Journal                  = {Mathematics and Computers in Simulation},
+  Year                     = {2008},
+  Number                   = {2},
+  Pages                    = {401--411},
+  Volume                   = {78},
+
+  Owner                    = {randall},
+  Publisher                = {Elsevier},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Milner-Gulland2010,
+  Title                    = {New directions in management strategy evaluation through cross-fertilization between fisheries science and terrestrial conservation},
+  Author                   = {Milner-Gulland, E. J. and Arroyo, Beatriz and Bellard, Celine and Blanchard, Julia and Bunnefeld, Nils and Delibes-Mateos, Miguel and Edwards, Charles and Nuno, Ana and Palazy, Lucille and Reljic, Slaven and Riera, Pere and Skrbinsek, Tomaz},
+  Journal                  = {Biology Letters},
+  Year                     = {2010},
+
+%  Abstract                 = {On 1 and 2 June 2010, an international meeting was held at the University of Paris Sud XI, France, organized within the framework of the EU FP7 consortium project HUNT, to bring together fisheries and conservation scientists to discuss a unified framework for the future of management strategies for harvested species.},
+  Doi                      = {10.1098/rsbl.2010.0588},
+  Eprint                   = {http://rsbl.royalsocietypublishing.org/content/early/2010/07/20/rsbl.2010.0588.full.pdf+html},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://rsbl.royalsocietypublishing.org/content/early/2010/07/20/rsbl.2010.0588.abstract}
+}
+
+@Misc{Minar1996,
+  Title                    = {The swarm simulation system: A toolkit for building multi-agent simulations},
+
+  Author                   = {Minar, N. and Burkhart, R. and Langton, C. and Askenazi, M.},
+  Year                     = {1996},
+
+  Organization             = {Santa Fe Institute Santa Fe, NM, USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Monte2009,
+  Title                    = {A methodological approach to develop {\em contaminant migration-population effects} models},
+  Author                   = {L. Monte},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2009},
+  Pages                    = {3280--3290},
+  Volume                   = {220},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{Nellemann2008,
+  Title                    = {{In Dead Water: Merging of climate change with pollution, over-harvest, and infestations in the world's fishing grounds}},
+  Author                   = {Nellemann, C. and Hain, S. and Alder, J.},
+  Publisher                = {GRID-Arendal, Norway},
+  Year                     = {2008},
+  Month                    = feb,
+
+%  Abstract                 = {{The World's oceans play a crucial role for life on the planet. Healthy seas and the services they provide are key to the future development of mankind. Our seas are highly dynamic, structured and complex systems. The seafloor consists of vast shelves and plains with huge mountains, canyons and trenches which dwarf similar structures on land. Ocean currents transport water masses many times larger than all rivers on Earth combined. In this report, the locations of the most productive fishing grounds in the World {\^{a}}`` from shallow, coastal waters to the deep and high seas {\^{a}}`` are compared to projected scenarios of climate change, ocean acidification, coral bleaching, intensity of fisheries, land-based pollution, increase of invasive species infestations and growth in coastal development.}},
+  Citeulike-article-id     = {2837279},
+  Keywords                 = {climate{\_}change, fisheries},
+  Organization             = {UNEP},
+  Owner                    = {randall},
+  Posted-at                = {2008-05-27 12:33:20},
+  Priority                 = {2},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{North2005,
+  Title                    = {The Repast Simphony Runtime System},
+  Author                   = {North and T.R. Howe and N.T. Collier and J.R. Vos},
+  Booktitle                = {Proceedings of the Agent 2005 Conference on Generative Social Processes, Models, and Mechanisms},
+  Year                     = {2005},
+  Month                    = oct,
+
+  Institution              = {Argonne National Laboratory},
+  Location                 = {Argonne, IL USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{North2005a,
+  Title                    = {The Repast Simphony Development Environment},
+  Author                   = {North and T.R. Howe and N.T. Collier and J.R. Vos},
+  Booktitle                = {Proceedings of the Agent 2005 Conference on Generative Social Processes, Models, and Mechanisms},
+  Year                     = {2005},
+  Month                    = oct,
+
+  Institution              = {Argonne National Laboratory},
+  Location                 = {Argonne, IL USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{North2006,
+  Title                    = {Experiences creating three implementations of the repast agent modeling toolkit},
+  Author                   = {M.J. North and N.T. Collier and J.R. Vos},
+  Journal                  = {ACM Trans. Model. Comput. Simul.},
+  Year                     = {2006},
+
+  Month                    = jan,
+  Number                   = {1},
+  Pages                    = {1--25},
+  Volume                   = {16},
+
+  Acmid                    = {1122013},
+  Address                  = {New York, NY, USA},
+  Doi                      = {10.1145/1122012.1122013},
+  ISSN                     = {1049-3301},
+  Issue_date               = {January 2006},
+  Keywords                 = {Agent-based Modeling and Simulation, Java, Microsoft .NET, Python},
+  Numpages                 = {25},
+  Owner                    = {randall},
+  Publisher                = {ACM},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{North2007,
+  Title                    = {A Declarative Model Assembly Infrastructure for Verification and Validation},
+  Author                   = {M.J. North and T.R. Howe and N.T. Collier and J.R. Vos},
+  Booktitle                = {Advancing Social Simulation: The First World Congress},
+  Year                     = {2007},
+  Editor                   = {S. Takahashi and D.L. Sallach and J. Rouchier},
+  Publisher                = {Springer},
+
+  Location                 = {Heidelberg, FRG},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{North2010,
+  Title                    = {Multi-scale Agent-based Consumer Market Modeling},
+  Author                   = {M.J. North and C.M. Macal and J. St. Aubin and P. Thimmapuram and M. Bragen and J. Hahn and J. Karr and N. Brigham and M.E. Lacy and D. Hampton},
+  Journal                  = {Complexity},
+  Year                     = {2010},
+
+  Month                    = feb,
+  Pages                    = {37--47},
+  Volume                   = {15},
+
+  Issue                    = {5},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@InProceedings{North2006a,
+  Title                    = {Legacy Model Integration with Repast Simphony},
+  Author                   = {M.J. North and P. Sydelko and J.R. Vos and T.R. Howe and N.T. Collier},
+  Booktitle                = {Proceedings of the Agent 2006 Conference on Social Agents: Results and Prospects},
+  Year                     = {2006},
+  Month                    = sep,
+
+  Institution              = {Argonne National Laboratory},
+  Location                 = {Argonne, IL USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006d,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Contaminant Overview},
+  Author                   = {Gray, Randall},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006l,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Modelled benthic habitat},
+  Author                   = {Gray, Randall},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006,
+  Title                    = {North West Shelf Joint Environmental Management Study: Software Description-InVitro (2006)},
+  Author                   = {Gray, Randall and Fulton, Beth and Little, Rich and Scott, Roger and Hatfield, Brian and Lyne, Vincent and McDonald, David and Sainsbury, Keith},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006e,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Prawn biomass estimates},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006a,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Contaminant time series},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006c,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Rainfall time series},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006f,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Parameter estimation},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006g,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Contaminant uptake},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006h,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Iconic species dynamics},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006i,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Human behaviour and impact},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006j,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Cyclones},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006k,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-Fin fish population dynamics},
+  Author                   = {Gray, Randall and Fulton, Elizabeth A and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{NWS2006b,
+  Title                    = {North West Shelf Joint Environmental Management Study: InVitro Inputs-NCEP Winds},
+  Author                   = {Gray, Randall and Fulton, Elizabeth and Little, LR and Scott, Roger},
+  Type                     = {Chapter in Final Report},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Northcote2008,
+  Title                    = {Threshold of tolerability: the impact of management changes to recreational fishing in Ningaloo Marine Park},
+  Author                   = {J. Northcote and J. Macbeth},
+  Journal                  = {Tourism Review},
+  Year                     = {2008},
+  Pages                    = {28--35},
+  Volume                   = {63},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Pillans2009,
+  Title                    = {Adequacy of zoning in the Ningaloo Marine Park},
+  Author                   = {R. Pillans and R. Babcock and T. Patterson and J. How and G. Hyndes},
+  Institution              = {Western Australia Marine Science Institute},
+  Year                     = {2009},
+  Number                   = {3.2.2e},
+  Type                     = {Final Report},
+
+  Owner                    = {randall},
+  Pages                    = {1 -- 83},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Plaganyi2011,
+  Title                    = {Modelling climate-change effects on {A}ustralian and {P}acific aquatic ecosystems: a review of analytical tools and management implications},
+  Author                   = {Plag{\'a}nyi, {\'E}.E. and Bell, J.D. and Bustamante, R.H. and Dambacher, J.M. and Dennis, D.M. and Dichmont, C.M. and Dutra, L.X.C. and Fulton, E.A. and Hobday, A.J. and van Putten, E.I. and others},
+  Journal                  = {Marine and Freshwater Research},
+  Year                     = {2011},
+  Number                   = {9},
+  Pages                    = {1132--1147},
+  Volume                   = {62},
+
+  Owner                    = {randall},
+  Publisher                = {CSIRO},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Polacheck1999,
+  Title                    = {An initial evaluation of management strategies for the southern bluefin tuna fishery},
+  Author                   = {Polacheck, T. and Klaer, N.L. and Millar, C. and Preece, A.L.},
+  Journal                  = {ICES Journal of Marine Science: Journal du Conseil},
+  Year                     = {1999},
+  Number                   = {6},
+  Pages                    = {811--826},
+  Volume                   = {56},
+
+%  Abstract                 = {Within the Commission for the Conservation of Southern Bluefin Tuna there has not been agreement on a mechanism for adjusting quotas for the resource. It has been proposed that development of a decision-rule-based management strategy is an issue of high priority, indeed a matter of urgency. Results are presented from an initial application of a Monte Carlo management strategy evaluation (MSE) approach aimed at developing a rebuilding strategy for the stock. Southern bluefin tuna (Thunnus maccoyii) provides a substantial test of the power of this approach to develop a decision framework that can cope with large uncertainties about the current state of the stock and conflicting information from the fishery that is used in stock assessment. The results indicate that a robust feedback decision-making framework can be developed which ensures fast rates of recovery across the broad range of interpretations about stock dynamics and current status of the resource. Among the harvest strategies examined, the F0.2, F0.1, and SSB/R strategies were clearly the most robust and consistent in terms of recovery and sustainability. Fast recovery rates were only achieved with strategies that had catches substantially below 1998 levels. Within the strategies examined, little scope exists for improvement in yield without a direct loss in recovery performance. For the MSE approach to succeed, the operating, sampling, and conditioning model components must incorporate the full uncertainty about the real stock and the sampling processes appropriately. There is clearly scope for improving and broadening the way uncertainties have been handled in this initial examination. In particular, uncertainties associated with the catch-at-age, the relationship between the c.p.u.e. and true abundance, and the conditioning of the historical population sizes in the face of inconsistent historical data, need further development. As the MSE approach requires conditioning to historical data, full and appropriate incorporation of uncertainty into stock assessment and conditioning would lead to a better basis for developing and evaluating management procedures that will work.},
+  Doi                      = {10.1006/jmsc.1999.0554},
+  Eprint                   = {http://icesjms.oxfordjournals.org/content/56/6/811.full.pdf+html},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://icesjms.oxfordjournals.org/content/56/6/811.abstract}
+}
+
+@Article{Probert2011,
+  Title                    = {Managing and learning with multiple models: Objectives and optimization algorithms},
+  Author                   = {William J.M. Probert and Cindy E. Hauser and Eve McDonald-Madden and Michael C. Runge and Peter W.J. Baxter and Hugh P. Possingham},
+  Journal                  = {Biological Conservation},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for biodiversity conservation in an uncertain world</ce:title>},
+  Number                   = {4},
+  Pages                    = {1237 -- 1245},
+  Volume                   = {144},
+
+  Doi                      = {10.1016/j.biocon.2010.07.031},
+  ISSN                     = {0006-3207},
+  Keywords                 = {Adaptive management},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S000632071000337X}
+}
+
+@Article{Reddy1995,
+  Title                    = {An application of satellite-derived sea surface temperatures to southern bluefin tuna and albacore off Tasmania, {Australia}},
+  Author                   = {Reddy, R and Easton, A and Clarke, S and Lyne, V and Gray, R},
+  Journal                  = {Scientia Marina},
+  Year                     = {1995},
+  Volume                   = {59},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Rehme2011,
+  Title                    = {Multimodel inference and adaptive management},
+  Author                   = {Sarah E. Rehme and Larkin A. Powell and Craig R. Allen},
+  Journal                  = {Journal of Environmental Management},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for Natural Resources</ce:title>},
+  Number                   = {5},
+  Pages                    = {1360 -- 1364},
+  Volume                   = {92},
+
+  Doi                      = {10.1016/j.jenvman.2010.10.012},
+  ISSN                     = {0301-4797},
+  Keywords                 = {Adaptive inference},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0301479710003415}
+}
+
+@Article{Richardson2005,
+  Title                    = {On the dynamics of grazing systems in the semi-arid succulent Karoo: The relevance of equilibrium and non-equilibrium concepts to the sustainability of semi-arid pastoral systems},
+  Author                   = {F.D. Richardson and B.D. Hahn and M.T. Hoffman},
+  Journal                  = {Ecological Modelling},
+  Year                     = {2005},
+  Number                   = {4},
+  Pages                    = {491 -- 512},
+  Volume                   = {187},
+
+  Doi                      = {10.1016/j.ecolmodel.2005.02.001},
+  ISSN                     = {0304-3800},
+  Keywords                 = {Rangeland dynamics},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S030438000500102X}
+}
+
+@InProceedings{Rouleau2009,
+  Title                    = {Conflict in complex socio-natural systems: Using agent-based modeling to understand the behavioral roots of social unrest within the Mandera Triangle},
+  Author                   = {Rouleau, M. and Coletti, M. and Bassett, J.K. and Hailegiorgis, A.B. and Gulden, T. and Kennedy, W.G.},
+  Booktitle                = {Proceedings of the Human Behavior-Computational Modeling and Interoperability Conference},
+  Year                     = {2009},
+  Organization             = {Citeseer},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Sainsbury2000,
+  Title                    = {Design of operational management strategies for achieving fishery ecosystem objectives},
+  Author                   = {Sainsbury, K.J. and Punt, A.E. and Smith, A.D.M.},
+  Journal                  = {ICES Journal of Marine Science: Journal du Conseil},
+  Year                     = {2000},
+  Number                   = {3},
+  Pages                    = {731--741},
+  Volume                   = {57},
+
+%  Abstract                 = {Ecosystem objectives in fisheries management usually flow from high-level national policies or strategies and international agreements. Consequently they are often broadly stated and hence are difficult to incorporate directly in management plans. Predicting the results of any management action is very uncertain because the dynamics of ecosystems are complex and poorly understood. Methods to design and evaluate operational management strategies have advanced considerably in the past decade. These management-strategy-evaluation (MSE) methods rely on simulation testing of the whole management process using performance measures derived from operational objectives. The MSE approach involves selecting (operational) management objectives, specifying performance measures, specifying alternative management strategies, and evaluating these using simulation. The MSE framework emphasizes the identification and modelling of uncertainties, and propagates these through to their effects on the performance measures. The framework is outlined and illustrated by three ecosystem-related applications: management of benthic habitats and broad fish community composition; by-catch of species of high conservation value; and food-chain interactions and dependencies. Challenges to be overcome before broader ecosystem-related objectives can be fully handled are discussed briefly.},
+  Doi                      = {10.1006/jmsc.2000.0737},
+  Eprint                   = {http://icesjms.oxfordjournals.org/content/57/3/731.full.pdf+html},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://icesjms.oxfordjournals.org/content/57/3/731.abstract}
+}
+
+@InCollection{Sansores2006,
+  Title                    = {Agent Based Simulation for Social Systems: From Modeling to Implementation},
+  Author                   = {Sansores, Candelaria and Pav{\'{o}}n, Juan},
+  Booktitle                = {Current Topics in Artificial Intelligence},
+  Publisher                = {Springer Berlin Heidelberg},
+  Year                     = {2006},
+  Editor                   = {Marín, Roque and Onaindía, Eva and Bugarín, Alberto and Santos, José},
+  Pages                    = {79--88},
+  Series                   = {Lecture Notes in Computer Science},
+  Volume                   = {4177},
+
+  Doi                      = {10.1007/11881216{\_}9},
+  ISBN                     = {978-3-540-45914-9},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Scheffer1995,
+  Title                    = {Super-individuals: a simple solution for modelling large populations on an individual basis},
+  Author                   = {M. Scheffer and J.M. Baveco and D.L. DeAngelis and K.A. Rose},
+  Journal                  = {Ecological Modelling},
+  Year                     = {1995},
+  Pages                    = {161--170},
+  Volume                   = {80},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@TechReport{Smajgl2007,
+  Title                    = {Simulating the grazing system in the Bowen Broken: An agent-based modeling approach},
+  Author                   = {A. Smajgl and S. Heckbert and I. Bohnet and G. Carlin and M. Hartcher and J. McIvor},
+  Institution              = {CSIRO Australia},
+  Year                     = {2007},
+
+  Address                  = {Canberra},
+  Type                     = {Report},
+
+  Owner                    = {randall},
+  Series                   = {CSIRO: Water for a Healthy Country National Research Flagship},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Smallwood2011,
+  Title                    = {Assessing patterns of recreational use in large marine parks: A case study from {N}ingaloo {M}arine {P}ark, {A}ustralia},
+  Author                   = {Claire B. Smallwood and Lynnath E. Beckley and Susan A. Moore and Halina T. Kobryn},
+  Journal                  = {Ocean and Coastal Management},
+  Year                     = {2011},
+  Number                   = {4},
+  Pages                    = {330 -- 340},
+  Volume                   = {54},
+
+  Doi                      = {10.1016/j.ocecoaman.2010.11.007},
+  ISSN                     = {0964-5691},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0964569110002097}
+}
+
+@InProceedings{Smith1993,
+  Title                    = {Management strategy evaluation - the light on the hill},
+  Author                   = {A.D. Smith},
+  Booktitle                = {Australian Society for Fish Biology Workshop Proceedings},
+  Year                     = {1993},
+  Editor                   = {D.A. Hancock},
+  Month                    = aug,
+  Pages                    = {249 -- 253},
+  Publisher                = {Australian Society for Fish Biology},
+  Series                   = {Population Dynamics for Fisheries Management},
+  Volume                   = {97},
+
+  Journal                  = {Ecological Modelling},
+  Location                 = {ASFB, Perth, Western Australia, Australia},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://asfb.org.au/pdf/1993/1993-06-04.pdf}
+}
+
+@Article{Smith2011,
+  Title                    = {Rethinking adaptation for a 4~{C} world},
+  Author                   = {Smith, Mark Stafford and Horrocks, Lisa and Harvey, Alex and Hamilton, Clive},
+  Journal                  = {Philosophical Transactions of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+  Year                     = {2011},
+  Number                   = {1934},
+  Pages                    = {196--216},
+  Volume                   = {369},
+
+  Owner                    = {randall},
+  Publisher                = {The Royal Society},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Sparrow1997,
+  Title                    = {A landscape-scale model of shrub and herbage dynamics in {C}entral {A}ustralia, validated by satellite data},
+  Author                   = {Ashley D. Sparrow and Margaret H. Friedel and D.Mark Stafford Smith},
+  Journal                  = {Ecological Modelling},
+  Year                     = {1997},
+  Number                   = {3},
+  Pages                    = {197 -- 216},
+  Volume                   = {97},
+
+  Doi                      = {10.1016/S0304-3800(96)01904-7},
+  ISSN                     = {0304-3800},
+  Keywords                 = {Cattle grazing},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0304380096019047}
+}
+
+@InProceedings{Tatara2006,
+  Title                    = {An Introduction to Repast Modeling by Using a Simple Predator-Prey Example},
+  Author                   = {E. Tatara and M.J. North and T.R. Howe and N.T. Collier and J.R. Vos},
+  Booktitle                = {Proceedings of the Agent 2006 Conference on Social Agents: Results and Prospects},
+  Year                     = {2006},
+  Month                    = sep,
+
+  Institution              = {Argonne National Laboratory},
+  Location                 = {Argonne, IL USA},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Waddell2003,
+  Title                    = {Microsimulation of Urban Development and Location Choices: Design and Implementation of UrbanSim},
+  Author                   = {P. Waddell and A. Borning and M. Noth and N. Freier and M. Becke and G. Ulfarsson},
+  Journal                  = {Networks and Spatial Economics},
+  Year                     = {2003},
+  Pages                    = {43 -- 67},
+  Volume                   = {3},
+  number                   = {1},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Article{Walters1976,
+  Title                    = {Adaptive Control of Fishing Systems},
+  Author                   = {Walters, Carl J. and Hilborn, Ray},
+  Journal                  = {Journal of the Fisheries Research Board of Canada},
+  Year                     = {1976},
+  Number                   = {1},
+  Pages                    = {145--159},
+  Volume                   = {33},
+
+  Doi                      = {10.1139/f76-017},
+  Eprint                   = {http://www.nrcresearchpress.com/doi/pdf/10.1139/f76-017},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+
+@incollection{caswell1992individual,
+  title={From the individual to the population in demographic models},
+  author={Caswell, Hal and John, A Meredith},
+  editor={D.L. DeAngelis and L.J. Gross},
+  booktitle={Individual-based models and approaches in ecology},
+  pages={36--61},
+  year={1992},
+  publisher={Springer}
+}
+
+@book{walters2004fisheries,
+  title={Fisheries ecology and management},
+  author={Walters, Carl J and Martell, Steven JD},
+  year={2004},
+  publisher={Princeton University Press}
+}
+
+@InProceedings{White2000,
+  Title                    = {Developing an Urban Land Use Simulator for {E}uropean Cities},
+  Author                   = {R. White and G. Engelen and I. Uljee and C. Lavalle and D. Ehrlich},
+  Booktitle                = {Proceedings of the 5\textsuperscript{th} EC GIS Workshop: GIS of Tomorrow},
+  Year                     = {2000},
+  Editor                   = {K. Fullerton},
+  Pages                    = {179 -- 190},
+  Publisher                = {{European Commission Joint Research Centre}},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06}
+}
+
+@Misc{Wikipedia.org2012,
+  Title                    = {Java Native Interface},
+
+  Author                   = {Wikipedia.org},
+  Month                    = nov,
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://en.wikipedia.org/wiki/Java{\_}Native{\_}Interface}
+}
+
+@Misc{Wikipedia.org2012a,
+  Title                    = {OpenMP},
+
+  Author                   = {Wikipedia.org},
+  Month                    = nov,
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://en.wikipedia.org/wiki/OpenMP}
+}
+
+@Misc{Wikipedia.org2012b,
+  Title                    = {Parallel Virtual Machine},
+
+  Author                   = {Wikipedia.org},
+  Month                    = nov,
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://en.wikipedia.org/wiki/Parallel{\_}Virtual{\_}Machine}
+}
+
+@Misc{Wikipedia.org2012c,
+  Title                    = {Message Passing Interface},
+
+  Author                   = {Wikipedia.org},
+  Month                    = nov,
+  Year                     = {2012},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://en.wikipedia.org/wiki/Message{\_}Passing{\_}Interface}
+}
+
+@Misc{Wilensky2002,
+  Title                    = {NetLogo HubNet: Tragedy of the Commons HubNet model},
+
+  Author                   = {U. Wilensky},
+  Year                     = {2002},
+
+  Institution              = {The Center for Connected Learning and Computer-Based Modelling, Northwestern University},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://ccl.northwestern.edu/netlogo/models/HubNetTragedyoftheCommonsHubNet}
+}
+
+@Misc{Wilensky1999,
+  Title                    = {NetLogo},
+
+  Author                   = {U. Wilensky},
+  Year                     = {1999},
+
+  Institution              = {The Center for Connected Learning and Computer-Based Modelling, Northwestern University},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://ccl.northwestern.edu/netlogo/}
+}
+
+@Article{Williams2011,
+  Title                    = {Passive and active adaptive management: Approaches and an example},
+  Author                   = {Byron K. Williams},
+  Journal                  = {Journal of Environmental Management},
+  Year                     = {2011},
+  Note                     = {<ce:title>Adaptive management for Natural Resources</ce:title>},
+  Number                   = {5},
+  Pages                    = {1371 -- 1378},
+  Volume                   = {92},
+
+  Doi                      = {10.1016/j.jenvman.2010.10.039},
+  ISSN                     = {0301-4797},
+  Keywords                 = {Decision making},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0301479710003713}
+}
+
+@Article{Yin2007,
+  Title                    = {Assessing Indirect Spatial Effects of Mountain Tourism Development: An Application of Agent-Based Spatial Modeling},
+  Author                   = {L. Yin},
+  Journal                  = {The Journal of Regional Analysis and Policy},
+  Year                     = {2007},
+  Number                   = {3},
+  Pages                    = {257--265},
+  Volume                   = {37},
+
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.jrap-journal.org/pastvolumes/2000/v37/F37-3-8.pdf}
+}
+
+@Article{Zhou2007,
+  Title                    = {Agent-based simulation of electricity markets: a survey of tools},
+  Author                   = {Zhou, Zhi and Chan, WaiKin(Victor) and Chow, JoeH.},
+  Journal                  = {Artificial Intelligence Review},
+  Year                     = {2007},
+  Pages                    = {305--342},
+  Volume                   = {28},
+
+  Doi                      = {10.1007/s10462-009-9105-x},
+  ISSN                     = {0269-2821},
+  Issue                    = {4},
+  Keywords                 = {Agent-based simulation; Electricity market; Swarm intelligence; Artificial life; Adaptation},
+  Language                 = {English},
+  Owner                    = {randall},
+  Publisher                = {Springer Netherlands},
+  Timestamp                = {2015.02.06}
+}
+
+@Book{DeAngelis1992a,
+  Title                    = {Individual-Based Models and Approaches in Ecology},
+  Editor                   = {D.L. DeAngelis and L.J. Gross},
+  Publisher                = {Chapman and Hall},
+  Year                     = {1992},
+  Edition                  = {ISBN-13: 978-0412031717 ISBN-10: 041203171X},
+}
+  
+@Book{DeAngelis1992,
+  Title                    = {Individual-Based Models and Approaches in Ecology},
+  Editor                   = {D.L. DeAngelis and L.J. Gross},
+  Publisher                = {Springer},
+  Year                     = {1992},
+  Edition                  = {ISBN-13: 978-0412031618, ISBN-10: 0412031612},
+}
+
+
+@Misc{2009,
+  Month                    = aug,
+  Year                     = {2009},
+
+  Institution              = {Ningaloo Research Program},
+  Owner                    = {randall},
+  Publisher                = {Ningaloo Research Program},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm}
+}
+
+@Article{1999,
+  Title                    = {99/02428~{A}n integrated model of oil production},
+  Journal                  = {Fuel and Energy Abstracts},
+  Year                     = {1999},
+  Number                   = {4},
+  Pages                    = {256 --256},
+  Volume                   = {40},
+
+  Doi                      = {10.1016/S0140-6701(99)98197-3},
+  ISSN                     = {0140-6701},
+  Key                      = {tagkey1999256},
+  Owner                    = {randall},
+  Timestamp                = {2015.02.06},
+  Url                      = {http://www.sciencedirect.com/science/article/pii/S0140670199981973}
+}
+
+%%  
+@inproceedings{parunak1998agent,
+  title={Agent-based modeling vs. equation-based modeling: A case study and users’ guide},
+  author={Parunak, H Van Dyke and Savit, Robert and Riolo, Rick L},
+  booktitle={Multi-agent systems and agent-based simulation},
+  pages={10--25},
+  year={1998},
+  organization={Springer}
+}
+  
+%% Excellent paper 
+@inproceedings{bobashev2007hybrid,
+  title={A hybrid epidemic model: combining the advantages of agent-based and equation-based approaches},
+  author={Bobashev, Georgiy V and Goedecke, D Michael and Yu, Feng and Epstein, Joshua M},
+  booktitle={Simulation Conference, 2007 Winter},
+  pages={1532--1537},
+  year={2007},
+  organization={IEEE}
+}
+@article{vincenot2011theoretical,
+  title={Theoretical considerations on the combined use of system dynamics and individual-based modeling in ecology},
+  author={Vincenot, Christian Ernest and Giannino, Francesco and Rietkerk, Max and Moriya, Kazuyuki and Mazzoleni, Stefano},
+  journal={Ecological Modelling},
+  volume={222},
+  number={1},
+  pages={210--218},
+  year={2011},
+  publisher={Elsevier}
+}
+@article{epstein2007controlling,
+  title={Controlling pandemic flu: the value of international air travel restrictions},
+  author={Epstein, Joshua M and Goedecke, D Michael and Yu, Feng and Morris, Robert J and Wagener, Diane K and Bobashev, Georgiy V},
+  journal={PloS one},
+  volume={2},
+  number={5},
+  pages={e401},
+  year={2007},
+  publisher={Public Library of Science}
+}
+@inproceedings{mathieu2010tactical,
+  title={Tactical Robust decision-making methodology: effect of disease spread model fidelity on option awareness},
+  author={Mathieu, Jennifer and Pfaff, Mark and Klein, Gary and Drury, Jill and Geodecke, Michael and James, John and Mahoney, Paula and Bobashev, Georgiy},
+  booktitle={Proceedings of the 7th International ISCRAM Conference--Seattle, USA},
+  year={2010}
+}
+@article{yip2004effect,
+  title={The effect of model fidelity on real-time optimization performance},
+  author={Yip, WS and Marlin, Thomas E},
+  journal={Computers \& chemical engineering},
+  volume={28},
+  number={1},
+  pages={267--280},
+  year={2004},
+  publisher={Elsevier}
+}
+@article{majda2011improving,
+  title={Improving model fidelity and sensitivity for complex systems through empirical information theory},
+  author={Majda, Andrew J and Gershgorin, Boris},
+  journal={Proceedings of the National Academy of Sciences},
+  volume={108},
+  number={25},
+  pages={10044--10049},
+  year={2011},
+  publisher={National Acad Sciences}
+}
+@inproceedings{bailey1992scientific,
+  title={The scientific method of choosing model fidelity},
+  author={Bailey, Michael P and Kemple, William G},
+  booktitle={Proceedings of the 24th conference on Winter simulation},
+  pages={791--797},
+  year={1992},
+  organization={ACM}
+}
+@article{kleeman2002measuring,
+  title={Measuring dynamical prediction utility using relative entropy},
+  author={Kleeman, Richard},
+  journal={Journal of the atmospheric sciences},
+  volume={59},
+  number={13},
+  pages={2057--2072},
+  year={2002}
+}
+@article{kiparissides2009global,
+  title={Global sensitivity analysis challenges in biological systems modeling},
+  author={Kiparissides, A and Kucherenko, SS and Mantalaris, A and Pistikopoulos, EN},
+  journal={Industrial \& Engineering Chemistry Research},
+  volume={48},
+  number={15},
+  pages={7168--7180},
+  year={2009},
+  publisher={ACS Publications}
+}
+@article{smith1988scale,
+  title={Scale and resolution of forest structural pattern},
+  author={Smith, Thomas M and Urban, Dean L},
+  journal={Vegetatio},
+  volume={74},
+  number={2-3},
+  pages={143--150},
+  year={1988},
+  publisher={Springer}
+}
+@article{qiu2008gis,
+  title={A GIS based spatially explicit model of dispersal agent behavior},
+  author={Qiu, Fang and Li, Bin and Chastain, Bryan and Alfarhan, Mohammed},
+  journal={Forest ecology and management},
+  volume={254},
+  number={3},
+  pages={524--537},
+  year={2008},
+  publisher={Elsevier}
+}
+@book{franklin1981aspects,
+  title={Aspects of succession in the coniferous forests of the Pacific Northwest},
+  author={Franklin, Jerry F and Hemstrom, Miles A},
+  year={1981},
+  publisher={Springer}
+}
+@article{luxmoore1980simulation,
+  title={Simulation Modeling of the Effects of Chronic Pollutant Stress on Plant Processes and Plant Community Dynamics},
+  author={Luxmoore, RJ},
+  journal={Effects of Air Pollutants on Mediterranean and Temperate Forest Ecosystems},
+  year={1980},
+  publisher={Citeseer}
+}
+@article{pacala1994sapling,
+  title={Sapling growth as a function of resources in a north temperate forest},
+  author={Pacala, Stephen W and Canham, Charles D and Silander Jr, John A and Kobe, Richard K},
+  journal={Canadian Journal of Forest Research},
+  volume={24},
+  number={11},
+  pages={2172--2183},
+  year={1994},
+  publisher={NRC Research Press}
+}
+@article{delsole2010model,
+  title={Model fidelity versus skill in seasonal forecasting},
+  author={DelSole, Timothy and Shukla, Jagadish},
+  journal={Journal of Climate},
+  volume={23},
+  number={18},
+  pages={4794--4806},
+  year={2010}
+}
+@article{rao1993agent,
+  title={Agent-oriented architecture for air-combat simulation},
+  author={Rao, AS and Lucas, Andrew and Morley, David and Selvestrel, Mario and Murray, Graeme},
+  journal={The Australian Artificial Intellegence Institute, Tech. Rep. Tech Note},
+  volume={42},
+  year={1993},
+  publisher={Citeseer}
+}
+
+@inproceedings{borshchev2004system,
+  title={From system dynamics and discrete event to practical agent based modeling: reasons, techniques, tools},
+  author={Borshchev, Andrei and Filippov, Alexei},
+  booktitle={Proceedings of the 22nd international conference of the system dynamics society},
+  number={22},
+  year={2004}
+}
+article{santoso2005stochastic,
+  title={A stochastic programming approach for supply chain network design under uncertainty},
+  author={Santoso, Tjendera and Ahmed, Shabbir and Goetschalckx, Marc and Shapiro, Alexander},
+  journal={European Journal of Operational Research},
+  volume={167},
+  number={1},
+  pages={96--115},
+  year={2005},
+  publisher={Elsevier}
+}
+@article{stadtler2005supply,
+  title={Supply chain management and advanced planning----basics, overview and challenges},
+  author={Stadtler, Hartmut},
+  journal={European journal of operational research},
+  volume={163},
+  number={3},
+  pages={575--588},
+  year={2005},
+  publisher={Elsevier}
+}
+@article{williamson2008outsourcing,
+  title={Outsourcing: Transaction cost economics and supply chain management*},
+  author={Williamson, Oliver E},
+  journal={Journal of supply chain management},
+  volume={44},
+  number={2},
+  pages={5--16},
+  year={2008},
+  publisher={Wiley Online Library}
+}
+@article{fisher1997right,
+  title={What is the right supply chain for your product?},
+  author={Fisher, Marshall L},
+  journal={Harvard business review},
+  volume={75},
+  pages={105--117},
+  year={1997}
+}
+@article{sabri2000multi,
+  title={A multi-objective approach to simultaneous strategic and operational planning in supply chain design},
+  author={Sabri, Ehap H and Beamon, Benita M},
+  journal={Omega},
+  volume={28},
+  number={5},
+  pages={581--598},
+  year={2000},
+  publisher={Elsevier}
+}
+@article{goh2007stochastic,
+  title={A stochastic model for risk management in global supply chain networks},
+  author={Goh, Mark and Lim, Joseph YS and Meng, Fanwen},
+  journal={European Journal of Operational Research},
+  volume={182},
+  number={1},
+  pages={164--173},
+  year={2007},
+  publisher={Elsevier}
+}
+@article{yan2003strategic,
+  title={A strategic model for supply chain design with logical constraints: formulation and solution},
+  author={Yan, Hong and Yu, Zhenxin and Cheng, TC Edwin},
+  journal={Computers \& Operations Research},
+  volume={30},
+  number={14},
+  pages={2135--2155},
+  year={2003},
+  publisher={Elsevier}
+}
+@article{botkin1972some,
+  title={Some ecological consequences of a computer model of forest growth},
+  author={Botkin, Daniel B and Janak, James F and Wallis, James R},
+  journal={The Journal of Ecology},
+  pages={849--872},
+  year={1972},
+  publisher={JSTOR}
+}
+@article{menard2002evaluating,
+  title={Evaluating the potential of the SORTIE forest succession model for spatio-temporal analysis of small-scale disturbances},
+  author={M{\'e}nard, A and Dub{\'e}, P and Bouchard, A and Canham, CD and Marceau, DJ},
+  journal={Ecological Modelling},
+  volume={153},
+  number={1},
+  pages={81--96},
+  year={2002},
+  publisher={Elsevier}
+}
+@article{garcia1983stochastic,
+  title={A stochastic differential equation model for the height growth of forest stands},
+  author={Garcia, Oscar},
+  journal={Biometrics},
+  pages={1059--1072},
+  year={1983},
+  publisher={JSTOR}
+}
+@inproceedings{hunter2008benchmarking,
+  title={Benchmarking 2D hydraulic models for urban flood simulations},
+  author={Hunter, NM and Bates, PD and Neelz, S and Pender, G and Villanueva, I and Wright, NG and Liang, D and Falconer, RA and Lin, B and Waller, S and others},
+  booktitle={Proceedings of the Institution of Civil Engineers: Water Management},
+  volume={161},
+  number={1},
+  pages={13--30},
+  year={2008},
+  organization={Thomas Telford (ICE publishing)}
+}
+@article{eriksson1995adaptive,
+  title={Adaptive finite element methods for parabolic problems V: Long-time integration},
+  author={Eriksson, Kenneth and Johnson, Claes},
+  journal={SIAM journal on numerical analysis},
+  volume={32},
+  number={6},
+  pages={1750--1763},
+  year={1995},
+  publisher={SIAM}
+}
+@article{logg2004multi,
+  title={Multi-adaptive time integration},
+  author={Logg, Anders},
+  journal={Applied numerical mathematics},
+  volume={48},
+  number={3},
+  pages={339--354},
+  year={2004},
+  publisher={Elsevier}
+}
+
+
+@article{das2006supplier,
+  title={Supplier integration—finding an optimal configuration},
+  author={Das, Ajay and Narasimhan, Ram and Talluri, Srinivas},
+  journal={Journal of Operations Management},
+  volume={24},
+  number={5},
+  pages={563--582},
+  year={2006},
+  publisher={Elsevier}
+}
+@article{dallery1988efficient,
+  title={An efficient method to determine the optimal configuration of a flexible manufacturing system},
+  author={Dallery, Yves and Frein, Yannick},
+  journal={Annals of Operations Research},
+  volume={15},
+  number={1},
+  pages={207--225},
+  year={1988},
+  publisher={Springer}
+}
+@article{karnik2008throughput,
+  title={Throughput-optimal configuration of fixed wireless networks},
+  author={Karnik, Aditya and Iyer, Aravind and Rosenberg, Catherine},
+  journal={IEEE/ACM Transactions on Networking (TON)},
+  volume={16},
+  number={5},
+  pages={1161--1174},
+  year={2008},
+  publisher={IEEE Press}
+}
+@article{fan2005working,
+  title={Working set selection using second order information for training support vector machines},
+  author={Fan, Rong-En and Chen, Pai-Hsuen and Lin, Chih-Jen},
+  journal={The Journal of Machine Learning Research},
+  volume={6},
+  pages={1889--1918},
+  year={2005},
+  publisher={JMLR. org}
+}
+@article{lee2000optimal,
+  title={An optimal representative set selection method},
+  author={Lee, JG and Chung, CG},
+  journal={Information and Software Technology},
+  volume={42},
+  number={1},
+  pages={17--25},
+  year={2000},
+  publisher={Elsevier}
+}
+@article{somol2004fast,
+  title={Fast branch \& bound algorithms for optimal feature selection},
+  author={Somol, Petr and Pudil, Pavel and Kittler, Josef},
+  journal={Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+  volume={26},
+  number={7},
+  pages={900--912},
+  year={2004},
+  publisher={IEEE}
+}
+@inproceedings{ben2009exact,
+  title={An exact almost optimal algorithm for target set selection in social networks},
+  author={Ben-Zwi, Oren and Hermelin, Danny and Lokshtanov, Daniel and Newman, Ilan},
+  booktitle={Proceedings of the 10th ACM conference on Electronic commerce},
+  pages={355--362},
+  year={2009},
+  organization={ACM}
+}
+@article{tsai2009selecting,
+  title={Selecting management systems for sustainable development in SMEs: A novel hybrid model based on DEMATEL, ANP, and ZOGP},
+  author={Tsai, Wen-Hsien and Chou, Wen-Chin},
+  journal={Expert Systems with Applications},
+  volume={36},
+  number={2},
+  pages={1444--1458},
+  year={2009},
+  publisher={Elsevier}
+}
+@article{brown2003change,
+  title={Change management practices: Is a hybrid model a better alternative for public sector agencies?},
+  author={Brown, Kerry and Waterhouse, Jennifer and Flynn, Christine},
+  journal={International Journal of Public Sector Management},
+  volume={16},
+  number={3},
+  pages={230--241},
+  year={2003},
+  publisher={MCB UP Ltd}
+}
+@article{friend1997process,
+  title={A process-based, terrestrial biosphere model of ecosystem dynamics (Hybrid v3. 0)},
+  author={Friend, AD and Stevens, AK and Knox, RG and Cannell, MGR},
+  journal={Ecological Modelling},
+  volume={95},
+  number={2},
+  pages={249--287},
+  year={1997},
+  publisher={Elsevier}
+}
+@book{chivers2009generalised,
+  title={Generalised, parsimonious, individual-based computer models of ecological systems},
+  author={Chivers, William John},
+  year={2009},
+  publisher={University of Newcastle}
+}
+@article{matter1999population,
+  title={Population density and area: the role of within-and between-generation processes over time},
+  author={Matter, Stephen F},
+  journal={Ecological modelling},
+  volume={118},
+  number={2},
+  pages={261--275},
+  year={1999},
+  publisher={Elsevier}
+}
+@book{palsson2015systems,
+  title={Systems biology},
+  author={Palsson, Bernhard O},
+  year={2015},
+  publisher={Cambridge university press}
+}

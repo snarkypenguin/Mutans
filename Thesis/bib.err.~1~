@@ -1,0 +1,67 @@
+%% thesis.bib:99:Unexpected value in ``year = "1798"''.
+%% thesis.bib:99:Suspicious year in ``year = "1798"''.
+%% thesis.bib:155:Expected http://dx.doi.org/ prefix in DOI value ``"10.4108/ICST.SIMUTOOLS2010.8822"''.
+%% thesis.bib:224:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.063"''.
+%% thesis.bib:319:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.2000.0723"''.
+%% thesis.bib:421:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2011.03.012"''.
+%% thesis.bib:436:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.tree.2011.05.003"''.
+%% thesis.bib:450:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/0308-521X(95)93644-S"''.
+%% thesis.bib:466:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.techfore.2008.06.002"''.
+%% thesis.bib:529:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%% thesis.bib:543:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%% thesis.bib:615:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%% thesis.bib:615:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%% thesis.bib:626:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%% thesis.bib:626:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%% thesis.bib:642:Expected http://dx.doi.org/ prefix in DOI value ``"10.1002/wcc.157"''.
+%% thesis.bib:671:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%% thesis.bib:671:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%% thesis.bib:671:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%% thesis.bib:671:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%% thesis.bib:698:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.envsoft.2010.08.001"''.
+%% thesis.bib:716:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.015"''.
+%% thesis.bib:733:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f92-102"''.
+%% thesis.bib:748:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f97-100"''.
+%% thesis.bib:821:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%% thesis.bib:821:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%% thesis.bib:821:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%% thesis.bib:821:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%% thesis.bib:993:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.envsoft.2011.08.012"''.
+%% thesis.bib:1002:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%% thesis.bib:1002:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%% thesis.bib:1005:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/978-1-4614-6134-0_4"''.
+%% thesis.bib:1093:Expected http://dx.doi.org/ prefix in DOI value ``"10.1046/j.1523-1739.1994.08010027.x"''.
+%% thesis.bib:1117:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.gloenvcha.2012.12.006"''.
+%% thesis.bib:1134:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/s10584-012-0444-2"''.
+%% thesis.bib:1163:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f79-215"''.
+%% thesis.bib:1175:Expected http://dx.doi.org/ prefix in DOI value ``"10.1787/5kmd77jhvkjf-en"''.
+%% thesis.bib:1226:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
+%% thesis.bib:1245:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0304-3800(00)00256-8"''.
+%% thesis.bib:1276:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2010.11.022"''.
+%% thesis.bib:1319:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/978-3-642-27216-5{\_}30"''.
+%% thesis.bib:1320:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%% thesis.bib:1320:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%% thesis.bib:1331:Unexpected value in ``number = "2–3"''.
+%% thesis.bib:1335:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/0166-218X(90)90100-Q"''.
+%% thesis.bib:1351:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0921-3449(01)00090-8"''.
+%% thesis.bib:1375:Unexpected value in ``number = "1–2"''.
+%% thesis.bib:1379:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0169-2046(01)00162-1"''.
+%% thesis.bib:1479:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ecolmodel.2012.09.016"''.
+%% thesis.bib:1548:Unexpected value in ``year = "1798"''.
+%% thesis.bib:1548:Suspicious year in ``year = "1798"''.
+%% thesis.bib:1618:Expected http://dx.doi.org/ prefix in DOI value ``"10.1098/rsbl.2010.0588"''.
+%% thesis.bib:1704:Expected http://dx.doi.org/ prefix in DOI value ``"10.1145/1122012.1122013"''.
+%% thesis.bib:1921:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.1999.0554"''.
+%% thesis.bib:1938:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.biocon.2010.07.031"''.
+%% thesis.bib:1967:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.012"''.
+%% thesis.bib:1984:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ecolmodel.2005.02.001"''.
+%% thesis.bib:2013:Expected http://dx.doi.org/ prefix in DOI value ``"10.1006/jmsc.2000.0737"''.
+%% thesis.bib:2031:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/11881216{\_}9"''.
+%% thesis.bib:2032:Invalid checksum for ISBN 978-35404-5-9 in ``ISBN = "9783-540-4591-4-9"''.
+%% thesis.bib:2072:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.ocecoaman.2010.11.007"''.
+%% thesis.bib:2121:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0304-3800(96)01904-7"''.
+%% thesis.bib:2148:Unexpected value in ``volume = "3(1)"''.
+%% thesis.bib:2163:Expected http://dx.doi.org/ prefix in DOI value ``"10.1139/f76-017"''.
+%% thesis.bib:2282:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/j.jenvman.2010.10.039"''.
+%% thesis.bib:2312:Expected http://dx.doi.org/ prefix in DOI value ``"10.1007/s10462-009-9105-x"''.
+%% thesis.bib:2358:Expected http://dx.doi.org/ prefix in DOI value ``"10.1016/S0140-6701(99)98197-3"''.

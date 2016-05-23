@@ -1,0 +1,45 @@
+This thesis explores an avenue for increasing the efficiency in models
+that are comprised of distinct, interacting submodels of the
+model's components. These components may have several different
+submodels which may serve to represent them in the ensemble. In this
+discussion, we consider the state space of the model as a whole, and
+the more restricted state spaces of the components which may comprise
+the model.  Each of the possible submodels for a component may have a
+part of the relevant component's state space in which it performs
+poorly or well relative to other submodels for that component.
+
+We construct a commutative ring (without an identity) over a metric
+space that has trees as its elements as a vehicle for representing the
+state spaces and individual states associated with the model and its
+potential submodels.  With this structure we are able to define
+objective functions which reflect the utility of submodels with
+respect to the state of the model and its components.
+
+Models which may be amendable to this interacting submodels. Examples
+of this type of model include agent-based ecosystem models, cellular
+automata, models of population dynamics which are coupled with
+environmental drivers, models of human activities, and models of
+physical or mechanical systems. There may be many candidates for the
+submodel used to represent a particular component of such and
+ensemble, and the different candidates may have quite different
+strengths and weaknesses.
+
+The thesis is organised in five chapters. The first chapter describes
+the motivation for the work and words used as technical terms. It also
+addresses previous work related to the thesis.  Two published papers
+are also included as chapters. The first paper is included as the
+second chapter, demonstrating the utility of the proposed strategy
+with a basic presence/absence trigger in a simple model of contaminant
+uptake and depuration in a migratory population. The second chapter
+defines the commutative tree-ring and gives proofs of the ring
+properties of the structure.  The second paper is included as the
+fourth chapter, and it illustrates a more comprehensive strategy for
+an adaptive simulation model using the tree-based metric space.
+The final chapter deals with the nature of objective functions,
+model migration, state maintenance, and assessment strategies.
+
+An appendix is included, containing an example model model using the
+tree-ring with objective functions for submodels, the model as a
+whole, and submodel state maintenance.
+		
+	

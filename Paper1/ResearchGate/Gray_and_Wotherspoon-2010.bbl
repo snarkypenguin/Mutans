@@ -1,0 +1,74 @@
+\begin{thebibliography}{13}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+
+\bibitem[{Botkin et~al.(1972{\natexlab{a}})Botkin, Janak, and
+  Wallis}]{Botkin72:1}
+Botkin, D., Janak, J., Wallis, J., 1972{\natexlab{a}}. Rationale, limitations,
+  and assumptions of a northeastern forest growth simulator. IBM J. Res. Dev.
+  16, 101--116.
+
+\bibitem[{Botkin et~al.(1972{\natexlab{b}})Botkin, Janak, and
+  Wallis}]{Botkin72:2}
+Botkin, D., Janak, J., Wallis, J., 1972{\natexlab{b}}. Some ecological
+  consequences of a computer model of forest growth. J. Ecol. 60, 849--872.
+
+\bibitem[{DeAngelis and Gross(1992)}]{DeAngelis92:1}
+DeAngelis, D., Gross, L. (Eds.), 1992. Individual-Based Models and Approaches
+  in Ecology: Populations, Communities and Ecosystems, isbn-10: 0412031612
+  Edition. Chapman and Hall.
+
+\bibitem[{DeAngelis et~al.(1998)DeAngelis, Gross, Huston, Wolff, Fleming,
+  Comiskey, and Sylvester}]{DeAngelis98:1}
+DeAngelis, D., Gross, L., Huston, M., Wolff, W., Fleming, D., Comiskey, E.,
+  Sylvester, S., 1998. Landscape modelling for everglades ecosystem
+  restoration. Ecosystems 1, 64--75.
+
+\bibitem[{Fulton et~al.(2004)Fulton, Smith, and Punt}]{Fulton04:1}
+Fulton, E., Smith, A., Punt, A., 2004. Which ecological indicators can robustly
+  detect effects of fishing. ICES Journal of Marine Science 62~(3), 540--551.
+
+\bibitem[{Gray et~al.(2006)Gray, Fulton, Little, and Scott}]{Gray06:1}
+Gray, R., Fulton, E., Little, R., Scott, R., 2006. Ecosystem model
+  specification within an agent based framework. Final Report~16, CSIRO
+  Australia, Hobart, Tasmania, iSBN 1 921061 80 4 (pbk), ISBN 1 921061 82 0
+  (pdf).
+
+\bibitem[{Grimm and Railsback(2005)}]{Grimm05:1}
+Grimm, V., Railsback, S., 2005. Individual-based Modeling and Ecology.
+  Princeton University Press, Princeton, New Jersey.
+
+\bibitem[{Harvey et~al.(2003)Harvey, Cox, Essington, Hansson, and
+  Kitchell}]{Harvey03:1}
+Harvey, C., Cox, S., Essington, T., Hansson, S., Kitchell, J., 2003. An
+  ecosystem model of food web and fisheries interactions in the baltic sea.
+  ICES Journal of Marine Science 60, 939--950.
+
+\bibitem[{Huston et~al.(1988)Huston, DeAngelis, and Post}]{Huston88:1}
+Huston, M., DeAngelis, D., Post, W., 1988. New computer models unify ecological
+  theory. BioScience 38, 682--691.
+
+\bibitem[{Lyne et~al.(1994)Lyne, Gray, Sainsbury, and Scott}]{Lyne94:1}
+Lyne, V., Gray, R., Sainsbury, K., Scott, R., 1994. Integrated biophysical
+  model investications. Final report, CSIRO Australia, Division of Fisheries,
+  Hobart, Tasmania.
+
+\bibitem[{Malthus(1798)}]{Malthus:1}
+Malthus, T.~R., 1798. An Essay on the Principle of Population, 16th Edition.
+  Library of Economics and Liberty, Internet, first edition, originally
+  published by J. Johnson, London.
+\newline\urlprefix\url{http://www.econlib.org/library/Malthus/malPop.html}
+
+\bibitem[{Monte(2009)}]{Monte09:1}
+Monte, L., 2009. A methodological approach to develop {\em contaminant
+  migration-population effects} models. Ecological Modelling 220, 3280--3290.
+
+\bibitem[{Scheffer et~al.(1995)Scheffer, Baveco, DeAngelis, and
+  Rose}]{Scheffer95:1}
+Scheffer, M., Baveco, J., DeAngelis, D., Rose, K., 1995. Super-individuals: a
+  simple solution for modelling large populations on an individual basis.
+  Ecological Modelling 80, 161--170.
+
+\end{thebibliography}
