@@ -187,6 +187,21 @@ constructors to generate it.
 (define (string-cdr s)
   (string-tail s (- (string-length s) 1)))
 
+(define (string-contains? str . targets) ;; (string-contains? "The quick brown fox" "ox" "hen") ==> #t (string-contains? "The quick brown fox" "oxo" "hen") ==> #f
+  (if (= (length targets) 1)
+      (let* ((st (car targets))
+	     (n (string-length st))
+	     )
+	(cond
+	 ((< (string-length str) n) #f)
+	 ((string=? (substring str 0 n) (substring st 0 n)) #t)
+	 (#t (string-contains? (substring str 1 (- (string-length str) 1)) st))))
+      (let loop ((st targets))
+	(cond
+	 ((null? st) #f)
+	 ((string-contains? str (car st)) #t)
+	 (#t (loop (cdr st)))))))
+
 
 
 
@@ -204,7 +219,10 @@ which represents an exponent. "
 (define (variable? x) (and (list? x) (= 2 (length x)) (symbol? (car x)) (number? (cadr x))))
 (define (factor? x) (or (constant? x)	(variable? x)))
 (define (term? x) (or (constant? x) (apply andf (map (lambda (f) (factor? f)) x))))
-(define (polynomial? x) (or (number? x) (apply andf (map term? x))))
+(define (polynomial? x) (or (number? x) (and (string? x) (polynomial? (string->polynomial x))) (apply andf (map term? x))))
+(define plus " + ")
+(define minus " - ")
+
 
 ;--- Comparison operators
 
@@ -229,15 +247,32 @@ which represents an exponent. "
 
 (define (testit) (term<? '(7 (m 3) (z 2)) '(4 (a 1) (b 3) (c 3))))
 
+
+(define (rectify-numbers lst)
+  (if (list? lst)
+		(map (lambda (x)
+				 (if (and (pair? x)
+							 (null? (cdr x))
+							 (number? (car x)))
+					  (car x)
+					  x))
+			  lst)
+		lst
+		))
+
+
+
 ;----- (factor<? a b)  is the "less than" comparison operator for sorting factors within a term
 (define (factor<? a b) 
+  (set! a (rectify-numbers a))
+  (set! b (rectify-numbers b))
+
   (cond
 	((and (number? a) (number? b)) (< a b))
 	((and (number? a) (pair? b)) #t)
 	((and (number? b) (pair? a)) #f)
 
 	((and (pair? a) (pair? b) (number? (car a)) (number? (car b)))
-
 	 (let ((v (factor<? (cadr a) (cadr b)))
 			 (w (factor<? (cadr b) (cadr a))))
 	
@@ -264,6 +299,8 @@ which represents an exponent. "
 		 (n #t) ;; unambiguously true
 		 (m #f) ;; unambiguously false
 		 (#t (error "the excluded middle in factor<?" (list a b))))))
+	((and (symbol? a) (symbol? b))
+	 (symbol<? a b))
 	(#t (error "the *other* excluded middle in factor<?" (list a b)))
 	)
   )
@@ -326,6 +363,8 @@ which represents an exponent. "
 ;--- manipulation routines for polynomials and their kin
 ;---- (normalise-factors x) collects common factors in a term
 (define (normalise-factors x)
+;;  (dnl "** " x " " (term? x))
+;;  (set! x (map (lambda (y) (if (and (pair? y) (null? (cdr y))) (car y) y)) x))
   (let* ((C (filter number? x))
 			(F (!filter null? (sort (!filter number? x) factor<?)))
 		;	(NF (filter (lambda (u) (pair? u) (equal? u (filter number? u))) x))
@@ -335,13 +374,19 @@ which represents an exponent. "
 			(Ss (!filter null? (map (lambda (x) (map cdr (filter (lambda (y) (equal? (car y) x)) (map cons ss se)))) Su)))
 			(Sr (!filter null? (map (lambda (x y) (list x (apply + y))) Su Ss)))
 			)
-	 
-;	 (if (pair? NF) (set! C (cons (apply * (apply append NF)) C)))
+;;	 (dnl "Input = " x)
+;;	 (dnl "Su: " Su)
+;;	 (dnl "Ss" Ss)
+;;	 (dnl "Sr" Sr)
 
 	 (if (null? C)
 		  Sr
 		  (cons (apply * C) Sr))
 	 ))
+
+;----- (normalise-term x) alias for normalise-factors
+(define normalise-term normalise-factors)
+
 
 ;----- (normalise-terms x) collects compatible 
 
@@ -360,7 +405,6 @@ which represents an exponent. "
 		 term<?)
 		))
   )
-
 
 
 ;---- (symbolic-sigs t) generates a signature/signatures for a term or terms  so we can collect compatible terms in polys
@@ -429,52 +473,22 @@ which represents an exponent. "
   )) ; Just too simple for words :-)
 
 
-;; (define (p* . args)
-;;   (define (p*2 a b)
-;; 	 (let* ((n* (filter number? (append a b)))
-;; 			  (n  (apply * n*))
-;; 			  (!na (!filter number? a))
-;; 			  (!nb (!filter number? b))
-;; 			  )
-		
-;; 		(normalise-factors  (cons n (apply  append (append !na !nb))))
-;; 	))
 
-;;   (set! args (map polynomial args))
+;---- (_t* a b) multiplies polynomials 
+  
+(define (_t* . args)
+;;  (if (not (apply andf (map term? args))) (error "non-term passed to _t*" (list args (map term? args))))
+  (rectify-numbers
+		 (normalise-factors (apply append (map (lambda (x) (if (pair? x) x (list x))) args)))))
 
-;;   (cond
-;; 	((null? args) #f)
-;; 	((= (length args) 1)
-;; 	 (polynomial (car args)))
-;; 	((= (length args) 2)
-;; 	 (p*2 (car args) (cadr args)))
-;; 	(#t
-;; 	 (let loop ((pair (cross* (car args) (cadr args)))
-;; 					(r '(0)))
-;; 		(cond
-;; 		 ((null? args) '(1))
-;; 		 ((not (pair? args)) #f)
-;; 		 ((and (pair? args) (null? (cdr args))) (car args))
-;; 		 (#t (loop (cdr pair)
-;; 					  (p+ r (p*2 (car pair) (cadr pair))))))
-;; 		)
-;; 	 )
-;; 	))
+(define (_p* . args)
+  (if (not (apply andf (map polynomial? args))) (error "non-polynomial passed to _p*" args))		
 
-(define (t*2 a b) ;; not quite right -- assumes everything is included
-  (let* ((n* (filter number? (append a b)))
-			(n  (apply * n*))
-			(!na (!filter number? a))
-			(!nb (!filter number? b))
-			)
-	 
-	 (normalise-factors  (cons n (apply  append (append !na !nb))))
-	 ))
-(abort)
-
-(define (p* . args)
-  (let ((terms (apply cross* args)))
-  terms))
+  (if (string? (car args))
+		(let* ((cp (apply cross* (map string->polynomial args))))
+		  (polynomial->string (normalise-polynomial (rectify-numbers (map (lambda (x) (apply _t* x)) cp)))))
+		(let* ((cp (apply cross* args)))
+		  (normalise-polynomial (rectify-numbers (map (lambda (x) (apply _t* x)) cp))))))
 
 
 
@@ -484,6 +498,8 @@ which represents an exponent. "
 ;---- (string->term str) maps a term in string form to a polynomial
 (define (string->term str)
   "4 a b^3 c^2 d"
+
+  (if (or (string-contains? str plus) (string-contains? str minus)) (error "expected term, got polynomial" str))
   (let* ((l (strtok str))
 			(nl (map string->number l))
 			(sl (map cadr (filter (lambda (x) (if (not (car x)) (cadr x) #f)) (map list nl l))))
@@ -495,9 +511,10 @@ which represents an exponent. "
 								  ))) sl))
 			)
 	 (set! nl (filter I nl))
-	 (if (null? nl)
-		  st
-		  (cons (apply * nl) st))))
+	 (cond
+	  ((null? nl) st)
+	  ((null? st) (apply * nl))
+	  (#t (cons (apply * nl) st)))))
 
 ;---- (string->polynomial pstr) convert a string like 4 + 2 x + 2 x^2 y^3 to (4 (2 (x 1)) (2 (x 2)(y 3)))
 
@@ -601,18 +618,31 @@ which represents an exponent. "
 		""))
 
 
+;---- (term trm)
+(define (term trm)
+  (cond
+	((string? trm)
+	 (term (string->polynomial trm)))
+	((term? trm) (normalise-factors term))
+	((polynomial? trm)
+	 (if (not (= (length trm) 1))
+		  #f
+		  (car (normalise-polynomial trm))))
+	(#t #f)))
+
 ;---- (polynomial ply) construct/normalise a polynomial
 (define (polynomial ply)
-  (if (string? ply)
-		(string->polynomial ply)
-		(if (polynomial? ply)
-			 (normalise-polynomial ply)
-			 #f)))
+  (cond
+	((string? ply) (string->polynomial ply))
+	((term? ply) (normalise-polynomial (list ply)))
+	((polynomial? ply) (normalise-polynomial ply))
+	(#t #f)))
 
 
 ;--- Test polynomials 
 (define p0 "1 + 3 y^2 x^3 + 2 + 5 c^2 a c b^3 + 7 3 z^2 m^3")
 (define p1 "a b^5 c + 3 x^3 y^2")
+(define p2 "1 + x")
 (define p3 "3 + 5 b^3 c^3 + 7 m^3 z^2 + 2 x^3 y^2")
 (define p4 "4 + 4 a b^3 c^3 + 12 m^3 z^2 + 9 x^3 y^2")
 (define p5 "2 + 3 a b^5 c + 5 x^3 y^2")
@@ -630,6 +660,27 @@ which represents an exponent. "
 (define ply6 (polynomial p6))
 (define ply7 (polynomial p7))
 (define ply8 (polynomial p8))
+
+(define t0 "3 y^3 x^2")
+(define t1 "3 x^3 y^2")
+(define t2 "x 4")
+(define t3 "y^2")
+(define t4 "a")
+(define t5 "5 x^3 y^2")
+(define t6 "2 x^3 2 y^2 2")
+(define t7 "2 x^3 x^2")
+(define t8 "x^3 y^2 z")
+
+
+(define trm0 (term t0))
+(define trm1 (term t1))
+(define trm2 (term t2))
+(define trm3 (term t3))
+(define trm4 (term t4))
+(define trm5 (term t5))
+(define trm6 (term t6))
+(define trm7 (term t7))
+(define trm8 (term t8))
 
 
 
@@ -832,7 +883,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;--- Mathematical operators on trees
 
 ;---- (t*-basic u v)  Multiplication of trees by scalars
-(define (*-basic u v)
+(define (*-scalar u v)
   (cond
 	((and (number? u) (number? v)) (* u v))
 	((and (number? u) (node? v))
