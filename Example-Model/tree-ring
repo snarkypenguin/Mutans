@@ -1,0 +1,896 @@
+;-  Identification and Changes
+
+; Tree ring code.
+
+;	History:
+;
+
+;--  Copyright 
+
+;--  Discussion 
+
+
+"
+This implements the arithmetic operations on the ring of trees.
+Implemented assuming chibi-scheme/R7RS or a similar implementation.
+
+Test data is kept at the end of the file, since we might use
+constructors to generate it.
+"
+
+;-  Configuration stuff 
+
+;--  Included files 
+
+
+(load "maths.scm") ;; Includes utils.scm
+(load "crossproduct.scm")
+(load "string-stuff.scm")
+;;(load "sort.scm")
+
+
+(define tr-debugging #f)
+
+;-  Code 
+;-- Mostly convenience functions, utilities, and mathematical functions
+
+;--- (ddnl . args) a version of dnl that only works if tr-debugging is true
+(define (ddnl . args)
+  (if tr-debugging
+		(apply dnl args)))
+
+;--- Define a random-integer that accepts a "0" argument
+
+(let ((ri random-integer))
+	    (set! random-integer
+		  (lambda (x)
+			 (if (and (integer? x) (positive? x)) (ri x)
+			  0))))
+
+(define (andf . args)
+  (if (null? args)
+		#t
+		(and (car args) (apply andf (cdr args)))))
+
+(define (orf . args)
+  (if (null? args)
+		#f
+		(or (car args) (apply orf (cdr args)))))
+
+;-- list routines, filter and map routines 
+
+;--- Identity function
+(define I (lambda (x) x))
+
+;--- merge-sort from RosettaCode.org
+(define (merge-sort l gt?) ;; From Rosetta code
+  (define (merge left right)
+    (cond
+     ((null? left)
+      right)
+     ((null? right)
+      left)
+     ((gt? (car left) (car right))
+      (cons (car right)
+            (merge left (cdr right))))
+     (else
+      (cons (car left)
+            (merge (cdr left) right)))))
+  (define (take l n)
+    (if (zero? n)
+      (list)
+      (cons (car l)
+            (take (cdr l) (- n 1)))))
+  (let ((half (quotient (length l) 2)))
+    (if (zero? half)
+      l
+      (merge (merge-sort (take      l half) gt?)
+             (merge-sort (list-tail l half) gt?)))))
+
+
+
+;---- (flatten-list l) removes all nesting
+(define (flatten-list lst)
+  (let loop ((l lst)
+				 (r '()))
+	 (cond
+	  ((null? l) (reverse r))
+	  ((not (pair? (car l)))
+		(loop (cdr l)
+				(cons (car l) r)))
+	  ((and (pair? l) (pair? (car l)))
+		(loop (cdr l)
+				(append (reverse (flatten-list (car l))) r)))
+	  ((pair? l)
+		(loop (cdr l) (cons (car l) r)))
+	  (#t 'boink)
+	  )
+	 ))
+
+
+;---- (flatten-singletons lst) converts (flatten-singletons '(a)) -> '(a) ; (flatten-singletons '((a) (b) (c d) e)) -> (a b (c d) e)
+(define (flatten-singletons lst)
+  (cond
+	((not (pair? lst)) lst)
+	((and (pair? lst) (pair? (car lst)) (null? (cdr lst))) ;; This may be wrong for what I want....
+	 (car lst))
+	((and (pair? lst) (pair? (car lst)) (null? (cdar lst)))
+	 (cons (caar lst) (flatten-singletons (cdr lst))))
+	(#t (cons (flatten-singletons (car lst)) (flatten-singletons (cdr lst))))))
+
+;---- (erode-whitespace string) erode spaces at leading and trailing ends of  strings in lists
+(define (erode-whitespace string)
+  (let* ((N (string-length string))
+			)
+	 (if (<= N 0)
+		  ""
+		  (let ((h (string-ref string 0))
+				  (t (string-ref string (- N 1))))
+			 (cond
+			  ((member h '(#\space #\tab))
+				(erode-whitespace (string-cdr string)))
+			  ((member t '(#\space #\tab))
+				(erode-whitespace (substring string 0 (max 0 (- N 1)))))
+			  (#t string))))))
+
+;---- (unique lst) returns a list containing only the unique elements
+
+(define (unique lst)
+  (let loop ((l lst)
+				 (r '()))
+	 (if (null? l)
+		  (reverse r)
+		  (if (not (member (car l) r))
+				(loop (cdr l) (cons (car l) r))
+				(loop (cdr l) r)))))
+
+;---- (!filter selector lst) -- returns a list of those elements which fail the selector
+
+(define (!filter selector lst)
+  (filter (lambda x (not (apply selector x))) lst))
+
+
+;--- (list-intersection a b) intersection of lists a and b
+(define (list-intersection A B)
+  (if (not (pair? A)) (set! A (list A)))
+  (if (not (pair? B)) (set! A (list B)))
+  (let ((f (filter (lambda (x) (member x B)) A)))
+	 (if (null? f)
+		  #f
+		  f)))
+
+
+;---- (string-head s n (string? integer?)) returns the first part of a string
+(define (string-head s n)
+  (let ((N (string-length s)))
+	 (cond
+	  ((zero? n) "")
+	  ((< n N) (substring s 0 n))
+	  (#t s))))
+
+;---- (string-tail s n (string? integer?)) returns the last part of a string
+(define (string-tail s n)
+  (let* ((N (string-length s))
+			(k (- N n)))
+	 (cond
+	  ((zero? n) "")
+
+	  ((and (>= k 0) < k n)(substring s k N))
+	  (#t s))
+	 ))
+
+;---- (string-car s) like car, but for strings
+(define (string-car s)
+  (string-head s 1))
+
+;---- (string-cdr s) like cdr, but for strings
+(define (string-cdr s)
+  (string-tail s (- (string-length s) 1)))
+
+
+
+
+;-- Code for polynomials
+
+" Polynomials are encoded as a list of terms.  Terms are either
+constants (numbers), or factors.  Factors are either constants or
+lists of length two which are comprised of a symbol and an integer
+which represents an exponent. "
+
+
+;--- Minor predicates: constant? variable? factor? term? polynomial?
+
+(define constant? number?)
+(define (variable? x) (and (list? x) (= 2 (length x)) (symbol? (car x)) (number? (cadr x))))
+(define (factor? x) (or (constant? x)	(variable? x)))
+(define (term? x) (or (constant? x) (apply andf (map (lambda (f) (factor? f)) x))))
+(define (polynomial? x) (or (number? x) (apply andf (map term? x))))
+
+;--- Comparison operators
+
+;---- Symbols
+
+;----- symbols: (symbol<? a b)
+(define (symbol<? a b)
+  (cond
+	((and (symbol? a) (symbol? b)) (string<? (symbol->string a) (symbol->string b)))
+	(#t (abort-please))
+  ))
+
+;----- symbols: (symbol=? a b)
+(define (symbol=? a b)
+  (equal? a b))
+
+;----- symbols: (symbol<=? a b)
+(define (symbol<=? a b)
+  (string<=? (symbol->string a) (symbol->string b)))
+
+;---- Factors
+
+(define (testit) (term<? '(7 (m 3) (z 2)) '(4 (a 1) (b 3) (c 3))))
+
+;----- (factor<? a b)  is the "less than" comparison operator for sorting factors within a term
+(define (factor<? a b) 
+  (cond
+	((and (number? a) (number? b)) (< a b))
+	((and (number? a) (pair? b)) #t)
+	((and (number? b) (pair? a)) #f)
+
+	((and (pair? a) (pair? b) (number? (car a)) (number? (car b)))
+
+	 (let ((v (factor<? (cadr a) (cadr b)))
+			 (w (factor<? (cadr b) (cadr a))))
+	
+		(cond
+		 ((and (not v) (not w)) ;; equality
+		  (< (car a) (car b)))
+		 ((and v (not w)) ;; less than
+		  #t)
+		 ((and (not v) w) ;; greater than
+		  #f)
+		 (#t (error "bad comparison" a b)))))
+
+	((and (pair? a) (pair? b) (number? (car a)))
+	 (factor<? (cadr a) b))
+		 
+	((and (pair? a) (pair? b) (number? (car b)))
+	 (factor<? a (cadr b)))
+	 
+	((and (pair? a) (pair? b))
+	 (let ((n (symbol<? (car a) (car b)))
+			 (m (symbol<? (car b) (car a))))
+		(cond
+		 ((and (not n) (not m)) (< (cadr a) (cadr b))) ;; equality in the symbol
+		 (n #t) ;; unambiguously true
+		 (m #f) ;; unambiguously false
+		 (#t (error "the excluded middle in factor<?" (list a b))))))
+	(#t (error "the *other* excluded middle in factor<?" (list a b)))
+	)
+  )
+
+;----- (factor>? a b)  is the "greater than" comparison operator for sorting factors within a term: good for merge-sort
+(define (factor>? a b)
+  (factor<? b a))
+
+;----- (factor=? a b) is an equality test 
+(define (factor=? a b)
+  (if (and (factor? a) (factor? b))
+		(not (or (factor>? a b) (factor<? a b)))
+		(error "bad input on factor equality test" (list a b))))
+
+
+;----- (sort-factor! t) side effect: sorts the factors within a term
+(define (sort-factor! t)
+  (sort! t factor<?))
+
+
+;---- terms
+;----- (fix-factors! t)  sorts (in situ) the factors within the term
+
+(define (fix-factors! t)
+		  (for-each sort-factor! t))
+
+;----- (term<? a b)  possible side effects! the "less than" comparison operator may also sort the factors in the terms
+;; this is not reliable if the factors in the term are not sorted
+
+(define (term<? a b)
+  (let ((a (normalise-factors a))
+		  (b (normalise-factors b)))
+
+	 (cond
+	  ((and (null? a) (null? b)) #f)
+	  ((and (null? a) (not (null? b))) #t)
+	  ((and (not (null? a))  (null? b)) #f)
+	  
+	  ((and (number? a) (number? b)) (< a b))
+	  ((and (number? a) (pair? b))  #t)
+	  ((and (pair? a) (number? b))  #f)
+	  (#t ;; Must be two pair (but we'd rather a full-house)
+		(cond
+		 ((factor<? (car a) (car b)) #t)
+		 ((factor<? (car b) (car a)) #f)
+		 (#t #f))))))
+
+
+;----- (term>? a b)  is the "greater than" comparison operator for sorting terms within a term: good for merge-sort
+(define (term>? a b)
+  (term<? b a))
+
+;----- (term=? a b) is an equality test 
+(define (term=? a b)
+  (if (and (term? a) (term? b))
+		(not (or (term>? a b) (term<? a b)))
+		(error "bad input on term equality test" (list a b))))
+
+
+;--- manipulation routines for polynomials and their kin
+;---- (normalise-factors x) collects common factors in a term
+(define (normalise-factors x)
+  (let* ((C (filter number? x))
+			(F (!filter null? (sort (!filter number? x) factor<?)))
+		;	(NF (filter (lambda (u) (pair? u) (equal? u (filter number? u))) x))
+			(ss (map car F))
+			(se (map cadr F))
+			(Su (unique ss))
+			(Ss (!filter null? (map (lambda (x) (map cdr (filter (lambda (y) (equal? (car y) x)) (map cons ss se)))) Su)))
+			(Sr (!filter null? (map (lambda (x y) (list x (apply + y))) Su Ss)))
+			)
+	 
+;	 (if (pair? NF) (set! C (cons (apply * (apply append NF)) C)))
+
+	 (if (null? C)
+		  Sr
+		  (cons (apply * C) Sr))
+	 ))
+
+;----- (normalise-terms x) collects compatible 
+
+(define (normalise-terms x)
+  (let* ((C (filter number? x))
+			(T (!filter null? (map normalise-factors (!filter number? x))))
+			)
+	 (set! C (if (not (null? C)) (apply + C)))
+
+    (let* ((C (filter number? x))
+			  (T (!filter number? x)))
+		(sort
+		 (if (null? C)
+			  (!filter null? (map normalise-factors T))
+			  (cons (apply + C) (!filter null? (map normalise-factors T))))
+		 term<?)
+		))
+  )
+
+
+
+;---- (symbolic-sigs t) generates a signature/signatures for a term or terms  so we can collect compatible terms in polys
+
+(define (symbolic-sigs x)
+  (cond
+	((polynomial? x)
+	 (let* ((X (normalise-terms x))
+			  (C (filter number? X))
+			  (S (!filter null? (!filter number? X)))
+			  (S (map (lambda (y) (!filter number? y)) (!filter null? (!filter number? X))))
+			  (V (map (lambda (x) (map car x)) S)) ;; just get the symbolic bit
+			  ;;(E (map cadr S))
+			  )
+		(sort S term<?))) ;; need the exponent too
+	((term? x)
+	 (car (symbolic-sigs (list x))))
+	(#t (error "bad argument to symbolic-sigs" x))
+	)	
+  )
+  
+
+
+;---- (matches-sym-sig sig) generates a "filter" function
+
+(define (matches-sym-sig sig)
+  (lambda (t)
+	 (if (term? t) 
+		  (equal? (symbolic-sigs t) sig)
+		  (error "matches-sym-sig only works for terms!" x))))
+
+;---- (normalise-polynomial p) adds collecting terms to  normalise-terms
+
+(define (normalise-polynomial P)
+  (let* ((p (sort (normalise-terms P) term<?))
+			(C (apply + (filter number? p)))
+			(T (!filter number? p))
+			(Ct (map (lambda (y) (if (null? y) 1 y)) (map (lambda (x) (filter number? x)) T)))
+			(ss (unique (symbolic-sigs T)))
+			(nc-terms (map (lambda (sig)								  
+							  (let* ((fl (filter (matches-sym-sig sig) p))
+										(fc (apply + (map (lambda (x) (if (pair? (car x)) 1 (car x))) fl)))
+										)
+								 (cons fc sig)
+								 )
+							  )
+								ss)))
+			
+	 (if (zero? C)
+		  nc-terms
+		  (cons C nc-terms))
+			
+	 )
+  )
+
+
+
+;--- arithmetic ops for polynomials
+
+;---- (p+ . ) adds polynomials
+(define (p+ . args)
+  (set! args (map polynomial args))
+  (if (null? args)
+		0
+		(normalise-polynomial (apply append (map normalise-polynomial args)))
+  )) ; Just too simple for words :-)
+
+
+;; (define (p* . args)
+;;   (define (p*2 a b)
+;; 	 (let* ((n* (filter number? (append a b)))
+;; 			  (n  (apply * n*))
+;; 			  (!na (!filter number? a))
+;; 			  (!nb (!filter number? b))
+;; 			  )
+		
+;; 		(normalise-factors  (cons n (apply  append (append !na !nb))))
+;; 	))
+
+;;   (set! args (map polynomial args))
+
+;;   (cond
+;; 	((null? args) #f)
+;; 	((= (length args) 1)
+;; 	 (polynomial (car args)))
+;; 	((= (length args) 2)
+;; 	 (p*2 (car args) (cadr args)))
+;; 	(#t
+;; 	 (let loop ((pair (cross* (car args) (cadr args)))
+;; 					(r '(0)))
+;; 		(cond
+;; 		 ((null? args) '(1))
+;; 		 ((not (pair? args)) #f)
+;; 		 ((and (pair? args) (null? (cdr args))) (car args))
+;; 		 (#t (loop (cdr pair)
+;; 					  (p+ r (p*2 (car pair) (cadr pair))))))
+;; 		)
+;; 	 )
+;; 	))
+
+(define (t*2 a b) ;; not quite right -- assumes everything is included
+  (let* ((n* (filter number? (append a b)))
+			(n  (apply * n*))
+			(!na (!filter number? a))
+			(!nb (!filter number? b))
+			)
+	 
+	 (normalise-factors  (cons n (apply  append (append !na !nb))))
+	 ))
+(abort)
+
+(define (p* . args)
+  (let ((terms (apply cross* args)))
+  terms))
+
+
+
+				 
+;--- polynomial->string routines
+
+;---- (string->term str) maps a term in string form to a polynomial
+(define (string->term str)
+  "4 a b^3 c^2 d"
+  (let* ((l (strtok str))
+			(nl (map string->number l))
+			(sl (map cadr (filter (lambda (x) (if (not (car x)) (cadr x) #f)) (map list nl l))))
+			(st (map (lambda (x)
+						  (let ((v (strtok x "^")))
+							 (if (= 1 (length v))
+								  (list (string->symbol (car v)) 1)
+								  (list (string->symbol (car v)) (string->number (cadr v)))
+								  ))) sl))
+			)
+	 (set! nl (filter I nl))
+	 (if (null? nl)
+		  st
+		  (cons (apply * nl) st))))
+
+;---- (string->polynomial pstr) convert a string like 4 + 2 x + 2 x^2 y^3 to (4 (2 (x 1)) (2 (x 2)(y 3)))
+
+(define (string->polynomial pstr)
+  (let* ((str (split-string-at-separators+ pstr '(" + " " - "))))
+	 ;;(apply append str-)
+
+	 (let loop ((s str)
+					(r '())
+					)
+		(cond
+		 ((null? s) (normalise-polynomial (reverse r)))
+		 ((string=? (car s) " - ")
+		  (let ((t (string->term (cadr s))))
+			 (loop (cddr s)
+					 (cons (car (normalise-polynomial (list (append '(-1) t)))) r))
+					 ))
+		 ((string=? (car s) " + ")
+		  (loop (cddr s)
+				  (cons (string->term (cadr s)) r)
+				  ))
+		 (#t
+		  (loop (cdr s)
+				  (cons (string->term (car s)) r)
+				  ))
+		 )
+		)
+	 )
+  )
+
+;---- (latex-term t) generate a string for a term
+(define (latex-term t)
+  (let* ((c (filter number? t))
+			(cn (if (null? c) 1 (apply * c)))
+			(cs (number->string cn))
+			(s (filter pair? t))
+			)
+	 (if (null? s)
+		  (string-append cs " ") ;; Just a number, no polynomial factors
+		  (string-append (if (= 1 cn) "" (string-append "" cs))
+							  (apply string-append
+										(cons (if (= cn 1) "" " ")
+												(map (lambda (f)
+														 (string-append
+														  (symbol->string (car f))
+														  (if (= 1 (cadr f))
+																" "
+																(string-append "^" (number->string (cadr f)) " ")
+																)))
+													  s)))
+							  ))
+	 ))
+
+;---- (latex-polynomial p op cp) generate a string for a polynomial (with appropriate bracketting)
+(define (latex-polynomial p op cp)
+  (erode-whitespace
+	(let* ((p (normalise-polynomial p))
+			 (C (apply + (filter number? p)))
+			 (t* (map latex-term (!filter number? p)))
+			 )
+
+	  (let loop ((t (cdr t*))
+					 (s (string-append op (car t*)))
+					 )
+		 (cond
+		  ((null? t)
+			(if (zero? C)
+				 (string-append s cp)
+				 (string-append  (number->string C) " + " s  cp)))
+
+		  ;; non-negative term
+		  ((not (char=? (string-ref (car t) 0) #\-))
+			(loop (cdr t)
+					(string-append s "+ " (car t))))
+
+		  ;; negative term
+		  ((char=? (string-ref (car t) 0) #\-)
+			(loop (cdr t)
+					(string-append
+					 s "- "
+					 (substring (car t) 1 (string-length (car t)))))
+			)
+		  (#t (error "bad polynomial" p)))))))
+  
+;---- (polynomial->string p) emit a string corresponding to the polynomial
+(define (polynomial->string p)
+  (if (polynomial? p)
+		(latex-polynomial p "" "")
+		""))
+
+;---- (polynomial->inline-string p)  emit a latex inline string corresponding to the polynomial
+(define (polynomial->inline-string p)
+  (if (polynomial? p)
+		(latex-polynomial p "\\(" "\\)")
+		""))
+
+;---- (polynomial->display-string p)  emit a latex display string corresponding to the polynomial
+(define (polynomial->display-string p)
+  (if (polynomial? p)
+		(latex-polynomial p "\\[" "\\]")
+		""))
+
+
+;---- (polynomial ply) construct/normalise a polynomial
+(define (polynomial ply)
+  (if (string? ply)
+		(string->polynomial ply)
+		(if (polynomial? ply)
+			 (normalise-polynomial ply)
+			 #f)))
+
+
+;--- Test polynomials 
+(define p0 "1 + 3 y^2 x^3 + 2 + 5 c^2 a c b^3 + 7 3 z^2 m^3")
+(define p1 "a b^5 c + 3 x^3 y^2")
+(define p3 "3 + 5 b^3 c^3 + 7 m^3 z^2 + 2 x^3 y^2")
+(define p4 "4 + 4 a b^3 c^3 + 12 m^3 z^2 + 9 x^3 y^2")
+(define p5 "2 + 3 a b^5 c + 5 x^3 y^2")
+(define p6 "5 + 3 a b^5 c + 2 x^3 y^2")
+(define p7 "2 x^3 y^2")
+(define p8 "x^3 y^2 + y^2 z")
+
+
+(define ply0 (polynomial p0))
+(define ply1 (polynomial p1))
+(define ply2 (polynomial p2))
+(define ply3 (polynomial p3))
+(define ply4 (polynomial p4))
+(define ply5 (polynomial p5))
+(define ply6 (polynomial p6))
+(define ply7 (polynomial p7))
+(define ply8 (polynomial p8))
+
+
+
+;-- Code for rings of tree elements (nodes)
+"
+Nodes are lists of the form 
+
+      (weight polynomial set-of-child-nodes)
+
+and trees are really just collections of related nodes where there is
+a root (the node which is (uniquely) the child of no other node in the set).
+"
+
+
+;--- Important "constants": emptyset, zerotree
+
+(define emptyset '())
+(define zerotree '(0 0 emptyset))
+
+
+;--- Accessors
+
+;---- weight, label and extension-set
+(define (weight v)
+  (if (null? v)
+		0
+		(car v)))
+
+(define (label v)
+  (if (null? v)
+		0
+		(cadr v)))
+
+(define (extension-set v)
+  (if (null? v) 
+		'()
+		(caddr v)))
+
+;---- (extension-element v l) the element of the extension set of v with a label l, or the empty set
+(define (extension-element v l)
+  (let* ((s (cond
+				 ((extension-set? v) v)
+				 ((node? v) (extension-set v))
+				 (#t (error "the 'v' argument is not a node or extension set" v))))
+			(r (filter (lambda (x) (equal? l (label x))) s))
+			)
+	 (if (= (length r) 1) ;; if it is exactly a single element just return that otherwise either a null or a list
+		  (car r)
+		  r)))
+
+(define union append) ;; makes it nice and readable for set operations
+
+
+;--- Predicates 
+
+;---- (node? n) and (tree? n) 
+(define (node? n)
+  (ddnl "node?: " n)
+  (cond
+	((null? n) #t)
+	((not (pair? n)) #f)
+	(#t (and (= (length n) 3)
+				(number? (weight n))
+				(polynomial? (label n))
+				(extension-set? (extension-set n))
+				))
+	))
+
+(define tree? node?)
+
+
+;---- (simple-node? n)  node with empty extension set
+(define (simple-node? n)
+  (and (= (length n) 3) (number? (weight n)) (polynomial? (label n)) (null? (extension-set n))))
+
+
+;---- (extension-set? E)
+(define (extension-set? E)
+  (let ((r (cond
+				((null? E) #t)
+				((node? (car E))
+				 (extension-set? (cdr E)))
+				(#t #f))))
+	 r))
+
+
+;--- Constructors
+
+;---- (node a b c) ; weight polynomial-label extensions 
+(define (node a b c) ; weight polynomial-label extensions 
+  (ddnl "\nnode: " a " " b " " c)
+  (set! b (if (number? b) (list b) b))
+
+  (if	(and (number? a)
+			  (polynomial? b)
+			  (if (null? c) emptyset (apply fand (map node? c))))
+		(list a b c)
+		(error "Bad data in node constructor" (list a b c))))
+
+			  
+;; the polynomial (5 (7 ((x 2) (y 2))) (1 ((x 1) (y 1))) (1 ((x 1) (y 1))))
+;; reads as 5 + 7x^2y^2 + xy + xy
+
+;---- (random-node L W D w E  z)
+(define (random-node L W D w E  z)
+  (node (random-integer W)
+		  (random-polynomial L w z)
+		  (if (zero? D)
+				'()
+				(let ((e (random-integer E)))
+				  (if (zero? e)
+						'()
+						(map (lambda (x) (random-node L W (- D 1) e w z)) (seq e)))))))
+
+
+
+;--- Mathematical functions  
+		
+;---- (depth tree)  returns the depth of the tree
+(define (depth tree)
+  (dnl "probably broken")
+  (cond
+	(not (tree? tree) #f)
+	((or (null? tree) (equal? tree '(0 0 emptyset)))
+	 0)
+	(#t (apply max (map depth (extension-set tree))))))
+
+;---- (define (trim tree) returns a tree with all simple nodes excised
+(define (trim tree)
+  (if (simple-node? tree)
+		tree
+		(node (weight tree) (label tree) (!filter null? (map trim (extension-set tree))))))
+
+
+;---- (overlap u v) the overlap between two trees
+(define (overlap u v)
+  (if (or (null? u) (null? v) (not (equal? (label u) (label v))))
+		0
+		(+ 1
+			(apply + (map (lambda (x) (apply overlap x)) (cross (extension-set u) (extension-set v)))))))
+
+;---- set restrictions
+
+;----- (L u) returns the set of labels associated with the elements of the set u
+(define (L u)
+  (cond
+	((null? u) emptyset)
+	((extension-set? u) (map label u))
+	((node? u)
+	 (map label (extension-set u)))
+	(#t '())))
+	 
+
+;---- U_v_op
+(define  (U_v f u v)
+  (let ((nu (node? u))
+		  (nv (node? v))
+		  (esu (extension-set? u))
+		  (esv (extension-set? v))
+		  )
+	 (cond
+	  ((or (null? u) (null? v))
+		'())
+
+	  ((and nu nv)
+		(U_v (extension-set u) (extension-set v)))
+
+	  ((node? u) (U_v (extension-set u) v))
+	  ((node? v) (U_v u (extension-set v)))
+
+	  ((and esu esv)
+		(f (lambda (x) (member (label x) (L v)))  u))
+	  (#t '()))))
+
+
+;----- (U_v u v) the set of elements in the extension set of u which have a label in (L v) (the labels in the extn set of v)
+(define  (U_v u v)
+  (U_v_op filter u v))
+
+(define V_u U_v)
+
+;----- (U_!v u v) the set of elements in the extension set of u which do not have a label in (L v)
+(define  (U_!v u v)
+  (U_v_op !filter u v))
+
+(define V_!u U_!v)
+
+;----- (U_!v u v) the set of elements in the extension sets which have labels in both sets
+
+(define (UandV u v)
+  (let ((UnV (list-intersection (map label (extension-set u)) (map label (extension-set v)))))
+	 (map (lambda (x)
+			  (let ((ux (extension-element u x))
+					  (vx (extension-element v x)))
+				 
+				 (list ux vx)))
+	 UnV)))
+
+
+;--- Mathematical operators on trees
+
+;---- (t*-basic u v)  Multiplication of trees by scalars
+(define (*-basic u v)
+  (cond
+	((and (number? u) (number? v)) (* u v))
+	((and (number? u) (node? v))
+	 (node (* u (weight v)) (label v) (map (lambda (x) (t*-basic u x)) (extension-set v))))
+	((and (number? v) (node? u))
+	 (t*-basic v u))
+	((and (node? u) (node? v))
+	 (error "Called basic multiplication with two nodes" u v))
+	))
+  
+
+
+
+;---- (t2+ u v) add two trees together
+(define (t2+ u v)
+  (cond
+	((eq? v zerotree) u)
+	((eq? u zerotree) v)
+	((not (eq? (label u) (label v)))
+	 (error "Attempted to add incompatible trees" u v))
+	((and (node? u) (node? v))
+	 (node (+ (weight u) (weight v))
+				 (label u)
+				 (!filter null? (append
+									  (U_!v u v)
+									  (V_!u v u)
+									  (map (lambda (l) (t2+ (extension-element u l) (extension-element v l))) 
+											 (list-intersection (map label (extension-set u))
+																	  (map label (extension-set v))))))))
+	(#t (error "Encountered a dragon in addition" u v))))
+
+(define (t+ . args)
+  (let ((la (length args)))
+	 (case la
+		((0) 0)
+		((1) (car args))
+		((2) (t2+ (car args) (cadr args)))
+		(else (apply t+ (cons (t2+ (car args) (cadr args)) (cddr args)))))))
+
+
+
+(define (boxadd B C)
+  (!filter null? (append (U_!v B C)
+								 (U_!v C B)
+								 (map (lambda (l) (t+ (extension-element B l) (extension-element C l))) 
+											 (list-intersection (map label B)
+																	  (map label C)))
+								 )))
+
+;-  The End 
+
+
+;;; Local Variables: ***
+;;; mode: scheme ***
+;;; outline-regexp: ";-+" ***
+;;; comment-column:0 ***
+;;; comment-start: ";;; " ***
+;;; comment-end:""  ***
+
+;;; End:
+

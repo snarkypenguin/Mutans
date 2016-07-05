@@ -48,8 +48,11 @@
   (if (pair? y) (cdr y) y))
 
 
-(define (fand a . b) (if (null? b) (not (not a)) (and a (apply fand b))))
-(define (for a . b) (if (null? b) (not (not a)) (or a (apply fand b))))
+(define (fand1 a . b) (if (null? b) (not (not a)) (and a (apply fand1 b))))
+(define (for1 a . b) (if (null? b) (not (not a)) (or a (apply for1 b))))
+
+(define (fand . c) (if (null? c) #t (apply fand1 c)))
+(define (for . c) (if (null? c) #f (apply for1 c)))
 
 (define (real->integer k)
   (let* ((s (number->string k))

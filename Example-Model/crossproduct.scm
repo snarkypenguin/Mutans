@@ -45,6 +45,25 @@
 	(#t (cross (car args) (apply cross (cdr args))))))
 
 
+
+(define (cross* . args)
+  (define (cross2 a b)
+	 (apply append (map (lambda (x) (map (lambda (y) 
+														(if (list? y)
+															 (cons x (list y))
+															 (list x y))) b)) a)))
+  (cond
+	((not (list? args)) (bad-argument))
+	((null? args) '())
+	((= (length args) 1)
+	 (car args))
+	((= (length args) 2)
+		(apply cross2 args))
+	(#t (cross (car args) (apply cross (cdr args))))))
+
+
+
+
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; outline-regexp: ";-+"

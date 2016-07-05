@@ -6,13 +6,13 @@
 ;-  Discussion 
 
 
-We first sort out the different submodels:
-	plants
-	herbivores
-	carnivores
+;;; We first sort out the different submodels:
+;;; 	plants
+;;; 	herbivores
+;;; 	carnivores
 
-Each has an individual-based representation and analytic
-representations.
+;;; Each has an individual-based representation and analytic
+;;; representations.
 
 
 

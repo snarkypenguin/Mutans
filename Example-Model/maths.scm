@@ -34,6 +34,17 @@
 
 
 
+(define (seq n)
+  (define (s m l)
+    (if (zero? m)
+        (cons m l)
+        (s (- m 1) (cons m l))))
+  (cond
+   ((zero? n) '())
+   ((< n 0) (map (lambda (x) (+ n x)) (s (- (- n) 1) '())))
+   (#t (s (- n 1) '()))))
+
+
 ;;# sigmoid: x is in [0,1], l governs how sharp the transition is and off shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and off = 0.0
 ;;# the value of the function at -0.5 is ~0.002 
