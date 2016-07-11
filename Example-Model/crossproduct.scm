@@ -28,8 +28,9 @@
   (apply append (map (lambda (x) (map (lambda (y) 
 														  (list x y)) b)) a)))
 
-;; return the cross product of n lists (state spaces)
-(define (cross . args)
+;; *** this is wonky ***
+;; return the cross product of n lists (state spaces)  
+(define (cross__ . args)
   (define (cross2 a b)
 	 (apply append (map (lambda (x) (map (lambda (y) 
 														(if (list? y)
@@ -42,7 +43,7 @@
 	 (car args))
 	((= (length args) 2)
 		(apply cross2 args))
-	(#t (cross (car args) (apply cross (cdr args))))))
+	(#t (cross__ (car args) (apply cross__ (cdr args))))))
 
 
 
@@ -59,10 +60,7 @@
 	 (car args))
 	((= (length args) 2)
 		(apply cross2 args))
-	(#t (cross (car args) (apply cross (cdr args))))))
-
-
-
+	(#t (cross* (car args) (apply cross* (cdr args))))))
 
 ;;; Local Variables:
 ;;; mode: scheme
