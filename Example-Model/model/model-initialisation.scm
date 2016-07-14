@@ -1,10 +1,22 @@
 ;-  Identification and Changes
 
 ;--
-;	Model.scm -- Written by Randall Gray 
+;	model-initialisation.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2014.10.12
+;		Location: pooh:/local/home/randall/study/src/model-initialisation.scm
+;
+;	History:
+;
+
+;-  Copyright 
+
+;
+;   (C) 2014 Randall Gray
+;   All rights reserved
+;
 
 ;-  Discussion 
-
 
 ;-  Configuration stuff 
 
@@ -20,9 +32,8 @@
 
 
 
-
-
-
+;; Now edit the following file if necessary..... Mainly for logging support
+(load "pre-run-setup.scm")
 
 
 

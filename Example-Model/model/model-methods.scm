@@ -1,10 +1,22 @@
 ;-  Identification and Changes
 
 ;--
-;	Model.scm -- Written by Randall Gray 
+;	wally.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2012.11.16
+;		Location: odin:/home/gray/study/src/new/wally.scm
+;
+;	History:
+;
+
+;-  Copyright 
+
+;
+;   (C) 2012 CSIRO Australia
+;   All rights reserved
+;
 
 ;-  Discussion 
-
 
 ;-  Configuration stuff 
 
@@ -18,11 +30,8 @@
 
 ;-  Code 
 
-
-
-
-
-
+;;(load "animal-methods.scm")
+;;(load "landscape-methods.scm")
 
 
 

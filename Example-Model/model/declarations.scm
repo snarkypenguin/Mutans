@@ -1,29 +1,17 @@
 ;-  Identification and Changes
 
 ;--
-;	Model.scm -- Written by Randall Gray 
+;	class.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2012.11.30
 
-;-  Discussion 
 
-
-;-  Configuration stuff 
-
-;-  Included files 
-
-;-  Variables/constants both public and static
-
-;--    Static data
-
-;--    Public data 
 
 ;-  Code 
 
 
-
-
-
-
-
+(include "framework-declarations.scm")
+(include "model-declarations.scm")
 
 
 ;-  The End 

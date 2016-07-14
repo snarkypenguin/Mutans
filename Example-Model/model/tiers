@@ -1,0 +1,26 @@
+framework
+	= support-lib
+	  + utils.scm
+	  + units.scm
+	  + sort.scm
+	  + maths.scm
+	  	 + utils.scm
+	  + integrate.scm
+	  	 + maths.scm
+		 + lists.scm
+	  + matrix.scm
+	  	 + maths.scm
+	  + postscript.scm
+		 + lists.scm
+	= sclos.scm
+	= framework-controls.scm
+	= framework-classes.scm
+	  + log-classes.scm
+	= framework-declarations.scm
+	  + log-declarations.scm
+	= framework-methods.scm
+	  + log-methods.scm	
+	+ kernel.scm
+	  + postscript.scm
+	+ model-configuration.scm
+	
