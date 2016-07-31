@@ -34,17 +34,20 @@
 
 
 
-\chapter{A commutative \rng\ over a metric space with tree elements}
+\chapter[A COMMUTATIVE RNG OVER A METRIC SPACE WITH TREE ELEMENTS]
+        {A commutative \rng\ over a metric space with tree elements}\label{treering}
 
 \section{Introduction}
-The subject of this chapter originally arose as a means of encoding
-responses to survey questions. These encoded data were to seed a
-population of ``virtual individuals'' in simulation models designed to
-simulate the way public opinion changes in response to policy
-actions. The realisation that this structure also has application in
-controlling models of the sort described in 
-to their own local state and the local states of other submodels.
-
+The subject of this chapter arose in course of devising a mechanism to
+use responses to survey questions to incorporate the ``attitudes'' of
+populations of simulated entities in a way which allows events and the
+attitudes of other entities to influence the attitudes of each entity.
+The specific goal was to be able to simulate the way public opinion
+changes in response to policy actions, and changes in the economy and
+environment. This structure also has application in controlling
+simulation models which permit the representation of submodels to
+change in response to their own local state and the local states of
+other submodels.
 
 More generally we will be considering trees comprised of labelled
 nodes with associated values.  Each such node may have an arbitrary
@@ -80,9 +83,12 @@ We will make use of a special element in $\DOM$, $\zerotree = (0, 0,
 \emptyset)$, an analogue of zero which we will call the
 \emph{zerotree}.
 
-
+The set of valid labels is taken to be a ring of polynomials, but
+elements of \emph{any} (commutative) ring could serve equally well.
+For other applications the choice of polynomials may not be
+appropriate; here, polynomials provide a simple example which is
+easily manipulated and printed.
 \end{definition}
-
 
 Any two nodes are said to be \emph{compatible} if they have the same
 label, or at least one of the nodes is the \tzerotree. Two trees are
@@ -789,7 +795,7 @@ normed vector space $\DOMQ$, to be \[\dist(\qnode{u},\qnode{v}) =
 %%       \zerotree & \text{ if either factor is } \zerotree \\
 
 For the moment, we will satisfy ourselves with constructing a \rng\ of
-these trees, and define a multiplicative operator without a
+these trees, and define a multiplicative operator without identifying a
 corresponding identity. First we define the pairwise multiplication of
 the elements in two sets of nodes which is analogous to the $\stplus$
 operator used in the addition of trees.
@@ -798,7 +804,7 @@ operator used in the addition of trees.
   \begin{align*}
     \set{B}\boxtimes\set{C}&=\{\rnode{f}\tdot\rnode{g}:\rnode{f}\in\set{B},\rnode{g}\in\set{C}\}\\
     \intertext{where $\tdot$ is the multiplicative operator for trees, and we also define}
-    \sigma(p,\set{B},\set{C})&=\{\Sigma_{\rlabel{f}=p}:\rnode{f}\in\set{B}\boxtimes\set{C}\}\\
+    \sigma(p,\set{B},\set{C})&=\{\Sigma_{\rlabel{f}=p} \rnode{f}:\rnode{f}\in\set{B}\boxtimes\set{C}\}\\
       \intertext{and}
     \set{B}\stdot\set{C}&=\{\sigma(p,\set{B},\set{C}): p\in\nlabels{\set{B}\boxtimes\set{C}}\}
   \end{align*}
@@ -818,7 +824,7 @@ operator used in the addition of trees.
 For nodes $\rnode{u}, \rnode{v} \in \DOMR$, we define their product,
 $\rnode{u} \tdot \rnode{v}$, by
 \begin{equation}
-  \rnode{u}, \rnode{v} = \begin{cases}
+  \rnode{u} \tdot \rnode{v} = \begin{cases}
     \rzerotree & \text{if either of the nodes is } \rzerotree \\
 %%%    (\rv{u} \rv{v}, 0, \emptyset) & \text{ if $\rnode{u}, \rnode{v}$ are both scalar nodes} \\
 %%%    (\rv{u}\rv{v}, \rlabel{u}, \rextn{u}) & \text{if $\rnode{v}$ is scalar} \\
@@ -1008,19 +1014,30 @@ $\DOMR$ with tree addition and tree multiplication is a commutative \rng.
 \end{proof}
 \end{corollary}
 
-\section{For the wildly optimistic}
-\subsection{Our space is a complete metric space \ldots Hah!}
-
-\begin{proposition}\label{cauchyseq}
-Every Cauchy sequence  in $\DOMR$ converges to a tree in $\DOMR$.
-\begin{proof}
-\ldots
-\end{proof}
-\end{proposition}
-
-
+%% \begin{proposition}\label{itsaring} The analogue of the element
+%%   \((1,1,\emptyset) \in \DOMR\) is not the multiplicative identity
+%%   in the \(\DOMR\).  \begin{proof} Take an arbitrary $\rnode{u} \in
+%%   \DOMR$ to be $(\rv{u}, \rlabel{u}, \rext{u})$.  Clearly the
+%%   product of $\rv{u}$ and the scalar $1$ is $\rv{u}$, and the
+%%   product of $\rlabel{u}$ and the polynomial label $1$ is
+%%   $\rlabel{u}$.  All that remains is to observe that there is
+%%   \emph{no} way we get the extension of \rnode{u} to be other than
+%%   empty.
 
 
+
+
+
+
+%% \section{For the wildly optimistic}
+%% \subsection{Our space is a complete metric space \ldots Hah!}
+
+%% \begin{proposition}\label{cauchyseq}
+%% Every Cauchy sequence  in $\DOMR$ converges to a tree in $\DOMR$.
+%% \begin{proof}
+%% \ldots
+%% \end{proof}
+%% \end{proposition}
 
 
 
@@ -1046,40 +1063,49 @@ Every Cauchy sequence  in $\DOMR$ converges to a tree in $\DOMR$.
 
 \section{Discussion}
 
-\UseFirstVersion{}{This structure arose from attempts to capture the nuances
-associated with survey questions of the form ``Thinking about kidney
-beans, how would you rate the chances of your favourite sporting team
-in the coming match?'', and to be able to incorporate the sorts of
-possibly conflicting data into simulation models \marginnote{This
-needs a lot more fleshing out. Probably a paragraph or two on MSE.}
-and to elicit in these models the dynamic interaction between
-simulated management strategies and the attitudes of modelled
-individuals and stakeholders as they respond to the the managed
-system.}
+This \rng\ arose from attempts to capture the nuanced associations
+in survey questions of the form ``Thinking about the weather forecast,
+how would you rate the chances of your favourite sporting team in the
+coming match?'', and to be able to incorporate the sorts of possibly
+conflicting data into simulation models and to elicit in these models
+the dynamic interaction between simulated management strategies and
+the attitudes of modelled individuals and stakeholders as they respond
+to the the managed system.  In this context, the difference between a
+conditional assessment and an unconditional assessment may be central
+to the behaviour we want from simulated entities.  The labels of nodes
+in a tree could be associated with particular preconditions, and
+perturbations of a tree---perhaps by summation, multiplication,
+restriction, or extension---might provide appropriate ways of altering
+the perceptual and attitudinal orientation of the modelled entities.
+Alas this project did not continue, but the unfolding mathematics
+converged with the desire to control the mix of submodels as discussed
+in Chapter 1.
 
+
+\subsection{semantic coherence in the extensions}
 The way the extensions of a node influence the value of a node can be
 perverse if the data in these nodes aren't appropriate.  The
 overriding rule is that extensions to a node \emph{must be relevant to
-  that node}. For extrapolation from surveys this is a matter associated
-with the coding of data, for simulation models (like MSE models or
-evaluating climate adaptation strategies) it is a matter of keeping
-track of influences and connections appropriately.  I don't believe
-that this is entirely a trivial matter, but I also don't believe it is
-a complex one.
+  that node}. For extrapolation from surveys this is a matter
+associated with the coding of data, for simulation models (like MSE
+models or evaluating climate adaptation strategies) it is a matter of
+keeping track of influences and connections appropriately.  I don't
+believe that this is entirely a trivial matter, but I also don't
+believe it is a complex one.
 
+Example\ldots
 
+\section{Example model}
 
-\section{Application}
-
+\section{Possible domains}
 MSE models incorporating public opinion (surveys)
 
-Adaptive decision making (kind of like a Baysian net, I suppose)
+Relationship to Bayesian reasoning, Adaptive decision making (Baysian net?)
 
 Adaptive behaviour (things can learn by adjusting weightings or
 adding new branches)
 
 Constructing or assessing phylogenetic trees? 
-
 
 %% \appendix
 %% \section{Appendix}

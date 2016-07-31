@@ -31,11 +31,9 @@
 % 'tocbibind' for adding table of contents entries for bibliography, index etc.
 % 'sectsty' for generating stylised chapter and section headings.
 % You will need to make sure your LaTeX installation has these packages
-
 % installed...else it wont work :(
 
 \input{mathphdthesis.sty}
-
 
 %\let\chapter\section
 
@@ -53,11 +51,33 @@
 \usepackage{enumitem}
 \usepackage{lmodern}
 \usepackage{mathtools}
-\usepackage{natbib}
 \usepackage{url,lineno}
-
-
 \usepackage{graphicx}
+\usepackage{pdflscape}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{textcomp}
+\lstset{
+  language=Scheme
+}
+
+
+\usepackage[authoryear]{natbib}
+%% \usepackage[
+%%     backend=bibtex,
+%%     style=authoryear-icomp,
+%%     sortlocale=en_AU,
+%%     natbib=true,
+%%     url=false, 
+%%     doi=true,
+%%      eprint=false
+%% ]{biblatex}
+%
+ %%%%\addbibresource{biblatex-examples.bib}
+ %%\usepackage[]{hyperref}
+%%\setcitestyle{authoryear, open={((},close={))}
+
 
 %-- Fonts
 %\usepackage[T1]{fontenc}
@@ -70,9 +90,6 @@
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
 \typeout{Got packages}
-
-
-
 
 % Here you would include any additional packages that you want to use.
 % You should make sure they don't clash with the above packages that
@@ -108,9 +125,9 @@
 \input{chap4}  % paper 2
 \input{chap5}  % explicit model
 \input{concl}  % conclusion ... of course
-\input{app0}   % code for explicit model
-\input{app1}   % limited results
+\input{app0}   % switch to appendix mode
+\input{app1}   % section 1: environment , section 2: code for explicit model
 \input{biby}   % Makes the bibliography from the BibTeX database
 \input{index}  % Places the index in the thesis
-
 \end{document}
+

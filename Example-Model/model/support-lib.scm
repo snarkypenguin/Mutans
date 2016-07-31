@@ -19,4 +19,4 @@
 (load "integrate.scm")
 (load "matrix.scm")
 (load "postscript.scm")
-(include "basic-population.scm")
+(load "basic-population.scm")

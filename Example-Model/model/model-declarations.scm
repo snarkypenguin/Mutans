@@ -11,8 +11,8 @@
 ;;; |#
 
 
-(include "landscape-declarations.scm")
-(include "animal-declarations.scm")
+(load "landscape-declarations.scm")
+(load "animal-declarations.scm")
 
 ;;(include "boat-declarations.scm")
 ;;(include "benthic-declarations.scm")

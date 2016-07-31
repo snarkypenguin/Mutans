@@ -1,7 +1,11 @@
-% chap1.tex (Chapter 1 of the thesis)
-
 \begin{document}
 
+%% These are defined at the end of the mathphdthesis.sty
+\titlepg
+\signaturepage
+\altcopyrightpage
+\abswithesis
+\ackpage
 % Set page numbering to arabic the first time we commence a chapter.
 % This is required to get the page numbering correct.
 \pagenumbering{arabic}
@@ -9,40 +13,57 @@
 % Note that the text in the [] brackets is the one that will
 % appear in the table of contents, whilst the text in the {}
 % brackets will appear in the main thesis.
-\chapter[INTRODUCTION]{INTRODUCTION}
+\chapter[INTRODUCTION]{Introduction}\label{intro}
 
 \section{Overview and introduction}
 
-The primary aim of this thesis is to demonstrate a mechanism which can
-be used to mediate changes in the mathematical or algorithmic
-structure of a model of a complex system. A simple uptake-depuration
-model of organisms which migrate through a contaminant field is
-presented in Chapter \ref{cap2} to explore the fundamental principles
-and to demonstrate the utility of such a mechanism. In this thesis, we
-will use \emph{model} to refer to a (possibly trivial) collection of
-of components which, together, simulate a system. The term
-\emph{submodel} will generally refer to a largely discrete component
-of a model, and it can be viewed as a model in its own right.  In some
-sense we can view submodels as the abstract or \emph{in potentia}
-representations, and \emph{agents} are specific, \emph{in esse}
-instances of submodels.
+The primary aim of this thesis is to demonstrate an approach to
+constructing computational models which can be used to effect changes
+in the mathematical or algorithmic structure of model of complex
+systems in response to changes in their status. A simple
+uptake-depuration model of organisms which migrate through a
+contaminant field is presented in Chapter \ref{modelefficiency} to
+explore the fundamental principles and to demonstrate the utility of
+such a mechanism. The third chapter develops a mathematical structure
+with properties that make it a useful mechanism for representing the
+complex states of these structurally adaptible models. A number of
+useful functions are defined, and the basic properties of the
+structure are proved. Chapter \ref{adaptiveselection} uses this mathematical
+structure for encoding the complex states of a model and its
+components in a ``thought experiment'' which illustrates the dynamics
+which might arise in a simple model. 
 
+Chapter \ref{explicitmodel} provides a detailed discussion of a real
+implementation of the thought model used in Chapter
+\ref{adaptiveselection}. The chapter briefly describes the modelling
+framework used to implement the model, and then addresses the details
+of the implementation. \textbf{Using ODD?} {\emph The body of code is included in
+the Appendix.  If we include it all it is 500pp}
+
+
+In this thesis, we will use \emph{model} to refer to a (possibly
+trivial) collection of of components which, together, simulate a
+system. The term \emph{submodel} will generally refer to a largely
+discrete component of a model (arguably a model in its own right).
+More specifically, we will consider submodels to be the abstract or
+\emph{in potentia} representations, and \emph{agents} to be the
+\emph{in esse} instances of submodels.
 
 Traditional models of complex systems incorporate alternative code
 paths or expressions to deal with fundamentally different dynamics
-which may arise during a simulaton. This is usually accomplished by
-embedding specific tests which determine which code path or expression
-is appropriate.  Agent based models are often (but not universally)
-constructed with distinct kinds of agents having quite distinct code
-bases {\citep{netlogo,swarm,repast,mason,nws,ningaloo}.
+which may be required within a component of the model by testing for
+conditons which arise during a simulation and executing an alternate
+code path within the component. Examples of this approach can be found
+in models implemented in a number of popular modelling frameworks
+{\citep{netlogo,swarm,repast,mason} and in my previous work
+  \citep{nws,ningaloo}.
 
-
-The models used as examples in this thesis
-deal with such changes by changing the component used --- a number of
-agents (instances of submodels)\footnote{}
-associated with individual contact with a contaminant plume might be
-substituted for a population agent which has no code path of its own
-to deal with contaminant uptake or depuration.
+In contrast, the models used as examples in this thesis deal with such
+changes by changing the component used --- a number of agents
+(instances of submodels)\footnote{} associated with individual contact
+with a contaminant plume might be substituted for a population agent
+which has no code path of its own to deal with contaminant uptake or
+depuration.
 
 Representing the state of the model, either as a whole or of its
 constituent parts, is not simple: not only may the components of the
@@ -58,12 +79,13 @@ individual-based agents.
 
 These factors make a simple vector-based encoding mechanism for the
 states of a model and its components awkward, thus we turn to a metric
-space over a \rng\footnote{We use \rng\ to denote a ring without a
-  multiplicative indentity element.} of trees with a finite number of
-weighted, labelled nodes. This simplifies the comparison of possible
-component mixes for a given global state, and makes available any
-algorithms (such as for clustering) which depend only on ring
-properties, excluding those that need a multiplicative unit.
+space over a \rng\footnote{To avoid confusion, we take \rng\ to denote
+  a ring without a multiplicative indentity element.} of trees with a
+finite number of weighted, labelled nodes. This simplifies the
+comparison of possible component mixes for a given global state, and
+makes available any algorithms (such as for clustering) which depend
+only on ring properties, excluding those that need a multiplicative
+unit.
 
 Any attempt to assess the relative merit of a number of possible
 component mixes for a model relative to its current state must have
@@ -74,53 +96,55 @@ some sense) the incremental costs of change.
 
 \section{Historical work}
 
+\texttt{Probably need more historical work here}
+    
 Many individual-based models incorporate data which represents
 environmental characteristics and influences the behaviour of of the
-individuals simulated. \cite{Botkin72:2} and \cite{deangelis1978model}
+individuals simulated. \citet{Botkin72:2} and \citet{deangelis1978model}
 are important early example which model individuals in in the context
-of spatially explicit environmental gradients. \cite{Botkin72:2} In
-both cases, the subjects of the simulations are represented as
-individuals, and the environments are relatively static (though
-interactions, such as shading in JABOWA, also played a role).  Even as
-formulated, we can consider the environments in these models as static
-models in their own right: from its early inception, the
-individual-based modelling approach implicitly couples different
-styles of model components.
+of spatially explicit environmental gradients. In both cases, the
+subjects of the simulations are represented as individuals, and the
+environments are relatively static (though interactions, such as
+shading in JABOWA, also played a role).  Even as formulated, we can
+consider the environments in these models as static models in their
+own right: from its early inception, the individual-based modelling
+approach implicitly couples different styles of model components.
 
 The coastal marine ecosystem model in \cite{Gray06:1} used different
 representations for the agents which represented the organisms
-comprising the benthic habitat based on their life-stage; this nature
-of this change was configured during the compilation of the model.
-Juvenile biomasses were represented by polygonal clouds which could
-change shape as they were advected. The an adult stage could be
-represented by several different submodels, which either optimised for
-speed or for spatial fidelity.  This model was in most other ways
-similar to conventional agent-based modelling of the time.
+comprising the benthic habitat based on their life-stage, though the
+nature of this change was configured during the compilation of the
+model.  Here, juvenile biomasses could be represented by polygonal
+clouds which changed shape as they were advected, and adult stages
+could be represented by several different submodels which might be
+optimised either for speed or for spatial fidelity.  This model was in
+most other ways similar to conventional agent-based modelling of the
+time.
 
 %\citea{gross2002multimodeling} describes using this approach as a
 %basic element underpinning their model, ATLSS, of the Everglades
 %region in the U.S.A.
 
-\cite{Bobashev2007hybrid} describes a model of epidemic simulation in
+\cite{bobashev2007hybrid} describes a model of epidemic simulation in
 which the representation of populations or portions of populations are
 decided based on the number of infected individuals relative to a
 nominated trigger value. This model demonstrates that there is an
 advantage to changeing representation in terms of computational
 efficiency and the fidelity of the model. The model in Chapter
-\ref{chap2} is similar: the rule governing the switching from one
-representation to another occurs when some monitored quantity (the
-number of infected individuals or the proximity to plume, for example)
-crosses a nominated boundary.  The primary operational model
+\ref{modelefficiency} is similar: the rule governing the switching
+from one representation to another occurs when some monitored quantity
+(the number of infected individuals or the proximity to plume, for
+example) crosses a nominated boundary.  The primary operational model
 underpinning the work in \cite{Fulton2009crossingscales} takes a step
 further, migrating whales change their representation according to
 their putative geographic location, specifically whether they were in
-the model domain or outside it. This model also had to consider
-the linkages between agents: agents representing predators, wildlife
+the model domain or outside it. This model also had to consider the
+linkages between agents: agents representing predators, wildlife
 management and tourism operators had to be aware of the presence of
 ``in domain'' whales.
 
-
 \section{Structure and function}
+
 
 
 

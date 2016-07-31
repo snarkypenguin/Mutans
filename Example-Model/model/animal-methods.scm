@@ -1,4 +1,3 @@
-(display "Loading animal-methods.scm\n")
 ;-  Identification and Changes
 
 ;--
@@ -50,7 +49,8 @@
 
 (sclos-method <simple-metabolism> (initialize self args)
 				  (initialise self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
-				  (initialize-parent) ;; call "parents" last to make the initialisation list work
+				  (initialize-parent)
+				  ;; call "parents" last to make the initialisation list work
 				  )
 
 
@@ -67,18 +67,26 @@
 									  (struct-prop (my 'structural-prop))
 									  (starve-level (my 'starvation-level))
 									  (mass (my 'mass))
-									  (mass->food-conv-rate (my 'mass->food-conversion-rate))
-									  (food->mass-conv-rate (my 'food->mass-conversion-rate))
+									  (mass->food-conv-rate
+										(my 'mass->food-conversion-rate))
+									  (food->mass-conv-rate
+										(my 'food->mass-conversion-rate))
 
 									  (condn (my 'condition))
 
-									  (cond->food-conv-rate (my 'condition->food-conversion-rate))
-									  (food->cond-conv-rate (my 'food->condition-conversion-rate))
+									  (cond->food-conv-rate
+										(my 'condition->food-conversion-rate))
+									  (food->cond-conv-rate
+										(my 'food->condition-conversion-rate))
 
 									  (guts (* struct-mass (my 'gut-size)))
 									  (stomach-cont (my 'stomach-contents))
-									  (stuffed-to-the-gills (and (number? mass) (* mass (my 'max-consumption-rate) dt)))
-									  (max-dinner (and stuffed-to-the-gills (min stuffed-to-the-gills stomach-cont)))
+									  (stuffed-to-the-gills
+										(and (number? mass)
+											  (* mass (my 'max-consumption-rate) dt)))
+									  (max-dinner
+										(and stuffed-to-the-gills
+											  (min stuffed-to-the-gills stomach-cont)))
 
 									  (mgr (my 'max-growth-rate))
 									  (cgr (my 'max-condition-rate))
@@ -88,17 +96,24 @@
 									  (cost (and mass (* met-rate mass dt)))
 									  )
 
-								(if (not (number? cgr)) (set! cgr mgr)) ;; condition can be put on at the same rate as mass unless specified
+								(if (not (number? cgr)) (set! cgr mgr))
+								;; condition can be put on at the same rate as
+								;; mass unless specified
 								
 								;; do calculations here....
 
-								;; mass and cost are set to false when the organism is dead
-								(kdnl* 'stomach "Metabolism: cost =" cost "stomach-contents ="  stomach-cont)
+								;; mass and cost are set to false when the
+								;; organism is dead
+
+								(kdnl* 'stomach "Metabolism: cost =" cost
+										 "stomach-contents =" stomach-cont)
 
 								(if cost 
 									 (begin ;; deal with metabolic costs
 
-										(kdnl* 'metabolism "D0   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "D0   stomach ="
+												 stomach-cont "| condition =" condn
+												 "| mass =" mass "|=| cost = " cost)
 
 										;; .... with stomach-contents
 										(let ((dc (- stomach-cont cost)))
@@ -106,7 +121,9 @@
 										  (set! cost (max (- dc) 0.0))
 										  )
 
-										(kdnl* 'metabolism "D1   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "D1   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										;; .... with condition
 										(let ((cc (* cond->food-conv-rate condn)))
@@ -114,9 +131,13 @@
 											 (set! cc (max dc 0.0))
 											 (set! cost (max (- dc) 0.0))
 											 
-											 (set! condn (max 0.0 (/ cc cond->food-conv-rate)))))
+											 (set! condn (max 0.0
+																	(/ cc
+																		cond->food-conv-rate)))))
 										
-										(kdnl* 'metabolism "D2   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "D2   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										;; .... with body mass
 										(let ((cc (* mass->food-conv-rate mass)))
@@ -124,10 +145,14 @@
 											 (set! cc (max dc 0.0))
 											 (set! cost (max (- dc) 0.0))
 											 
-											 (set! mass (max 0.0 (/ cc mass->food-conv-rate)))))
+											 (set! mass (max 0.0
+																  (/ cc
+																	  mass->food-conv-rate)))))
 										
 										
-										(kdnl* 'metabolism "D3   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "D3   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										(if (or (<= mass struct-mass)
 												  (<= (/ mass struct-mass) starve-level))
@@ -141,21 +166,30 @@
 								(if (and mass (> stomach-cont 0.0))
 									 (begin ;; Growth and condition updates
 
-										(kdnl* 'metabolism "G0   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "G0   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										;; growth first
 										(let* ((mm (/ stomach-cont food->mass-conv-rate))
 												 (mg (* mgr dt))
 												 (delta-m (min mm mg))
 												 )
-										  (kdnl* 'metabolism "g0a          mm =" mm" | mg =" mg " | delta-m =" delta-m)
+										  (kdnl* 'metabolism "g0a          mm =" mm
+													" | mg =" mg " | delta-m =" delta-m)
 										  
 										  (set! mass (max 0.0 (+ mass delta-m)))
-										  (set! stomach-cont (max 0.0 (- stomach-cont (* delta-m food->mass-conv-rate))))
-										  (kdnl* 'metabolism "g0b          mm =" mm" | mg =" mg " | delta-m =" delta-m)
+										  (set! stomach-cont
+												  (max 0.0
+														 (- stomach-cont
+															 (* delta-m food->mass-conv-rate))))
+										  (kdnl* 'metabolism "g0b          mm ="
+													mm" | mg =" mg " | delta-m =" delta-m)
 										  )
 
-										(kdnl* 'metabolism "G1   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "G1   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										;; now condition
 										(let* ((mm (/ stomach-cont food->cond-conv-rate))
@@ -163,17 +197,27 @@
 												 (delta-m (min mm mg))
 												 )
 										  
-										  (kdnl* 'metabolism "g1a          mm =" mm" | mg =" mg " | delta-m =" delta-m)
+										  (kdnl* 'metabolism "g1a          mm =" mm
+													" | mg =" mg " | delta-m =" delta-m)
 										  (set! condn (max 0.0 (+ condn delta-m)))
-										  (set! stomach-cont (max 0.0 (- stomach-cont (* delta-m food->cond-conv-rate))))
-										  (kdnl* 'metabolism "g1b          mm =" mm" | mg =" mg " | delta-m =" delta-m)
+										  (set! stomach-cont
+												  (max 0.0
+														 (- stomach-cont
+															 (* delta-m
+																 food->cond-conv-rate))))
+										  (kdnl* 'metabolism "g1b          mm ="
+													mm" | mg =" mg " | delta-m =" delta-m)
 										  )
 
-										(kdnl* 'metabolism "G2   stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+										(kdnl* 'metabolism "G2   stomach =" stomach-cont
+												 "| condition =" condn "| mass =" mass
+												 "|=| cost = " cost)
 
 										))
 								
-								(kdnl* 'metabolism "X    stomach =" stomach-cont "| condition =" condn "| mass =" mass "|=| cost = " cost)
+								(kdnl* 'metabolism "X stomach =" stomach-cont
+										 "| condition ="
+										 condn "| mass =" mass "|=| cost = " cost)
 
 								(set-my! 'condition condn)
 								(set-my! 'stomach-contents stomach-cont)
@@ -190,37 +234,6 @@
 
 
 
-;(add-method initialize
-;				(make-method (list <metabolism>)
-;								 (lambda (initialize-parent self args)
-;									;;(dnl "<metabolism> init")
-;									(initialise self '(condition 0.0 metabolic-rate 0.0))
-;									(initialize-parent) ;; call "parents" last to make the initialisation list work
-;									)))
-
-
-;(sclos-getter <metabolism> structural-mass)  ;; This would be a call something like "(structural-mass self)"
-;(sclos-setter <metabolism> structural-mass)  ;; This would be a call something like "(set-structural-mass! self val)"
-;(sclos-getter <metabolism> stomach-contents)
-;(sclos-setter <metabolism> stomach-contents)
-;(sclos-getter <metabolism> gut-size)
-;(sclos-setter <metabolism> gut-size)
-;(sclos-getter <metabolism> condition)
-;(sclos-setter <metabolism> condition)
-
-#|
-(sclos-getter <metabolism> structural-prop)
-(sclos-setter <metabolism> structural-prop)
-(sclos-getter <metabolism> metabolic-rate)
-(sclos-setter <metabolism> metabolic-rate)
-(sclos-getter <metabolism> condition-rate)
-(sclos-setter <metabolism> condition-rate)
-(sclos-getter <metabolism> starvation-rate)
-(sclos-setter <metabolism> starvation-rate)
-(sclos-getter <metabolism> condition-conversion-rate)
-(sclos-setter <metabolism> condition-conversion-rate)
-|#
-
 
 (sclos-method (<metabolism> <number> <number>) (eat self available-food dt)
 				  (if mass
@@ -228,9 +241,13 @@
 								 (mass (my 'mass))
 								 (guts (* struct-mass (my 'gut-size)))
 								 (stomach-cont (my 'stomach-contents))
-								 (stuffed-to-the-gills (* mass (my 'max-consumption-rate) dt))
+								 (stuffed-to-the-gills (* mass
+																  (my 'max-consumption-rate)
+																  dt))
 								 (gap (- guts stomach-cont))
-								 (max-dinner (min gap stuffed-to-the-gills available-food))
+								 (max-dinner (min gap
+														stuffed-to-the-gills
+														available-food))
 								 (ate 0.0)
 								 )
 						  ;; do calculations here....
@@ -265,10 +282,16 @@
 									;;(dnl "<animal> init")
 									(slot-set! self 'current-interest 
 												  (lambda args 
-													 (aborts "current-interest isn't defined for a <animal>: " 	
-																(slot-ref self 'name) ":" (slot-ref self 'type) ":" (slot-ref self 'representation))))
+													 (aborts
+													  (string-append
+														"current-interest isn't "
+														"defined for a <animal>: ")
+													  (slot-ref self 'name) ":"
+													  (slot-ref self 'type) ":"
+													  (slot-ref self 'representation))))
 									(initialise self (list 'age #f 'sex #f))
-									(initialize-parent) ;; call "parents" last to make the initialisation list work
+									(initialize-parent)
+									;; call "parents" last to make the initialisation list work
 									)))
 
 ;----- (age) 
@@ -303,7 +326,7 @@
 				 (list <animal> <symbol>)
 				 (lambda (call-parent-method self n)
 					(if (not (member n '(female male)))
-						 (aborts "thing:set-sex! -- bad symbol, should be male or female")
+						 (aborts "thing:set-sex! -- symbol should be male or female")
 						 (slot-set! self 'sex n)))))
 
 ;----- (map-log-track-segment
@@ -312,7 +335,8 @@
 						(let* ((xytrack (map txyz->xy track))
 								 (ptrack (map p xytrack)))
 						  (if (>= (length ptrack) 2)
-								(let ((startseg (list-head ptrack (1- (length ptrack))))
+								(let ((startseg (list-head ptrack
+																	(1- (length ptrack))))
 										(finishseg (cdr ptrack)))
 								  (if adjust-grey (ps 'setgray wt))
 								  
@@ -326,15 +350,22 @@
 									startseg finishseg)
 								  (ps 'Helvetica 4.5)
 								  (ps 'moveto (p (list-head (location self) 2)))
-								  ;;(ps 'show-centered (string-append "[" (number->string (my 'mass)) "]"))
+
 								  (let ((m (my 'mass)))
 									 (if m
 										  (begin
 											 (ps 'show-centered (number->string (my 'mass)))
-											 (ps-circle ps  (p (min 0.31415 (* 0.25 pi (sqrt (my 'mass))))) (p (list-head (location self) 2)) 1.2 0.0 ))
+											 (ps-circle ps
+															(p (min 0.31415
+																	  (* 0.25 pi
+																		  (sqrt (my 'mass)))))
+															(p (list-head (location self) 2))
+															1.2 0.0 ))
 										  (begin
 											 (ps 'show-centered "Dead")
-											 (ps-circle ps  (p 0.31415) (p (list-head (location self) 2)) 1.2 0.0 ))))
+											 (ps-circle ps  (p 0.31415)
+															(p (list-head (location self) 2))
+															1.2 0.0 ))))
 										  
 								  )
 
@@ -359,7 +390,10 @@
 											(tr tracks))
 								(if (not (null? tr))
 									 (begin
-										(map-log-track-segment self (car tr) (+ AMINGREY (* (/ k n) (- AMAXGREY AMINGREY))) p ps)
+										(map-log-track-segment
+										 self (car tr)
+										 (+ AMINGREY (* (/ k n) (- AMAXGREY AMINGREY)))
+										 p ps)
 										(loop n (1+ k) (cdr tr))))))
 						)
 					 #t)
@@ -379,14 +413,17 @@
 						 (log-data-parent))
 						)
 
-					 (if (and (assoc 'track-segments (my 'state-flags)) (state-flag self 'track-segments))
+					 (if (and (assoc 'track-segments
+										  (my 'state-flags))
+								 (state-flag self 'track-segments))
 						  (new-track! self))
 					 
 					 )
 				  )
 
 
-(sclos-method (<animal> <number> <pair> <number> <number>) (wander-around self dt point attr speed) ;;
+(sclos-method (<animal> <number> <pair> <number> <number>)
+				  (wander-around self dt point attr speed) ;;
   (let* ((loc (location self))
 			(p (unit (vector-to loc point)))
 			(v (slot-ref self 'direction))
@@ -394,183 +431,210 @@
 			(spd speed)
 		  )
 	 
-	 ;; This calculation ought to use random-angle and rotated-velocity (which applies to lists!)
-	 ;; I'll keep it this way for local clarity.
-	 (let* ((new-v (unit (append (list (- (* (car v) (cos theta)) (* (cadr v) (sin theta)))
-												  (+ (* (cadr v) (cos theta)) (* (car v) (sin theta))))
+	 ;; This calculation ought to use random-angle and rotated-velocity
+	 ;; (which applies to lists!)  I'll keep it this way for local
+	 ;; clarity.
+
+	 (let* ((new-v (unit
+						 (append (list (- (* (car v) (cos theta))
+												(* (cadr v) (sin theta)))
+											(+ (* (cadr v) (cos theta))
+												(* (car v) (sin theta))))
 										  (cddr v))))
 
-			  (new-loc (map + loc 
-								 (map *  
-										(map + (map * (make-list (length v) (- 1.0 attr)) new-v)
-											  (map * (make-list (length p) attr) p))
-										(append (make-list 2 (* spd dt))  (make-list (length (cddr v)) 1.0)))))
+			  (new-loc
+				(map + loc 
+					  (map *  
+							 (map +
+									(map * (make-list (length v) (- 1.0 attr)) new-v)
+									(map * (make-list (length p) attr) p))
+							 (append (make-list 2 (* spd dt))
+										(make-list (length (cddr v)) 1.0)))))
 			  )
 		(slot-set! self 'location new-loc)
 		(slot-set! self 'direction new-v)
 		new-loc)))
 	 
 
-(sclos-method (<animal> <number> <pair> <number> <symbol>) (wander-around self dt point attr speedtag) ;;
+(sclos-method (<animal> <number> <pair> <number> <symbol>)
+				  (wander-around self dt point attr speedtag) ;;
 				  (wander-around self dt point attr (my speedtag)))
 
 (sclos-model-body <animal>
-						(kdnl* 'model-bodies "In " (class-name-of self) t)
-						(let ((dt/2 (/ dt 2.0))
-								(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
-															 (if #t
-																  (begin 
-																	 (dnl "SQRT got a value of " x)
-																	 0)
-																  (abort "I see ... a rhinoceros ...")
-															 )) ) )
-								;;(kdnl* dnl*)
-								;;(kdnl* dnl)
+	(kdnl* 'model-bodies "In " (class-name-of self) t)
+	(let ((dt/2 (/ dt 2.0))
+			(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
+										 (if #t
+											  (begin 
+												 (dnl "SQRT got a value of " x)
+												 0)
+											  (abort "I see ... a rhinoceros ...")
+											  )) ) )
+			;;(kdnl* dnl*)
+			;;(kdnl* dnl)
+			)
+	  (kdnl* 'animal-running "[" (my 'name)
+				":" (class-name-of self) "]"
+				" at " t "+" dt)
+	  (kdnl* "******" 'running (my 'name)
+				" the " (my 'representation)
+				" is running" "******")
+	  (set-my! 'age (+ (my 'age) dt/2))
+	  (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
+
+	  (parent-body)
+	  ;; should execute body code for <metabolism> and <thing>
+
+	  (let* ((foodlist (my 'foodlist))
+				(homelist (my 'homelist))
+				(breedlist (my 'breedlist))
+				(H (my 'habitat))
+				(here (my 'location))
+				(food 0.0) ;; nothing unless we find some
+				(struct-mass (my 'structural-mass))
+				(mass (my 'mass))
+				(starve-level (my 'starvation-level))
+				(stomach-cont (my 'stomach-contents))
+				(guts (* struct-mass (my 'gut-size)))
+				(condition (my 'condition))
+				(ate 0.0)
+				(objective (let ((o (my 'objective))) (if (null? o) #f o)))
+				)
+
+		 (kdnl* 'stomach "[" (my 'name) ":" (class-name-of self)
+				  "]" "===> stomach =" stomach-cont "| condition ="
+				  condition "| mass =" mass)
+		 (if (number? mass) 
+			  (begin
+				 (let ((focus ((my 'current-interest) self
+									(my 'age) t dt condition stomach-cont guts))
+						 )
+					(kdnl* 'focus "[" (my 'name) ":"
+							 (class-name-of self) "]" " in now focussed on " focus)
+
+					(cond
+					 ((not focus)
+					  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
+										  (* 2.0 (my 'domain-attraction)) 'wanderspeed)
+					  #t)
+					 ;;(aborts "Dinna y' ken?"))
+					 ((eq? focus 'wander)
+					  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
+										  (my 'domain-attraction) 'wanderspeed)
+					  )
+
+					 ((eq? focus 'hungry)
+					  (kdnl* 'debugging-eating "[" (my 'name)
+								":" (class-name-of self) "]" "hungry")
+
+					  (let* ((foodsites
+								 (patch-list H (lambda (x)
+													  (let ((s (services x foodlist)))
+														 (and s (not (null? s)))))))
+								(foodvalue
+								 (map 
+								  (lambda (x) 
+									 (if (= food-attenuation 0.5)
+										  (/ (SQRT (value x foodlist))
+											  (+ (spatial-scale H)
+												  (distance here (location x))))
+										  (/ (pow (value x foodlist) food-attenuation)
+											  (+ (spatial-scale H)
+												  (distance here (location x)))))
+									 ) foodsites))
+
+								(fooddata (sort (map cons foodvalue foodsites)
+													 (lambda (x y) (> (car x) (car y)))))
 								)
-						  (kdnl* 'animal-running "[" (my 'name) ":" (class-name-of self) "]" " at " t "+" dt)
-						  (kdnl* "******" 'running (my 'name) " the " (my 'representation) " is running" "******")
-						  ;;(dnl "Vombatus vombatus " t ":" (my 'subjective-time) "+" dt " " (my 'age) " " (my 'location))
-						  (set-my! 'age (+ (my 'age) dt/2))
-						  (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
+						 (kdnl* "Food ranks" "[" (my 'name) ":"
+								  (class-name-of self) "]"
+								  (map (lambda (x)
+											(cons (car x)
+													(distance here
+																 (location (cdr x)))))
+										 fooddata))
 
-						  (parent-body) ;; should execute body code for <metabolism> and <thing>
 
-						  (let* ((foodlist (my 'foodlist))
-									(homelist (my 'homelist))
-									(breedlist (my 'breedlist))
-									(H (my 'habitat))
-									(here (my 'location))
-									(food 0.0) ;; nothing unless we find some
-									(struct-mass (my 'structural-mass))
-									(mass (my 'mass))
-									(starve-level (my 'starvation-level))
-									(stomach-cont (my 'stomach-contents))
-									(guts (* struct-mass (my 'gut-size)))
-									(condition (my 'condition))
-									(ate 0.0)
-									(objective (let ((o (my 'objective))) (if (null? o) #f o)))
-									)
-
-							 (kdnl* 'stomach "[" (my 'name) ":" (class-name-of self) "]" "===> stomach =" stomach-cont "| condition =" condition "| mass =" mass)
- 
-							 (if (number? mass) 
-								  (begin
-									 (let ((focus ((my 'current-interest) self (my 'age) t dt condition stomach-cont guts))
-											 )
-										(kdnl* 'focus "[" (my 'name) ":" (class-name-of self) "]" " in now focussed on " focus)
-
-										(cond
-										 ((not focus)
-										  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain) (* 2.0 (my 'domain-attraction)) 'wanderspeed)
-										  #t)
-										 ;;(aborts "Dinna y' ken?"))
-										 ((eq? focus 'wander)
-										  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain) (my 'domain-attraction) 'wanderspeed)
-										  )
-
-										 ((eq? focus 'hungry)
-										  (kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "hungry")
-
-										  (let* (
-													(foodsites (patch-list H (lambda (x) (let ((s (services x foodlist)))
-																										(and s (not (null? s)))))))
-													(foodvalue (map 
-																	(lambda (x) 
-																	  (if (= food-attenuation 0.5)
-																			(/ (SQRT (value x foodlist)) (+ (spatial-scale H) (distance here (location x))))
-																			(/ (pow (value x foodlist) food-attenuation) (+ (spatial-scale H) (distance here (location x)))))
-																	  ) foodsites))
-
-													(fooddata (sort (map cons foodvalue foodsites) (lambda (x y) (> (car x) (car y)))))
-													)
-											 (kdnl* "Food ranks" "[" (my 'name) ":" (class-name-of self) "]" (map (lambda (x) (cons (car x) (distance here (location (cdr x)))))  fooddata))
-											 ;;(plot (map (lambda (x) (list (car x) (cdr x))) '((.030477192023144497 . 96.5099300051329) (.02838833958702164 . 116.00897402071166) (.025996860113632107 . 118.06461386706091) (.018331938492922764 . 166.74242294209597) (.0176501058990574 . 189.26489278564608) (.010190290595720903 . 125.28278510462805))) "appeal"  "distance")
-
-											 (if (zero? (length fooddata))
-												  (begin ;; No food possible ... 
-													 (kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "Hunting")
-													 (wander-around self dt (map (lambda (x) (/ x 2.0)) domain) (my 'domain-attraction) 'foragespeed)
-													 )
-												  (let ((target (cdar fooddata)))
-													 (if (contains? target (location self))
-														  (begin
-															 (kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "Reading the menu")
-															 (let* ((TV (value target foodlist))
-																	  (ate #f))
-																(kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "ordering the lot (" (value target foodlist) "/" (value target (services target)) ")and eating it")
-																(let* ((total-food (value target foodlist))
-																		 (prop (/ total-food (capacity target foodlist)))
-																		 (available-food (* 2.0 total-food (/ (SQRT prop) (1+ prop)))))
-																  (set! ate (eat self available-food dt))
-																  )
-																(kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "removing " ate " from the patch ...")
-																(scale! target foodlist (- 1.0 (/ ate TV)))
-																(kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "done.")
-																)
-															 (wander-around self dt (location target) (my 'near-food-attraction) 'foragespeed)
-															 ;;(wander-around self dt (location target) 0.75) ;; force a reasonable bias
-															 )
-														  (begin
-															 (kdnl* 'debugging-eating "[" (my 'name) ":" (class-name-of self) "]" "move toward the food source")
-															 (wander-around self dt (location target) (my 'food-attraction) 'movementspeed)
-															 ;;(wander-around self dt (location target) 0.85) ;; force a fairly strong bias
-															 )))
-												  )
-											 )
-										  )
-										 ((eq? focus 'flee)
-										  ;; Not implemented yet
-										  #f
-										  )
-										 ((eq? focus 'breed)
-										  ;; Not implemented yet
-										  #f
-										  )
+						 (if (zero? (length fooddata))
+							  (begin ;; No food possible ... 
+								 (kdnl* 'debugging-eating "[" (my 'name)
+										  ":" (class-name-of self) "]" "Hunting")
+								 (wander-around self dt
+													 (map (lambda (x) (/ x 2.0)) domain)
+													 (my 'domain-attraction) 'foragespeed)
+								 )
+							  (let ((target (cdar fooddata)))
+								 (if (contains? target (location self))
+									  (begin
+										 (kdnl* 'debugging-eating "[" (my 'name) ":"
+												  (class-name-of self) "]"
+												  "Reading the menu")
+										 (let* ((TV (value target foodlist))
+												  (ate #f))
+											(kdnl* 'debugging-eating "[" (my 'name) ":"
+													 (class-name-of self) "]"
+													 "ordering the lot ("
+													 (value target foodlist) "/"
+													 (value target (services target))
+													 ")and eating it")
+											(let* ((total-food (value target foodlist))
+													 (prop (/ total-food
+																 (capacity target foodlist)))
+													 (available-food
+													  (* 2.0 total-food
+														  (/ (SQRT prop) (1+ prop)))))
+											  (set! ate (eat self available-food dt))
+											  )
+											(kdnl* 'debugging-eating "[" (my 'name) ":"
+													 (class-name-of self) "]" "removing "
+													 ate " from the patch ...")
+											(scale! target foodlist (- 1.0 (/ ate TV)))
+											(kdnl* 'debugging-eating "[" (my 'name) ":"
+													 (class-name-of self) "]" "done.")
+											)
+										 (wander-around self dt (location target)
+															 (my 'near-food-attraction)
+															 'foragespeed)
 										 )
-										)
+									  (begin
+										 (kdnl* 'debugging-eating "[" (my 'name) ":"
+												  (class-name-of self) "]"
+												  "move toward the food source")
+										 (wander-around self dt (location target)
+															 (my 'food-attraction)
+															 'movementspeed)
+										 )))
+							  )
+						 )
+					  )
+					 ((eq? focus 'flee)
+					  ;; Not implemented yet
+					  #f
+					  )
+					 ((eq? focus 'breed)
+					  ;; Not implemented yet
+					  #f
+					  )
+					 )
+					)
 
-									 (set-my! 'objective (if (null? objective) #f objective))
-									 (set-my! 'age (+ (my 'age) dt/2))
-									 (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
-									 
-									 ;;(track-locus self t (my 'location)) ;; even if they aren't moving :: automatically done in <thing>
-									 )
-								  )
-							 
-							 ;; Ok now test condition and return
-							 (if (or (not mass) (< (my 'mass) (* 1.3 (my 'structural-mass))))
-								  (list 'remove self)
-								  dt)
-							 )
-						  )
-						)
-
-
-
-
-
-
-;------ <animal> methods
-
-;(sclos-method (<animal> <habitat>) (forage self habitat)
-;				  (let* ((R (my 'searchradius))
-;							(P (my 'location))
-;							(candidates (filter (lambda (x) (< (car x) R))
-;													  (sorted-ecoservices (my 'foodlist) habitat (my 'location))))
-;							(DC (map (lambda (x) (let ((p (location x)))	(cons (distance P p) x))) candidates))
-;							(scandidate (sort DC (lambda (x y) (<  (/ (value x)
-;																					(< (car x) (car y)))))
-;													))
-;							(ccandidate (filter contains (map cdr scandidate)))
-;							)
-;
-;					 ;; forage or move here
-;
-;					 
-;
-;
-;					 #t) 
-;				  )
+				 (set-my! 'objective (if (null? objective) #f objective))
+				 (set-my! 'age (+ (my 'age) dt/2))
+				 (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
+				 
+				 ;;(track-locus self t (my 'location)) ;;
+				 ;;even if they aren't moving ::
+				 ;;automatically done in <thing>
+				 )
+			  )
+		 
+		 ;; Ok now test condition and return
+		 (if (or (not mass) (< (my 'mass) (* 1.3 (my 'structural-mass))))
+			  (list 'remove self)
+			  dt)
+		 )
+	  )
+	)
 
 
 

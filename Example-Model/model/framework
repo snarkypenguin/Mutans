@@ -1,177 +1,53 @@
 ;-  Identification and Changes
 
 ;--
-;	framework-preamble%.scm -- Written by Randall Gray 
+;	framework -- Written by Randall Gray 
 ;	Initial coding: 
 ;		Date: 2012.11.12
 ;
 ;	History:
 ;
 
-;-  Discussion 
+
 ;;; #|
 ;;; The code in this file is supposed to make things a little easier.
 
+;;;
+;;;  This model framework uses SCLOS by Gregor Kiczales, and released
+;;;  by Xerox Corp. in 1992. None of the code from sclos.scm has been 
+;;;  included in the other files which form the modelling framework.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
-
-;;; ;;-------------------------------------------;;
-;;; ;; This is the order things must happen in   ;;
-;;; ;; any file defining methods or model bodies ;;
-;;; ;;---------------------------------------------
-;;; ;; (include "framework-preamble%.scm")
-;;; ;; (load-model-framework)
-;;; ;;---------------------------------------------
 
 ;;; |#
 
 
 ;-  Code 
 
-;;(display "Now run: (load-model-framework)\n")
+;; See also Kiczales, Gregor; Jim des Rivieres; Daniel G. Bobrow (July
+;; 30, 1991). The Art of the Metaobject Protocol. The MIT Press. ISBN
+;; 978-0262610742.
 
 
-;;; (define load
-;;;   (let ((oload load)
-;;; 		  (loaded '()))
-;;; 	 (lambda (x)
-;;; 		(if (not (member x loaded))
-;;; 			 (begin
-;;; 				(display "loading ")
-;;; 				(display x)
-;;; 				(newline)
-;;; 				(set! loaded (cons x loaded))
-;;; 				(oload x))))))
+(include "sclos.scm")
 
-(define framework-load
-  (let ((loaded-files '("support-lib.scm" "sclos.scm" 
-								"framework-controls.scm" "framework-classes.scm" 
-								"framework-declarations.scm" "framework-methods.scm"))
-		  (LOAD load))
-	 (lambda file
-		(cond
-		 ((null? file) (set! file #f))
-		 ((pair? (cdr file))
-		  (for-each (lambda (f) (maybe-load f)) file))
-		 (else
-		  (set! file (car file))
-		  
-		  (cond
-			((not file) loaded-files)
-			((not (member file loaded-files))
-			 (display "loading ")(display file)(newline)
-			 (LOAD file)
-			 (set! loaded-files (cons file loaded-files)))
-			(else file)))))))
-
-(define (aborts . args) (abort (apply string-append args)))
-
-;;(set! load framework-load)
-(define load framework-load)
 
 (define-macro (with-exit name . body)
   `(call-with-current-continuation
     (lambda (,name) ,@body)))
 
+(define-macro (state-variables . lst) `'(,@lst))
+;; This makes it clear when classes are defining state vars
 
-(define-macro (state-variables . lst) `'(,@lst)) ;; This makes it clear when classes are defining state vars
-(define-macro (no-state-variables) `'())   ;; This makes it clear when classes are defining NO state vars
+(define-macro (no-state-variables) `'())
+;; This makes it clear when classes are defining NO state vars
 
 (define-macro (inherits-from . iflst) `(list ,@iflst))
-;;(define inherits-from: list) ;; makes the class definitions a little more meaningful
-
-
-;; prevent multiple inclusions
-(define load
-  (let ((oload load)
-                  (loaded '()))
-         (lambda (x)
-                (if (not (member x loaded))
-                         (begin
-                                ;;(display "loading ")
-                                ;;(display x)
-                                ;;(newline)
-                                (set! loaded (cons x loaded))
-                                (oload x))))))
-
-
-;; And permit interrogation
-(define load (let* ((oload load)
-						  (always-print-loading #f)
-						  (always-print-loaded #f)
-						  (loaded '())
-						  (loading '())
-						  (prload (lambda (x y) (display (string-append "\n[" x " ")) (display y)(display "]\n")))
-						  )
-					(lambda (fn)
-					  (cond
-						((eq? fn 'loaded!)
-						 (set! always-print-loaded #t))
-						((eq? fn 'loading!)
-						 (set! always-print-loading #t))
-						((member fn '(loaded loaded-list loaded? loaded-list?))
-						 (prload "loaded" loaded))
-						((member fn '(loading loading-list loading? loading-list? load-list?))
-						 (prload "loading" loading))
-						(#t
-						 (set! loading (cons fn loading))
-						 (if always-print-loading (prload "loading" loading))
-						 (oload fn)
-						 (set! loading (cdr loading))
-						 (set! loaded (cons fn loaded))
-						 (if always-print-loaded (prload "loaded" loaded))
-						 ))
-					  )))
-
-
-(define-macro (load-model)
-  `(begin
-	  (display "Loading model\n")
-
-	  (define logger-tags '())
-	  (define submodel-register '())
-	  (define (register-submodel tag . filelist)
-		 (if (assoc tag submodel-register)
-			  (set-cdr! (assoc tag submodel-register) (append (assoc tag submodel-register) filelist))
-			  (set! submodel-register (cons (cons tag filelist) submodel-register)))
-		 )
-	  
-	  (include "support-lib.scm")
-	  
-	  ;; SCLOS support
-	  (include "sclos.scm")
-
-	  ;; framework code -- included because we want them to be as close to the metal as possible
-
-	  (include "framework-controls.scm")
-	  (include "framework-classes.scm")
-	  (include "framework-declarations.scm")
-	  (include "framework-methods.scm")
-
-	  ;; submodel code -- all the classes get loaded here
-	  (load "submodels.scm")
-
-	  ;; The kernel -- last because it *feels* right.
-	  (load "kernel.scm")
-	  (load "model-configuration.scm")
-	  ))
-
-
-(define-macro (rerun . args)
-  `(let ()
-	  (shell-command "rm -f Southern*.ps Southern*.png")
-	  (load-model)
-	  ,(if (and (pair? args) (pair? (cdr args)))
-			 (list 'begin
-			 (list 'set! 'start (car args))
-			 (list 'set! 'end (cadr args))
-			 )
-			 (if (pair? args)
-				  (list 'set! 'start (car args))))
-	  (run-simulation Q start end)
-	  )
-  )
 
 ;; Support for the "isa?" calls and for a mapping from the class
 ;; object to a name
@@ -179,16 +55,16 @@
 (define-macro (register-class cname)
   `(class-register 'add ,cname ',cname))
 
-;(define-macro (define-class classname parents . statevars)
-;  `(define ,classname ,(if (symbol? parents) (list parents) parents) ,statevars))
-
 
 ;; Remember, if you try to unquote classtype without splicing, the
 ;; interpreter tries to evaluate it.
 
+;; cpl... class precedent list
 (define-macro (isa? self . classtype)
   `(let ((ancestors (class-cpl (class-of ,self))))
-	  (if (apply orf (map (lambda (x) (member x ancestors)) (list ,@classtype))) 
+	  (if (apply orf
+					 (map (lambda (x) (member x ancestors))
+							(list ,@classtype))) 
 			#t #f)
 	  )
   )
@@ -200,57 +76,169 @@
 		 (generic-register 'add g ',name)
 		 g)))
 		 
+(define-macro (default-object-initialization name . otherstuff)
+  (if (null? otherstuff)
+		`(add-method
+		  initialize
+		  (make-method (list ,name)
+							(lambda (initialize-parent self args)
+							  (initialise self '())
+							  ;; call "parents" last to make the
+							  ;; initialisation list work
+							  (initialize-parent) 
+							  )))
+		`(add-method
+		  initialize
+		  (make-method (list ,name)
+							(lambda (initialize-parent self args)
+							  (initialise self (list ,@otherstuff))
+							  ;; call "parents" last to make the
+							  ;; initialisation list work
+							  (initialize-parent) 
+							  )))
+  
+  ))
+
+
+(define-macro (default-initialization name . otherstuff)
+  (if (null? otherstuff)
+		`(add-method
+		  initialize
+		  (make-method (list ,name)
+							(lambda (initialize-parent self args)
+							  (initialise self '())
+							  ;; call "parents" last to make the
+							  ;; initialisation list work
+							  (initialize-parent) 
+							  )))
+		`(add-method
+		  initialize
+		  (make-method (list ,name)
+							(lambda (initialize-parent self args)
+							  (initialise self (list ,@otherstuff))
+							  ;; call "parents" last to make the
+							  ;; initialisation list work
+							  (initialize-parent) 
+							  )))
+  
+  ))
+
 
 ;; This works like so:
-;;(method <parent1> (methname) body)
-;;(method <parent1> (methname arg1 . rest) body)
-;;(method <parent1> (methname . rest) body)
-;;(method (<parent1>) (methname) body)
-;;(method (<parent1>) (methname arg1 arg2) body)
-;;(method (<parent1> <parent2>) (methname) body)
-;;(method (<parent1> <parent2>) (methname arg1 arg2..) body)
-;;(method (<parent1>) (methname arg1 arg2 . rest) body)
-;;(method (<parent1> <parent2>) (methname arg1 arg2 . rest) body)
+;;(sclos-method <parent1> (methname) body)
+;;(sclos-method <parent1> (methname arg1 . rest) body)
+;;(sclos-method <parent1> (methname . rest) body)
+;;(sclos-method (<parent1>) (methname) body)
+;;(sclos-method (<parent1>) (methname arg1 arg2) body)
+;;(sclos-method (<parent1> <parent2>) (methname) body)
+;;(sclos-method (<parent1> <parent2>) (methname arg1 arg2..) body)
+;;(sclos-method (<parent1>) (methname arg1 arg2 . rest) body)
+;;(sclos-method (<parent1> <parent2>) (methname arg1 arg2 . rest) body)
 
-;; "(????-parent)" can be used to invoke the parent methods in the body, where ???? is the value of methname
-;;     so for a method called "grok" you would use "grok-parent" to invoke the parent method
-;; "self" is the name of the agent within the body of the method
-;; the state variables are not available but you can use  "my" and "set-my!" or "slot-ref" and "slot-set!"
+;; "(????-parent)" can be used to invoke the parent methods in the
+;; body, where ???? is the value of methname so for a method called
+;; "grok" you would use "grok-parent" to invoke the parent method
+;; "self" is the name of the agent within the body of the method the
+;; state variables are not available but you can use "my" and
+;; "set-my!" or "slot-ref" and "slot-set!"
 
-(define-macro (sclos-method . madness)
-  ;; Call like (sclos-method classname (mname * margs) . body)
-  ;;   where the margs doesn't include the call-parent-method and 'self' is the placeholder
-  (if (< (length madness) 3) (aborts "sclos-method: bad arguments to method call " madness))
-  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) )) (aborts "method: bad (mname args...) in (method ...) " (caadr madness)))
-  (if (not (eq? (cadadr madness) 'self)) (aborts "sclos-method: missing 'self' placeholder in definition " (caadr madness)))
+(define-macro (object-method . madness)
+  ;; Call like (object-method classname (mname * margs) . body) where
+  ;;   the margs doesn't include the call-parent-method and 'self' is
+  ;;   the placeholder
+  (if (< (length madness) 3)
+		(error "object-method: bad arguments to method call " madness))
 
-  (let ((classlst (if (list? (car madness)) (car madness) (list (car madness))))
+  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+		(error "method: bad (mname args...) in (method ...) "
+				 (caadr madness)))
+
+  (if (not (eq? (cadadr madness) 'self))
+		(error "object-method: missing 'self' placeholder in definition "
+				 (caadr madness)))
+
+  (let ((classlst (if (list? (car madness))
+							 (car madness)
+							 (list (car madness))))
 		  (mname (caadr madness))
 		  (star (cadadr madness))
 		  (margs (cddadr madness))
 		  (body (cddr madness))
 		  )
-	 `(add-method ,mname
-					  (make-method (list ,@classlst) 
-										(lambda (,(string->symbol (string-append (symbol->string mname) "-parent")) self ,@margs) 
-										  (let ((my (lambda (x) (slot-ref self x)))
-												  (set-my! (lambda (x y) (slot-set! self x y)))
-												  (kernel (slot-ref self 'kernel))
-												  )
-											 ,@body)
-										  )
-										)
-					  )
+	 `(add-method
+		,mname
+		(make-method
+		 (list ,@classlst) 
+		 (lambda (,(string->symbol
+						(string-append
+						 (symbol->string mname) "-parent")) self ,@margs) 
+			(let ((my (lambda (x) (slot-ref self x)))
+					(set-my! (lambda (x y) (slot-set! self x y)))
+					)
+			  ,@body)
+			)
+		 )
+		)
 	 )
   )
 
 
 
-;; "(parent-body)" can be used to invoke the parent's body --- sclos handles any arguments that might be needed
-;; "self" is the name of the agent within the body code
-;; "t" is the current model time
-;; dt is the requested dt
-;; the state variables are not directly available -- use "my" or "set-my!", "slot-ref" or "slot-set!"
+;; "(parent-body)" can be used to invoke the parent's body --- sclos
+;; handles any arguments that might be needed: "self" is the name of
+;; the agent within the body code "t" is the current model time dt is
+;; the requested dt the state variables are not directly available --
+;; use "my" or "set-my!", "slot-ref" or "slot-set!"
+
+
+
+
+(define-macro (sclos-method . madness)
+  ;; Call like (sclos-method classname (mname * margs) . body) where
+  ;; the margs doesn't include the call-parent-method and 'self' is
+  ;; the placeholder
+  (if (< (length madness) 3)
+		(error "sclos-method: bad arguments to method call " madness))
+  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+		(error "method: bad (mname args...) in (method ...) "
+				 (caadr madness)))
+  (if (not (eq? (cadadr madness) 'self))
+		(error "sclos-method: missing 'self' placeholder in definition "
+				 (caadr madness)))
+
+  (let ((classlst (if (list? (car madness))
+							 (car madness)
+							 (list (car madness))))
+		  (mname (caadr madness))
+		  (star (cadadr madness))
+		  (margs (cddadr madness))
+		  (body (cddr madness))
+		  )
+	 `(add-method
+		,mname
+		(make-method (list ,@classlst) 
+						 (lambda (,(string->symbol
+										(string-append (symbol->string mname)
+															"-parent"))
+									 self ,@margs) 
+							(let ((my (lambda (x) (slot-ref self x)))
+									(set-my! (lambda (x y)
+												  (slot-set! self x y)))
+									(kernel (slot-ref self 'kernel))
+									)
+							  ,@body)
+							)
+						 )
+		)
+	 )
+  )
+
+
+;; "(parent-body)" can be used to invoke the parent's body --- sclos
+;; handles any arguments that might be needed: "self" is the name of
+;; the agent within the body code "t" is the current model time dt is
+;; the requested dt the state variables are not directly available --
+;; use "my" or "set-my!", "slot-ref" or "slot-set!"
 
 
 ;;(sclos-model-body <animal> 
@@ -263,21 +251,27 @@
 ;;)
 
 
-(define-macro (sclos-model-body myclass . body) ;; Call like (method classname (mname margs) . body)  where the margs doesn't include the call-next-method
-  (if (not (symbol? myclass)) (aborts "model-body: the class " myclass " should be an atom"))
-  `(add-method run-model-body
-					(make-method (list ,myclass <number> <number> <pair>)
-									 (lambda (parent-body self t dt) 
-										(let ((my (lambda (x) (slot-ref self x)))
-												(set-my! (lambda (x y) (slot-set! self x y)))
-												(kernel (slot-ref self 'kernel))
-												(skip-parent-body
-												 (lambda ()
-													(if (not (slot-ref self 'agent-body-ran))
-														 (begin
-															(slot-set! self 'counter (1+ (slot-ref self 'counter)))
-															;;(set-my! 'subjective-time (+ (my 'subjective-time) (my 'dt)))
-															(slot-set! self 'agent-body-ran #t)))) )
+(define-macro (sclos-model-body myclass . body)
+  ;; Call like (method classname (mname margs) . body) where the margs
+  ;; doesn't include the call-next-method
+  (if (not (symbol? myclass))
+		(aborts "model-body: the class " myclass " should be an atom"))
+  `(add-method
+	 run-model-body
+	 (make-method (list ,myclass)
+					  (lambda (parent-body self t dt) 
+						 (let ((my (lambda (x) (slot-ref self x)))
+								 (set-my! (lambda (x y) (slot-set! self x y)))
+								 (kernel (slot-ref self 'kernel))
+								 (skip-parent-body
+								  (lambda ()
+									 (if (not (slot-ref self 'agent-body-ran))
+										  (begin
+											 (slot-set! self 'counter
+															(1+ (slot-ref self 'counter)))
+											 ;;(set-my! 'subjective-time 
+											 ;;    (+ (my'subjective-time) (my 'dt)))
+											 (slot-set! self 'agent-body-ran #t)))) )
 												)
 										  ,@body
 										  )
@@ -286,157 +280,42 @@
 					)
   )
 
+;; like sclos-model-body, but chains straight to parent
+(define-macro (sclos-use-parent-body myclass) 
+  `(sclos-model-body ,myclass (parent-body)))
+
 
 
 (define-macro (sclos-setter myclass variable)
-  (if (or (not (symbol? variable)) (not (symbol? myclass))) (aborts "model-body: the class " myclass " and variable " variable " must be atoms"))
-  `(add-method ,(string->symbol (string-append "set-" (symbol->string variable) "!"))
+  (if (or (not (symbol? variable))
+			 (not (symbol? myclass)))
+		(aborts "model-body: the class " myclass " and variable "
+				  variable " must be atoms"))
+  `(add-method ,(string->symbol
+					  (string-append "set-" (symbol->string variable) "!"))
 					(make-method (list ,myclass)
 									 (lambda (self arg)
 										(slot-set! self ',variable arg)))))
 
 (define-macro (sclos-getter myclass variable)
-  (if (or (not (symbol? variable)) (not (symbol? myclass))) (aborts "model-body: the class " myclass " and variable " variable " must be atoms"))
+  (if (or (not (symbol? variable)) (not (symbol? myclass)))
+		(aborts "model-body: the class " myclass " and variable "
+				  variable " must be atoms"))
   `(add-method ,variable
 					(make-method (list ,myclass) 
 									 (lambda (self)
 										(slot-ref self ',variable)))))
 
 
-#|
+(include "framework.scm")
 
-;; This works like so:
-;;(method <parent1> (methname) body)
-;;(method <parent1> (methname arg1 . rest) body)
-;;(method <parent1> (methname . rest) body)
-;;(method (<parent1>) (methname) body)
-;;(method (<parent1>) (methname arg1 arg2) body)
-;;(method (<parent1> <parent2>) (methname) body)
-;;(method (<parent1> <parent2>) (methname arg1 arg2..) body)
-;;(method (<parent1>) (methname arg1 arg2 . rest) body)
-;;(method (<parent1> <parent2>) (methname arg1 arg2 . rest) body)
+;(define-macro (migration-test .....))
+;; returns an indication of how the agent is situated
+;; w.r.t. representation
 
-;; "(????-parent)" can be used to invoke the parent methods in the body, where ???? is the value of methname
-;;     so for a method called "grok" you would use "grok-parent" to invoke the parent method
-;; "self" is the name of the agent within the body of the method
-;;
-;; all the state variables are available
-;; "my" and "set-my!" are *not* available, and you should not use slot-ref or slot-set! either, just use the variables as susal
+;(define-macro (migrate .....))
+;; returns a new representation of the agent
 
-(define-macro (method . madness) ;; Call like (method classname (mname margs) . body)  where the margs doesn't include the call-parent-method
-  (if (< (length madness) 3) (aborts "method: bad arguments to method call -- " madness))
-  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)))) (aborts "method: bad (mname args...) in (method ...)")
-
-		(let ((classlst (if (list? (car madness)) (car madness) (list (car madness))))
-				(mname (caadr madness))
-				(margs (cdadr madness))
-				(body (cddr madness))
-				)
-		  `(add-method ,mname
-							(make-method (list ,@classlst) 
-											 (lambda (,(string->symbol (string-append "hidden-" (symbol->string mname) "-parent")) self ,@margs) 
-												(let* ((__ss! slot-set!)
-														 ,@(let ((variables (map car (slot-ref (eval (if (atom? (car madness)) (car madness) (caar madness)))  'slots))))
-															  (map (lambda (x) (list ,x `(slot-ref self ',x))) variables)
-															  )
-														 (,(string->symbol (string-append (symbol->string mname) "-parent"))
-														  (lambda ()
-															 ,@(let ((variables (map car (slot-ref (eval myclass)  'slots))))
-																  (map (lambda (x) (list ,x `(__ss! self ',x ,x))) variables)
-																  )
-															 (,(string->symbol (string-append "hidden-" (symbol->string mname) "-parent")))
-															 ))
-														 (my (lambda x (aborts ,(caadr madness) ": do not use 'my' with a 'method'")))
-														 (set-my! (lambda x (aborts  ,(caadr madness) ": do not use 'my-set!' with a 'method'")))
-														 (slot-ref (lambda x (aborts ,(caadr madness) ": do not use 'slot-ref' with a 'method'")))
-														 (set-slot! (lambda x (aborts ,(caadr madness) ": do not use 'slot-set!' with a 'method'")))
-														 )
-												  
-												  (let ((return (let () ,@body)))
-													 ,@(let ((variables (map car (slot-ref (eval (if (atom? (car madness)) (car madness) (caar madness))) 'slots))))
-														  (map (lambda (x) `(__ss! self ',x ,x)) variables))
-													 return)
-												  )
-												)
-											 )
-							)
-		  )
-		)
-  )
-  |#
-
-
-#|
-  ;; "(parent-body)" can be used to invoke the parent'd body
-  ;; "self" is the name of the agent within the body code
-  ;; "t" is the current model time
-  ;; dt is the requested dt
-  ;; all the state variables are available
-  ;; "my" and "set-my!" are *not* available, and you should not use slot-ref or slot-set! either, just use the variables as susal
-
-  ;;(model-body <animal> 
-  ;;		(let ((fear (search environment 'predators))
-  ;;				(feast (search environment 'prey))
-  ;;				)
-  ;;		  (display name "is running at " t)
-  ;;		  ...
-  ;;		  )
-  ;;)
-
-
-
-  (define-macro (model-body myclass . body) ;; Call like (method classname (mname margs) . body)  where the margs doesn't include the call-next-method
-	 (if (not (symbol? myclass)) (aborts "model-body: the class must be an atom"))
-	 `(add-method run-model-body
-					  (make-method (list ,myclass <number> <number> <pair>)
-										(lambda (hidden-parent-body self t rdt ) 
-										  (let* ((__ss! slot-set!)
-													,@(let ((variables (map car (slot-ref (eval myclass)  'slots))))
-														 (map (lambda (x) (list x `(slot-ref self ,x))) variables)
-														 )
-
-													(skip-parent-body
-													 (lambda ()
-														(if (not (my 'agent-body-ran))
-															 (begin
-																(set-my! 'counter (1+ (my 'counter)))
-																;;(set-my! 'subjective-time (+ (my 'subjective-time) (my 'dt)))
-																(set-my! 'agent-body-ran #t))))
-
-													(parent-body 
-													 (lambda () 
-														,@(let ((variables (map car (slot-ref (eval myclass)  'slots))))
-															 (map (lambda (x) (list x `(slot-set! self ',x ,x))) variables)
-															 )
-														(hidden-parent-body)
-														))
-													(my (lambda (x) (aborts "do not use 'my' in 'model-body'")))
-													(set-my! (lambda (x y) (aborts "do not use 'my-set!' in 'model-body'")))
-													(slot-ref (lambda x (aborts "do not use 'slot-ref' with a 'method'")))
-													(set-slot! (lambda x (aborts "do not use 'slot-set!' with a 'method'")))
-													)
-											 
-											 (let ((return (let () ,@body)))
-												,@(let ((variables (map car (slot-ref (eval myclass) 'slots))))
-													 (map (lambda (x) `(__ss! self ',x ,x)) variables))
-												(if (eq? return #!void)
-													 (abort (string-append "Bad return value from model body of " (symbol->string (class-name-of self)))))
-												return)
-
-											 )
-										  )
-										)
-					  )
-	 )
-
-
-  |#
-
-
-
-
-  ;;(define-macro (migration-test .....)) ;; returns an indication of how the agent is situated w.r.t. representation
-  ;;(define-macro (migrate .....)) ;; returns a new representation of the agent
 ;-  The End 
 
 

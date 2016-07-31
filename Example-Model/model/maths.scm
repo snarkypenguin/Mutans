@@ -207,6 +207,93 @@
 	 )
 
 
+(define (point? p)
+  (and (list? p) (apply andf (map number? p))))
+
+(define (point-list? p)
+  (apply andf (map point? p)))
+
+(define (n-point? n p)
+  (and (= n (length p)) (point? p)))
+
+(define (n-point-list? n p)
+  (apply andf (map (lambda (x) (n-point? 2 x)) p)))
+
+
+
+(define (distance-to-segment r segment)
+  (if (and (n-point 2 r) (n-point-list? 2 segment))
+		(let* ((rx (car r))
+				 (ry (cadr r))
+				 (p0 (car segment))
+				 (p1 (cadr segment))
+		  
+				 (p0x (car p0))
+				 (p0y (cadr p0))
+				 (p1x (car p1))		
+				 (p1y (cadr p1))
+
+				 (px (- p1x p0x))	
+				 (py (- p1y p0y))
+				 (t (/ (+ (* px (- rx p0x)) (* py (- ry p0y))) (+ (* px px) (* py py))))
+				 )
+		  
+		  (cond
+			((<= t 0) (distance r p0))
+			((>= t 1) (distance r p1))
+			(#t (distance r (list (+ p0x (* t px)) (+ p0y (* t py)))))))
+		(error "bad point or point list in distance-to-segment" r segment)
+		))
+
+(define (distance-to-polygon r poly)
+  (define (d2p r poly)
+	 (cond
+	  ((and (pair? poly) (pair? (cdr poly)))
+		(min (distance-to-segment r (list-head poly 2))
+			  (distance-to-polygon r (cdr poly))))
+	  ((pair? poly) (distance r (car poly)))
+	  (#t +inf.0)))
+
+  (d2p r  (append  poly (if (eq? (car poly) (car (reverse poly))) '() (list (car poly))))))
+
+
+
+
+;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
+;; With changes 
+(define (pt-in-poly2 xp yp x y) 
+  (let loop ((c #f) 
+				 (i (- (length xp) 1)) 
+				 (j 0))
+    (if (< i 0)
+      c
+      (if (or (and (or (> (list-ref yp i) y)
+                       (>= y (list-ref yp j)))
+                   (or (> (list-ref yp j) y)
+                       (>= y (list-ref yp i))))
+              (>= x
+                       (+ (list-ref xp i)
+                               (/ (*
+                                        (- (list-ref xp j)
+                                                (list-ref xp i))
+                                        (- y (list-ref yp i)))
+                                       (- (list-ref yp j)
+                                               (list-ref yp i))))))
+        (loop c (- i 1) i)
+        (loop (not c) (- i 1) i)))))
+
+
+(define (point-in-polygon p poly)
+  (if (or? (null? p) (null? poly) (< (length poly) 3)) 
+		#f
+		
+		(let ((ptail (car (reverse poly))))
+		  (if (not (eq? (car poly) ptail))
+				(set! poly (append poly (list (car poly)))))))
+
+  (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
+
+
 (define (dot a b) ;; general
   (apply + (list-operator * a b)))
 

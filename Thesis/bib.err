@@ -1,8 +1,425 @@
-%% thesis.bib:99:Unexpected value in ``year = "1798"''.
-%% thesis.bib:99:Suspicious year in ``year = "1798"''.
-%% thesis.bib:1226:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
-%% thesis.bib:1331:Unexpected value in ``number = "2–3"''.
-%% thesis.bib:1375:Unexpected value in ``number = "1–2"''.
-%% thesis.bib:1548:Unexpected value in ``year = "1798"''.
-%% thesis.bib:1548:Suspicious year in ``year = "1798"''.
-%% thesis.bib:2148:Unexpected value in ``volume = "3(1)"''.
+%% phd.bib:99:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=2788 line=97 column= 1 output byte=3530 line=107 column= 0
+%%  Value   input byte=2845 line=99 column= 7 output byte=3606 line=109 column=17
+%%  Current input byte=2851 line=99 column=13 output byte=3606 line=109 column=17
+%% phd.bib:99:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=2788 line=97 column= 1 output byte=3530 line=107 column= 0
+%%  Value   input byte=2845 line=99 column= 7 output byte=3606 line=109 column=17
+%%  Current input byte=2851 line=99 column=13 output byte=3606 line=109 column=17
+%% phd.bib:155:Invalid checksum for ISBN 978-963-979-9 in ``ISBN = "978-963-979-9-87-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=3954 line=138 column= 1 output byte=4984 line=153 column= 0
+%%  Value   input byte=4830 line=155 column=29 output byte=5794 line=170 column=17
+%%  Current input byte=4849 line=155 column=48 output byte=5794 line=170 column=17
+%% phd.bib:155:Invalid checksum for ISBN 978-963-979-9 in ``ISBN = "978-963-979-9-87-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=3954 line=138 column= 1 output byte=4984 line=153 column= 0
+%%  Value   input byte=4830 line=155 column=29 output byte=5794 line=170 column=17
+%%  Current input byte=4849 line=155 column=48 output byte=5794 line=170 column=17
+%% phd.bib:563:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=24704 line=557 column= 1 output byte=23527 line=631 column= 0
+%%  Value   input byte=25057 line=563 column=29 output byte=23808 line=637 column=17
+%%  Current input byte=25076 line=563 column=48 output byte=23808 line=637 column=17
+%% phd.bib:563:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=24704 line=557 column= 1 output byte=23527 line=631 column= 0
+%%  Value   input byte=25057 line=563 column=29 output byte=23808 line=637 column=17
+%%  Current input byte=25076 line=563 column=48 output byte=23808 line=637 column=17
+%% phd.bib:573:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=25164 line=568 column= 1 output byte=23891 line=642 column= 0
+%%  Value   input byte=25497 line=573 column=29 output byte=24182 line=648 column=17
+%%  Current input byte=25516 line=573 column=48 output byte=24182 line=648 column=17
+%% phd.bib:573:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=25164 line=568 column= 1 output byte=23891 line=642 column= 0
+%%  Value   input byte=25497 line=573 column=29 output byte=24182 line=648 column=17
+%%  Current input byte=25516 line=573 column=48 output byte=24182 line=648 column=17
+%% phd.bib:600:Unexpected value in ``pages = "669â679"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=26401 line=595 column= 1 output byte=24929 line=672 column= 0
+%%  Value   input byte=26729 line=600 column=29 output byte=25233 line=679 column=17
+%%  Current input byte=26743 line=600 column=43 output byte=25233 line=679 column=17
+%% phd.bib:615:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=26866 line=606 column= 1 output byte=25334 line=685 column= 0
+%%  Value   input byte=27318 line=615 column=29 output byte=25727 line=695 column=17
+%%  Current input byte=27387 line=615 column=98 output byte=25727 line=695 column=17
+%% phd.bib:615:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=26866 line=606 column= 1 output byte=25334 line=685 column= 0
+%%  Value   input byte=27318 line=615 column=29 output byte=25727 line=695 column=17
+%%  Current input byte=27387 line=615 column=98 output byte=25727 line=695 column=17
+%% phd.bib:615:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=26866 line=606 column= 1 output byte=25334 line=685 column= 0
+%%  Value   input byte=27318 line=615 column=29 output byte=25727 line=695 column=17
+%%  Current input byte=27387 line=615 column=98 output byte=25727 line=695 column=17
+%% phd.bib:615:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=26866 line=606 column= 1 output byte=25334 line=685 column= 0
+%%  Value   input byte=27318 line=615 column=29 output byte=25727 line=695 column=17
+%%  Current input byte=27387 line=615 column=98 output byte=25727 line=695 column=17
+%% phd.bib:755:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=33178 line=746 column= 1 output byte=30869 line=840 column= 0
+%%  Value   input byte=33832 line=755 column=29 output byte=31514 line=853 column=17
+%%  Current input byte=33882 line=755 column=79 output byte=31514 line=853 column=17
+%% phd.bib:755:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=33178 line=746 column= 1 output byte=30869 line=840 column= 0
+%%  Value   input byte=33832 line=755 column=29 output byte=31514 line=853 column=17
+%%  Current input byte=33882 line=755 column=79 output byte=31514 line=853 column=17
+%% phd.bib:755:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=33178 line=746 column= 1 output byte=30869 line=840 column= 0
+%%  Value   input byte=33832 line=755 column=29 output byte=31514 line=853 column=17
+%%  Current input byte=33882 line=755 column=79 output byte=31514 line=853 column=17
+%% phd.bib:755:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=33178 line=746 column= 1 output byte=30869 line=840 column= 0
+%%  Value   input byte=33832 line=755 column=29 output byte=31514 line=853 column=17
+%%  Current input byte=33882 line=755 column=79 output byte=31514 line=853 column=17
+%% phd.bib:913:Unexpected DOI in URL value ``"http://dx.doi.org/10.1016/j.envsoft.2011.08.012"'': move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=40552 line=902 column= 1 output byte=37577 line=1025 column= 0
+%%  Value   input byte=40892 line=913 column= 7 output byte=38013 line=1037 column=17
+%%  Current input byte=40941 line=913 column=56 output byte=38013 line=1037 column=17
+%% phd.bib:913:Possible DOI in URL value ``"http://dx.doi.org/10.1016/j.envsoft.2011.08.012"'': if so, move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=40552 line=902 column= 1 output byte=37577 line=1025 column= 0
+%%  Value   input byte=40892 line=913 column= 7 output byte=38013 line=1037 column=17
+%%  Current input byte=40941 line=913 column=56 output byte=38013 line=1037 column=17
+%% phd.bib:923:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=41268 line=921 column= 1 output byte=38453 line=1047 column= 0
+%%  Value   input byte=41309 line=923 column= 5 output byte=38519 line=1049 column=17
+%%  Current input byte=41328 line=923 column=24 output byte=38519 line=1049 column=17
+%% phd.bib:923:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=41268 line=921 column= 1 output byte=38453 line=1047 column= 0
+%%  Value   input byte=41309 line=923 column= 5 output byte=38519 line=1049 column=17
+%%  Current input byte=41328 line=923 column=24 output byte=38519 line=1049 column=17
+%% phd.bib:928:Unexpected DOI in URL value ``"http://dx.doi.org/10.1007/978-1-4614-6134-0_4"'': move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=41268 line=921 column= 1 output byte=38453 line=1047 column= 0
+%%  Value   input byte=41572 line=928 column= 4 output byte=38851 line=1055 column=17
+%%  Current input byte=41619 line=928 column=51 output byte=38851 line=1055 column=17
+%% phd.bib:928:Possible DOI in URL value ``"http://dx.doi.org/10.1007/978-1-4614-6134-0_4"'': if so, move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=41268 line=921 column= 1 output byte=38453 line=1047 column= 0
+%%  Value   input byte=41572 line=928 column= 4 output byte=38851 line=1055 column=17
+%%  Current input byte=41619 line=928 column=51 output byte=38851 line=1055 column=17
+%% phd.bib:1134:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=49853 line=1127 column= 1 output byte=46045 line=1268 column= 0
+%%  Value   input byte=50375 line=1134 column=29 output byte=46552 line=1279 column=17
+%%  Current input byte=50438 line=1135 column= 0 output byte=46552 line=1279 column=17
+%% phd.bib:1222:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=54844 line=1211 column= 1 output byte=50606 line=1368 column= 0
+%%  Value   input byte=55797 line=1222 column=29 output byte=51532 line=1386 column=17
+%%  Current input byte=55816 line=1222 column=48 output byte=51532 line=1386 column=17
+%% phd.bib:1222:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=54844 line=1211 column= 1 output byte=50606 line=1368 column= 0
+%%  Value   input byte=55797 line=1222 column=29 output byte=51532 line=1386 column=17
+%%  Current input byte=55816 line=1222 column=48 output byte=51532 line=1386 column=17
+%% phd.bib:1447:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=66643 line=1443 column= 1 output byte=61122 line=1635 column= 0
+%%  Value   input byte=66881 line=1447 column=29 output byte=61313 line=1639 column=17
+%%  Current input byte=66887 line=1447 column=35 output byte=61313 line=1639 column=17
+%% phd.bib:1447:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=66643 line=1443 column= 1 output byte=61122 line=1635 column= 0
+%%  Value   input byte=66881 line=1447 column=29 output byte=61313 line=1639 column=17
+%%  Current input byte=66887 line=1447 column=35 output byte=61313 line=1639 column=17
+%% phd.bib:1890:Invalid checksum for ISBN 978-35404-5-9 in ``ISBN = "9783-540-4591-4-9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=92784 line=1879 column= 1 output byte=84867 line=2153 column= 0
+%%  Value   input byte=93511 line=1890 column=29 output byte=85491 line=2166 column=17
+%%  Current input byte=93530 line=1890 column=48 output byte=85491 line=2166 column=17
+%% phd.bib:1999:Unexpected value in ``volume = "3(1)"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=98437 line=1993 column= 1 output byte=89776 line=2285 column= 0
+%%  Value   input byte=98871 line=1999 column=29 output byte=90171 line=2293 column=17
+%%  Current input byte=98877 line=1999 column=35 output byte=90171 line=2293 column=17
+%% phd.bib:2716:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=124065 line=2714 column= 1 output byte=117547 line=3116 column= 0
+%%  Value   input byte=124140 line=2716 column=17 output byte=117623 line=3118 column=17
+%%  Current input byte=124146 line=2716 column=23 output byte=117623 line=3118 column=17
+%% phd.bib:2716:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=124065 line=2714 column= 1 output byte=117547 line=3116 column= 0
+%%  Value   input byte=124140 line=2716 column=17 output byte=117623 line=3118 column=17
+%%  Current input byte=124146 line=2716 column=23 output byte=117623 line=3118 column=17
+%% phd.bib:2784:Invalid checksum for ISBN 978-963-979-9 in ``ISBN = "9789-6397-998-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=125519 line=2760 column= 1 output byte=119001 line=3162 column= 0
+%%  Value   input byte=126634 line=2784 column=29 output byte=120105 line=3186 column=17
+%%  Current input byte=126653 line=2784 column=48 output byte=120105 line=3186 column=17
+%% phd.bib:2784:Invalid checksum for ISBN 978-963-979-9 in ``ISBN = "9789-6397-998-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=125519 line=2760 column= 1 output byte=119001 line=3162 column= 0
+%%  Value   input byte=126634 line=2784 column=29 output byte=120105 line=3186 column=17
+%%  Current input byte=126653 line=2784 column=48 output byte=120105 line=3186 column=17
+%% phd.bib:3261:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "97-81742-322-5-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=146866 line=3255 column= 1 output byte=140336 line=3657 column= 0
+%%  Value   input byte=147146 line=3261 column=17 output byte=140617 line=3663 column=17
+%%  Current input byte=147165 line=3261 column=36 output byte=140617 line=3663 column=17
+%% phd.bib:3261:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "97-81742-322-5-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=146866 line=3255 column= 1 output byte=140336 line=3657 column= 0
+%%  Value   input byte=147146 line=3261 column=17 output byte=140617 line=3663 column=17
+%%  Current input byte=147165 line=3261 column=36 output byte=140617 line=3663 column=17
+%% phd.bib:3272:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=147230 line=3266 column= 1 output byte=140701 line=3668 column= 0
+%%  Value   input byte=147520 line=3272 column=17 output byte=140992 line=3674 column=17
+%%  Current input byte=147540 line=3272 column=37 output byte=140992 line=3674 column=17
+%% phd.bib:3272:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=147230 line=3266 column= 1 output byte=140701 line=3668 column= 0
+%%  Value   input byte=147520 line=3272 column=17 output byte=140992 line=3674 column=17
+%%  Current input byte=147540 line=3272 column=37 output byte=140992 line=3674 column=17
+%% phd.bib:3303:Unexpected value in ``pages = "669â679"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=148268 line=3296 column= 1 output byte=141739 line=3698 column= 0
+%%  Value   input byte=148571 line=3303 column=17 output byte=142043 line=3705 column=17
+%%  Current input byte=148585 line=3303 column=31 output byte=142043 line=3705 column=17
+%% phd.bib:3319:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=148673 line=3309 column= 1 output byte=142144 line=3711 column= 0
+%%  Value   input byte=149065 line=3319 column=17 output byte=142537 line=3721 column=17
+%%  Current input byte=149157 line=3320 column=37 output byte=142537 line=3721 column=17
+%% phd.bib:3319:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=148673 line=3309 column= 1 output byte=142144 line=3711 column= 0
+%%  Value   input byte=149065 line=3319 column=17 output byte=142537 line=3721 column=17
+%%  Current input byte=149157 line=3320 column=37 output byte=142537 line=3721 column=17
+%% phd.bib:3319:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=148673 line=3309 column= 1 output byte=142144 line=3711 column= 0
+%%  Value   input byte=149065 line=3319 column=17 output byte=142537 line=3721 column=17
+%%  Current input byte=149157 line=3320 column=37 output byte=142537 line=3721 column=17
+%% phd.bib:3319:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-3-9-9, Web: 978-192-182-6-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=148673 line=3309 column= 1 output byte=142144 line=3711 column= 0
+%%  Value   input byte=149065 line=3319 column=17 output byte=142537 line=3721 column=17
+%%  Current input byte=149157 line=3320 column=37 output byte=142537 line=3721 column=17
+%% phd.bib:3477:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=154208 line=3464 column= 1 output byte=147682 line=3866 column= 0
+%%  Value   input byte=154852 line=3477 column=17 output byte=148327 line=3879 column=17
+%%  Current input byte=154902 line=3477 column=67 output byte=148327 line=3879 column=17
+%% phd.bib:3477:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=154208 line=3464 column= 1 output byte=147682 line=3866 column= 0
+%%  Value   input byte=154852 line=3477 column=17 output byte=148327 line=3879 column=17
+%%  Current input byte=154902 line=3477 column=67 output byte=148327 line=3879 column=17
+%% phd.bib:3477:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=154208 line=3464 column= 1 output byte=147682 line=3866 column= 0
+%%  Value   input byte=154852 line=3477 column=17 output byte=148327 line=3879 column=17
+%%  Current input byte=154902 line=3477 column=67 output byte=148327 line=3879 column=17
+%% phd.bib:3477:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 97-80643-107-1-6-8, Web: 97-80643-107-1-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=154208 line=3464 column= 1 output byte=147682 line=3866 column= 0
+%%  Value   input byte=154852 line=3477 column=17 output byte=148327 line=3879 column=17
+%%  Current input byte=154902 line=3477 column=67 output byte=148327 line=3879 column=17
+%% phd.bib:3615:Unexpected value in ``volume = "11(4)"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=159403 line=3606 column= 1 output byte=152879 line=4008 column= 0
+%%  Value   input byte=159829 line=3615 column=17 output byte=153306 line=4017 column=17
+%%  Current input byte=159836 line=3615 column=24 output byte=153306 line=4017 column=17
+%% phd.bib:3660:Unexpected DOI in URL value ``"http://dx.doi.org/10.1016/j.envsoft.2011.08.012"'': move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=160897 line=3648 column= 1 output byte=154373 line=4050 column= 0
+%%  Value   input byte=161332 line=3660 column=17 output byte=154809 line=4062 column=17
+%%  Current input byte=161381 line=3660 column=66 output byte=154809 line=4062 column=17
+%% phd.bib:3660:Possible DOI in URL value ``"http://dx.doi.org/10.1016/j.envsoft.2011.08.012"'': if so, move to separate DOI = "..." key/value in this entry.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=160897 line=3648 column= 1 output byte=154373 line=4050 column= 0
+%%  Value   input byte=161332 line=3660 column=17 output byte=154809 line=4062 column=17
+%%  Current input byte=161381 line=3660 column=66 output byte=154809 line=4062 column=17
+%% phd.bib:3672:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "97-81461-461-3-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=161773 line=3670 column= 1 output byte=155249 line=4072 column= 0
+%%  Value   input byte=161838 line=3672 column=17 output byte=155315 line=4074 column=17
+%%  Current input byte=161857 line=3672 column=36 output byte=155315 line=4074 column=17
+%% phd.bib:3672:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "97-81461-461-3-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=161773 line=3670 column= 1 output byte=155249 line=4072 column= 0
+%%  Value   input byte=161838 line=3672 column=17 output byte=155315 line=4074 column=17
+%%  Current input byte=161857 line=3672 column=36 output byte=155315 line=4074 column=17
+%% phd.bib:3678:Expected protocol://... in URL value ``%v%''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=161773 line=3670 column= 1 output byte=155249 line=4072 column= 0
+%%  Value   input byte=162170 line=3678 column=17 output byte=155648 line=4080 column=17
+%%  Current input byte=162199 line=3678 column=46 output byte=155648 line=4080 column=17
+%% phd.bib:3902:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=169347 line=3891 column= 1 output byte=162824 line=4293 column= 0
+%%  Value   input byte=169853 line=3902 column=17 output byte=163331 line=4304 column=17
+%%  Current input byte=169915 line=3902 column=79 output byte=163331 line=4304 column=17
+%% phd.bib:4009:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "97-83642-272-1-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=173890 line=3991 column= 1 output byte=167369 line=4393 column= 0
+%%  Value   input byte=174815 line=4009 column=17 output byte=168295 line=4411 column=17
+%%  Current input byte=174834 line=4009 column=36 output byte=168295 line=4411 column=17
+%% phd.bib:4009:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "97-83642-272-1-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=173890 line=3991 column= 1 output byte=167369 line=4393 column= 0
+%%  Value   input byte=174815 line=4009 column=17 output byte=168295 line=4411 column=17
+%%  Current input byte=174834 line=4009 column=36 output byte=168295 line=4411 column=17
+%% phd.bib:4238:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=183142 line=4234 column= 1 output byte=176622 line=4636 column= 0
+%%  Value   input byte=183332 line=4238 column=17 output byte=176813 line=4640 column=17
+%%  Current input byte=183338 line=4238 column=23 output byte=176813 line=4640 column=17
+%% phd.bib:4238:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=183142 line=4234 column= 1 output byte=176622 line=4636 column= 0
+%%  Value   input byte=183332 line=4238 column=17 output byte=176813 line=4640 column=17
+%%  Current input byte=183338 line=4238 column=23 output byte=176813 line=4640 column=17
+%% phd.bib:4765:Invalid checksum for ISBN 978-35404-5-9 in ``ISBN = "97-83540-459-1-4-9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=206882 line=4752 column= 1 output byte=200364 line=5154 column= 0
+%%  Value   input byte=207505 line=4765 column=17 output byte=200988 line=5167 column=17
+%%  Current input byte=207524 line=4765 column=36 output byte=200988 line=5167 column=17
+%% phd.bib:4892:Unexpected value in ``volume = "3(1)"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=211791 line=4884 column= 1 output byte=205274 line=5286 column= 0
+%%  Value   input byte=212185 line=4892 column=17 output byte=205669 line=5294 column=17
+%%  Current input byte=212191 line=4892 column=23 output byte=205669 line=5294 column=17
+%% phd.bib:5725:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=239276 line=5723 column= 1 output byte=233643 line=6138 column= 0
+%%  Value   input byte=239333 line=5725 column= 7 output byte=233719 line=6140 column=17
+%%  Current input byte=239337 line=5725 column=11 output byte=233719 line=6140 column=17
+%% phd.bib:5725:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=239276 line=5723 column= 1 output byte=233643 line=6138 column= 0
+%%  Value   input byte=239333 line=5725 column= 7 output byte=233719 line=6140 column=17
+%%  Current input byte=239337 line=5725 column=11 output byte=233719 line=6140 column=17
+%% phd.bib:6155:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=258754 line=6151 column= 1 output byte=251419 line=6594 column= 0
+%%  Value   input byte=258938 line=6155 column= 6 output byte=251655 line=6599 column=17
+%%  Current input byte=258964 line=6155 column=32 output byte=251655 line=6599 column=17
+%% phd.bib:6169:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=260211 line=6162 column= 1 output byte=252949 line=6606 column= 0
+%%  Value   input byte=260449 line=6169 column= 6 output byte=253262 line=6614 column=17
+%%  Current input byte=260475 line=6169 column=32 output byte=253262 line=6614 column=17
+%% phd.bib:6183:Expected http://dx.doi.org/ prefix in DOI value ``"10.1177/0037549712462620"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=261678 line=6176 column= 1 output byte=254510 line=6621 column= 0
+%%  Value   input byte=261907 line=6183 column= 6 output byte=254814 line=6629 column=17
+%%  Current input byte=261933 line=6183 column=32 output byte=254814 line=6629 column=17
+%% phd.bib:6271:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=265774 line=6264 column= 1 output byte=258484 line=6711 column= 0
+%%  Value   input byte=266128 line=6271 column=29 output byte=258765 line=6717 column=17
+%%  Current input byte=266147 line=6271 column=48 output byte=258765 line=6717 column=17
+%% phd.bib:6271:Invalid checksum for ISBN 978-174-232-2 in ``ISBN = "9781-7423-225-9 9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=265774 line=6264 column= 1 output byte=258484 line=6711 column= 0
+%%  Value   input byte=266128 line=6271 column=29 output byte=258765 line=6717 column=17
+%%  Current input byte=266147 line=6271 column=48 output byte=258765 line=6717 column=17
+%% phd.bib:6282:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=266235 line=6276 column= 1 output byte=258848 line=6722 column= 0
+%%  Value   input byte=266569 line=6282 column=29 output byte=259139 line=6728 column=17
+%%  Current input byte=266588 line=6282 column=48 output byte=259139 line=6728 column=17
+%% phd.bib:6282:Invalid checksum for ISBN 978-192-129-8 in ``ISBN = "978-192-129-8-81-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=266235 line=6276 column= 1 output byte=258848 line=6722 column= 0
+%%  Value   input byte=266569 line=6282 column=29 output byte=259139 line=6728 column=17
+%%  Current input byte=266588 line=6282 column=48 output byte=259139 line=6728 column=17
+%% phd.bib:6327:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=267936 line=6317 column= 1 output byte=260287 line=6765 column= 0
+%%  Value   input byte=268389 line=6327 column=29 output byte=260680 line=6775 column=17
+%%  Current input byte=268458 line=6327 column=98 output byte=260680 line=6775 column=17
+%% phd.bib:6327:Invalid checksum for ISBN 7-81921-826-3 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=267936 line=6317 column= 1 output byte=260287 line=6765 column= 0
+%%  Value   input byte=268389 line=6327 column=29 output byte=260680 line=6775 column=17
+%%  Current input byte=268458 line=6327 column=98 output byte=260680 line=6775 column=17
+%% phd.bib:6327:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=267936 line=6317 column= 1 output byte=260287 line=6765 column= 0
+%%  Value   input byte=268389 line=6327 column=29 output byte=260680 line=6775 column=17
+%%  Current input byte=268458 line=6327 column=98 output byte=260680 line=6775 column=17
+%% phd.bib:6327:Invalid checksum for ISBN 978-192-182-6 in ``ISBN = "Print: 781-921826-39-9, Web: 9781-921826-40-5 (ebook) www.Ningaloo.org.au"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=267936 line=6317 column= 1 output byte=260287 line=6765 column= 0
+%%  Value   input byte=268389 line=6327 column=29 output byte=260680 line=6775 column=17
+%%  Current input byte=268458 line=6327 column=98 output byte=260680 line=6775 column=17
+%% phd.bib:6488:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=274774 line=6478 column= 1 output byte=266300 line=6933 column= 0
+%%  Value   input byte=275429 line=6488 column=29 output byte=266945 line=6946 column=17
+%%  Current input byte=275479 line=6488 column=79 output byte=266945 line=6946 column=17
+%% phd.bib:6488:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=274774 line=6478 column= 1 output byte=266300 line=6933 column= 0
+%%  Value   input byte=275429 line=6488 column=29 output byte=266945 line=6946 column=17
+%%  Current input byte=275479 line=6488 column=79 output byte=266945 line=6946 column=17
+%% phd.bib:6488:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=274774 line=6478 column= 1 output byte=266300 line=6933 column= 0
+%%  Value   input byte=275429 line=6488 column=29 output byte=266945 line=6946 column=17
+%%  Current input byte=275479 line=6488 column=79 output byte=266945 line=6946 column=17
+%% phd.bib:6488:Invalid checksum for ISBN 978-064-310-7 in ``ISBN = "Print: 9780-643-1071-6-8, Web: 9780-643-1071-7-5"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=274774 line=6478 column= 1 output byte=266300 line=6933 column= 0
+%%  Value   input byte=275429 line=6488 column=29 output byte=266945 line=6946 column=17
+%%  Current input byte=275479 line=6488 column=79 output byte=266945 line=6946 column=17
+%% phd.bib:6685:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=283542 line=6683 column= 1 output byte=274434 line=7155 column= 0
+%%  Value   input byte=283583 line=6685 column= 5 output byte=274500 line=7157 column=17
+%%  Current input byte=283602 line=6685 column=24 output byte=274500 line=7157 column=17
+%% phd.bib:6685:Invalid checksum for ISBN 978-146-146-1 in ``ISBN = "9781-461-4613-3-3"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=283542 line=6683 column= 1 output byte=274434 line=7155 column= 0
+%%  Value   input byte=283583 line=6685 column= 5 output byte=274500 line=7157 column=17
+%%  Current input byte=283602 line=6685 column=24 output byte=274500 line=7157 column=17
+%% phd.bib:6922:Unexpected protocol://... in URL value ``"https://dspace.ist.utl.pt/bitstream/2295/374575/2/artigo.pdf"'': normally ftp://... or http://....
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=292329 line=6914 column= 1 output byte=282262 line=7386 column= 0
+%%  Value   input byte=292852 line=6922 column=29 output byte=282769 line=7397 column=17
+%%  Current input byte=292915 line=6923 column= 0 output byte=282769 line=7397 column=17
+%% phd.bib:7016:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=297308 line=7004 column= 1 output byte=286805 line=7486 column= 0
+%%  Value   input byte=298262 line=7016 column=29 output byte=287731 line=7504 column=17
+%%  Current input byte=298281 line=7016 column=48 output byte=287731 line=7504 column=17
+%% phd.bib:7016:Invalid checksum for ISBN 978-36422-7-2 in ``ISBN = "9783-642-2721-5-8"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=297308 line=7004 column= 1 output byte=286805 line=7486 column= 0
+%%  Value   input byte=298262 line=7016 column=29 output byte=287731 line=7504 column=17
+%%  Current input byte=298281 line=7016 column=48 output byte=287731 line=7504 column=17
+%% phd.bib:7255:Unexpected value in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=308781 line=7251 column= 1 output byte=296912 line=7751 column= 0
+%%  Value   input byte=309019 line=7255 column=29 output byte=297103 line=7755 column=17
+%%  Current input byte=309025 line=7255 column=35 output byte=297103 line=7755 column=17
+%% phd.bib:7255:Suspicious year in ``year = "1798"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=308781 line=7251 column= 1 output byte=296912 line=7751 column= 0
+%%  Value   input byte=309019 line=7255 column=29 output byte=297103 line=7755 column=17
+%%  Current input byte=309025 line=7255 column=35 output byte=297103 line=7755 column=17
+%% phd.bib:7750:Invalid checksum for ISBN 978-35404-5-9 in ``ISBN = "9783-540-4591-4-9"''.
+%%  File positions:  input [phd.bib]  output [stdout]
+%%  Entry   input byte=335363 line=7738 column= 1 output byte=321015 line=8280 column= 0
+%%  Value   input byte=336091 line=7750 column=29 output byte=321639 line=8293 column=17
+%%  Current input byte=336110 line=7750 column=48 output byte=321639 line=8293 column=17

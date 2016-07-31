@@ -50,14 +50,17 @@
 		 )
 	 defines))
 
-(define file-list '("support.scm" "utils.scm" "units.scm" "lists.scm" "sort.scm"
-						  "maths.scm" "utils.scm" "integrate.scm" "maths.scm" "matrix.scm" "integrate.scm"
-						  "postscript.scm" "basic-population.scm" "sclos.scm" "framework-controls.scm"
-						  "declarations.scm" "log-declarations.scm" "framework-classes.scm" "support.scm"
-						  "log-classes.scm" "framework-methods.scm" "log-methods.scm" "model-classes.scm"
-						  "landscape-classes.scm" "animal-classes.scm" "model-methods.scm" "animal-methods.scm"
-						  "landscape-methods.scm" "kernel.scm" "model-configuration.scm" "model-parameters.scm"
-						  "model.scm"))
+(define file-list
+  '("support.scm" "utils.scm" "units.scm" "sort.scm"
+	 "maths.scm" "utils.scm" "integrate.scm" "maths.scm" 
+	 "matrix.scm" "integrate.scm" "postscript.scm" 
+	 "basic-population.scm" "sclos.scm" "framework-controls.scm"
+	 "declarations.scm" "log-declarations.scm" "framework-classes.scm" 
+	 "support.scm" "framework-methods.scm" "log-classes.scm" 
+	 "log-methods.scm" "model-classes.scm" "landscape-classes.scm" 
+	 "animal-classes.scm" "model-methods.scm" "animal-methods.scm"
+	 "landscape-methods.scm" "kernel.scm" "model-configuration.scm" 
+	 "model-parameters.scm" "model.scm"))
 
 
 (define defn-lists (map definitions file-list))

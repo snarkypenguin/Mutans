@@ -19,7 +19,7 @@
 
 ;-  Code 
 
-(load "lists.scm")
+(load "utils.scm")
 
 (define (make-it-a-string s) 
   (or (and (string? s) s) (and (char? s) (make-string 1 s)) (object->string s)))
@@ -105,6 +105,44 @@
 		(if (not (= (cadr dima) (car dimb)))
 			 (abort "incompatible matrices")
 			 (map (lambda (x) (map (lambda (y) (apply + (map * x y))) (transpose-list-matrix b))) a))))))
+
+
+
+;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
+;; With changes 
+(define (pt-in-poly2 xp yp x y) 
+  (let loop ((c #f) 
+				 (i (- (length xp) 1)) 
+				 (j 0))
+    (if (< i 0)
+      c
+      (if (or (and (or (> (list-ref yp i) y)
+                       (>= y (list-ref yp j)))
+                   (or (> (list-ref yp j) y)
+                       (>= y (list-ref yp i))))
+              (>= x
+                       (+ (list-ref xp i)
+                               (/ (*
+                                        (- (list-ref xp j)
+                                                (list-ref xp i))
+                                        (- y (list-ref yp i)))
+                                       (- (list-ref yp j)
+                                               (list-ref yp i))))))
+        (loop c (- i 1) i)
+        (loop (not c) (- i 1) i)))))
+
+
+(define (point-in-polygon p poly)
+  (if (or? (null? p) (null? poly) (< (length poly) 3)) 
+		#f
+		
+		(let ((ptail (car (reverse poly))))
+		  (if (not (eq? (car poly) ptail))
+				(set! poly (append poly (list (car poly)))))))
+
+  (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
+
+
 
 
 (define (rotate-point-list theta pointlist)

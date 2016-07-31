@@ -7,11 +7,11 @@ framework
 	  	 + utils.scm
 	  + integrate.scm
 	  	 + maths.scm
-		 + lists.scm
+		 + utils.scm
 	  + matrix.scm
 	  	 + maths.scm
 	  + postscript.scm
-		 + lists.scm
+		 + utils.scm
 	= sclos.scm
 	= framework-controls.scm
 	= framework-classes.scm

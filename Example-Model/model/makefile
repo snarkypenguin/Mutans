@@ -19,7 +19,7 @@ gsc = /usr/bin/gambitc
 # SCMSUPC = $(SCMSUBLIBS:.c=.scm)
 
 # #OBJS = rk4.o integrate.o maths.o models.o toy.o
-# OBJS = model.o support.o  utils.o  units.o  lists.o  sort.o  maths.o  \
+# OBJS = model.o support.o  utils.o  units.o  sort.o  maths.o  \
 # 	integrate.o  matrix.o  postscript.o  basic-population.o  sclos.o  \
 # 	framework-controls.o  declarations.o  log-declarations.o  framework-classes.o  \
 # 	log-classes.o  framework-methods.o  log-methods.o  \
@@ -57,7 +57,7 @@ SCMSUPLIBS =
 SCMSUPC = $(SCMSUBLIBS:.c=.scm)
 
 #OBJS = rk4.scm integrate.scm maths.scm models.scm toy.scm
-SCMS = model.scm support.scm  utils.scm  units.scm  lists.scm  sort.scm  maths.scm  \
+SCMS = model.scm support.scm  utils.scm  units.scm  sort.scm  maths.scm  \
 	integrate.scm  matrix.scm  postscript.scm  basic-population.scm  sclos.scm  \
 	framework-controls.scm  declarations.scm  log-declarations.scm  framework-classes.scm  \
 	log-classes.scm  framework-methods.scm  log-methods.scm  \

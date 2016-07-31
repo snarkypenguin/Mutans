@@ -1,85 +1,55 @@
 This is BibTeX, Version 0.99d (TeX Live 2015/Arch Linux)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: thesis.aux
-The style file: plain.bst
-Database file #1: biblio.bib
-Warning--I didn't find a database entry for "Botkin72:1"
-Warning--I didn't find a database entry for "Botkin72:2"
-Warning--I didn't find a database entry for "Huston88:1"
-Warning--I didn't find a database entry for "DeAngelis92:1"
-Warning--I didn't find a database entry for "Grimm05:1"
-Warning--I didn't find a database entry for "Malthus:1"
-Warning--I didn't find a database entry for "Scheffer95:1"
-Warning--I didn't find a database entry for "Rose10:1"
-Warning--I didn't find a database entry for "DeAngelis98:1"
-Warning--I didn't find a database entry for "Harvey03:1"
-Warning--I didn't find a database entry for "Fulton04:1"
-Warning--I didn't find a database entry for "NWSJEMS:1"
-Warning--I didn't find a database entry for "Ningaloo:1"
-Warning--I didn't find a database entry for "Farolfi2010"
-Warning--I didn't find a database entry for "Almeida2010"
-Warning--I didn't find a database entry for "Thiele2010"
-Warning--I didn't find a database entry for "Vincenot11:1"
-Warning--I didn't find a database entry for "Lyne94:1"
-Warning--I didn't find a database entry for "Gray06:1"
-Warning--I didn't find a database entry for "Monte09:1"
-Warning--I didn't find a database entry for "Wolff94:1"
-Warning--I didn't find a database entry for "Elderd08:1"
-Warning--I didn't find a database entry for "Grimm06:1"
-Warning--I didn't find a database entry for "vincenot2011theoretical"
-Warning--I didn't find a database entry for "bobashev2007hybrid"
-Warning--I didn't find a database entry for "Gray2012adaptive"
-Warning--I didn't find a database entry for "Fulton2010approaches"
-Warning--I didn't find a database entry for "botkin1972some"
-Warning--I didn't find a database entry for "delsole2010model"
-Warning--I didn't find a database entry for "bailey1992scientific"
-Warning--I didn't find a database entry for "yip2004effect"
-Warning--I didn't find a database entry for "Little2006nws"
-Warning--I didn't find a database entry for "Fulton2011ningaloo"
-Warning--I didn't find a database entry for "chivers2009generalised"
-Warning--I didn't find a database entry for "walters2004fisheries"
-Warning--I didn't find a database entry for "Lyne1994pmez5"
-Warning--I didn't find a database entry for "Gray2006nws"
-Warning--I didn't find a database entry for "Fulton2009crossingscales"
-You've used 1 entry,
-            2118 wiz_defined-function locations,
-            578 strings with 5097 characters,
-and the built_in function-call counts, 443 in all, are:
-= -- 41
-> -- 28
-< -- 0
-+ -- 12
-- -- 10
-* -- 38
-:= -- 82
-add.period$ -- 3
-call.type$ -- 1
-change.case$ -- 8
-chr.to.int$ -- 0
-cite$ -- 1
-duplicate$ -- 11
-empty$ -- 27
-format.name$ -- 10
-if$ -- 83
-int.to.chr$ -- 0
+The style file: plainnat.bst
+Database file #1: thesis.bib
+Warning--to sort, need author or key in STklos
+Warning--to sort, need author or key in GNU-GOOPS
+Warning--to sort, need author or key in GNU-SOS
+Warning--empty year in GNU-GOOPS
+Warning--empty year in GNU-SOS
+Warning--empty year in STklos
+Warning--empty year in Swindle
+Warning--empty year in TinyCLOS
+You've used 49 entries,
+            2773 wiz_defined-function locations,
+            902 strings with 14312 characters,
+and the built_in function-call counts, 26020 in all, are:
+= -- 2261
+> -- 1909
+< -- 27
++ -- 654
+- -- 597
+* -- 2308
+:= -- 4056
+add.period$ -- 168
+call.type$ -- 49
+change.case$ -- 343
+chr.to.int$ -- 41
+cite$ -- 109
+duplicate$ -- 993
+empty$ -- 1835
+format.name$ -- 660
+if$ -- 5363
+int.to.chr$ -- 9
 int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 8
-num.names$ -- 2
-pop$ -- 6
+missing$ -- 41
+newline$ -- 270
+num.names$ -- 181
+pop$ -- 677
 preamble$ -- 1
-purify$ -- 7
+purify$ -- 298
 quote$ -- 0
-skip$ -- 7
+skip$ -- 822
 stack$ -- 0
-substring$ -- 31
-swap$ -- 1
-text.length$ -- 0
+substring$ -- 855
+swap$ -- 110
+text.length$ -- 9
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 4
-warning$ -- 0
-while$ -- 4
-width$ -- 2
-write$ -- 13
-(There were 38 warnings)
+type$ -- 504
+warning$ -- 8
+while$ -- 187
+width$ -- 0
+write$ -- 674
+(There were 8 warnings)

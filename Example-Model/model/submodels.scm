@@ -21,11 +21,9 @@
 
 ;;  Pulls in the submodels
 
-;;(include "log.scm")         ;; loggers 
-(display "->Landscape\n")
-(include "landscape.scm")   ;; spatial environment/populations
-(display "->Animals\n")
-(include "animal.scm")      ;; individual agents
+(load "log.scm")         ;; loggers 
+(load "landscape.scm")   ;; spatial environments and populations
+(load "animal.scm")      ;; individual-based animals
 
 ;-  The End 
 

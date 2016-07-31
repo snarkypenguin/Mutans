@@ -28,7 +28,9 @@ Animals will usually be initialised like so:
          'speed 0
          'structural-mass (* velocimass 0.6)
          'structural-prop 0.3
-         'max-consumption-rate 1.0 ;; This is essentially saying that if it had a big enough stomach, it could eat this much times its mass in a day 
+         'max-consumption-rate 1.0 
+;; This is essentially saying that if it had a big enough stomach, it
+;; could eat this much times its mass in a day
          'metabolic-rate 0.07 ;; in (kg/kg)/day
          'max-condition-rate 0.25 ;; in kg/day
          'max-growth-rate 0.15 ;; in kg/day
@@ -60,8 +62,9 @@ Animals will usually be initialised like so:
          'near-food-attraction 0.5
          )       
 
-This is a very general animal with very little 'speciation', and more refined animals are likely 
-to have pre-set state variables and alternative methods for doing things.
+This is a very general animal with very little 'speciation', and more
+refined animals are likely to have pre-set state variables and
+alternative methods for doing things.
 ")
 
 
@@ -77,3 +80,7 @@ to have pre-set state variables and alternative methods for doing things.
 ;;; outline-regexp: ";-+" -;
 ;;; comment-column: 0 -;
 ;;; End:
+
+
+
+

@@ -17,16 +17,21 @@
 (load "log-declarations.scm")
 (load "log-methods.scm")
 
-(set! logger-tags '(logfile snapshot log-map log-data log-table log-agent-table log-table* log-agent-table*))
+(set! logger-tags '(logfile snapshot log-map
+									 log-data log-table
+									 log-agent-table
+									 log-table* log-agent-table*))
+
 (for-each register-submodel logger-tags)
-;;; (register-submodel 'logfile) -;
-;;; (register-submodel 'snapshot) -;
-;;; (register-submodel 'log-map) -;
-;;; (register-submodel 'log-data) -;
-;;; (register-submodel 'log-table) -;
-;;; (register-submodel 'log-agent-table*) -;
-;;; (register-submodel 'log-table*) -;
-;;; (register-submodel 'log-agent-table) -;
+
+(register-submodel 'logfile)
+(register-submodel 'snapshot)
+(register-submodel 'log-map) 
+(register-submodel 'log-data) 
+(register-submodel 'log-table) 
+(register-submodel 'log-agent-table*) 
+(register-submodel 'log-table*) 
+(register-submodel 'log-agent-table) 
 
 
 

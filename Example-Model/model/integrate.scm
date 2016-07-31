@@ -21,7 +21,7 @@
 ;-  Code 
 
 (load "maths.scm")
-(load "lists.scm") ;; for cross-product of lists
+(load "utils.scm") ;; for cross-product of lists
 
 
 (define debugging-integration #f)

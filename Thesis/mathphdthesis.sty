@@ -125,6 +125,7 @@
 \newif\iftitlepg \titlepgtrue
 \newif\ifsignaturepage \signaturepagetrue
 \newif\ifcopyright \copyrighttrue
+\newif\ifaltcopyright \altcopyrighttrue
 \newif\ifabswithesis \abswithesistrue
 \newif\ifack \acktrue
 \newif\iftablecontents \tablecontentstrue
@@ -230,9 +231,16 @@
     \null\vfill
     \thispagestyle{empty}%
     \begin{quote}
-        {\normalsize I declare that this thesis contains no material which has been accepted for a degree or diploma by the University or any other institution, except by way of background information and duly acknowledged in the thesis, and that, 
-        to the best of my knowledge and belief, this thesis contains no material previously published 
-        or written by another person, except where due acknowledgement is made in the text of the thesis.}
+        {\normalsize I declare that this thesis contains no material
+          which has been accepted for a degree or diploma by the
+          University or any other institution, except by way of
+          background information and duly acknowledged in the thesis,
+          and, to the best of my knowledge and belief, no material
+          previously published or written by another person, except
+          where due acknowledgement is made in the text of the thesis;
+          nor does the thesis contain any material that infringes
+          copyright. }
+
     \end{quote}
     \null\vskip0.5in
     \begin{quote}
@@ -252,6 +260,30 @@
     \begin{quote}
         {\normalsize This thesis may be made available for loan and limited copying in 
         accordance with the {\sl Copyright Act 1968}}
+    \end{quote}
+    \null\vskip0.5in
+    \begin{quote}
+    {Signed:  \hrulefill \hfill \hfill
+        \newline\hspace*{\signed} \raisebox{4.0mm}{\@author}
+        \newline
+        Date:  \hrulefill \hfill \hfill \hfill}
+    \end{quote}
+    \vskip 1.0in
+    \vfill}
+
+% Command to make the copyright page
+\def\altcopyrightpage{%
+    \newpage
+    \null\vfill
+    \thispagestyle{empty}%
+    \begin{quote}
+        {\normalsize The publishers of papers comprising Chapters 2
+          and 4 hold the copyright for those chapters, and access to
+          the material should be sought from the respective journals.
+          The remaining non-published content of the thesis may be
+          made available for loan and limited copying and
+          communication in accordance with the {\sl Copyright Act
+            1968}}
     \end{quote}
     \null\vskip0.5in
     \begin{quote}
@@ -288,6 +320,7 @@
 \iftitlepg\titlepg\fi
 \ifsignaturepage\signaturepage\fi
 \ifcopyright\copyrightpage\fi
+\ifaltcopyright\altcopyrightpage\fi
 \ifabswithesis\abswithesis\fi
 \ifack\ackpage\fi
 }

@@ -16,8 +16,9 @@
 
 ;;(load "stats-bins.scm")
 
-;;*** The kernel must be loaded *after* the agents are  all created -- this is so
-;;*** it has access to the "run" "migrate" ... generic methods.
+;;*** The kernel must be loaded *after* the agents are all created --
+;;this is so it has access to the "run" "migrate" ... generic
+;;methods.
 
 
 ;;---------------------------------------------------
@@ -29,14 +30,16 @@
 ;; t is model time, stop is when the whole model ought to stop 
 ;; runqueue is a list of run-records
 
-;; (q-insert Q rec reccmp)
-;; inserts the record "rec" into the queue "Q" sorting records with "reccmp"
-;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp)
+;; (q-insert Q rec reccmp) inserts the record "rec" into the queue "Q"
+;; sorting records with "reccmp"
+;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
 
-(define lookit-running-names #f) ;; emits the name of the running agent if true
+(define lookit-running-names #f) ;; emits the name of the running
+											;; agent if true
 
-(load "postscript.scm") ;;; This is loaded here since it may be used to produce all sorts of 
-                    ;;; snapshot data spanning agents 
+(load "postscript.scm")
+;;; This is loaded here since it may be used to produce all sorts of
+;;; snapshot data spanning agents
 
 
 (define developing #t)
@@ -64,7 +67,7 @@
 			  (cond
 				((> p1 p2) #t)
 				((< p1 p2) #f)
-				(#t (< (jiggle r1)) (j2 (jiggle r2)))
+				(#t (< (jiggle r1) (jiggle r2)))
 				))))))
 
 (define (map-q arg q)
@@ -92,8 +95,9 @@
 		)
   )
 
-;; returns an interval (tick-length) based on the current time, the desired tick length, 
-;; the nominated end of the run and a list of target times
+;; returns an interval (tick-length) based on the current time, the
+;; desired tick length, the nominated end of the run and a list of
+;; target times
 (define (interval t ddt stopat tlist)
   ;; tlist is a sorted queue of times to run
   (if (< (- stopat t) ddt)
@@ -131,10 +135,14 @@
 
 ;; insert a run record in the queue Q
 (define (q-insert Q rec reccmp)
-  (let (
+  (let ((j (jiggle rec))
 ;		  (call-starts (cpu-time))
 		  )
 	 (set! Q (remove rec Q))
+
+	 (if (and (positive? j) (< j 1.0))
+		  (set-jiggle! rec (abs (random-real))))
+
 	 (let* ((f (append Q (list rec)))
 			  (sf (sort f reccmp))
 			  )
@@ -142,6 +150,7 @@
 		sf)
 	 )
   )
+
 
 ;---------------------------------------------------
 ;           Kernel -- the main loop
@@ -151,21 +160,27 @@
 (define (test-queue-size rq N)
   (if (and (number? N) (> (length rq) N))
 		(begin
-		  (dnl "There are " (length rq) " entries in the runqueue when we expect at most " N);
-		  (dnl "These entities total " (apply + (map (lambda (x) (members x)) rq)) " members");
+		  (dnl "There are " (length rq)
+				 " entries in the runqueue when we expect at most " N);
+		  (dnl "These entities total "
+				 (apply + (map (lambda (x) (members x)) rq)) " members");
 		  
 		  (map (lambda (me) 
-					(dnl "   " (representation me) ":" (name me) " (" me ")  @ " (subjective-time me) " with " (members me))) 
-				 rq)
+					(dnl " " (representation me) ":" (name me) " (" me ")	@ "
+						  (subjective-time me) " with " (members me))) rq)
 		  (abort "Failed queue size test")
 		  ))
   )
 
 
-;; This is the main loop which runs agents and reinserts them after they've executed.
+;; This is the main loop which runs agents and reinserts them after
+;; they've executed.
+;;
 ;; There is extra support for inter-agent communication and migration.
 ;;
-;;     The queue doesn't (and *shouldn't*) care at all about how much time the agents used.
+;;     The queue doesn't (and *shouldn't*) care at all about how much
+;;     time the agents used.
+
 ;;
 
 (define (queue t stop runqueue . N)
@@ -264,15 +279,22 @@
 
 (define (kernel-call Q client query #!optional args)
   (cond
-   ((procedure? query) (filter (lambda (x) (and (query x) (not (eq? x client)))) Q)) ;; Do not return the client
+   ((procedure? query) ;; Do not return the client
+	 (filter (lambda (x) (and (query x) (not (eq? x client)))) Q))
+	 
    ((symbol? query)
     (cond
      ((eq? query 'time) (model-time Q +inf.0))
      ((eq? query 'agent-count) (length Q))
      ((eq? query 'next-agent) (if (null? Q) Q (car Q)))
-	  ((eq? query 'min-time) (if (null? Q) 0 (apply min (map subjective-time Q))))
-	  ((eq? query 'max-time) (if (null? Q) 0 (apply max (map subjective-time Q))))
-	  ((eq? query 'mean-time) (if (null? Q) 0 (/ (apply + (map subjective-time Q)) (length Q))))
+	  ((eq? query 'min-time)
+		(if (null? Q) 0 (apply min (map subjective-time Q))))
+	  ((eq? query 'max-time)
+		(if (null? Q) 0 (apply max (map subjective-time Q))))
+	  ((eq? query 'mean-time)
+		(if (null? Q)
+			 0
+			 (/ (apply + (map subjective-time Q)) (length Q))))
      (#t (abort 'kernel-call:not-defined)))
 	 )
    (#t (abort 'kernel-call:bad-argument))
@@ -300,19 +322,25 @@
 ;; The return values from agents fall into the following categories:
 
 ;; 	a symbol
-;; 		is automatically inserted at the head of the queue and execution is terminated (for debugging)
+;; 		is automatically inserted at the head of the queue and
+;; 		execution is terminated (for debugging)
 
 ;; 	dt 
 ;; 		normal execution
 
 ;; 	(list 'introduce-new-agents dt list-of-new-agents)
-;; 	   indicates that the agents in list-of-new-agents should be added to the simulation
+;; 	   indicates that the agents in list-of-new-agents should be
+;; 	   added to the simulation
+
 ;; 	(list 'remove-me dt)
 ;; 	   indicates that an agent should be removed from the simulation
+
 ;; 	(list 'migrate dt list-of-suggestions)
 ;; 	   the list-of-suggestions is so that an external assessment routine 
+
 ;; 	(list 'domain dt message-concering-domain-problem)
 ;; 		usually something like requests for greater resolution...
+
 ;; 	(list 'migrated dt)
 ;;      indicates that a model has changed its representation for some reason
 
@@ -334,7 +362,7 @@
 (define (shutdown-agents Q . args)
   (for-each
 	(lambda (A)
-	  (let* ((kernel (lambda x (apply kernel-call (append (list rq process) x ))))
+	  (let* ((kernel (lambda x (apply kernel-call (append (list rq process) x))))
 				)
 		 (apply agent-shutdown (append (list A kernel) args))
 		 )
@@ -353,7 +381,7 @@
 
 
 	 (lambda (t stop rq . N) ;; This is the function "run-agent"
-      (set! N (if (null? N) #f (car N)))
+		(set! N (if (null? N) #f (car N)))
 
 		(let* ((rq rq)
 				 (process (if (and (not (null? rq)) (list? rq)) (car rq) #f)) 
@@ -364,12 +392,14 @@
 		  (or (eq? agent-state 'running)
 				(eq? agent-state 'ready-to-run)
 				(and (eq? agent-state 'ready-for-prep)
-					  (abort (string-append "Attempted to run " 
-													(symbol->string (class-name-of process)) ":"(name process)
-													" before it has been prepped")))
-				(abort (string-append "Attempted to run " 
-											 (symbol->string (class-name-of process)) ":"(name process)
-											 " when it is in the state " (object->string agent-state))))
+					  (abort (string-append
+								 "Attempted to run " 
+								 (symbol->string (class-name-of process)) ":"
+								 (name process) " before it has been prepped")))
+				(abort (string-append
+						  "Attempted to run " 
+						  (symbol->string (class-name-of process)) ":"(name process)
+						  " when it is in the state " (object->string agent-state))))
 
 		  (if process (kdnl* 'running "running" (name process) "at" t))
 
@@ -380,105 +410,131 @@
 		  
 		  (kdnl* 'run-agent "In run-agent")
 
-		  (slot-set! process 'agent-body-ran #f) ;; Mark things as not having run through the body list
+		  (slot-set! process 'agent-body-ran #f) ;; Mark things as not
+		  ;; having run through
+		  ;; the body list
 		  
-		  ;; Here result should be a complex return value, not the number of ticks used.
-		  (let* ((kernel (lambda x (apply kernel-call (append (list rq process) x ))))
+		  ;; Here result should be a complex return value, not the
+		  ;; number of ticks used.
+		  (let* ((kernel
+					 (lambda x (apply kernel-call (append (list rq process) x ))))
+					
 					(result (if (symbol? process) 
 									'bad-runqueue
-									(if (eq? agent-state 'suspended) ;; A suspended agent "consumes" its time without doing anything, except update its subj. time.
-										 (let ((dt (interval 
-														t
-														(slot-ref process 'dt) 
-														stop
-														(slot-ref process 'timestep-schedule))
+									(if (eq? agent-state 'suspended)
+										 ;; A suspended agent "consumes" its
+										 ;; time without doing anything, except
+										 ;; update its subj. time.
+										 (let ((dt (interval t
+																	(slot-ref process 'dt) stop
+																	(slot-ref process 'timestep-schedule))
 													  )
 												 (st (slot-ref process 'subjective-time)))
 											'ok)
-										 (let ((r (run process t stop kernel)))
-											(if lookit-running-names (dnl (slot-ref process 'name) " " (subjective-time process) " " r))
-											(kdnl* 'run-agent "finished with run" (name process) "@" (subjective-time process) "+" r)
-											r
-											)
+										 ;; If the thing queued is actually an
+										 ;; agent, run the agent
+										 (if (member <agent>
+														 (class-cpl (class-of process)))
+											  (let ((r (run process t stop kernel)))
+												 (if lookit-running-names
+													  (dnl (slot-ref process 'name)
+															 " " (subjective-time process)
+															 " " r))
+												 (kdnl* 'run-agent "finished with run"
+														  (name process) "@"
+														  (subjective-time process) "+" r)
+												 r
+												 )
+											  (begin
+												 (dnl "Found a non-agent, dropping it.")
+												 'not-an-agent)
+											  )
 										 )
 									))
 					)
+
 			 (if (not (slot-ref process 'agent-body-ran))
 				  (begin
-					 (dnl "The agent " (class-name-of process) ":" (name process) " failed to chain back to the base <agent> sclos-model-body.")
-					 (dnl "This suggest that things have gone very wrong; either call (parent-body) or (skip-parent-body).")
-					 (abort 'missed-model-body)))
-
-			 (let (
-					 ;;(call-starts (cpu-time))
-					 )
-
-				(cond
-				  ((eq? result 'ok)
-					(set! rq (q-insert rq process Qcmp))
-				  rq)
-
-				 ((number? result) 
-				  ;; The result (in this case) is the amount of time used
-				  ;; measured from the subjective-time of the agent.
-				  ;; q-insert knows how to find out "when" the agent is,
-				  ;; and will re-insert it correctly.  subjective-time is
-				  ;; updated
-				  (abort "(run ...) returned a number rather than a state")
-				  (set! rq (q-insert rq process Qcmp)))
-
-				 ((symbol? result) ;;---------------------------------------------------------------------------------------------------------
-				  (let ()
-					 (dnl "Got " result)
-
-					  (cond
-					  ((eq? result 'remove)
-						rq)
-					  (else 
-						(cons result rq)))
-					 ))
-				 ((eq? result #!void)
-				  (let ((s (string-append "A " (symbol->string (class-name-of process)) " tried to return a void from its model-body.  This is an error")))
-					 ;;(Abort s)
-					 (abort s)
-					 ))
-
-				 (#t
-				  (set! rq (q-insert rq process Qcmp)))
-				 ((list? result)
-				  (case (car result)
-					 
-					 ;; Remove ===========================================================================
-					 ('remove
-					  rq
-					  ) ;; end of the migration clause
-
-					 ;; Migrate to a different model representation ===========================================================================
-					 ('migrate
-					  #f
-					  ) ;; end of the migration clause
-
-					 ;; insert spawned offspring into the system ** not implemented in make-entity
-					 ('spawnlist ;;------------------------------------------------------------------------------------------------------------
-					  #f
+					 (error
+					  (string-append
+						"The agent " (class-name-of process) ":" (name process)
+						" failed to chain back to the base <agent> "
+						"sclos-model-body.\n"
+						"This suggest that things have gone very wrong; "
+						"either call (parent-body) or (skip-parent-body).")
 					  )
-					 (else 'boink)
-					 ) ; case
-				  ) ; cond clause
-				 )
-				)
-			 (test-queue-size rq N)
-			 (kdnl* 'run-agent "Finished with run-agent" (name process) "@" (subjective-time process))
-			 ;; *********** THIS MAY NOT BE NECESSARY OR WHAT I WANT **************
-			 ;; I may need to have a method that will take a kernelcall procedure from
-			 ;; another agent if there is out-of-band activity that requires a kernelcall.
-			 ;; Best to play conservative for the moment.
-			 rq)
+					 'missed-model-body))
+				  (let ()
+					 (cond
+					  ((eq? result 'ok)
+						(set! rq (q-insert rq process Qcmp))
+						rq)
+
+					  ((number? result) 
+						;; The result (in this case) is the amount of time used
+						;; measured from the subjective-time of the agent.
+						;; q-insert knows how to find out "when" the agent is,
+						;; and will re-insert it correctly.  subjective-time is
+						;; updated
+						(abort "(run ...) returned a number rather than a state")
+						(set! rq (q-insert rq process Qcmp)))
+
+					  ((symbol? result) ;;----------------------------------------------
+						(let ()
+						  (dnl "Got " result)
+
+						  (cond
+							((eq? result 'remove)
+							 rq)
+							(else 
+							 (cons result rq)))
+						  ))
+					  ((eq? result #!void)
+						(let ((s
+								 (string-append "A " (symbol->string
+															 (class-name-of process))
+													 " tried to return a void from its "
+													 "model-body.  This is an error")))
+						  ;;(Abort s)
+						  (abort s)
+						  ))
+					  (#t
+						(set! rq (q-insert rq process Qcmp)))
+					  ((list? result)
+						(case (car result)
+						  
+						  ;; Remove ===============================================================
+						  ('remove
+							rq
+							) ;; end of the migration clause
+
+						  ;; Migrate to a different model representation ==========================
+						  ('migrate
+							#f
+							) ;; end of the migration clause
+
+						  ;; insert spawned offspring into the
+						  ;;system ** not implemented in make-entity
+						  ('spawnlist ;;-----------------------------------------------------------
+							#f
+							)
+						  (else 'boink)
+						  ) ; case
+						) ; cond clause
+					  )
+					 )
+				  (test-queue-size rq N)
+				  (kdnl* 'run-agent "Finished with run-agent" (name process)
+							"@" (subjective-time process))
+				  ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
+				  ;; One might need to have a method that will take a kernelcall procedure from
+				  ;; another agent if there is out-of-band activity that requires a kernelcall.
+				  ;; This is the conservative option.
+				  rq)
+			 )
 		  )
 		)
 	 )
-  )
-
 
 (define nested-agents '())
 
@@ -493,22 +549,14 @@
   (if (not developing) (shutdown-agents Q))
 
   (if (and (not (null? close-up-shop)) (procedure? (car close-up-shop)))
-		((car close-up-shop)))
+      ((car close-up-shop)))
   )
 
 (define (continue-simulation Q End . close-up-shop) 
   (set! Q (queue (subjective-time (car Q)) End Q))
   (if (and (not (null? close-up-shop)) (procedure? (car close-up-shop)))
-		((car close-up-shop)))
+      ((car close-up-shop)))
   )
-
-
-
-
-
-
-
-
 
 
 

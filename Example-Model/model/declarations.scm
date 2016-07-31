@@ -10,8 +10,8 @@
 ;-  Code 
 
 
-(include "framework-declarations.scm")
-(include "model-declarations.scm")
+(load "framework-declarations.scm")
+(load "model-declarations.scm")
 
 
 ;-  The End 
