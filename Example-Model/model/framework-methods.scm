@@ -105,7 +105,7 @@
 					  (evens args) (odds args)))
 				  )
 
-(sclos-method <class> (run self pt pstop pkernel)
+(model-method <class> (run self pt pstop pkernel)
 				  (if (not (isa? self <agent>))
 						(begin (display "Attempt to (run ...) a non-agent\n")
 								 (error "+++Curcurbit Error+++"
@@ -120,7 +120,7 @@
 
 ;----- (initialize) 
 
-(sclos-method <agent> (initialize self args)
+(model-method <agent> (initialize self args)
 				  (initialise
 					self (list 'state-flags '()
 								  'subjective-time 0.0
@@ -172,7 +172,7 @@
 				  (initialise self args))
 
 
-(sclos-method <agent> (agent-prep self . args)
+(model-method <agent> (agent-prep self . args)
 				  (slot-set! self 'timestep-schedule
 								 (unique (sort (slot-ref self 'timestep-schedule) <)))
 				  ;; ensures no duplicate entries
@@ -186,13 +186,13 @@
 
 
 ;; Termination can happen from any state
-(sclos-method <agent> (agent-shutdown self . args) 
+(model-method <agent> (agent-shutdown self . args) 
 				  (slot-set! self 'agent-state 'terminated))
 
 
 ;----- (dump) ;; This dumps all the slots from agent up.  
 
-(sclos-method <agent> (dump self . count)
+(model-method <agent> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 				  (let* ((slots (map car (class-slots (class-of self))))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
@@ -204,7 +204,7 @@
 
 ;; This is the default log method in the absence of more specific code.
 
-(sclos-method (<agent>) (log-data self logger format caller targets)
+(model-method (<agent>) (log-data self logger format caller targets)
 				  (kdnl* '(log-* log-data)
 							(name self)
 							"[" (my 'name) ":"
@@ -265,7 +265,7 @@
 					 )
 				  )
 
-(sclos-method (<agent>) (run-agents self t dt agentlist run)
+(model-method (<agent>) (run-agents self t dt agentlist run)
 							 (for-each (lambda (x) 
 											 (if (< (subjective-time x) (+ t dt))
 														(run x t (+ t dt) (my 'kernel))
@@ -275,7 +275,7 @@
 										  )
 							 )
 
-(sclos-method (<agent>) (run-nested-agents self t dt run)
+(model-method (<agent>) (run-nested-agents self t dt run)
 				  (let ((al (my 'subsidiary-agents)))
 					 (if (not (null? al))
 						  (run-agents self t dt al run))
@@ -285,12 +285,12 @@
 
 ;----- (name) 
 
-(sclos-method <agent> (name self)
+(model-method <agent> (name self)
 				  (if (not (or (string? (my 'name)) (eq? (my 'name) #f)))
 						(error "agent:name -- not a string")
 						(my 'name)))
 
-;(sclos-method <agent> (name self)
+;(model-method <agent> (name self)
 ;				  (my 'name))
 
 ;; (add-method name
@@ -300,7 +300,7 @@
 
 ;----- (set-name!) 
 
-(sclos-method (<agent> <string>) (set-name! self n)
+(model-method (<agent> <string>) (set-name! self n)
 				  (if (string? n)
 						(set-my! self 'name n)
 						(error "agent:set-name! -- arg is not a string")))
@@ -310,17 +310,17 @@
 (define undefined (lambda x 'undefined))
 (define undefined-state-flag (lambda x 'undefined-state-flag))
 
-(sclos-method <agent> (type self)
+(model-method <agent> (type self)
 				  (my 'type))
 
 ;;
 
-(sclos-method <agent> (set-type! self newtype)
+(model-method <agent> (set-type! self newtype)
 				  (set-my! 'type newtype))
 
 ;;
 
-(sclos-method (<agent> <symbol>) (set-state-flag! self sym val)
+(model-method (<agent> <symbol>) (set-state-flag! self sym val)
 				  (let ((v (assoc sym (my 'state-flags))))
 					 (if v
 						(set-cdr! v val)
@@ -329,7 +329,7 @@
 						)
 					 ))
 
-(sclos-method (<agent> <symbol>) (add-state-flag self sym val)
+(model-method (<agent> <symbol>) (add-state-flag self sym val)
 				  (if (assoc sym (my 'state-flags))
 						(set-state-flag! self sym val)
 						(set-my! 'state-flags
@@ -337,7 +337,7 @@
 						))
 
 
-(sclos-method (<agent> <symbol>) (state-flag self sym)
+(model-method (<agent> <symbol>) (state-flag self sym)
 				  (let ((r (assoc sym (my 'state-flags))))
 				  (if r 
 						(cdr r)
@@ -345,7 +345,7 @@
 						
 
 ;----- (representation) 
-(sclos-method <agent> (representation self)
+(model-method <agent> (representation self)
 				  (let ((rep (my 'representation)))
 					 (if (symbol? rep)
 						  rep
@@ -354,7 +354,7 @@
 
 
 ;----- (set-representation!) 
-(sclos-method (<agent> <string>) (set-representation! self n)
+(model-method (<agent> <string>) (set-representation! self n)
 				  (if (symbol? n)
 						(set-my! self 'representation n)
 						(error "agent:set-representation! -- arg is not a symbol"))
@@ -362,35 +362,35 @@
 
 
 ;----- (subjective-time) 
-(sclos-method <agent> (subjective-time self)
+(model-method <agent> (subjective-time self)
 				  (my 'subjective-time))
 
 
 ;----- (set-subjective-time!) 
-(sclos-method (<agent>) (set-subjective-time! self n)
+(model-method (<agent>) (set-subjective-time! self n)
 				  (if (number? n)
 						(slot-set! self 'subjective-time n)
 						(error "agent:set-subjective-time! -- arg is not a number")))
 
 
 ;----- (priority) 
-(sclos-method (<agent>) (priority self)
+(model-method (<agent>) (priority self)
 				  (my 'priority))
 
 
 ;----- (set-priority!) 
-(sclos-method (<agent> <number>) (set-priority! self n)
+(model-method (<agent> <number>) (set-priority! self n)
 				  (if (number? n)
 						(slot-set! self 'priority n)
 						(error "agent:set-priority! -- arg is not a number")))
 
 
 ;----- (jiggle) 
-(sclos-method <agent> (jiggle self)
+(model-method <agent> (jiggle self)
 				  (my 'jiggle))
 
 ;----- (set-jiggle!) 
-(sclos-method (<agent> <number>) (set-jiggle! self n)
+(model-method (<agent> <number>) (set-jiggle! self n)
 				  (if (number? n)
 						(slot-set! self 'jiggle n)
 						(error "agent:set-jiggle! -- arg is not a number")))
@@ -450,33 +450,33 @@
 				)
 
 
-(sclos-method (<agent>) (snapshot self)
+(model-method (<agent>) (snapshot self)
 				  (map (lambda (x) (list x (slot-ref self x)))
 						 (class-slots (class-of self))))
 
 
-(sclos-method <agent> (i-am self) (my 'representation))
+(model-method <agent> (i-am self) (my 'representation))
 
-(sclos-method (<agent>) (is-a self list-of-kinds)
+(model-method (<agent>) (is-a self list-of-kinds)
 				  (member (my 'representation) list-of-kinds))
 
-(sclos-method <agent> (parameter-names self)
+(model-method <agent> (parameter-names self)
 				  (map car (class-slots (class-of self))))
-(sclos-method <agent> (parameters self)
+(model-method <agent> (parameters self)
 				  (map (lambda (x) (slot-ref self x))
 						 (map car (class-slots (class-of self)))))
 
-(sclos-method (<agent> <pair>) (set-parameters! self newparams)
+(model-method (<agent> <pair>) (set-parameters! self newparams)
 				  (for-each (lambda (x y) (slot-set! self x y))
 								(parameter-names self) newparams))
 
-(sclos-method (<agent> <symbol>) (extra-variable self field) #!void)
-(sclos-method (<agent> <symbol>) (extra-variable-list self) '())
+(model-method (<agent> <symbol>) (extra-variable self field) #!void)
+(model-method (<agent> <symbol>) (extra-variable-list self) '())
 
 
-(sclos-method <agent> (query self kernel . args)
+(model-method <agent> (query self kernel . args)
 				  (apply (my 'kernel) (append (list 'query) args)))
-(sclos-method <agent> (run-at self x) 
+(model-method <agent> (run-at self x) 
 				  (let ((tq (cons x (my 'timestep-schedule))))
 					 (set-my! 'timestep-schedule (sort tq <=))))
 
@@ -628,7 +628,7 @@
 
 ;; This routine does the running since "run" has fixed up the ticks
 ;; It looks like (run-model-body me t dt) in code
-(sclos-method <agent> (run-model-body self t ldt) 
+(model-method <agent> (run-model-body self t ldt) 
 				  ;;  The model returns the amount of time it actually ran for
 				  (kdnl* '(nesting run-model-body) (class-name-of self)
 							"Running at " t "+" ldt "[" (my 'dt) "]")
@@ -679,7 +679,7 @@
 
 ;; model-body knows "self" "t" "dt" and all its state variables.  
 ;; This particular version of the routine should not call parent-body.
-(sclos-model-body <agent>
+(model-body <agent>
 						(if #t
 							 (begin
 								(kdnl* 'track-subjective-times
@@ -708,7 +708,7 @@
 									)))
 
 
-(sclos-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
+(model-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
 				  (let ((tr (my 'track)))
 					 (set-my! 'track 
 								 (if tr 
@@ -718,18 +718,18 @@
 				  )
 )
 
-(sclos-method (<tracked-agent>) (track self)
+(model-method (<tracked-agent>) (track self)
 				  (my 'track))
 
 
-(sclos-method (<tracked-agent> <number> <pair>) (set-track! self t)
+(model-method (<tracked-agent> <number> <pair>) (set-track! self t)
 				  (set-my! 'track (deep-copy t))) ;; we copy it so that we
 															 ;; aren't subject to the
 															 ;; track changing under
 															 ;; our feet
 
 
-(sclos-method (<tracked-agent>) (new-track! self)
+(model-method (<tracked-agent>) (new-track! self)
 				  (let ((p (my 'tracked-paths))
 						  (t (my 'track)))
 					 (cond 
@@ -737,11 +737,11 @@
 					  (t (set-my! 'tracked-paths (list t))))
 					 (set-my! 'track #f)))
 
-(sclos-method (<tracked-agent>) (tracks self)
+(model-method (<tracked-agent>) (tracks self)
 				  (my 'tracked-paths))
 
 						  
-(sclos-model-body <tracked-agent>
+(model-body <tracked-agent>
 						(track-locus! self t (my 'location)) ;; even if they
 																		 ;; aren't
 																		 ;; moving
@@ -863,13 +863,13 @@
 
 ;---- environment methods
 
-(sclos-method <environment> (min-bound self)
+(model-method <environment> (min-bound self)
 				  (copy-list (my 'minv)))
 
-(sclos-method <environment> (max-bound self)
+(model-method <environment> (max-bound self)
 				  (copy-list (my 'maxv)))
 
-(sclos-method (<environment> <pair>) (contains? self loc)
+(model-method (<environment> <pair>) (contains? self loc)
 				  (let ((mbounds (min-bound self))
 						  (Mbounds (max-bound self))
 						  )
@@ -878,23 +878,23 @@
 
 
 ;; Default environment only has the default value, oddly enough
-(sclos-method (<environment> <pair>) (value self loc)
+(model-method (<environment> <pair>) (value self loc)
 				  (my 'default-value))
 
-(sclos-method (<environment> <pair>) (set-value! self loc val)
+(model-method (<environment> <pair>) (set-value! self loc val)
 				  (set-my! 'default-value val))
 
-(sclos-method (<environment> <thing>) (contains? self entity)
+(model-method (<environment> <thing>) (contains? self entity)
 				  (contains? (location entity))
 				  )
 
-(sclos-method (<environment> <symbol> <pair>) (value self tag loc . args)
+(model-method (<environment> <symbol> <pair>) (value self tag loc . args)
 				  (my 'default-value))
 
-(sclos-method (<environment> <symbol> <pair>) (set-value! self tag loc val)
+(model-method (<environment> <symbol> <pair>) (set-value! self tag loc val)
 				  (set-my! 'default-value val))
 
-(sclos-method (<environment> <thing>) (contains? self entity)
+(model-method (<environment> <thing>) (contains? self entity)
 				  (contains? (location entity))
 				  )
 

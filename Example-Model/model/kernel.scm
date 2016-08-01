@@ -459,7 +459,7 @@
 					  (string-append
 						"The agent " (class-name-of process) ":" (name process)
 						" failed to chain back to the base <agent> "
-						"sclos-model-body.\n"
+						"model-body.\n"
 						"This suggest that things have gone very wrong; "
 						"either call (parent-body) or (skip-parent-body).")
 					  )

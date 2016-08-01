@@ -47,7 +47,7 @@
 
 ;----- initialize
 
-(sclos-method <simple-metabolism> (initialize self args)
+(model-method <simple-metabolism> (initialize self args)
 				  (initialise self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
 				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
@@ -55,7 +55,7 @@
 
 
 
-(sclos-model-body <metabolism> ;; A thing with metabolism *must* have mass
+(model-body <metabolism> ;; A thing with metabolism *must* have mass
 						(kdnl* 'model-bodies "In " (class-name-of self))
 						(parent-body)
 
@@ -235,7 +235,7 @@
 
 
 
-(sclos-method (<metabolism> <number> <number>) (eat self available-food dt)
+(model-method (<metabolism> <number> <number>) (eat self available-food dt)
 				  (if mass
 						(let* ((struct-mass (my 'structural-mass))
 								 (mass (my 'mass))
@@ -330,7 +330,7 @@
 						 (slot-set! self 'sex n)))))
 
 ;----- (map-log-track-segment
-(sclos-method <animal> (map-log-track-segment self track wt p ps)
+(model-method <animal> (map-log-track-segment self track wt p ps)
 				  (if track
 						(let* ((xytrack (map txyz->xy track))
 								 (ptrack (map p xytrack)))
@@ -375,7 +375,7 @@
 				  #t)
 
 
-(sclos-method <animal> (map-log-data self logger format caller targets)
+(model-method <animal> (map-log-data self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -399,7 +399,7 @@
 					 #t)
 				  )
 				  
-(sclos-method <animal> (log-data self logger format caller targets)
+(model-method <animal> (log-data self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -422,7 +422,7 @@
 				  )
 
 
-(sclos-method (<animal> <number> <pair> <number> <number>)
+(model-method (<animal> <number> <pair> <number> <number>)
 				  (wander-around self dt point attr speed) ;;
   (let* ((loc (location self))
 			(p (unit (vector-to loc point)))
@@ -456,11 +456,11 @@
 		new-loc)))
 	 
 
-(sclos-method (<animal> <number> <pair> <number> <symbol>)
+(model-method (<animal> <number> <pair> <number> <symbol>)
 				  (wander-around self dt point attr speedtag) ;;
 				  (wander-around self dt point attr (my speedtag)))
 
-(sclos-model-body <animal>
+(model-body <animal>
 	(kdnl* 'model-bodies "In " (class-name-of self) t)
 	(let ((dt/2 (/ dt 2.0))
 			(SQRT (lambda (x) (if (>= x 0) (sqrt x) 

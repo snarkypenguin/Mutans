@@ -308,10 +308,10 @@
 ;--- (services...) returns services matching the sym or in the symlist
 (default-initialization <environment>)
 
-(sclos-method (<environment>) (services self syms)
+(model-method (<environment>) (services self syms)
 				  '())
 
-(sclos-model-body <environment>
+(model-body <environment>
 						(parent-body)
 						dt)
 
@@ -355,7 +355,7 @@ ecoservices is half (or less) of the timestep of the patch.
 )
 
 
-(sclos-method <ecoservice> (dump self . count)
+(model-method <ecoservice> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 				  (display (make-string count #\space))
 				  (display "<ecoservice>\n")
@@ -372,38 +372,38 @@ ecoservices is half (or less) of the timestep of the patch.
 
 
 ;---- query & set
-(sclos-method (<ecoservice> <symbol>) (service? self sym)
+(model-method (<ecoservice> <symbol>) (service? self sym)
 				  (or (eq? (my 'type) sym) (eq? (my 'name) sym)))
 
-(sclos-method (<ecoservice> <pair>) (service? self symlist)
+(model-method (<ecoservice> <pair>) (service? self symlist)
 				  (or (memq (my 'type) symlist) (memq (my 'name) symlist)))
 
-(sclos-method <ecoservice> (value self)
+(model-method <ecoservice> (value self)
 				  (my 'value))
 
-(sclos-method <ecoservice> (capacity self)
+(model-method <ecoservice> (capacity self)
 				  (my 'capacity))
 
-(sclos-method (<ecoservice>) (set-value! self val)
+(model-method (<ecoservice>) (set-value! self val)
 				  ;;(dnl* "Setting" (name self) "from" (my 'value) "to" val)
 				  (set-my! 'value val))
 
-(sclos-method <ecoservice> (growth-model self)
+(model-method <ecoservice> (growth-model self)
 				  (my 'growth-model))
 
 ;--- adjustment
 
-(sclos-method (<ecoservice>) (disable-growth! self) (set-my! 'do-growth #f))
-(sclos-method (<ecoservice>) (enable-growth! self) (set-my! 'do-growth #t))
+(model-method (<ecoservice>) (disable-growth! self) (set-my! 'do-growth #f))
+(model-method (<ecoservice>) (enable-growth! self) (set-my! 'do-growth #t))
 
-(sclos-method (<ecoservice>) (add! self val)
+(model-method (<ecoservice>) (add! self val)
 				  (let ((v (my 'value)))
 					 (if (number? v)
 						  (set-my! 'value (+ v val) )
 						  (aborts "ecoservice:add!: value is not a number")
 						  )))
 
-(sclos-method (<ecoservice>) (scale! self val)
+(model-method (<ecoservice>) (scale! self val)
 				  (let ((v (my 'value)))
 					 (if (number? v)
 						  (set-my! 'value (* v val) )
@@ -414,7 +414,7 @@ ecoservices is half (or less) of the timestep of the patch.
 ;;--- ecoservice model-body support routines (mainly about growth)
 
 
-(sclos-model-body <ecoservice>
+(model-body <ecoservice>
 
 						(kdnl* "[" (my 'name) ":" (class-name-of self) "]"
 								 'model-bodies "In " (class-name-of self) t)
@@ -479,16 +479,16 @@ ecoservices is half (or less) of the timestep of the patch.
 						)
 
 
-(sclos-method <ecoservice> (radius self)
+(model-method <ecoservice> (radius self)
 				  (radius (my 'patch)))
 
-(sclos-method (<ecoservice> <number>)(set-radius! self r)
+(model-method (<ecoservice> <number>)(set-radius! self r)
 				  (set-radius! (my 'patch) r))
 
-(sclos-method <ecoservice> (location self)
+(model-method <ecoservice> (location self)
 				  (location (my 'patch)))
 
-(sclos-method <ecoservice>
+(model-method <ecoservice>
 				  (log-data self logger format caller targets . args)
 				  (let ((f (if (pair? args) (car args) #f))
 						  (p (if (and (pair? args)
@@ -752,7 +752,7 @@ ecoservices is half (or less) of the timestep of the patch.
 ;--- (initialize...) 
 (default-initialization <patch>)
 
-(sclos-method <patch> (dump self . count)
+(model-method <patch> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 
 				  (display (make-string count #\space))
@@ -774,30 +774,30 @@ ecoservices is half (or less) of the timestep of the patch.
 								(cons (my 'rep) (my 'service-list)))
 				  )
 
-(sclos-method (<patch> <boundary> <list>) (install-boundary self bdry centre)
+(model-method (<patch> <boundary> <list>) (install-boundary self bdry centre)
 				  (set-my! 'rep bdry)
 				  (slot-set! bdry 'locus centre)
 				  )
 
-(sclos-method <patch> (location self)
+(model-method <patch> (location self)
 				  (slot-ref (my 'rep) 'locus))
 
 ;--- (service?...) queries if a service is present
-(sclos-method (<patch> <symbol>) (service? self sym)
+(model-method (<patch> <symbol>) (service? self sym)
 				  (not (null? (services self sym))))
 
-(sclos-method (<patch> <list>) (service? self symlist)
+(model-method (<patch> <list>) (service? self symlist)
 				  (not (null? (services self symlist))))
 
 
 ;--- (set-services!...) sets the value of the services list
-(sclos-method (<patch> <list>) (set-services! self servlist)
+(model-method (<patch> <list>) (set-services! self servlist)
 				  (set-my! 'service-list servlist))
 
 
 ;--- (add-service...) adds a service to a patch
 
-(sclos-method (<patch> <ecoservice>) (add-service self new-service)
+(model-method (<patch> <ecoservice>) (add-service self new-service)
 				  (set-services! self (append (my 'service-list)
 														(list new-service))))
 
@@ -806,13 +806,13 @@ ecoservices is half (or less) of the timestep of the patch.
 ;                        in a patch
 ;;                       the predicate will probably be something like
 ;;                       (using-name-keep? 'wobble)
-(sclos-method (<patch> <procedure>) (remove-service self predicate)
+(model-method (<patch> <procedure>) (remove-service self predicate)
 				  (set-services! self (filter predicate (my 'service-list))))
 
 
 
 ;--- (distance-to-centre...) returns the distance to the centre of the patch
-(sclos-method (<patch> <list>) (distance-to-centre self loc)
+(model-method (<patch> <list>) (distance-to-centre self loc)
 				  (let ((sqr (lambda (x) (* x x))))
 					 (sqrt (apply + (map sqr (map - (list-head
 																(slot-ref (my 'rep) 'locus) 2)
@@ -820,7 +820,7 @@ ecoservices is half (or less) of the timestep of the patch.
 
 ;--- (distance-to-interior...) returns the distance to the boundary of
 ;the patch (more expensive than the dist to centre)
-(sclos-method (<patch> <list>) (distance-to-interior self loc)
+(model-method (<patch> <list>) (distance-to-interior self loc)
 				  (let* ((sqr (lambda (x) (* x x)))
 							(R (- (sqrt (apply
 											 + (map sqr
@@ -833,7 +833,7 @@ ecoservices is half (or less) of the timestep of the patch.
 					 (if (< R 0) 0 R)))
 
 ;--- (contains?...) predicate to indicate if something is in the patch
-(sclos-method <patch> (contains? self . bit)
+(model-method <patch> (contains? self . bit)
 				  (if (null? bit) 
 						(abort "Missing argument to contains?")
 						(set! bit (car bit)))
@@ -846,14 +846,14 @@ ecoservices is half (or less) of the timestep of the patch.
 						(zero? R)))
 					(else #f)))
 
-;;(sclos-method (<patch> <thing>) (contains? self entity)
+;;(model-method (<patch> <thing>) (contains? self entity)
 ;;				  (contains? (location entity))
 ;;				  )
 
 
 ;--- (services...) returns services matching the sym or in the symlist
 
-(sclos-method (<patch>) (service-list self . ss)
+(model-method (<patch>) (service-list self . ss)
 				  (if (and (pair? ss) (pair? (car ss))) (set! ss (car ss)))
 				  (let ((S (my 'service-list)))
 					 (if (null? ss)
@@ -863,19 +863,19 @@ ecoservices is half (or less) of the timestep of the patch.
 							S))))
 
 
-(sclos-method (<patch>) (services self . ss)
+(model-method (<patch>) (services self . ss)
 				  (if (null? ss)
 						(map (lambda (x) (type x)) (my 'service-list))
 						(map type (apply service-list (cons self ss)))))
 
 
-(sclos-method (<patch>) (specific-services self . ss)
+(model-method (<patch>) (specific-services self . ss)
 				  (if (null? ss)
 						(map (lambda (x) (name x)) (my 'service-list))
 						(map type (apply service-list (cons self ss)))))
 
 
-(sclos-method (<patch> <symbol>) (value self servlist)
+(model-method (<patch> <symbol>) (value self servlist)
 				  (set! servlist (list servlist))
 				  (let ((sl (if (member #t servlist)
 									 (my 'service-list)
@@ -884,7 +884,7 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0
 						  (apply + (map value sl)))))
 
-(sclos-method (<patch> <string>) (value self servlist)
+(model-method (<patch> <string>) (value self servlist)
 				  (set! servlist (list servlist))
 				  (let ((sl (if (member #t servlist)
 									 (my 'service-list)
@@ -893,13 +893,13 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0
 						  (apply + (map value sl)))))
 
-(sclos-method (<patch> <symbol>)(extra-variable self field)
+(model-method (<patch> <symbol>)(extra-variable self field)
 				  (value self (symbol->string field)))
 
-(sclos-method (<patch> <string>)(extra-variable self field)
+(model-method (<patch> <string>)(extra-variable self field)
 				  (value self field))
 
-(sclos-method (<patch>) (extra-variable-list self)
+(model-method (<patch>) (extra-variable-list self)
 				  (map string->symbol (map name (my 'service-list))))
 
 ;; (add-method representation
@@ -909,7 +909,7 @@ ecoservices is half (or less) of the timestep of the patch.
 
 
 
-(sclos-method (<patch> <pair>) (value self servlist)
+(model-method (<patch> <pair>) (value self servlist)
 				  (let ((sl (if (member #t servlist)
 									 (my 'service-list)
 									 (service-list self servlist))))
@@ -917,7 +917,7 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0
 						  (apply + (map value sl)))))
 
-(sclos-method (<patch> <pair>) (capacity self servlist)
+(model-method (<patch> <pair>) (capacity self servlist)
 				  (let ((sl (if (member #t servlist)
 									 (my 'service-list)
 									 (service-list self servlist))))
@@ -925,7 +925,7 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0
 						  (apply + (map capacity sl)))))
 
-(sclos-method (<patch> <pair>) (mean-value self servlist)
+(model-method (<patch> <pair>) (mean-value self servlist)
 				  (let ((sl (service-list self servlist)))
 					 (if (null? sl)
 						  0
@@ -933,7 +933,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							  (* 1.0 (length servlist))))))
 
 ;;;--- (set-value!...)
-(sclos-method (<patch> <symbol>) (set-value! self sym val)
+(model-method (<patch> <symbol>) (set-value! self sym val)
 				  (let ((s (filter (lambda (a) (eq? sym (type a)))
 								(my 'service-list))))
 					 (if (null? s)
@@ -942,7 +942,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							 (for-each (lambda (x) (set-value! x val)) s)
 							 #t))))
 
-(sclos-method (<patch> <string>) (set-value! self sym val)
+(model-method (<patch> <string>) (set-value! self sym val)
 				  (let ((s (filter (lambda (a) (string=? sym  (name a)))
 										 (my 'service-list))))
 					 (if (null? s)
@@ -952,7 +952,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							 #t))))
 
 ;--- (scale!...)
-(sclos-method (<patch> <symbol> <number>) (scale! self sym val)
+(model-method (<patch> <symbol> <number>) (scale! self sym val)
 				  (let ((s (filter (lambda (a) (eq? (type a) sym))
 										 (my 'service-list))))
 					 (if (null? s)
@@ -961,7 +961,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							 (for-each (lambda (x) (scale! x val)) s)
 							 #t))))
 
-(sclos-method (<patch> <string> <number>) (scale! self sym val)
+(model-method (<patch> <string> <number>) (scale! self sym val)
 				  (let ((s (filter (lambda (a) (string=? (name a) sym))
 										 (my 'service-list))))
 					 (if (null? s)
@@ -971,7 +971,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							 #t))))
 
 ;--- (add!...)
-(sclos-method (<patch> <symbol> <number>) (add! self sym val)
+(model-method (<patch> <symbol> <number>) (add! self sym val)
 				  (let ((s (filter (lambda (a) (eq? (type a) sym))
 										 (my 'service-list))))
 					 (if (null? s)
@@ -980,7 +980,7 @@ ecoservices is half (or less) of the timestep of the patch.
 							 (for-each (lambda (x) (add! x val)) s)
 							 #t))))
 
-(sclos-method (<patch> <string> <number>) (add! self sym val)
+(model-method (<patch> <string> <number>) (add! self sym val)
 				  (let ((s (filter (lambda (a) (string=? (name a) sym))
 										 (my 'service-list))))
 					 (if (null? s)
@@ -990,18 +990,18 @@ ecoservices is half (or less) of the timestep of the patch.
 							 #t))))
 
 ;--- (scale!...)
-(sclos-method (<patch> <pair> <number>) (scale! self symlist val)
+(model-method (<patch> <pair> <number>) (scale! self symlist val)
 				  (for-each (lambda (x) (scale! self x val)) symlist))
 
 
 ;--- (add!...)
-(sclos-method (<patch> <pair> <number>) (add! self sym val)
+(model-method (<patch> <pair> <number>) (add! self sym val)
 				  (for-each (lambda (x) (add! self x val)) symlist))
 
 
 ;--- (total-value ...) ;; needs to filter the services by membership
 ;in the indicated symlist
-(sclos-method (<patch> <pair>) (total-value self symlist)
+(model-method (<patch> <pair>) (total-value self symlist)
 				  (let ((ss (service-list self (if (symbol? symlist)
 															  (list symlist)
 															  symlist))))
@@ -1009,7 +1009,7 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0.0
 						  (apply + (map (lambda (y) (value y)) ss)))))
 
-(sclos-method (<patch> <pair>) (total-value self symlist)
+(model-method (<patch> <pair>) (total-value self symlist)
 				  (let ((ss (service-list self (if (symbol? symlist)
 															  (list symlist)
 															  symlist))))
@@ -1017,8 +1017,8 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0.0
 						  (apply + (map (lambda (y) (value y)) ss)))))
 
-;--- sclos-method (<patch> <pair>) (total-capacity self symlist)
-(sclos-method (<patch> <pair>) (total-capacity self symlist)
+;--- model-method (<patch> <pair>) (total-capacity self symlist)
+(model-method (<patch> <pair>) (total-capacity self symlist)
 				  (let ((ss (service-list self (if (symbol? symlist)
 															  (list symlist)
 															  symlist))))
@@ -1026,7 +1026,7 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0.0
 						  (apply + (map (lambda (y) (capacity y)) ss)))))
 
-(sclos-method (<patch> <pair>) (total-capacity self symlist)
+(model-method (<patch> <pair>) (total-capacity self symlist)
 				  (let ((ss (service-list self (if (symbol? symlist)
 															  (list symlist)
 															  symlist))))
@@ -1034,8 +1034,8 @@ ecoservices is half (or less) of the timestep of the patch.
 						  0.0
 						  (apply + (map (lambda (y) (capacity y)) ss)))))
 
-;--- sclos-model-body <patch>
-(sclos-model-body <patch>
+;--- model-body <patch>
+(model-body <patch>
 						(kdnl* 'model-bodies "In " (class-name-of self)
 								 (name self) "@" t)
 
@@ -1053,8 +1053,8 @@ ecoservices is half (or less) of the timestep of the patch.
 						dt
 						)
 
-;--- sclos-method (<patch> <agent> <symbol> <agent>) (log-data self logger format caller targets)
-(sclos-method (<patch> <agent> <symbol> <agent>)
+;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format caller targets)
+(model-method (<patch> <agent> <symbol> <agent>)
 				  (log-data self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
@@ -1283,43 +1283,43 @@ args can be  an update map or an update map and update equations
    -- see old-model-version1/Model-configuration.scm
 ")
 
-;--- sclos-method (<dynamic-patch> <string>) (service-list-index self service)
-(sclos-method (<dynamic-patch> <string>) (service-list-index self service)
+;--- model-method (<dynamic-patch> <string>) (service-list-index self service)
+(model-method (<dynamic-patch> <string>) (service-list-index self service)
 				  (let* ((si (my 'population-names))
 							(n (length si))
 							(ix (member service si))
 							(i (if ix  (- n (length ix)) #f)))
 					 i))
 
-;--- sclos-method (<dynamic-patch> <symbol>) (service-list-index self service)
-(sclos-method (<dynamic-patch> <symbol>) (service-list-index self service)
+;--- model-method (<dynamic-patch> <symbol>) (service-list-index self service)
+(model-method (<dynamic-patch> <symbol>) (service-list-index self service)
 				  (let* ((si (my 'population-symbols))
 							(n (length si))
 							(ix (member service si))
 							(i (if ix  (- n (length ix)) #f)))
 					 i))
 
-;--- sclos-method (<dynamic-patch> <pair>) (service-list-index self service)
-(sclos-method (<dynamic-patch> <pair>) (service-list-index self service)
+;--- model-method (<dynamic-patch> <pair>) (service-list-index self service)
+(model-method (<dynamic-patch> <pair>) (service-list-index self service)
 				  (map (lambda (x) (service-list-index self x)) service))
 
 
 ;; for predation matrix stuff ...
-;--- sclos-method (<dynamic-patch> <symbol>) (service-matrix-index self service)
-(sclos-method (<dynamic-patch> <symbol>) (service-matrix-index self service)
+;--- model-method (<dynamic-patch> <symbol>) (service-matrix-index self service)
+(model-method (<dynamic-patch> <symbol>) (service-matrix-index self service)
 				  (let ((si (service-list-index self service)))
 					 (if si (+ 1 si) si)))
 
-;--- sclos-method (<dynamic-patch> <pair>) (service-matrix-index self service)
-(sclos-method (<dynamic-patch> <pair>) (service-matrix-index self service)
+;--- model-method (<dynamic-patch> <pair>) (service-matrix-index self service)
+(model-method (<dynamic-patch> <pair>) (service-matrix-index self service)
 				  (map (lambda (x) (service-matrix-index x)) service))
 
-;--- sclos-method (<dynamic-patch> <pair>) (service-values self)
-(sclos-method (<dynamic-patch> <pair>) (service-values self)
+;--- model-method (<dynamic-patch> <pair>) (service-values self)
+(model-method (<dynamic-patch> <pair>) (service-values self)
 				  (map (lambda (x) (value self x)) (my 'service-update-map)))	
 
-;--- sclos-method <dynamic-patch> (dump self . count)
-(sclos-method <dynamic-patch> (dump self . count)
+;--- model-method <dynamic-patch> (dump self . count)
+(model-method <dynamic-patch> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 
 				  (display (make-string count #\space))
@@ -1341,9 +1341,9 @@ args can be  an update map or an update map and update equations
 				  (for-each (lambda (x) (dump x (+ 4 count))) (my 'service-list))
 				  )
 
-;--- sclos-method (<dynamic-patch> <procedure> <symbol>
+;--- model-method (<dynamic-patch> <procedure> <symbol>
 ;                           <procedure>)(log-data self logger format caller targets)
-(sclos-method (<dynamic-patch>  <procedure> <symbol> <procedure>)
+(model-method (<dynamic-patch>  <procedure> <symbol> <procedure>)
 				  (log-data self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
@@ -1396,35 +1396,35 @@ args can be  an update map or an update map and update equations
 					 )
 				  )
 
-;--- sclos-method <dynamic-patch> (enable-service-growth! self service-name)
-(sclos-method <dynamic-patch> (enable-service-growth! self service-name)
+;--- model-method <dynamic-patch> (enable-service-growth! self service-name)
+(model-method <dynamic-patch> (enable-service-growth! self service-name)
 				  (enable-growth! (service self service-name)))
 
-;--- sclos-method <dynamic-patch> (disable-service-growth! self)
-(sclos-method <dynamic-patch> (disable-service-growth! self)
+;--- model-method <dynamic-patch> (disable-service-growth! self)
+(model-method <dynamic-patch> (disable-service-growth! self)
 				  (disable-growth! (service self service-name)))
 
 
-;--- sclos-method <dynamic-patch> (enable-all-service-growth! self)
-(sclos-method <dynamic-patch> (enable-all-service-growth! self)
+;--- model-method <dynamic-patch> (enable-all-service-growth! self)
+(model-method <dynamic-patch> (enable-all-service-growth! self)
 				  (for-each enable-growth! (service-list self)))
 
-;--- sclos-method <dynamic-patch> (disable-all-service-growth! self)
-(sclos-method <dynamic-patch> (disable-all-service-growth! self)
+;--- model-method <dynamic-patch> (disable-all-service-growth! self)
+(model-method <dynamic-patch> (disable-all-service-growth! self)
 				  (for-each disable-growth! (service-list self)))
 
-;--- sclos-method <dynamic-patch> (enable-growth! self)
-(sclos-method <dynamic-patch> (enable-growth! self) (set-my! 'do-dynamics #t))
-;--- sclos-method <dynamic-patch> (disable-growth! self)
-(sclos-method <dynamic-patch> (disable-growth! self) (set-my! 'do-dynamics #f))
+;--- model-method <dynamic-patch> (enable-growth! self)
+(model-method <dynamic-patch> (enable-growth! self) (set-my! 'do-dynamics #t))
+;--- model-method <dynamic-patch> (disable-growth! self)
+(model-method <dynamic-patch> (disable-growth! self) (set-my! 'do-dynamics #f))
 
-;--- sclos-method <dynamic-patch> (growth-model self)
-(sclos-method <dynamic-patch> (growth-model self) (slot-ref self 'd/dt-list))
+;--- model-method <dynamic-patch> (growth-model self)
+(model-method <dynamic-patch> (growth-model self) (slot-ref self 'd/dt-list))
 
 
 ;; this expects a list of functions which return reals
-;--- sclos-method <dynamic-patch> (set-population-dynamics! self . d/dt-list)
-(sclos-method <dynamic-patch> (set-population-dynamics! self . d/dt-list)
+;--- model-method <dynamic-patch> (set-population-dynamics! self . d/dt-list)
+(model-method <dynamic-patch> (set-population-dynamics! self . d/dt-list)
 				  (slot-set! self 'population-definitions #f)
 				  
 				  (if (null? d/dt-list)
@@ -1442,8 +1442,8 @@ args can be  an update map or an update map and update equations
 						(abort!))
 				  )
 
-;--- sclos-method (<dynamic-patch>) (define-population-dynamics! self pn ps pf)
-(sclos-method (<dynamic-patch>) (define-population-dynamics! self pn ps pf)
+;--- model-method (<dynamic-patch>) (define-population-dynamics! self pn ps pf)
+(model-method (<dynamic-patch>) (define-population-dynamics! self pn ps pf)
 				  (if (not (and (list? pn) (list? ps) (list? pf) (= (length pn)
 																					 (length ps)
 																					 (length pf))))
@@ -1482,8 +1482,8 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- sclos-method (<dynamic-patch>) (define-population-dynamics! self . defns )
-(sclos-method (<dynamic-patch>) (define-population-dynamics! self . defns )
+;--- model-method (<dynamic-patch>) (define-population-dynamics! self . defns )
+(model-method (<dynamic-patch>) (define-population-dynamics! self . defns )
 				  (if (and (pair? defns)
 							  (pair? (car defns))
 							  (pair? (caar defns))
@@ -1523,8 +1523,8 @@ args can be  an update map or an update map and update equations
 
 
 
-;---  sclos-model-body <dynamic-patch
-(sclos-model-body <dynamic-patch>
+;---  model-body <dynamic-patch
+(model-body <dynamic-patch>
 						(kdnl* 'model-bodies "In " (class-name-of self) t)
  						;; Ok, I need to be able to refer to service
 						;; directly (names) and to classes (types). Type
@@ -1542,7 +1542,7 @@ args can be  an update map or an update map and update equations
 
 						(if (<= dt 1e-12)
 							 (abort
-							  "Bad dt passed to <dynamic-patch> sclos-model-body"))
+							  "Bad dt passed to <dynamic-patch> model-body"))
 						(let ((pop-values (map (lambda (x) (value self x))
 													  (my 'population-names)))
 								(d/dt-list (my 'd/dt-list))
@@ -1600,18 +1600,18 @@ args can be  an update map or an update map and update equations
 
 
 ;; Default landscape only has the default value, oddly enough
-(sclos-method (<landscape> <pair>) (value self loc)
+(model-method (<landscape> <pair>) (value self loc)
 				  (if (contains? self loc)
 						((my 'terrain-function) loc)
 						(my 'default-value)))
 
-(sclos-method (<landscape> <pair>) (capacity self loc)
+(model-method (<landscape> <pair>) (capacity self loc)
 				  (if (contains? self loc)
 						((my 'terrain-function) loc)
 						(my 'default-value)))
 
 ;; This is to keep the "run" chain consistent
-(sclos-model-body <landscape>
+(model-body <landscape>
 						(kdnl* 'model-bodies "In " (class-name-of self) t)
 						(kdnl* 'nested-habitat (name self) "@" t "/"
 								 (subjective-time self) ":" dt "/" (my 'dt))
@@ -1623,7 +1623,7 @@ args can be  an update map or an update map and update equations
 
 
 
-;;(sclos-model-body <landscape> 
+;;(model-body <landscape> 
 ;;						(kdnl* 'running (my 'name) ":" (my 'representation) " is running")
 ;;						(for-each (lambda (x)
 ;;										(run-model-body x t dt))
@@ -1663,9 +1663,9 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- sclos-method <habitat> (agent-prep self . args) Set preconditions
+;--- model-method <habitat> (agent-prep self . args) Set preconditions
 ;                                                    for running
-(sclos-method <habitat> (agent-prep self . args)
+(model-method <habitat> (agent-prep self . args)
 				  (agent-prep-parent)
 				  )
 
@@ -1681,9 +1681,9 @@ args can be  an update map or an update map and update equations
 															  ;; work
 									)))
 
-;--- sclos-method <habitat> (dump self . count) dumps the state of the habitat
+;--- model-method <habitat> (dump self . count) dumps the state of the habitat
 ;                                               agent in a readable way
-(sclos-method <habitat> (dump self . count)
+(model-method <habitat> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 				  (display (make-string count #\space))
 				  (display "<habitat>\n")
@@ -1705,18 +1705,18 @@ args can be  an update map or an update map and update equations
 				  (for-each (lambda (x) (dump x (+ 4 count))) (my 'patch-list)))
 
 
-;--- sclos-method (<habitat> <patch>) (add-patch self patch) add a
+;--- model-method (<habitat> <patch>) (add-patch self patch) add a
 ;                                                            patch to the habitat
-(sclos-method (<habitat> <patch>) (add-patch self patch)
+(model-method (<habitat> <patch>) (add-patch self patch)
 				  (set-my! 'patch-list (uniq (cons patch (my 'patch-list)))))
 
-;--- sclos-method (<habitat> <procedure>) (remove-patch self pfilter)
+;--- model-method (<habitat> <procedure>) (remove-patch self pfilter)
 ;  keep only patches which match a filter
-(sclos-method (<habitat> <procedure>) (remove-patch self pfilter)
+(model-method (<habitat> <procedure>) (remove-patch self pfilter)
 				  (set-my! 'patch-list (filter pfilter (my 'patch-list))))
 
 ;--- (services...) returns services matching the sym or in the symlist
-(sclos-method <habitat>
+(model-method <habitat>
 				  (services self . ss)
 				  (if (not (null? ss))
 						(begin
@@ -1732,10 +1732,10 @@ args can be  an update map or an update map and update equations
 										string<?)))
 						))
 
-;--- sclos-method (<habitat>) (service-list self . ss)
+;--- model-method (<habitat>) (service-list self . ss)
 ;; returns the slist of provided services: ss is an optional list of
 ;; patch names/symbols
-(sclos-method (<habitat>)
+(model-method (<habitat>)
 				  (service-list self . ss)
 				  (uniq
 					(if (null? ss) 
@@ -1751,25 +1751,25 @@ args can be  an update map or an update map and update equations
 										 (patch-list self))))))
 
 
-;--- sclos-method (<habitat>) (service-list self) ret a list of all ecoservices
-(sclos-method (<habitat>) (service-list self)
+;--- model-method (<habitat>) (service-list self) ret a list of all ecoservices
+(model-method (<habitat>) (service-list self)
 				  (let* ((P (patch-list self))
 							(S (map service-list P)))
 					 (apply append S)))
 
 
 ;--- (service?...) queries if a service is present
-(sclos-method (<habitat> <symbol>) (service? self sym)
+(model-method (<habitat> <symbol>) (service? self sym)
 				  (not (null? (services self sym))))
 
 
-(sclos-method (<habitat> <pair>) (service? self symlist)
+(model-method (<habitat> <pair>) (service? self symlist)
 				  (not (null? (services self symlist))))
 
 
-;--- sclos-method (<habitat> <symbol>) (service-sites self sym)
+;--- model-method (<habitat> <symbol>) (service-sites self sym)
 ; returns a list of patches with services
-(sclos-method (<habitat> <symbol>) (service-sites self sym)
+(model-method (<habitat> <symbol>) (service-sites self sym)
 				  (let loop ((rslt '())
 								 (pl (my 'patch-list)))
 					 (cond
@@ -1779,7 +1779,7 @@ args can be  an update map or an update map and update equations
 					  (else (loop rslt (cdr pl))))))
 
 
-(sclos-method (<habitat> <pair>) (service-sites self symlist)
+(model-method (<habitat> <pair>) (service-sites self symlist)
 				  (let loop ((rslt '())
 								 (pl (my 'patch-list)))
 					 (cond
@@ -1791,10 +1791,10 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- sclos-method (<habitat>) (patch-list self . arg) 
+;--- model-method (<habitat>) (patch-list self . arg) 
 ; returns the listof patches (possibly filtered by names, symbols,
 ; procedures....
-(sclos-method (<habitat>) (patch-list self . arg)
+(model-method (<habitat>) (patch-list self . arg)
 				  (cond
 					((null? arg)
 					 (my 'patch-list))
@@ -1818,7 +1818,7 @@ args can be  an update map or an update map and update equations
 
 ;--- (aggregate-value self location radius servicelist) 
 
-(sclos-method (<habitat> <pair> <number> <pair>) (aggregate-value self location radius servicelist)
+(model-method (<habitat> <pair> <number> <pair>) (aggregate-value self location radius servicelist)
  (let* ((sl (service-sites self servicelist))
 		  (lsl (filter
 				  (lambda (patch) 
@@ -1848,16 +1848,16 @@ args can be  an update map or an update map and update equations
 	lslv))
 
 
-;--- sclos-method <habitat> (min-bound self)
-(sclos-method <habitat> (min-bound self)
+;--- model-method <habitat> (min-bound self)
+(model-method <habitat> (min-bound self)
 				  (let* ((v (map min-bound (slot-ref self 'patch-list)))
 							(vx (apply min (map car v)))
 							(vy (apply min (map cadr v)))
 							)
 					 (list vx vy)))
 
-;--- sclos-method <habitat> (max-bound self)
-(sclos-method <habitat> (max-bound self)
+;--- model-method <habitat> (max-bound self)
+(model-method <habitat> (max-bound self)
 				  (let* ((v (map max-bound (slot-ref self 'patch-list)))
 							(vx (apply max (map car v)))
 							(vy (apply max (map cadr v)))
@@ -1872,7 +1872,7 @@ args can be  an update map or an update map and update equations
 ;; p is usually something like mm->points
 
 ;--- (<habitat> <procedure>) (map-log-data self logger format caller targets)
-(sclos-method (<habitat> <procedure>)
+(model-method (<habitat> <procedure>)
 				  (map-log-data self logger format caller targets)
   (let* ((symlist (services H))
 			(name (slot-ref H 'name))
@@ -1898,7 +1898,7 @@ args can be  an update map or an update map and update equations
 		)))
 
 ;--- (<habitat> <procedure>...) (log-data self logger format caller targets)
-(sclos-method (<habitat> <procedure> <symbol> <procedure>)
+(model-method (<habitat> <procedure> <symbol> <procedure>)
 	  (log-data self logger format caller targets)
 	  (let ((file (slot-ref logger 'file))
 			  (p (slot-ref self 'map-projection)))
@@ -1924,8 +1924,8 @@ args can be  an update map or an update map and update equations
 		 )
 	  )
 
-;--- sclos-method (<habitat>) (spatial-scale self)
-(sclos-method (<habitat>) (spatial-scale self)
+;--- model-method (<habitat>) (spatial-scale self)
+(model-method (<habitat>) (spatial-scale self)
 				  (if (not (my 'scale))
 						(let ((lscale (apply
 											append
@@ -1946,8 +1946,8 @@ args can be  an update map or an update map and update equations
 				  (my 'scale))
 
 
-;--- sclos-model-body <habitat>
-(sclos-model-body <habitat>
+;--- model-body <habitat>
+(model-body <habitat>
 	(kdnl* 'model-bodies "In " (class-name-of self) (name self) "@" t)
 
 	(if (member 'nested-habitat nested-agents)
@@ -1970,13 +1970,13 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- sclos-method (<habitat> <symbol>)(extra-variable self field)
-(sclos-method (<habitat> <symbol>)(extra-variable self field)
+;--- model-method (<habitat> <symbol>)(extra-variable self field)
+(model-method (<habitat> <symbol>)(extra-variable self field)
 				  (value self (symbol->string field)))
 
 
-;--- sclos-method (<habitat>) (extra-variable-list self)
-(sclos-method (<habitat>) (extra-variable-list self)
+;--- model-method (<habitat>) (extra-variable-list self)
+(model-method (<habitat>) (extra-variable-list self)
 				  (let ((patch-vars
 							(uniq (apply append
 											 (map extra-variable-list (my 'patch-list)))))

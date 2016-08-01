@@ -125,15 +125,15 @@
 
 
 ;; This works like so:
-;;(sclos-method <parent1> (methname) body)
-;;(sclos-method <parent1> (methname arg1 . rest) body)
-;;(sclos-method <parent1> (methname . rest) body)
-;;(sclos-method (<parent1>) (methname) body)
-;;(sclos-method (<parent1>) (methname arg1 arg2) body)
-;;(sclos-method (<parent1> <parent2>) (methname) body)
-;;(sclos-method (<parent1> <parent2>) (methname arg1 arg2..) body)
-;;(sclos-method (<parent1>) (methname arg1 arg2 . rest) body)
-;;(sclos-method (<parent1> <parent2>) (methname arg1 arg2 . rest) body)
+;;(model-method <parent1> (methname) body)
+;;(model-method <parent1> (methname arg1 . rest) body)
+;;(model-method <parent1> (methname . rest) body)
+;;(model-method (<parent1>) (methname) body)
+;;(model-method (<parent1>) (methname arg1 arg2) body)
+;;(model-method (<parent1> <parent2>) (methname) body)
+;;(model-method (<parent1> <parent2>) (methname arg1 arg2..) body)
+;;(model-method (<parent1>) (methname arg1 arg2 . rest) body)
+;;(model-method (<parent1> <parent2>) (methname arg1 arg2 . rest) body)
 
 ;; "(????-parent)" can be used to invoke the parent methods in the
 ;; body, where ???? is the value of methname so for a method called
@@ -193,17 +193,17 @@
 
 
 
-(define-macro (sclos-method . madness)
-  ;; Call like (sclos-method classname (mname * margs) . body) where
+(define-macro (model-method . madness)
+  ;; Call like (model-method classname (mname * margs) . body) where
   ;; the margs doesn't include the call-parent-method and 'self' is
   ;; the placeholder
   (if (< (length madness) 3)
-		(error "sclos-method: bad arguments to method call " madness))
+		(error "model-method: bad arguments to method call " madness))
   (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
 		(error "method: bad (mname args...) in (method ...) "
 				 (caadr madness)))
   (if (not (eq? (cadadr madness) 'self))
-		(error "sclos-method: missing 'self' placeholder in definition "
+		(error "model-method: missing 'self' placeholder in definition "
 				 (caadr madness)))
 
   (let ((classlst (if (list? (car madness))
@@ -241,7 +241,7 @@
 ;; use "my" or "set-my!", "slot-ref" or "slot-set!"
 
 
-;;(sclos-model-body <animal> 
+;;(model-body <animal> 
 ;;		(let ((fear (search environment 'predators))
 ;;				(feast (search environment 'prey))
 ;;				)
@@ -251,7 +251,7 @@
 ;;)
 
 
-(define-macro (sclos-model-body myclass . body)
+(define-macro (model-body myclass . body)
   ;; Call like (method classname (mname margs) . body) where the margs
   ;; doesn't include the call-next-method
   (if (not (symbol? myclass))
@@ -280,9 +280,9 @@
 					)
   )
 
-;; like sclos-model-body, but chains straight to parent
-(define-macro (sclos-use-parent-body myclass) 
-  `(sclos-model-body ,myclass (parent-body)))
+;; like model-body, but chains straight to parent
+(define-macro (use-parent-body myclass) 
+  `(model-body ,myclass (parent-body)))
 
 
 

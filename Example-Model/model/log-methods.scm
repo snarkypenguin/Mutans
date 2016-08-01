@@ -95,10 +95,10 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 
-(sclos-method <agent> (map-projection self)
+(model-method <agent> (map-projection self)
  				  (my 'map-projection))
 
-(sclos-method (<agent> <procedure>) (set-map-projection! self p)
+(model-method (<agent> <procedure>) (set-map-projection! self p)
 				  (set-my! 'map-projection p))
 
 ;; Logger agents (things that inherit from introspection, really) have
@@ -122,11 +122,11 @@ close pages and emit 'showpage' for postscript stuff.
 												;; initialisation list work
 					 )))
 
-(sclos-method <introspection> (agent-prep self start end kernel . args)
+(model-method <introspection> (agent-prep self start end kernel . args)
 				  (agent-prep-parent)
 				  )
 
-(sclos-method <introspection> (agent-shutdown self . args)
+(model-method <introspection> (agent-shutdown self . args)
 				  (let ((file (my 'file)))
 					 (if (and (my 'file)
 								 (output-port? (my 'file))
@@ -138,7 +138,7 @@ close pages and emit 'showpage' for postscript stuff.
 					 (agent-shutdown-parent)
 					 ))
 
-(sclos-model-body <introspection>
+(model-body <introspection>
 
 						(kdnl* '(log-* introspection-trace)
 								 "[" (my 'name) ":" (class-name-of self) "]"
@@ -170,31 +170,31 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 
-(sclos-method (<introspection> <agent>) (insert-agent! self target)
+(model-method (<introspection> <agent>) (insert-agent! self target)
 				  (set-my! 'introspection-list (cons target
 																 (my 'introspection-list))))
 
-(sclos-method (<introspection> <agent>) (append-agent! self target)
+(model-method (<introspection> <agent>) (append-agent! self target)
 				  (set-my! 'introspection-list (append (my 'introspection-list)
 																	(list target))))
 
-(sclos-method <introspection> (introspection-list self)
+(model-method <introspection> (introspection-list self)
 				  (my 'introspection-list))
-(sclos-method <introspection> (introspection-times self)
+(model-method <introspection> (introspection-times self)
 				  (my 'timestep-schedule))
 
-(sclos-method (<introspection> <list>) (set-introspection-list! self lst)
+(model-method (<introspection> <list>) (set-introspection-list! self lst)
 				  (set-my! 'introspection-list lst))				  
-(sclos-method (<introspection> <list>) (set-introspection-times! self lst)
+(model-method (<introspection> <list>) (set-introspection-times! self lst)
 				  (set-my! 'timestep-schedule lst))
 
-(sclos-method (<introspection> <list>) (set-variables! self lst)
+(model-method (<introspection> <list>) (set-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables lst)
 						(abort "cannot extend variables after it starts running")
 						))
 
-(sclos-method (<introspection> <list>) (extend-variables! self lst)
+(model-method (<introspection> <list>) (extend-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables (unique* (append (my 'variables) lst)))
 						(abort "cannot extend variables after it starts running")
@@ -202,7 +202,7 @@ close pages and emit 'showpage' for postscript stuff.
 (define (cnc a) (class-name-of (class-of a)))
 (define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
 
-(sclos-method (<introspection>) (emit-page self)
+(model-method (<introspection>) (emit-page self)
 				  (kdnl* '(log-* introspection-trace)
 							"[" (my 'name) ":" (class-name-of self) "]"
 							"Introspection: emit-page")
@@ -229,17 +229,17 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;---- snapshot methods
 
-(sclos-method <snapshot> (initialize self args)
+(model-method <snapshot> (initialize self args)
 				  (initialize-parent) ;; call "parents" last to make the
 											 ;; initialisation list work
 				  (initialise self (list 'type snapshot 'lastfile #f
 												 'currentfile #f))
 				  )
 
-(sclos-use-parent-body <logfile>)
+(use-parent-body <logfile>)
 
 
-(sclos-method <snapshot> (page-preamble self logger format)
+(model-method <snapshot> (page-preamble self logger format)
 				  (kdnl* '(introspection snapshot)"[" (my 'name) ":"
 							(class-name-of self) "]" "is preparing to dump")
 				  (let ((filename (my 'filename))
@@ -302,7 +302,7 @@ close pages and emit 'showpage' for postscript stuff.
 					  )
 					 (set-my! 'file file)))
 
-(sclos-method <snapshot> (page-epilogue self logger format)
+(model-method <snapshot> (page-epilogue self logger format)
 				  (let ((file (my 'file)))
 					 (if (and file (not (memq file (list (current-output-port)
 																	 (current-error-port)))))
@@ -314,11 +314,11 @@ close pages and emit 'showpage' for postscript stuff.
 							 (set-my! 'file #f)))))
 
 
-(sclos-use-parent-body <snapshot>)
+(use-parent-body <snapshot>)
 
 ;---- logfile methods
 
-(sclos-method <logfile> (page-preamble self logger format)
+(model-method <logfile> (page-preamble self logger format)
 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
 							(class-name-of self) "]" "is preparing to dump")
 				  (let ((filename (my 'filename))
@@ -342,7 +342,7 @@ close pages and emit 'showpage' for postscript stuff.
 						  (set-my! 'file file)))
 				  )
 
-(sclos-method <logfile> (page-epilogue self logger format)
+(model-method <logfile> (page-epilogue self logger format)
 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
 							(class-name-of self) "]" "has finished a dump")
 				  #!void)
@@ -364,11 +364,11 @@ close pages and emit 'showpage' for postscript stuff.
 									;; keep all files
 									)))
 
-(sclos-use-parent-body <log-map>)
+(use-parent-body <log-map>)
 
 
 
-(sclos-method <log-map> (page-preamble self logger format)
+(model-method <log-map> (page-preamble self logger format)
 				  ;; This *must* replace it's parent from <snapshot> since
 				  ;; it doesn't work with a traditional port
 				  (kdnl* '(log-* log-map) (name self) "[" (my 'name) ":"
@@ -433,7 +433,7 @@ close pages and emit 'showpage' for postscript stuff.
 					  )
 					 (set-my! 'file file)))
 
-(sclos-method <log-map> (page-epilogue self logger format)
+(model-method <log-map> (page-epilogue self logger format)
 				  ;; This *must* replace it's parent from <snapshot> since
 				  ;; it doesn't work with a traditional port
 				  (kdnl* '(log-* log-map) (name self) "[" (my 'name) ":"
@@ -449,7 +449,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 ;; This logs to an open file
-(sclos-method (<log-map> <procedure> <procedure> <symbol> <list>)
+(model-method (<log-map> <procedure> <procedure> <symbol> <list>)
 				  (log-data self logger format caller targets)
 				  (lambda (target)	
 					 (kdnl* '(log-* log-map) (name self) "[" (my 'name)
@@ -481,9 +481,9 @@ close pages and emit 'showpage' for postscript stuff.
 															  ;; work
 									)))
 
-(sclos-use-parent-body <log-data>)
+(use-parent-body <log-data>)
 
-(sclos-method <log-data> (agent-prep self start end kernel . args)
+(model-method <log-data> (agent-prep self start end kernel . args)
 				  ;; This opens the output file on initialisation.
 				  (agent-prep-parent) ;; parents should prep first
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
@@ -525,7 +525,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 
-(sclos-method <log-data> (agent-shutdown self . args)
+(model-method <log-data> (agent-shutdown self . args)
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in agent-shutdown")
 				  (if (and (my 'file) (output-port? (my 'file))
@@ -539,7 +539,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  (agent-shutdown-parent) ;; Parents should shutdown last
 				  )
 
-(sclos-method <log-data> (page-preamble self logger format)
+(model-method <log-data> (page-preamble self logger format)
 				  (page-preamble-parent) ;; opens the file
 
 				  (if (not (output-port? (my 'file)))
@@ -609,7 +609,7 @@ close pages and emit 'showpage' for postscript stuff.
 						
 ;; This is typically never called since it "logs" the logfile.  Mostly
 ;; here as an example.
-(sclos-method (<log-data> <procedure> <procedure> <symbol> <list> <boolean>)
+(model-method (<log-data> <procedure> <procedure> <symbol> <list> <boolean>)
 				  (log-data self logger format caller targets . file)
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in log-data")
@@ -657,7 +657,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 
-(sclos-method (<log-data>) (page-epilogue self logger format)
+(model-method (<log-data>) (page-epilogue self logger format)
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in page-epilogue")
 				  (if (and (pair? (my 'introspection-list))
