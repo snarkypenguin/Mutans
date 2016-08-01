@@ -64,7 +64,7 @@
   (list x (* x (/ (cadr pagesize) (car pagesize)))))
 
 (define (scaled-by-y y pagesize)
-  (list x (* y (/ (car pagesize) (cadr pagesize)))))
+  (list y (* y (/ (car pagesize) (cadr pagesize)))))
 
 ;(define target-size (inches->points (scaled-by-x 6.8 pagesize)))
 
@@ -147,7 +147,9 @@
 
 (define (rotate-point-list theta pointlist)
   (map (lambda (x) (let ((m (make-list-matrix `(,(cos theta) ,(- (sin theta))) `(,(sin theta) ,(cos theta)))))
-							(*-matrix-vector m x)))
+							;;???(*-matrix-vector m x)
+							(*-matrix m x)
+							))
 		 pointlist))
 
 (define (adjust operator deviant pointlist)
@@ -478,10 +480,10 @@
       (ps-2-arg "translate" x y))
 
     (define (arc cx cy rad startangle endangle)
-      (ps-5-arg "arc" cx cy rad startange endangle))
+      (ps-5-arg "arc" cx cy rad startangle endangle))
 
     (define (arcn cx cy rad startangle endangle)
-      (ps-5-arg "arcn" cx cy rad startange endangle))
+      (ps-5-arg "arcn" cx cy rad startangle endangle))
 
     (define (map-character c)
       (if (not (char? c))
@@ -674,8 +676,8 @@
 							  ((eq? cmd 'newpath) (newpath))
 							  ((eq? cmd 'exch) (exch))
 
-							  ((eq? cmd 'lineweight) (apply lineweight args))
-							  ((eq? cmd 'grey) (apply grey args))
+							  ((eq? cmd 'lineweight) (apply setlinewidth args))
+							  ((eq? cmd 'setgrey) (apply setgray args))
 							  ((eq? cmd 'setlinewidth) (apply setlinewidth args))
 							  ((eq? cmd 'setgray) (apply setgray args))
 							  ((eq? cmd 'stroke) (stroke))

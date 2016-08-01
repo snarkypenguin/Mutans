@@ -1,4 +1,4 @@
-#|
+"
 
 These matrices are indexed from 1.  At the moment there is no way to augment
 a matrix or to overlay a small matrix onto a larger on (say for building a 
@@ -69,8 +69,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 (@ + A ...)
 	is matrix addition
 
-
-|#
+"
 
 
 (load "maths.scm")
@@ -148,7 +147,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 (define (complex-conjugate c)
   (let ((rp (real-part c))
-		  (cp (complex-part c)))
+		  (cp (imag-part c)))
 	 
 	 (if (zero? cp)
 		  rp
@@ -164,7 +163,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 	 (deep-copy (M)))
 
   (if (= (length args) 1)
-		(mll (car args))
+		(mlli (car args))
 		(apply mlli args)))
 
 

@@ -37,6 +37,17 @@
 (load "log-methods.scm")
 
 
+;; the list representation of a vector from s to d, but smart about <agent>s
+(define (vector-to s d)
+  (let ((src (if (isa? s <thing>) (slot-ref s 'location) s))
+		  (dst (if (isa? d <thing>) (slot-ref d 'location) d)))
+	 (map - dst src)))
+
+(define (do-map-conversion pfn gfn)
+  (let ((cmd (string-append "gs -q -dQUIET -dNOPAUSE -r300x300 -sDEVICE=pnggray -sOutputFile=" gfn " - " pfn " < /dev/null &")))
+	 (kdnl* '(log-* do-map-conversion) "[" (my 'name) ":" (class-name-of self) "]" "Running" cmd (class-name-of self))
+	 (shell-command cmd)))
+
 
 
 ;-- Define/allocate new classes

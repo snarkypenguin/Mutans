@@ -177,8 +177,7 @@
   
 
 (define files-included-immediately
-  '("support-lib.scm"
-    "framework-controls.scm"     
+  '("framework-controls.scm"     
     "framework-classes.scm"      
     "framework-declarations.scm" 
     "framework-methods.scm"))
@@ -261,6 +260,10 @@
 (define (load-model . extra-files)
   (if (and (pair? extra-files) (pair? (car extra-files)))
       (set! extra-files (car extra-files)))
+  
+  (if (file-exists? "support-lib.o1")
+		(load "support-lib.o1")
+		(load "support-lib.scm"))
   
   (for-each load files-included-immediately)
 

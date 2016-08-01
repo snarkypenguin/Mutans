@@ -20,8 +20,8 @@
 
 ;-  Code 
 
+;;(load "utils.scm") ;; for cross-product of lists -- included by maths.scm
 (load "maths.scm")
-(load "utils.scm") ;; for cross-product of lists
 
 
 (define debugging-integration #f)
@@ -549,10 +549,10 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 ;;  REMEMBER: this returns a function f:R^1->R^{(length F)}
 
 ;;-------------------
-
+"
 ;; In the example below, Q is the function which represents the trace of the system through time.
 (define (rk*-example-1)
-  ;;; (load "integrate")
+  ;;;
   ;;; (require 'charplot) ;; needs slib installed
   (let* ((dx/dt (lambda (t x y) (+ (* 1.001 (- 1  (/ x 42))) (- 1 (/ x (/ y 10))))))
 			(dy/dt (lambda (t x y) (+ (* 1.003 (- 1  (/ y 500))) (- (* 0.01 x y)))))
@@ -589,7 +589,7 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
     ))
 
 (define (rk*-example-2)
-  ;;; (load "integrate")
+  ;;;
   ;;; (require 'charplot) ;; needs slib installed
   (let* ((dx/dt (lambda (t x y z) (+ (* 1.001 (- 1  (/ x 42))) (- 1 (/ x (/ y 10))))))
 			(dy/dt (lambda (t x y z) (+ (* 1.003 (- 1  (/ y 500))) (- (* 0.01 x y)))))
@@ -623,7 +623,7 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
        ;;;    |_:____.____:____.____:____.____:____.____:____.____:____.____:___|   
        ;;;      0         10        20        30        40        50        60      
     ))
-
+"
 (define (rk4* F a b ss Xo . ZT) ;; F is a list of functions, say dy/dt dx/dt, and dz/dt, where each is in terms of t, x, y, z
                                 ;; and the initial values of x, y, and z are specified in Xo.  rk4* returns
                                 ;; a vector function with the values of x, y and z over the domain t in [a,b].
@@ -721,7 +721,7 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 		  )
 	 (+ 1 c)))
 
-(define (make-linear-list m M ss)
+(define (make-linear-list m M ss var-min var-max var-ss)
   (let* ((counts (map *n-cells* var-min var-max var-ss))
 			)
 	 #f)
@@ -748,6 +748,22 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 	 k
 	 )
   )
+
+
+(define (*cross* . args)
+  (define (cross2 a b)
+	 (apply append (map (lambda (x) (map (lambda (y) 
+														(if (list? y)
+															 (cons x (list y))
+															 (list x y))) b)) a)))
+  (cond
+	((not (list? args)) (error "bad-argument" args))
+	((null? args) '())
+	((= (length args) 1)
+	 (car args))
+	((= (length args) 2)
+	 (apply cross2 args))
+	(#t (*cross* (car args) (apply *cross* (cdr args))))))
 
 
 (define (make-hypercube var-min var-max var-ss)

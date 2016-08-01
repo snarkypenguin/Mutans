@@ -87,8 +87,8 @@
 
 (set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
 
-(add-kernel-message 'introspection)
-(add-kernel-message 'log-*)
+(add-kernel-message! 'introspection)
+(add-kernel-message! 'log-*)
 
 ;; options include focus stomach hunger-proximity eating log animal-running
 

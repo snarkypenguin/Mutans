@@ -64,7 +64,7 @@
 		 (add (lambda (msg)
 				  (if (not (symbol? msg))
 						(error "add-kernel-message! requires a symbol" msg))
-				  (set! kernel-messages (uniq (sort (cons msg kernel-messages)) symbol<?))))
+				  (set! kernel-messages (uniq (sort (cons msg kernel-messages) symbol<?)))))
 		 (remove (lambda ()
 					  (if (not (symbol? msg))
 							(error "remove-kernel-messages! requires a symbol" msg))
@@ -79,7 +79,7 @@
 
 		 )
   (set! kernel-message? isa?)
-  (set! clear-kernel-messages! clearn)
+  (set! clear-kernel-messages! clear)
   (set! copy-kernel-messages! copy)
   (set! set-kernel-messages! set)
   (set! add-kernel-message! add)

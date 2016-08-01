@@ -310,7 +310,7 @@
 															 (cons x y)
 															 (list x y))) b)) a)))
   (cond
-	((not (list? args)) (bad-argument))
+	((not (list? args)) (error "bad argument" args))
 	((null? args) '())
 	((= (length args) 1)
 	 (car args))
@@ -327,7 +327,7 @@
 															 (cons x (list y))
 															 (list x y))) b)) a)))
   (cond
-	((not (list? args)) (bad-argument))
+	((not (list? args)) (error "bad-argument" args))
 	((null? args) '())
 	((= (length args) 1)
 	 (car args))
@@ -494,10 +494,10 @@
          d
          (max (loop (car tl) (+ d 1)) (loop (cdr tl) d)))))
 
- (define (length* l)
-     (if (not (pair? l))
-         0
-			(apply max (map length* tl))))
+(define (length* l)
+  (if (not (pair? l))
+		0
+		(apply max (map length* l))))
 
 ;;(define (simple-list? lst)
 ;;  (or (null? lst) 
@@ -721,7 +721,7 @@
 				(list-set! tv (car (reverse ix)) vv))
 			 (if (= (length tv) (length vv))
 				  ;; it's ok, do it
-				  (list-set* (map (lambda (x) (list-ref! x (car ix)) lst) (cdr ix)) vv)
+				  (list-set* (map (lambda (x) (list-ref* x (car ix)) lst) (cdr ix)) vv)
 				  (abort "The value list does not have the indicated number of elements"))))
 	 )))
 
@@ -820,12 +820,6 @@
 		  (map (lambda (x) 0) v)
 		  (map (lambda (x) (/ x n)) v))))
 
-;; the list representation of a vector from s to d, but smart about <agent>s
-(define (vector-to s d)
-  (let ((src (if (isa? s <thing>) (slot-ref s 'location) s))
-		  (dst (if (isa? d <thing>) (slot-ref d 'location) d)))
-	 (map - dst src)))
-
 ;; returns the centroid of a list of vectors or numbers (the average)
 (define (centroid lst)
   (cond 
@@ -841,14 +835,16 @@
 
 
 
-;;; #|
-;;; Given two circles of radii r and R respectively, and a distance
-;;; between them of d, we get the area of intersection, A, to be the value calculated below.
-;;; Ref:  Weisstein, Eric W., "Circle-circle intersection." from 
-;;; Mathworld, http://MathWorld.wolfram.com/Circle-CircleIntersection.html 2010-06-30
-;;; |#
+
+"
+Given two circles of radii r and R respectively, and a distance
+between them of d, we get the area of intersection, A, to be the value calculated below.
+Ref:  Weisstein, Eric W., 'Circle-circle intersection.' from 
+Mathworld, http://MathWorld.wolfram.com/Circle-CircleIntersection.html 2010-06-30
+"
 
 (define pi (* 4.0 (atan 1.0)))
+
 (define (intersection-of-two-circles d R r) ;; R and r are the radii, d is the distance
   (if (< R r)
 		(intersection-of-two-circles d r R)
@@ -866,32 +862,32 @@
 											  (* 2.0 d R)))))
 						  (* 0.5 (sqrt (* (+ (- d) r R) (+ d r (- R)) (+ d (- r) R) (+ d r R)))))))
 				A))))))
-;;; #|
 
-;;; The decay function determines what proportion of a population is available to predation: a value of
-;;; 0.01 indicates that only one percent of the prey population is accessible to the predator.  The
-;;; behaviour of the function is governed by the radius of the population and a distance_decay which
-;;; controls how quickly the proportion decreases with distance.  When the distance_decay is 1.0 the
-;;; proportion available is about 0.01 at a distance equal to the radius of the population.  If the
-;;; distance_decay is in (0,...], then the distance at which we get an available proportion of 0.01 is
-;;; linearly related to the distance_decay (a distance_decay of 2 gives us a proportion of 1% at r/2 if
-;;; 														r is the radius.  Clearly setting the distance_decay to a small enough value will make the
-;;; 														spatially explicit version approximate the non-spatial version. If the distance_decay is equal to
-;;; 														0, then a uniform distribution over the population's disk is assumed.
+"
+The decay function determines what proportion of a population is available to predation: a value of
+0.01 indicates that only one percent of the prey population is accessible to the predator.  The
+behaviour of the function is governed by the radius of the population and a distance_decay which
+controls how quickly the proportion decreases with distance.  When the distance_decay is 1.0 the
+proportion available is about 0.01 at a distance equal to the radius of the population.  If the
+distance_decay is in (0,...], then the distance at which we get an available proportion of 0.01 is
+linearly related to the distance_decay (a distance_decay of 2 gives us a proportion of 1% at r/2 if
+														r is the radius.  Clearly setting the distance_decay to a small enough value will make the
+														spatially explicit version approximate the non-spatial version. If the distance_decay is equal to
+														0, then a uniform distribution over the population's disk is assumed.
 
-;;; 														For gnuplot:
-;;; 														pi2 = pi*pi
-;;; 														sqr(x) = (x*x)
-;;; 														f(d, dd,r) = ((sqr(r/pi2) * sqr(1.0/dd) < 0.0005) ? (d > r ? 0.0 : (1.0/(pi * sqr(r/pi2)))) : (sqr(1.0/dd) * sqr(r/pi2) / (sqr(1.0/dd) * sqr(r/pi2) + sqr(d))))
+														For gnuplot:
+														pi2 = pi*pi
+														sqr(x) = (x*x)
+														f(d, dd,r) = ((sqr(r/pi2) * sqr(1.0/dd) < 0.0005) ? (d > r ? 0.0 : (1.0/(pi * sqr(r/pi2)))) : (sqr(1.0/dd) * sqr(r/pi2) / (sqr(1.0/dd) * sqr(r/pi2) + sqr(d))))
 
-;;; 														Note: the integral over this disk is 
-;;; 														Integral(0,2pi, 
-;;; 																	Integral(0, R, sqrt(distance_decay*notional_radius) * atan(r/sqrt(distance_decay*notional_radius)), d r), d theta)
+														Note: the integral over this disk is 
+														Integral(0,2pi, 
+																	Integral(0, R, sqrt(distance_decay*notional_radius) * atan(r/sqrt(distance_decay*notional_radius)), d r), d theta)
 
-;;; 														|#
+														|#
+"
 
-
-(define (decay distance distance-decay notional_radius clip)
+(define (decay distance distance_decay notional_radius clip)
   (set! notional_radius (/ notional_radius (* pi pi))) ;; divide by pi to normalise it
 
   (let* ((sqr (lambda (x) (* x x)))
@@ -915,7 +911,7 @@
 
 
 (define (symmetric-decay dist dd1 nr1 clip1 dd2 nr2 clip2)
-  (* (decay d dd1 nr1 clip1) (decay d dd2 nr2 clip2)))
+  (* (decay dist dd1 nr1 clip1) (decay dist dd2 nr2 clip2)))
 
 (define (overlap-decay dist dd1 nr1 clip1 dd2 nr2 clip2)
   (let ((i2c (intersection-of-two-circles dist nr1 nr2)))
@@ -950,11 +946,6 @@
 		  (string-append (make-string (- (car k) (string-length n)) #\0) n))))
 
 
-
-(define (do-map-conversion pfn gfn)
-  (let ((cmd (string-append "gs -q -dQUIET -dNOPAUSE -r300x300 -sDEVICE=pnggray -sOutputFile=" gfn " - " pfn " < /dev/null &")))
-	 (kdnl* '(log-* do-map-conversion) "[" (my 'name) ":" (class-name-of self) "]" "Running" cmd (class-name-of self))
-	 (shell-command cmd)))
 
 
 

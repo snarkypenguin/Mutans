@@ -34,7 +34,6 @@
 (define sqrt2pi (sqrt 2pi))
 
 
-
 ;;# sigmoid: x is in [0,1], l governs how sharp the transition is and off shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and off = 0.0
 ;;# the value of the function at -0.5 is ~0.002 
@@ -100,7 +99,7 @@
 ;; (require 'charplot) ; from slib
 ;; (plot (lambda (p) (general-sigmoid p 0.04)) -100.0 100.0 200)
 
-(define (psigmoid* x) (- (* 2.0 (sigmoid x)) 1.0))
+(define (psigmoid* x) (- (* 2.0 (sigmoid* x)) 1.0))
 
 (define (inverse-sigmoid P lmb phi)
   (cond
@@ -217,12 +216,12 @@
   (and (= n (length p)) (point? p)))
 
 (define (n-point-list? n p)
-  (apply andf (map (lambda (x) (n-point? 2 x)) p)))
+  (apply andf (map (lambda (x) (n-point? n x)) p)))
 
 
 
 (define (distance-to-segment r segment)
-  (if (and (n-point 2 r) (n-point-list? 2 segment))
+  (if (and (n-point? 2 r) (n-point-list? 2 segment))
 		(let* ((rx (car r))
 				 (ry (cadr r))
 				 (p0 (car segment))
@@ -299,7 +298,7 @@
 
 
 (define (random-angle)
-  (* pi (- (random 2.0) 1)))
+  (* pi (- (* (random-real) 2.0) 1)))
 
 (define (rotated-velocity v theta)
   (rotated-vector v theta))
@@ -309,8 +308,8 @@
 
 (define (rotated-vector V theta #!optional axis)
   (let ((isvec (vector? V))
-		  (v (or (and (list? V) v) (and (vector? V) (vector->list V))))
-		  (n (length n)))
+		  (v (or (and (list? V) V) (and (vector? V) (vector->list V))))
+		  (n (length V)))
   (cond
    ((eq? n 1) V)
    ((eq? n 2)

@@ -6,17 +6,13 @@ population machinery for the dynamic patch class."
 
 
 
-(load "utils.scm")
+;(load "utils.scm")
 (load "units.scm")
-(load "sort.scm")
-(load "maths.scm")
-(load "maths.scm")
-(load "integrate.scm")
-(load "units.scm")
-(load "postscript.scm")
-
-(load "integrate.scm")
-(load "matrix.scm")
+;(load "sort.scm")
+;(load "maths.scm")
+;(load "integrate.scm")
+;(load "postscript.scm")
+;(load "matrix.scm")
 
 ;;========================================================================;;
 ;;
@@ -97,7 +93,7 @@ The usual pattern for a std-d/dt would be
 			  (d/dt 
 				(if (zero? nrest)
 
-					 (lambda args (abort
+					 (lambda args (error
 										(string-append "d/dt is uninitialised:"
 															" use the 'set-d/dt! call to set it")))
 					 (lambda (t . pvals)
@@ -193,15 +189,15 @@ The usual pattern for a std-d/dt would be
 								  ;; expects (animal 'register-populations
 								  ;;    (list plant animal toothy-animal....))
 								  (if (not (apply andf (map procedure? (cadr args))))
-										(Abort))
+										(error ))
 								  (if (null? (cdr args))
-										(Abort "No populations?  What's the point?")
+										(error  "No populations?  What's the point?")
 										(set! populations (copy-list (cadr args)))
 										))
 								 
 								 ((eq? (car args) 'register-prey)
 								  (if (not populations)
-										(Abort "You must register the populations before registering the prey")
+										(error  "You must register the populations before registering the prey")
 										(begin
 										  (set! prey-rates (make-list (length populations) '(0 0)))
 										  (if (not (null? (cdr args)))
@@ -242,7 +238,7 @@ The usual pattern for a std-d/dt would be
 								 
 								 ((eq? (car args) 'register-helpers)
 								  (if (not populations)
-										(Abort "You must register the populations before registering interactions")
+										(error  "You must register the populations before registering interactions")
 										(begin
 										  (set! helper-rate (make-list (length populations) 0))
 										  (if (not (null? (cdr args)))
@@ -258,7 +254,7 @@ The usual pattern for a std-d/dt would be
 
 								 ((eq? (car args) 'register-competitors)
 								  (if (not populations)
-										(Abort "You must register the populations before registering interactions")
+										(error  "You must register the populations before registering interactions")
 										(begin
 										  (set! competitor-rate
 												  (make-list (length populations) 0))

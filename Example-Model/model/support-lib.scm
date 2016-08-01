@@ -12,11 +12,11 @@
 
 ;; Pulls in support files
 
-(load "utils.scm")
-(load "units.scm")
-(load "sort.scm")
-(load "maths.scm")
-(load "integrate.scm")
-(load "matrix.scm")
-(load "postscript.scm")
-(load "basic-population.scm")
+(load "support-lib-dir/utils.scm")
+(load "support-lib-dir/units.scm")
+(load "support-lib-dir/sort.scm")
+(load "support-lib-dir/maths.scm")
+(load "support-lib-dir/integrate.scm")
+(load "support-lib-dir/matrix.scm")
+(load "support-lib-dir/postscript.scm")
+(load "support-lib-dir/basic-population.scm")
