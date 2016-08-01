@@ -1,0 +1,144 @@
+#!/usr/bin/gsi -:d0
+
+;#gsc -c utils.scm
+;#gsc -c units.scm
+;#gsc -c sort.scm
+;#gsc -c maths.scm
+;#gsc -c integrate.scm
+;#gsc -c matrix.scm
+;#gsc -c postscript.scm
+
+
+"
+	Format:   make-support-lib libtype outputname scm scm scm ....
+
+"
+
+
+;;gsc -c basic-population.scm
+
+;;gsc -link -flat -o support-lib.o1.c utils units sort maths integrate matrix postscript basic-population
+
+;;gsc -cc-options -D___DYNAMIC -obj utils.c units.c sort.c maths.c integrate.c matrix.c postscript.c basic-population.c  support-lib.o1.c
+;;gcc -shared utils.o units.o sort.o maths.o integrate.o matrix.o postscript.o basic-population.o -o support-lib.o1
+
+;;gsc -D___SHARED -obj utils.c units.c sort.c maths.c integrate.c matrix.c postscript.c basic-population.c -o support-lib.so
+
+(define use-nl #t)
+(define (sep) (if use-nl "\n" ";"))
+
+(define track-scheme "-track-scheme")
+;;(define track-scheme "")
+
+;;(define debugging "-debug")
+(define debugging "")
+
+(define (resolve-rest x)
+  (cond
+	((null? x) x)
+	((and (pair? x) (null? (cdr x))) (car x))
+	(#t x)))
+
+
+
+(define sources '("units" "sort" "utils" "maths" "integrate" "matrix" "postscript" "basic-population"))
+
+(define (string-append*> lst . key)
+  (if (null? key)
+		(set! key " ")
+		(set! key (car key)))
+  (map (lambda (x) (string-append x key)) lst))
+
+(define (string-append*< lst . key)
+  (if (null? key)
+		(set! key " ")
+		(set! key (car key)))
+  (map (lambda (x) (string-append key x)) lst))
+  
+(define (string-append* lst . key)
+  (if (null? key)
+		(set! key " ")
+		(set! key (car key)))
+  (string-append (car lst) (apply string-append (map (lambda (x) (string-append key x)) (cdr lst)))))
+
+;(define scm-source-list (string-append*> sources ".scm"))
+;(define c-source-list (string-append*> sources ".c"))
+;(define obj-list (string-append*> sources ".o"))
+
+(define (translate-sources sources)
+  (apply string-append (map (lambda (x)
+			(string-append "gsc " track-scheme " " debugging " -c " x (sep)))
+			sources)))
+
+
+
+
+(define (loadable-library libname sources)
+  (string-append "gsc " track-scheme " " debugging "-link -flat  -o " libname ".o1.c " (string-append* sources) (sep)
+					  "gsc " track-scheme " " debugging " -cc-options -D___DYNAMIC -obj "
+					    (apply string-append (string-append*> sources ".c ")) (string-append libname ".o1.c" (sep))
+						 "gcc -shared " (apply string-append (string-append*> sources ".o ")) libname ".o1.o"
+						     " -o " libname ".o1" (sep))
+					  )
+
+(define (shared-library libname sources)
+  (string-append "gsc -link -flat " track-scheme " " debugging " -o " libname ".o1.c " (string-append* sources) (sep)
+					  "gsc " track-scheme " " debugging " -cc-options -D___DYNAMIC  -obj " (apply string-append (string-append*> sources ".c "))
+					  (string-append libname ".o1.c" (sep))
+					  "gcc -shared " (apply string-append (string-append*> sources ".o ")) " -o "libname ".o1" (sep))
+					  )
+
+(define (executable outfile sources liblist)
+  (string-append "gsc " track-scheme " " debugging "-obj " (apply string-append (string-append*> sources ".c"))  (car (reverse sources)) "_.c" (sep)
+					  "gcc -o " outfile " " (apply string-append (string-append*> sources ".o"))
+					  (car (reverse sources)) "_.o" (apply string-append (string-append*< liblist " -l")) (sep)))
+
+(define (build func outputname sources . libs)
+  (set! libs (resolve-rest libs))
+  (display
+	(string-append (translate-sources sources)
+						(if (null? libs)
+							 (func outputname sources )
+							 (func outputname sources libs)))))
+																	 
+
+;------------------------------------------------------------------------------------------------------------
+
+
+ (define (!translate-sources sources)
+  (for-each	system (map (lambda (x) (string-append "gsc " track-scheme " " debugging " -c " x (sep))) sources)))
+
+
+
+
+(define (!loadable-library libname sources)
+  (system (string-append "gsc " track-scheme " " debugging "-link -flat  -o " libname ".o1.c " (string-append* sources)))
+  (system (string-append "gsc " track-scheme " " debugging " -cc-options -D___DYNAMIC -obj "
+					  (apply string-append (string-append*> sources ".c ")) (string-append libname ".o1.c")))
+  (system (string-append "gcc -shared " (apply string-append (string-append*> sources ".o ")) libname ".o1.o" " -o " libname ".o1"))
+  )
+
+
+(define (!shared-library libname sources)
+  (system (string-append "gsc -link -flat " track-scheme " " debugging " -o " libname ".o1.c " (string-append* sources)))
+  (system (string-append "gsc " track-scheme " " debugging " -cc-options -D___DYNAMIC  -obj " (apply string-append (string-append*> sources ".c "))
+					  (string-append libname ".o1.c")))
+  (system (string-append "gcc -shared " (apply string-append (string-append*> sources ".o ")) " -o "libname ".o1"))
+  )
+
+(define (!executable outfile sources liblist)
+  (system (string-append "gsc " track-scheme " " debugging "-obj " (apply string-append (string-append*> sources ".c"))  (car (reverse sources)) "_.c"))
+  (system (string-append "gcc -o " outfile " " (apply string-append (string-append*> sources ".o")) (car (reverse sources)) "_.o" (apply string-append (string-append*< liblist " -l")))))
+
+ 
+(define (!build func outputname sources . libs)
+  (set! libs (resolve-rest libs))
+  (translate-sources sources)
+  (if (null? libs)
+		(func outputname sources)
+		(func outputname sources libs)
+		)
+  )
+																	 
+
+
