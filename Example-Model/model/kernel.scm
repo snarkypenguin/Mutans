@@ -74,6 +74,10 @@
   (map (lambda (s) (arg s)) q))
 
 
+(define (q-filter rq predicate)
+  (filter (lambda (process) (predicate process)) rq))
+
+
 (define (running-queue rq stop)
   (cond
 	((null? rq) #f)
@@ -279,23 +283,28 @@
 
 (define (kernel-call Q client query #!optional args)
   (cond
-   ((procedure? query) ;; Do not return the client
-	 (filter (lambda (x) (and (query x) (not (eq? x client)))) Q))
+   ((and (or (eq? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
+	 ;;(filter (lambda (x) (and (query x) (not (eq? x client)))) Q)
+	 (filter query Q)
+	 )
 	 
    ((symbol? query)
-    (cond
-     ((eq? query 'time) (model-time Q +inf.0))
-     ((eq? query 'agent-count) (length Q))
-     ((eq? query 'next-agent) (if (null? Q) Q (car Q)))
-	  ((eq? query 'min-time)
-		(if (null? Q) 0 (apply min (map subjective-time Q))))
-	  ((eq? query 'max-time)
-		(if (null? Q) 0 (apply max (map subjective-time Q))))
-	  ((eq? query 'mean-time)
-		(if (null? Q)
-			 0
-			 (/ (apply + (map subjective-time Q)) (length Q))))
-     (#t (abort 'kernel-call:not-defined)))
+    (case query
+		((runqueue)
+		 
+		 rq)
+		((time) (model-time Q +inf.0))
+		((agent-count) (length Q))
+		((next-agent) (if (null? Q) Q (car Q)))
+		((min-time)
+		 (if (null? Q) 0 (apply min (map subjective-time Q))))
+		((max-time)
+		 (if (null? Q) 0 (apply max (map subjective-time Q))))
+		((mean-time)
+		 (if (null? Q)
+			  0
+			  (/ (apply + (map subjective-time Q)) (length Q))))
+		(else (error "Unrecognised kernel-call request" query args)))
 	 )
    (#t (abort 'kernel-call:bad-argument))
    )

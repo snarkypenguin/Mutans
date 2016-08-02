@@ -2,22 +2,17 @@
 ;-  Identification and Changes
 
 ;--
-;	monitor-classes.scm -- Written by Randall Gray 
+;	monitor-declarations.scm -- Written by Randall Gray 
 ;	Initial coding: 
 ;		Date: 2016.08.01
-;		Location: zero:/home/randall/Thesis/Example-Model/model/monitor-classes.scm
+;		Location: zero:/home/randall/Thesis/Example-Model/model/monitor-declarations.scm
 ;
 ;	History:
 ;
 ;-  Code 
 
-
-
-
-
-
-
-
+(declare-method action "trigger a representation change, or whatever")
+(declare-method process-agent "do what ever it needs to do")
 
 
 ;-  The End 

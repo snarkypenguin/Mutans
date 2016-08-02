@@ -84,7 +84,6 @@
 
 ;--- agent based classes
 
-
 (define <agent>
   (make-class (inherits-from <object>) 
 				  (state-variables name type representation agent-state
@@ -109,6 +108,7 @@
 										 nest-parent child-nesting-state
 										 )
 				  ))
+(register-class <agent>)
 
 ;; subsidiary-agents are agents which may be embedded in a larger
 ;; dynamic agent. Agents know what their parent agent is (if they have
@@ -125,11 +125,6 @@
 ;; the randomisation of the jiggle.  If an agent has a schedule, then
 ;; the schedule WILL be used in determining the next dt.
 
-
-
-
-(register-class <agent>)
-
 ;; name is a string
 ;; representation is a symbol
 ;; subjective-time, and dt are numbers representing a time and an interval,
@@ -140,6 +135,21 @@
 ;; kernel is a function that can be used to interact with
 ;;    the kernel of the simulation
 
+(define <monitor>
+  (make-class (inherits-from <agent>)
+				  (state-variables am-i-interested-in? accessor)))
+;; am-i-interested-in is a predicate that takes an agent
+;; accessor is a function which takes an agent and returns a data vector
+(register-class <monitor>)
+
+"
+specific-targets are agents that the monitor is interested in, any
+agents which satisfy (isa? agnt clss) are of interest to the monitor,
+predicate targets test each agent in the runqueue with the predicate
+to see if they are of interest (slooow)
+"
+
+(load "monitor-classes.scm")
 
 (load "log-classes.scm") ;; These are used to generate output.
 
