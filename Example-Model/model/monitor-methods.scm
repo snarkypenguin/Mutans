@@ -12,12 +12,12 @@
 
 ;-  Code
 
-"First jsut get it polling the correct set of agents each pass, then we worry about aggregating and such"
+"First just get it polling the correct set of agents each pass, then we worry about aggregating and such"
 
 
 (model-method <monitor> (initialize self args)
 				  (initialise self (list 'specific-targets '() 'class-targets '() 'predicate-targets '()
-												 'predicate (lambda x #f) assessor #f))
+												 'predicate (lambda x #f) accessor #f))
 				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
 				  )
@@ -28,7 +28,7 @@
 
 (model-body <monitor>
 				(kdnl* '(monitor-bodies model-bodies) "In" (class-name-of self))
-				(let ((agentlist (kernel 'monitor-query (my 'am-i-interested-in?))))
+				(let ((agentlist (kernel-call self 'monitor-query (my 'am-i-interested-in?))))
 				  (for-each
 					(lambda (x)
 					  (process-agent self x))
@@ -43,9 +43,9 @@
 
 
 ;;; Local Variables: 
-;;; comment-end: "-;" -;
-;;; comment-start: ";;; " -;
-;;; mode: scheme -;
-;;; outline-regexp: ";-+" -;
-;;; comment-column: 0 -;
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:

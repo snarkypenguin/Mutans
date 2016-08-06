@@ -12,11 +12,14 @@
 
 ;; Pulls in support files
 
-(load "support-lib-dir/utils.scm")
-(load "support-lib-dir/units.scm")
-(load "support-lib-dir/sort.scm")
-(load "support-lib-dir/maths.scm")
-(load "support-lib-dir/integrate.scm")
-(load "support-lib-dir/matrix.scm")
-(load "support-lib-dir/postscript.scm")
-(load "support-lib-dir/basic-population.scm")
+(if #t
+	 (and 
+	  (load (string-append support-dir "utils.scm"))
+	  (load (string-append support-dir "units.scm"))
+	  (load (string-append support-dir "sort.scm"))
+	  (load (string-append support-dir "maths.scm"))
+	  (load (string-append support-dir "integrate.scm"))
+	  (load (string-append support-dir "matrix.scm"))
+	  (load (string-append support-dir "postscript.scm"))
+	  (load (string-append support-dir "basic-population.scm")))
+	 (load (string-append support-dir "support-lib.o1")))

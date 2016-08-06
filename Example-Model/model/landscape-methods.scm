@@ -63,6 +63,7 @@
 ;(define services (make-generic)) ;; returns value
 ;(define set-services! (make-generic)) ;; sets value
 ;(define value (make-generic))      -- defined for environment
+;(define add-to-value (make-generic))      -- defined for environment
 ;(define set-value! (make-generic)) -- defined for environment
 
 ;--- oriented toward habitats, patches  and ecoservices
@@ -1188,6 +1189,7 @@ ecoservices is half (or less) of the timestep of the patch.
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
+									(initialise self args)
 									)))
 
 
@@ -1679,6 +1681,7 @@ args can be  an update map or an update map and update equations
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
+									(initialise self args)
 									)))
 
 ;--- model-method <habitat> (dump self . count) dumps the state of the habitat

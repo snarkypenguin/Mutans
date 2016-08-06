@@ -120,6 +120,7 @@ close pages and emit 'showpage' for postscript stuff.
 													))
 					 (initialize-parent) ;; call "parents" last to make the
 												;; initialisation list work
+					 (initialise self args)
 					 )))
 
 (model-method <introspection> (agent-prep self start end kernel . args)
@@ -234,6 +235,7 @@ close pages and emit 'showpage' for postscript stuff.
 											 ;; initialisation list work
 				  (initialise self (list 'type snapshot 'lastfile #f
 												 'currentfile #f))
+				  (initialise self args)
 				  )
 
 (use-parent-body <logfile>)
@@ -361,6 +363,7 @@ close pages and emit 'showpage' for postscript stuff.
 															  ;; initialisation list
 															  ;; work
 									(initialise self '(type log-map format ps))
+									(initialise self args)
 									;; keep all files
 									)))
 
@@ -479,6 +482,7 @@ close pages and emit 'showpage' for postscript stuff.
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
+									(initialise self args)
 									)))
 
 (use-parent-body <log-data>)

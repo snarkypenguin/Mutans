@@ -272,15 +272,20 @@
 										  (begin
 											 (slot-set! self 'counter
 															(1+ (slot-ref self 'counter)))
-											 ;;(set-my! 'subjective-time 
-											 ;;    (+ (my'subjective-time) (my 'dt)))
 											 (slot-set! self 'agent-body-ran #t)))) )
-												)
-										  ,@body
-										  )
-										)
-									 )
-					)
+								 )
+							(begin
+							  ,@body
+							  (if (not (slot-ref self 'agent-body-ran))
+										  (begin
+											 (slot-set! self 'counter
+															(1+ (slot-ref self 'counter)))
+											 (slot-set! self 'agent-body-ran #t)))
+							  )
+							)
+						 )
+					  )
+	 )
   )
 
 ;; like model-body, but chains straight to parent

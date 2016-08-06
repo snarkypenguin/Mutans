@@ -23,15 +23,16 @@
 
 (load "log.scm")         ;; loggers 
 (load "landscape.scm")   ;; spatial environments and populations
+(load "plant.scm")   ;; spatial environments and populations
 (load "animal.scm")      ;; individual-based animals
 
 ;-  The End 
 
 
 ;;; Local Variables: 
-;;; comment-end: "-;" -;
-;;; comment-start: ";;; " -;
-;;; mode: scheme -;
-;;; outline-regexp: ";-+" -;
-;;; comment-column: 0 -;
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:

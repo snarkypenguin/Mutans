@@ -26,8 +26,6 @@
 
 (load "utils.scm")
 
-
-
 (define pi (acos -1.))
 (define 2pi (* 2.0 pi))
 (define e (exp 1))
@@ -58,6 +56,13 @@
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and phi = 0.0
 ;;# the value of the function at -0.5 is ~0.002 
 ;;# the range is (0,1)
+
+(define (modulo-real n d)
+  ;; Be wary here -- it plays poorly with signed numbers
+  (let* ((m (/ n d))
+			(M (truncate m))
+			)
+		  (- m M)))
 
 ;; This is the generating function
 (define (general-sigmoid-f x lmb phi)

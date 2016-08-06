@@ -175,6 +175,19 @@ to see if they are of interest (slooow)
 
 (register-class <environment>)
 
+
+(define <model-maintenance>
+  (make-class (inherits-from <object>)
+				  (state-variables I-need)))
+;; I-need is a list of fields which comprise the env-vector, and must be filled in by the
+;;   agent which is maintaining the reduced model.
+;; Agents with a model-maintenance class must supply state-variables and a method to update them
+;; the form for the function is (update-state self t dt)
+;; 
+
+(register-class <model-maintenance>)
+
+
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; outline-regexp: ";-+"

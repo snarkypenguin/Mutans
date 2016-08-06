@@ -112,6 +112,11 @@
 
 ;--- supporting the modelling framework
 (declare-method
+ maintain-state
+ "constructs a closure which can maintain and report the state, 
+  and provide a list of things needed from other representations")
+
+(declare-method
  snapshot
  "used by logging mechanism")
 (declare-method

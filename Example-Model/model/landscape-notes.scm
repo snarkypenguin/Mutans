@@ -38,9 +38,9 @@ There are a number of classes defined under the 'landscape' umbrella, namely <ec
 
 
 ;;; Local Variables: 
-;;; comment-end: "-;" -;
-;;; comment-start: ";;; " -;
-;;; mode: scheme -;
-;;; outline-regexp: ";-+" -;
-;;; comment-column: 0 -;
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:

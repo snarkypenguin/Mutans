@@ -51,6 +51,7 @@
 				  (initialise self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
 				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
+				  (initialise self args)
 				  )
 
 
@@ -292,6 +293,7 @@
 									(initialise self (list 'age #f 'sex #f))
 									(initialize-parent)
 									;; call "parents" last to make the initialisation list work
+									(initialise self args)
 									)))
 
 ;----- (age) 

@@ -284,18 +284,22 @@
 (define (kernel-call Q client query #!optional args)
   (cond
    ((and (or (eq? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
-	 ;;(filter (lambda (x) (and (query x) (not (eq? x client)))) Q)
+	 ;;(filter (lambda (x) (and (query x) (not (eq? x client)))) Q) ;; *can* return itself ... monitors can monitor monitors
 	 (filter query Q)
 	 )
 	 
    ((symbol? query)
     (case query
 		((runqueue)
-		 
-		 rq)
+		 (if (or (eq? client 'KERNEL) (isa? client <monitor))
+			  rq
+			  #f))
 		((time) (model-time Q +inf.0))
 		((agent-count) (length Q))
-		((next-agent) (if (null? Q) Q (car Q)))
+		((next-agent)
+		 (if (or (eq? client 'KERNEL) (isa? client <monitor))
+			  (if (null? Q) Q (car Q))
+			  #f))
 		((min-time)
 		 (if (null? Q) 0 (apply min (map subjective-time Q))))
 		((max-time)
@@ -353,6 +357,11 @@
 ;; 	(list 'migrated dt)
 ;;      indicates that a model has changed its representation for some reason
 
+
+" Both prep-agents and shutdown-agents make use of 'kernel-call' whose
+arguments are the runqueue, the agent making the request, and any
+arguments that might be required.
+"
 
 (define (prep-agents Q start end . args)
   (kdnl* 'prep "Prepping from" start "to" end "    with" Q)

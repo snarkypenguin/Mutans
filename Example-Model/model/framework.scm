@@ -14,6 +14,9 @@
 ;-  Code 
 
 
+(define support-dir "./")
+
+
 (if #t
     ;; If you are *not* running with the code
 
@@ -209,37 +212,78 @@
                 (dnl "forced loading of " fn)
                 (oload fn) ;; forces a load, doesn't record it
                 )
+
+               ((eq? fn 'flush)
+					 (display "Flushed load list\n   ")
+					 (display loaded)(newline)
+                (set! loaded '())
+					 )
+
                ((eq? fn 'warn-loaded)
+					 (display "Warning when files are already loaded\n")
                 (set! warn-loaded #t))
 
                ((eq? fn '!warn-loaded)
+					 (display "Not warning when files are already loaded\n")
                 (set! warn-loaded #f))
 
                ((eq? fn 'always-load)
+					 (display "Always loading.\n")
                 (set! always-load #t))
 
                ((eq? fn '!always-load)
+					 (display "Only loading new files.\n")
                 (set! always-load #f))
 
-               ((eq? fn '!print-loaded)
-                (set! always-print-loaded #f))
-
-               ((eq? fn '!print-loading!)
-                (set! always-print-loading #f))
-
                ((eq? fn 'print-loaded)
+					 (display "Printing loaded files at each load.\n")
                 (set! always-print-loaded #t))
 
+               ((eq? fn '!print-loaded)
+					 (display "Not printing loaded files at each load.\n")
+                (set! always-print-loaded #f))
+
                ((eq? fn 'print-loading!)
+					 (display "Printing currently loading files at each load.\n")
                 (set! always-print-loading #t))
 
-               ((member fn '(loaded loaded-list loaded? loaded-list?))
+               ((eq? fn '!print-loading!)
+					 (display "Not printing currently loading files at each load.\n")
+                (set! always-print-loading #f))
+
+               ((member fn '(loaded? loaded loaded-list loaded-list?))
                 (prload "loaded" loaded))
 
-               ((member fn '(loading loading-list
-                                     loading? loading-list? load-list?))
+               ((member fn '(loading? loading loading-list
+                                     loading-list? load-list?))
                 (prload "loading" loading))
 
+					((eq? fn 'help)
+					 (display
+					  (string-append
+						"This load routine suppresses loading a file more than once "
+						                "by default.\n"
+						"The load procedure responds to a number of symbols:\n\n"
+						"help           this help message\n"
+						"loaded?        prints the list of loaded files\n"
+						"loading?       prints the list of files that are currently "
+                                  "loading\n"
+						"flush          flushes the list of loaded files\n"
+						"warn-loaded    sets the flag that makes it warn about "
+						                "attempts to\n"
+						"               load a file more that once\n"
+						"!warn-loaded   turns off the warning\n"
+						"always-load    (load ...) will alway load the files "
+						                "indicated\n"
+						"!alway-load    (load ...) only loads files which have not been "
+                                  "loaded\n"
+						"print-loaded   the list of loaded files is printed at each call "
+                                  "to (load ...)\n"
+						"!print-loaded  turns off the previous flag\n"
+						"print-loading  the list of loading files is printed at each call "
+                                  "to (load ...)\n"
+						"!print-loading turns off the previous flag\n"
+						"\n")))
                (#t
                 (set! loading (cons fn loading))
                 (if always-print-loading (prload "loading" loading))
@@ -286,9 +330,9 @@
 
 
 ;;; Local Variables: 
-;;; comment-end: "-;" -;
-;;; comment-start: ";;; " -;
-;;; mode: scheme -;
-;;; outline-regexp: ";-+" -;
-;;; comment-column: 0 -;
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:

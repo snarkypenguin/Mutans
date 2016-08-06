@@ -74,11 +74,11 @@ alternative methods for doing things.
 
 
 ;;; Local Variables: 
-;;; comment-end: "-;" -;
-;;; comment-start: ";;; " -;
-;;; mode: scheme -;
-;;; outline-regexp: ";-+" -;
-;;; comment-column: 0 -;
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:
 
 

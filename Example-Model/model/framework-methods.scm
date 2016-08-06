@@ -80,6 +80,7 @@
 ;--- Helper classes (wart classes)
 
 ;----- (initialise) ;; fundamental component in the init routine
+;; initialise sets nominated state variables to nominated values
 
 (object-method <object> (initialise self args)
 					;; args should be null or a list of the form ('tag value ...),
@@ -117,11 +118,10 @@
 ;--- Agent classes
 ;---- <agent> methods
 
-
 ;----- (initialize) 
 
 (model-method <agent> (initialize self args)
-				  (initialise
+				  (initialise ;; We set some reasonable default values for some of the slots
 					self (list 'state-flags '()
 								  'subjective-time 0.0
 								  'dt 1.0
@@ -169,7 +169,8 @@
 												 ))
 				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
-				  (initialise self args))
+				  (initialise self args) ;; we now initialise the slot values passed in args
+				  )
 
 
 (model-method <agent> (agent-prep self . args)
@@ -704,7 +705,8 @@
 															  track-epsilon 1e-6))
 									;; call "parents" last to make the
 									;; initialisation list work
-									(initialize-parent) 
+									(initialize-parent)
+									(initialise self args)
 									)))
 
 
@@ -768,7 +770,8 @@
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
-									)))
+									(initialise self args)
+			)))
 
 ;----- (mass) 
 (add-method mass
