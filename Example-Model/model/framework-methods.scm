@@ -49,6 +49,13 @@
 	 (shell-command cmd)))
 
 
+(define (arg-pairings symlist objlist)
+  (if (> (length objlist) (length symlist))
+		(error "There are unpaired objects!\n" symlist objlist))
+  
+  (let ((n (min (length symlist) (length objlist))))
+	 (apply append (map list (list-head symlist n) (list-head objlist n)))))
+
 
 ;-- Define/allocate new classes
 
@@ -121,10 +128,12 @@
 ;----- (initialize) 
 
 (model-method <agent> (initialize self args)
-				  (initialise ;; We set some reasonable default values for some of the slots
+				  (initialise ;; We set some reasonable default values for
+								  ;; some of the slots
 					self (list 'state-flags '()
 								  'subjective-time 0.0
 								  'dt 1.0
+								  'maintenance-list '() ;; this is a list of funcs
 								  'jiggle LastJiggle
 								  'priority DefaultPriority
 								  'migration-test uninitialised 
@@ -686,6 +695,17 @@
 								(kdnl* 'track-subjective-times
 										 "[" (my 'name) ":" (class-name-of self) "]"
 										 " running at " (my 'subjective-time) ":" t)
+								
+								(if (pair? (my 'maintenance-list))
+									 (let ((ml (my 'maintenance-list)))
+										;; Now run any agent representations which
+										;; have indicated that they need data
+										;; maintained
+										(for-each
+										 (lambda (x)
+											(x t dt self))
+										 ml)
+										))
 								(skip-parent-body)
 								))
 						dt)
