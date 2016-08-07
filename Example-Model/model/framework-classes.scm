@@ -106,6 +106,9 @@
 
 										 ;; as a child of other agents
 										 nest-parent child-nesting-state
+
+										 ;;
+										 maintenance-list
 										 )
 				  ))
 (register-class <agent>)
