@@ -13,7 +13,6 @@
 
 ;; Individual-based plants
 (declare-method fruit-count "returns the number of fruit produced by an agent")
-
 		
 ;-  The End 
 

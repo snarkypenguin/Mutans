@@ -20,16 +20,17 @@
 					age ;; age of plant in [0,4)
 					lai ;; leaf area index in (0,10)
 					water-stress  ;; [0,1]
-					water-needs ;; amount of water required for a square metre
+					water-use ;; amount of water required for a square metre
 					water-stress-effect ;; True if we factor water stress
-											  ;; into fruiting
+					;; into fruiting
+					reproduction-mass ;; how big it must be...
 					reproduction-period ;; how long between reproductions
 					reproduction-offset ;; 
 					reproduction-mechanism ;; <fruit> or (list <agent> method val)
 					fruiting-rate      ;; relative to mass, influenced by
 											 ;; level of water stress
 					seeds-per-fruit
-					environ            ;; #f or a landscape thing
+					habitat            ;; #f or a landscape thing
 					;; <thing> mass is our mass
 					)))
 (register-class <simple-plant>)

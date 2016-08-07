@@ -83,6 +83,10 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   (power m 1/3))
  ;; h = m^{1/3}
 
+(define (plant-mass h) ;; given height
+  (power h 3))
+ ;; h = m^{1/3}
+
 (define (plant-radius m) ;; given mass
   (* 3/8 (power m 1/3)))
 ;; r = 3/8 * m^{1/3}
@@ -137,7 +141,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 								'lai 1.7
 								'water-stress 0
 								'water-stress-effect #t 
-								'water-needs 0
+								'water-use  4/5 ;; l/m^2 default is similar to oneoak
 								'reproduction-period 
 								(if #f
 									 (random-real) ;; a probability, or
@@ -183,16 +187,14 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	(let* ((available-water (my-waterhole self))
 			 (waterstress (my 'water-stress))
 			 (lai (my 'lai))
-			 (waterneeds (* lai
-								 (my
-								 (my 'water-needs)) ;; per m^2 leaf area
-
-								 (stressed (my 'water-stress-effect))))
-			(reproduction-point (modulo (- t offset)))
-			(fruiting? #f)
-			(age (my 'age))
-			(mass (my 'mass))
-			)
+			 (r (plant-radius self))
+			 (waterneeds (* (my 'wateruse) lai pi r r)) ;; lai buy
+			 (stressed (my 'water-stress-effect))
+			 (reproduction-point (modulo (- t offset)))
+			 (fruiting? #f)
+			 (age (my 'age))
+			 (mass (my 'mass))
+			 )
 
 	  ;; set water stress level and update hydrology
 
@@ -213,8 +215,17 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 		 (let ((num-fruit (fruit-count self))
 				 (the-plot (slot-ref self 'reproduction-mechanism)))
 			(if (list? the-plot)
-				 ((car the-plot) (cadr the-plot) num-fruit)  ;; The list is constructed with "(list method ecoservice)"
-				 (add! the-plot num-fruit))) ;; the-plot *must* be the ecoservice associated with fruit in the domain of this agent
+				 ((car the-plot) (cadr the-plot) num-fruit)  ;; The list
+																			;; is
+																			;; constructed
+																			;; with
+																			;; "(list
+																			;; method
+																			;; ecoservice)"
+				 (add! the-plot num-fruit))) ;; the-plot *must* be the
+													  ;; ecoservice associated with
+													  ;; fruit in the domain of
+													  ;; this agent
 		 dt)
 		(#t ;; grow (or not)
 		 (let* ((dm (- (my 'max-mass) mass))
@@ -228,7 +239,64 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	  )
 	)
 
-				  
+(define simple-plant-arg-order
+  '(
+     lai water-use  
+       water-stress-effect reproduction-mass
+       reproduction-mechanism
+       fruiting-rate seeds-per-fruit
+       reproduction-period
+       reproduction-offset
+       max-age max-mass))
+
+(define (make-simple-plant-xy env loc mass . otherargs)
+  ;; otherargs is either a std init list, or a list of
+  ;; numbers in the order:
+  ;;   lai water-use  
+  ;;     water-stress-effect reproduction-mass
+  ;;     reproduction-mechanism
+  ;;     fruiting-rate seeds-per-fruit
+  ;;     reproduction-period
+  ;;     reproduction-offset
+  ;;     max-age max-mass
+
+  ;; If no reproduction-mechanism is specified, the plant does not
+  ;; reproduce -- never fruits
+
+  (if (number? (car otherargs))
+		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
+
+  (let ((sp (apply make (cons <simple-plant>
+										(append (list 'habitat env
+														  'location loc
+														  'mass mass) otherargs)))))
+	 (if (contains? env loc)
+		  sp
+		  (error "location for simple-plant is not in indicated environment" loc env))))
+
+(define (make-simple-plant env mass . otherargs)
+  ;; otherargs is either a std init list, or a list of
+  ;; numbers in the order:
+  ;;   lai water-use  
+  ;;     water-stress-effect reproduction-mass
+  ;;     reproduction-mechanism
+  ;;     fruiting-rate seeds-per-fruit
+  ;;     reproduction-period
+  ;;     reproduction-offset
+  ;;     max-age max-mass
+
+  ;; If no reproduction-mechanism is specified, the plant does not
+  ;; reproduce -- never fruits
+
+  (if (number? (car otherargs))
+		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
+
+  (let ((sp (apply make (cons <simple-plant>
+										(append (list 'habitat env
+														  'location (random-point env)
+														  'mass mass) otherargs)))))
+	 sp))
+
 
 ;--- Only logging methods below
 		 
