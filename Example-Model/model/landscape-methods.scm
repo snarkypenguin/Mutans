@@ -595,7 +595,7 @@ ecoservices is half (or less) of the timestep of the patch.
 				  )
 				  
 
-(object-method (<circle> <list>) (inside? self loc)
+(object-method (<circle> <list>) (contains? self loc)
 				  (<= (distance (my 'locus) loc) (my 'radius)))
 
 (object-method (<circle>) (centre self)
@@ -611,9 +611,18 @@ ecoservices is half (or less) of the timestep of the patch.
 				  (my 'radius))
 
 (object-method (<circle> <list>) (distance-to-boundary self loc)
-				  (if (inside? self loc)
+				  (if (contains? self loc)
 						0
 						(- (distance loc (my 'locus)) (my 'radius))))
+
+(object-method (<circle>) (random-point self)
+					(let ((c (my 'locus))
+							(r (my 'radius)))
+					  (map (lambda (x)
+								(+ x (* r
+										(-
+										 (* 2.0 (random-real))
+										 1.0)))) c)))
 
 ;--- <polygon>
 (default-object-initialization <polygon>)
@@ -639,7 +648,8 @@ ecoservices is half (or less) of the timestep of the patch.
 										(newline)))
 					 slots vals))
 				  )
-(object-method (<polygon> <list>) (inside? self loc)
+
+(object-method (<polygon> <list>) (contains? self loc)
 				  (point-in-polygon loc (my 'perimeter)))
 
 
@@ -648,7 +658,7 @@ ecoservices is half (or less) of the timestep of the patch.
 				  )
 
 (object-method (<polygon> <list>) (distance-to-boundary self loc)
-				  (if (inside? self loc)
+				  (if (contains? self loc)
 						0
 						(distance-to-boundary loc (my 'perimeter))))
 
@@ -674,6 +684,22 @@ ecoservices is half (or less) of the timestep of the patch.
 							 (loop ((max r (distance c (car p)))
 									  (cdr p)))))))
 
+(object-method (<polygon>) (random-point self)
+					(let* ((peri (my 'perimeter))
+							 (minx (apply min (map car peri)))
+							 (maxx (apply max (map car peri)))
+							 (dx (- maxx minx))
+							 (miny (apply min (map cadr peri)))
+							 (maxy (apply max (map cadr peri)))
+							 (dy (- maxy miny)))
+					  (let loop ((x (+ (* (random-real) dx) minx))
+									 (y (+ (* (random-real) dy) miny))
+									 )
+						 (if (contains? self (list x y))
+							  (list x y)
+							  (loop (+ (* (random-real) dx) minx)
+									  (+ (* (random-real) dy) miny))))))
+							  
 
 ;-- <boundary> -> <circle>, <polygon>
 
@@ -723,8 +749,8 @@ ecoservices is half (or less) of the timestep of the patch.
 (object-method (<boundary>) (rep self)
 				  (my 'rep))
 
-(object-method (<boundary> <list>) (inside? self loc)
-				  (inside? (my 'rep) loc))
+(object-method (<boundary> <list>) (contains? self loc)
+				  (contains? (my 'rep) loc))
 
 ;; 
 ;; min-bound, max-bound contains? services 
@@ -743,6 +769,12 @@ ecoservices is half (or less) of the timestep of the patch.
 
 (object-method (<boundary> <list>) (distance-to-boundary self loc)
 				  (distance-to-boundary (my 'rep) loc))
+
+(object-method (<boundary> <list>) (contains? self loc)
+					(contains? (my 'rep) loc))
+
+(object-method (<boundary>) (random-point self)
+				(random-point (my 'rep)))
 
 ;-- <patch> methods and bodies
 ;; 

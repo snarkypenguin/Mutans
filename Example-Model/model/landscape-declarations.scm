@@ -13,7 +13,7 @@
 										 "or exponent) of an ecoservice's growth model"))
 
 ;--- <boundary>, <circle> and <polygon> generics
-(declare-method inside?
+(declare-method contains?
 					 "indicates whether a location is within a boundary object")
 (declare-method my-rep "returns the underlying agent which defines the domain")
 (declare-method distance-to-boundary
@@ -21,6 +21,7 @@
 (declare-method rep "returns the representation object")
 (declare-method centre "returns the centre/centroid of an object")
 (declare-method set-centre! "returns the centre/centroid of an object")
+(declare-method random-point "returns a random point within the object")
 
 ;--- <patch> generics 
 
