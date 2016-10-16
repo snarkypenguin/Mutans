@@ -1,24 +1,9 @@
-\begin{thebibliography}{49}
+\begin{thebibliography}{57}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
-
-\bibitem[GNU({\natexlab{a}})]{GNU-GOOPS}
-Guile reference manual: Goops.
-\newblock https://www.gnu.org/software/guile/manual/html\_node/GOOPS.html,
-  {\natexlab{a}}.
-
-\bibitem[GNU({\natexlab{b}})]{GNU-SOS}
-Mit/gnu scheme -- scheme object system.
-\newblock
-  https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-sos/Introduction.html,
-  {\natexlab{b}}.
-
-\bibitem[STk()]{STklos}
-Stklos clos in scheme.
-\newblock Download: http://www.stklos.net/.
 
 \bibitem[Bailey and Kemple(1992)]{bailey1992scientific}
 Michael~P Bailey and William~G Kemple.
@@ -26,9 +11,17 @@ Michael~P Bailey and William~G Kemple.
 \newblock In \emph{Proceedings of the 24th conference on Winter simulation},
   pages 791--797. ACM, 1992.
 
-\bibitem[Barzilay()]{Swindle}
-Eli Barzilay.
-\newblock http://www.barzilay.org/Swindle/.
+\bibitem[Berdoy et~al.(2000)Berdoy, Webster, and Macdonald]{berdoy2000fatal}
+Manuel Berdoy, Joanne~P Webster, and DW~Macdonald.
+\newblock Fatal attraction in rats infected with toxoplasma gondii.
+\newblock \emph{Proceedings of the Royal Society of London B: Biological
+  Sciences}, 267\penalty0 (1452):\penalty0 1591--1594, 2000.
+
+\bibitem[Bhatanacharoen et~al.()Bhatanacharoen, Greatbatch, and
+  Clark]{bhatanacharoentipping}
+Pojanath Bhatanacharoen, David Greatbatch, and Timothy Clark.
+\newblock The tipping point of the ‘tipping point’metaphor: Agency amd
+  process for waves of change.
 
 \bibitem[Bobashev et~al.(2007)Bobashev, Goedecke, Yu, and
   Epstein]{bobashev2007hybrid}
@@ -37,6 +30,13 @@ Georgiy~V Bobashev, D~Michael Goedecke, Feng Yu, and Joshua~M Epstein.
   equation-based approaches.
 \newblock In \emph{Simulation Conference, 2007 Winter}, pages 1532--1537. IEEE,
   2007.
+
+\bibitem[Boschetti et~al.(2012)Boschetti, Richert, Walker, Price, and
+  Dutra]{boschetti2012}
+Fabio Boschetti, Claire Richert, Iain Walker, Jennifer Price, and Leo Dutra.
+\newblock Assessing attitudes and cognitive styles of stakeholders in
+  environmental projects involving computer modelling.
+\newblock \emph{Ecological Modelling}, 247:\penalty0 98--111, 2012.
 
 \bibitem[Botkin et~al.(1972{\natexlab{a}})Botkin, Janak, and
   Wallis]{botkin1972some}
@@ -57,6 +57,12 @@ D.B. Botkin, J.F. Janak, and J.R. Wallis.
 D.B. Botkin, J.F. Janak, and J.R. Wallis.
 \newblock Some ecological consequences of a computer model of forest growth.
 \newblock \emph{J. Ecol.}, 60:\penalty0 849--872, 1972{\natexlab{c}}.
+
+\bibitem[Calhoun(1973)]{calhoun1973death}
+John~B Calhoun.
+\newblock Death squared: the explosive growth and demise of a mouse population.
+\newblock \emph{Proceedings of the Royal Society of Medicine}, 66\penalty0 (1
+  Pt 2):\penalty0 80, 1973.
 
 \bibitem[Chivers(2009)]{chivers2009generalised}
 William~John Chivers.
@@ -81,6 +87,13 @@ Sandro~Jer{\^o}nimo de~Almeida, Ricardo Poley~Martins Ferreira, {\'A}lvaro~E
 \newblock \emph{Environmental Modelling \& Software}, 25\penalty0
   (12):\penalty0 1490--1507, 2010.
 
+\bibitem[De~la Haye et~al.(2011)De~la Haye, Spicer, Widdicombe, and
+  Briffa]{de2011reduced}
+KL~De~la Haye, JI~Spicer, S~Widdicombe, and M~Briffa.
+\newblock Reduced sea water ph disrupts resource assessment and decision making
+  in the hermit crab pagurus bernhardus.
+\newblock \emph{Animal Behaviour}, 82\penalty0 (3):\penalty0 495--501, 2011.
+
 \bibitem[DeAngelis and Gross(1992)]{DeAngelis92:1}
 D.L. DeAngelis and L.J. Gross, editors.
 \newblock \emph{Individual-Based Models and Approaches in Ecology: Populations,
@@ -104,6 +117,16 @@ Timothy DelSole and Jagadish Shukla.
 \newblock Model fidelity versus skill in seasonal forecasting.
 \newblock \emph{Journal of Climate}, 23\penalty0 (18):\penalty0 4794--4806,
   2010.
+
+\bibitem[Dobben(1952)]{dobben1952food}
+WH~van Dobben.
+\newblock The food of the cormorant in the netherlands.
+\newblock \emph{Ardea}, 40\penalty0 (1-2):\penalty0 1--63, 1952.
+
+\bibitem[Dobson(1988)]{dobson1988population}
+AP~Dobson.
+\newblock The population biology of parasite-induced changes in host behavior.
+\newblock \emph{Quarterly Review of Biology}, pages 139--165, 1988.
 
 \bibitem[Elderd et~al.(2008)Elderd, Dushoff, and Dwyer]{Elderd08:1}
 Bret~D Elderd, Jonathan Dushoff, and Greg Dwyer.
@@ -192,6 +215,24 @@ Randall Gray and Simon Wotherspoon.
 \newblock ISSN 1364-8152.
 \newblock \doi{10.1016/j.envsoft.2011.08.012}.
 
+\bibitem[Gray et~al.(2014{\natexlab{a}})Gray, Fulton, and Little]{Gray2014}
+Randall Gray, Elizabeth~A. Fulton, and Richard Little.
+\newblock Human-ecosystem interaction in large ensemble-models.
+\newblock In Alexander Smajgl and Olivier Barreteau, editors, \emph{Empirical
+  Agent-Based Modelling - Challenges and Solutions}, pages 53--83. Springer New
+  York, 2014{\natexlab{a}}.
+\newblock ISBN 978-1-4614-6133-3.
+\newblock \doi{10.1007/978-1-4614-6134-0_4}.
+
+\bibitem[Gray et~al.(2014{\natexlab{b}})Gray, Fulton, and Little]{GrayNingaloo}
+Randall Gray, Elizabeth~A. Fulton, and Richard Little.
+\newblock Human-ecosystem interaction in large ensemble-models.
+\newblock In Alexander Smajgl and Olivier Barreteau, editors, \emph{Empirical
+  Agent-Based Modelling - Challenges and Solutions}, pages 53--83. Springer New
+  York, 2014{\natexlab{b}}.
+\newblock ISBN 978-1-4614-6133-3.
+\newblock \doi{10.1007/978-1-4614-6134-0_4}.
+
 \bibitem[Grimm and Railsback(2005)]{Grimm05:1}
 V.~Grimm and S.F. Railsback.
 \newblock \emph{Individual-based Modeling and Ecology}.
@@ -227,11 +268,6 @@ C.J. Harvey, S.P. Cox, T.E. Essington, S.~Hansson, and J.F. Kitchell.
 M.~Huston, D.L. DeAngelis, and W.~Post.
 \newblock New computer models unify ecological theory.
 \newblock \emph{BioScience}, 38:\penalty0 682--691, 1988.
-
-\bibitem[Kiczales()]{TinyCLOS}
-Gregor Kiczales.
-\newblock Tiny clos.
-\newblock Download -- ftp://ftp.parc.xerox.com/pub/mops/tiny/.
 
 \bibitem[Little et~al.(2006)Little, Fulton, Gray, Hayes, Scott, McDonald, and
   Sainsbury]{Little2006nws}
@@ -279,6 +315,11 @@ L.~Monte.
 \newblock A methodological approach to develop {\em contaminant
   migration-population effects} models.
 \newblock \emph{Ecological Modelling}, 220:\penalty0 3280--3290, 2009.
+
+\bibitem[Poulin(1994)]{poulin1994meta}
+Robert Poulin.
+\newblock Meta-analysis of parasite-induced behavioural changes.
+\newblock \emph{Animal Behaviour}, 48\penalty0 (1):\penalty0 137--146, 1994.
 
 \bibitem[Rose et~al.(2010)Rose, Allen, Artioli, Barange, Blackford, Carlotti,
   Cropp, Daewel, Edwards, Flynn, Hill, HilleRisLambers, Huse, Mackinson,
@@ -335,10 +376,23 @@ Christian~Ernest Vincenot, Francesco Giannino, Max Rietkerk, Kazuyuki Moriya,
 \newblock URL
   \url{http://www.sciencedirect.com/science/article/B6VBS-518MX70-2/2/199628e93c44d13863a48b3299472a32}.
 
+\bibitem[Walters et~al.(2000)Walters, Korman, Stevens, and
+  Gold]{walters2000ecosystem}
+Carl Walters, Josh Korman, Lawrence~E Stevens, and Barry Gold.
+\newblock Ecosystem modeling for evaluation of adaptive management policies in
+  the grand canyon.
+\newblock \emph{Conservation Ecology}, 4\penalty0 (2):\penalty0 1, 2000.
+
 \bibitem[Walters and Martell(2004)]{walters2004fisheries}
 Carl~J Walters and Steven~JD Martell.
 \newblock \emph{Fisheries ecology and management}.
 \newblock Princeton University Press, 2004.
+
+\bibitem[Ward and Krebs(1985)]{ward1985behavioural}
+Richard~MP Ward and Charles~J Krebs.
+\newblock Behavioural responses of lynx to declining snowshoe hare abundance.
+\newblock \emph{Canadian Journal of Zoology}, 63\penalty0 (12):\penalty0
+  2817--2824, 1985.
 
 \bibitem[webpage()]{Ningaloo:1}
 webpage, August 2009.
@@ -365,5 +419,11 @@ WS~Yip and Thomas~E Marlin.
 \newblock The effect of model fidelity on real-time optimization performance.
 \newblock \emph{Computers \& chemical engineering}, 28\penalty0 (1):\penalty0
   267--280, 2004.
+
+\bibitem[Zala and Penn(2004)]{zala2004abnormal}
+Sarah~M Zala and Dustin~J Penn.
+\newblock Abnormal behaviours induced by chemical pollution: a review of the
+  evidence and new challenges.
+\newblock \emph{Animal Behaviour}, 68\penalty0 (4):\penalty0 649--664, 2004.
 
 \end{thebibliography}

@@ -1,12 +1,39 @@
-% theorem stuff
 \typeout{******* in manifest.tex}
 
 
+%\DeclareMathAlphabet{\mathoss}{OT1}{cmss}{m}{sl}
 %\DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
 %\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
+\newcommand{\msdec}[1]{\ddot{#1}}
+\newcommand{\set}[1] {\mb{#1}}
+\newcommand{\multiset}[1]{\mb{\msdec{#1}}}
+%\newcommand{\multiset}[1] {\mc{{#1}}}
+%\newcommand{\multiset}[1]{\contour{gray}{\protect\mb{#1}}}
+%\newcommand{\multiset}[1]{\mb{\contour{gray}{\protect{#1}}}}
+
+%% From tex.stackexchange:
+%% Macro \vv breaks in a \typeout message, because \vv is not robust. \protect helps:
+
+%% \documentclass{article}
+
+%% \usepackage{esvect}
+%% \usepackage[outline]{contour}
+
+%% \begin{document}
+%%   \contour{red}{$\protect\vv{aa}$}
+%% \end{document}
+
+\newcommand{\BBN}[0]{\mathbb{N}}
+\newcommand{\BBNO}[0]{\mathbb{N}^0}
+\newcommand{\BBNI}[0]{\mathbb{N}^+}
+
+\DeclareMathOperator{\agg}{agg}
+\DeclareMathOperator{\scalar}{scalar}
+\DeclareMathOperator{\nonscalar}{nonscalar}
 \DeclareMathOperator{\opt}{opt}
 \DeclareMathOperator{\kernl}{kern}
+\DeclareMathOperator{\compatible}{compatible}
 \DeclareMathOperator{\depth}{depth}
 \DeclareMathOperator{\supp}{supp}
 \DeclareMathOperator{\fund}{fund}
@@ -19,7 +46,6 @@
 \DeclareMathOperator{\boundary}{bnd}
 \DeclareMathOperator{\interior}{int}
 \DeclareMathOperator{\excise}{excise}
-\DeclareMathOperator{\child}{child}
 %\DeclareMathOperator{\devi}{dev}
 
 \DeclareMathOperator{\mie}{\ensuremath{\text{i.e.}}}
@@ -62,6 +88,7 @@
 \newcommand{\linv}[1]{\linvf(#1)}
 \newcommand{\lscalar}[1]{\lscalarf(#1)}
 
+\newcommand{\LS}{\Lambda^{{}^{\Sigma}}}
 
 %{\mbox{\mathsurround=0pt \makebox[0pt][l]{\(\cap\)}\(\centerdot\)})
 
@@ -74,6 +101,12 @@
 %\newcommand{\marginnote}[1]{\marginpar{\small{#1}}}}
 %\newcommand{\marginnote}[1]{\marginpar{#1}}
 \newcommand{\marginnote}[1]{}
+
+\newcommand{\cupdot}{\udot}
+\newcommand{\cupplus}{\uplus}
+\newcommand{\bigcupplus}{\biguplus}
+
+\newcommand{\eqc}[1]{\left[#1\right]}
 
 %\newcommand{\capplus}{%
 %    \setbox0\hbox{\cap}%
@@ -106,6 +139,7 @@
 \newcommand{\POINTS}[1]{\marginnote{#1}}
 \newcommand{\NotHere}[1]{\textsf{#1}}
 
+\newcommand{\HERE}{{\Huge{**** HERE ****}}}
 \newcommand{\NB}[1]{\Large{\emph #1}}
 
 \newcommand{\etal}[0]{\emph{et al.}}
@@ -144,13 +178,22 @@
 \newcommand{\ms}[1]{\mathsf{#1}}
 \newcommand{\mB}[1]{\mathbb{#1}}
 %%\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mo}[1]{\mathocm{#1}} 
 \newcommand{\mb}[1]{\boldsymbol{#1}}  %% from amsbsy
 \newcommand{\mf}[1]{\mathfrak{#1}}
 \newcommand{\mc}[1]{\mathpzc{#1}}
 %\newcommand{\mc}[1]{\mathcal{#1}}
 
+\newcommand{\haschild}[2]{{#1}\rightarrow{#2}}
 \newcommand{\hasextn}[2]{{#1}\rightarrow{#2}}
+\newcommand{\haschildren}[2]{{#1}\Rightarrow{#2}}
 \newcommand{\hasextension}[2]{{#1}\Rightarrow{#2}}
+
+%-- 
+
+\newcommand{\REAL}{\mB{R}}
+\newcommand{\COMPLEX}{\mB{C}}
+\newcommand{\FIELD}{\mB{K}}
 
 \newcommand{\TREAL}{\(\REAL\)}
 \newcommand{\TCOMPLEX}{\(\COMPLEX\)}
@@ -158,15 +201,9 @@
 
 %-- 
 
-\newcommand{\REAL}{\mB{R}}
-\newcommand{\COMPLEX}{\mB{C}}
-\newcommand{\FIELD}{\mB{F}}
-
-%-- 
-
-\newcommand{\A}{\mc{A}}
-\newcommand{\PLY}[1]{\mathsf{P}_{\set{#1}}}
 \newcommand{\SDOM}{\set{T}}
+\newcommand{\A}{\mc{A}}
+\newcommand{\PLY}[1]{\FIELD[{\set{#1}}]}
 \newcommand{\DOM}{\mb{T}}
 \newcommand{\DOMs}[1]{{\mb{T}}_\mc{#1}}
 \newcommand{\TSDOM}{\(\SDOM\!\)}
@@ -184,8 +221,22 @@
 \newcommand{\xtree}[0]{$\eta$-tree}
 \newcommand{\xtrees}[0]{$\eta$-trees}
 
+\newcommand{\Node}[3]{\left({#1},{#2}, {#3}\right)}
+\newcommand{\NNode}[3]{\bigl({#1},{#2}, {#3}\bigr)}
+\newcommand{\NNNode}[3]{\Bigl({#1},{#2}, {#3}\Bigr)}
+\newcommand{\NNNNode}[3]{\BIGL({#1},{#2}, {#3}\BIGR)}
+
+\newcommand{\SNode}[1]{\Node{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNode}[1]{\NNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNode}[1]{\NNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNNode}[1]{\NNNNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+
+\newcommand{\NodeF}[2]{\left(\rv{#1},\rlabel{#2}\right)}
+\newcommand{\NNodeF}[2]{\bigl(\rv{#1},\rlabel{#2}\bigr)}
+\newcommand{\NNNodeF}[2]{\Bigl(\rv{#1},\rlabel{#2}\Bigr)}
+\newcommand{\NNNNodeF}[2]{\BIGL(\rv{#1},\rlabel{#2}\BIGR)}
+
 \newcommand{\node}[1]{\,\mb{#1}}
-\newcommand{\set}[1] {\mb{#1}}
 \newcommand{\onetree}{\node{\I}}
 \newcommand{\zerotree}{\node{\mathsf{O}}}
 \newcommand{\tnulltree}{\(\nulltree\)}
@@ -194,9 +245,13 @@
 \newcommand{\nel}[2]{{\node{#1}}_{{}_{#2}}}
 \newcommand{\nv}[1]{\nel{#1}{v}}
 \newcommand{\extn}[1]{\nel{#1}{\set{E}}}
+\newcommand{\child}[1]{\nel{#1}{\msdec{\set{C}}}}
 \newcommand{\nlabel}[1]{\nel{#1}{\mathsf{P}}}
 \newcommand{\ninertia}[1]{\nel{#1}{r}}
 
+\newcommand{\Zerotree}{\Node{0}{\emptyset}}
+
+\newcommand{\cross}{\times}
 \newcommand{\crossproduct}{\otimes}
 \newcommand{\Xproduct}[2]{{#1}\crossproduct{#2}}
 
@@ -207,6 +262,7 @@
 \newcommand{\tnullspace}{\(\nullspace\)}
 \newcommand{\tnel}[2]{\(\nel{#1}{#2}\)}
 \newcommand{\textn}[1]{\(\extn{#1}\)}
+\newcommand{\tchild}[1]{\(\child{#1}\)}
 \newcommand{\tnlabel}[1]{\(\nlabel{#1}\)}
 \newcommand{\tnv}[1]{\(\nv{#1}\)}
 \newcommand{\tninertia}[1]{\(\ninertia{#1}\)}
@@ -222,6 +278,15 @@
 \newcommand{\restrictedto}[2]{\node{#1}\vert_{\nlabels{#2}}}
 \newcommand{\nrestrictedto}[2]{\node{#1}\vert_{\notnlabels{#2}}}
 
+\newcommand{\childO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
+& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+
+\newcommand{\childObR}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
+& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childObL}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1} & \\
+\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+
 \newcommand{\extnO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus \{\zerotree\}}
 \newcommand{\extnOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
 & \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
@@ -232,6 +297,9 @@
 \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
 
 %-- 
+
+
+\newcommand{\sv}[1]{\ensuremath{\scalar(\nlabel{#1})}}
 
 \newcommand{\ring}{ring}
 \newcommand{\rng}{rng}
@@ -245,6 +313,10 @@
 \newcommand{\RING}[1]{\RNG{\mb{T}}}
 }
 
+\newcommand{\STRUCT}{field}
+\newcommand{\Struct}{Field}
+\newcommand{\struct}{field}
+
 \newcommand{\DOMQ}{\RNG{\mb{T}}}
 \newcommand{\DOMQs}[1]{\RNG{{\mb{T}}_\mc{#1}}}
 
@@ -257,6 +329,7 @@
 \newcommand{\qnulltree}{\qnode{\mathsf{O}}}
 \newcommand{\qel}[2]{{\qnode{#1}}{{}_{_{#2}}}}
 \newcommand{\qextn}[1]{\qel{#1}{\set{E}}}
+\newcommand{\qchild}[1]{\qel{#1}{\msdec{\set{C}}}}
 \newcommand{\qlabel}[1]{\qel{#1}{\mathsf{P}}}
 \newcommand{\qv}[1]{\qel{#1}{\nu}}
 \newcommand{\qinertia}[1]{\qel{#1}{r}}
@@ -270,6 +343,7 @@
 \newcommand{\tqnulltree}{\(\qnode{\mathsf{O}}\)}
 \newcommand{\tqel}[2]{\({\qnode{#1}}_{#2}\)}
 \newcommand{\tqextn}[1]{\(\qel{#1}{\set{E}}\)}
+\newcommand{\tqchild}[1]{\(\qchild{#1}\)}
 \newcommand{\tqlabel}[1]{\(\qel{#1}{\mathsf{P}}\)}
 \newcommand{\tqv}[1]{\(\qel{#1}{\nu}\)}
 \newcommand{\tqinertia}[1]{\(\qel{#1}{r}\)}
@@ -289,6 +363,10 @@
 \newcommand{\extnObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}  \\
 & \qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
 
+\newcommand{\childOq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}  \\
+& \qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+
 %-- 
 
 \newcommand{\DOMR}{\RNG{\mb{T}}}
@@ -305,6 +383,7 @@
 \newcommand{\rnulltree}{\rnode{\mathsf{O}}}
 \newcommand{\rel}[2]{{\rnode{#1}}{{}_{_{#2}}}}
 \newcommand{\rextn}[1]{\rel{#1}{\set{E}}}
+\newcommand{\rchild}[1]{\rel{#1}{\msdec{\set{C}}}}
 \newcommand{\rlabel}[1]{\rel{#1}{\mathsf{P}}}
 \newcommand{\rv}[1]{\rel{#1}{\nu}}
 \newcommand{\rinertia}[1]{\rel{#1}{r}}
@@ -318,6 +397,7 @@
 \newcommand{\trnulltree}{\(\rnode{\mathsf{O}}\)}
 \newcommand{\trel}[2]{\({\rnode{#1}}_{#2}\)}
 \newcommand{\trextn}[1]{\(\rel{#1}{\set{E}}\)}
+\newcommand{\trchild}[1]{\(\rchild{#1}\)}
 \newcommand{\trlabel}[1]{\(\rel{#1}{\mathsf{P}}\)}
 \newcommand{\trv}[1]{\(\rel{#1}{\nu}\)}
 \newcommand{\trsubj}[1]{\(\rel{#1}{\delta}\)}
@@ -334,6 +414,12 @@
 \newcommand{\restrictedtor}[2]{\rnode{#1}\vert_{\rlabels{#2}}}
 \newcommand{\nrestrictedtor}[2]{\rnode{#1}\vert_{\notrlabels{#2}}}
 
+\newcommand{\childOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1} \\
+& \qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+
+\newcommand{\childIr}[5]{\{\rnode{#3}\,{#5}\,\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\setminus \nullspace}
+
 \newcommand{\extnOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
 \newcommand{\extnObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1} \\
 & \qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
@@ -349,10 +435,15 @@
 
 \newcommand{\mstexpandednorm}[5]{\frac{#1}{\card{#2}^#3}\quad\mstsum{\node{#4}\in{#5}}\nabs{\node{#4}}}
 
-\newcommand{\Node}[3]{({#1}, {#2}, {#3})}
-\newcommand{\NNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
-\newcommand{\NNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
-\newcommand{\NNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+%\newcommand{\SNode}[3]{({#1}, {#2}, {#3})}
+%\newcommand{\SNNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\SNNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\SNNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+%\newcommand{\NNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\NNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\NNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
 
 %--
 
@@ -384,22 +475,38 @@
 %\newcommand{\fmag}[1]{\overset{\nabs{#1}}{
 %\newcommand{\fmag}[1]{\norm{#1}}
 \newcommand{\fmag}[1]{\nabs{#1}}
-
 \newcommand{\Tcard}[1]{\card{#1}_{\intercal}}
+\newcommand{\content}[1]{\llbracket{#1}\rrbracket}
+
 %\newcommand{\Tcard}[1]{\norm{#1}}
 %\newcommand{\Tcard}[1]{\lHash #1 \rHash}
 
-\newcommand{\capcross}{\mbox{\ooalign{\(\cap\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
-\newcommand{\cupcross}{\mbox{\ooalign{\(\cup\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
+%% \newcommand{\capcross}{\mbox{\ooalign{\(\cap\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
+%% \newcommand{\cupcross}{\mbox{\ooalign{\(\cup\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
 
-\newcommand{\capplus}{\mbox{\ooalign{{\large\(\cap\)}\cr\hidewidth\({+}\)\hidewidth\cr}}}
-\newcommand{\cupplus}{\mbox{\ooalign{{\large\(\cup\)}\cr\hidewidth\({+}\)\hidewidth\cr}}}
+%% \newcommand{\capplus}{\mbox{\ooalign{{\large\(\cap\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
+%% \newcommand{\cupplus}{\mbox{\ooalign{{\large\(\cup\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
 
-\newcommand{\capdot}{\dot{\cap}}
-\newcommand{\cupdot}{\dot{\cup}}
+%% \newcommand{\capdot}{\dot{\cap}}
+%% \newcommand{\cupdot}{\dot{\cup}}
 
-\newcommand{\symint}{\capcross}
-\newcommand{\symunion}{\cupcross}
+%% \newcommand{\symint}{\capcross}
+%% \newcommand{\symunion}{\cupcross}
+
+% \makeatletter
+% \def\moverlay{\mathpalette\mov@rlay}
+% \def\mov@rlay#1#2{\leavevmode\vtop{%
+%    \baselineskip\z@skip \lineskiplimit-\maxdimen
+%    \ialign{\hfil$\m@th#1##$\hfil\cr#2\crcr}}}
+% \newcommand{\charfusion}[3][\mathord]{
+%     #1{\ifx#1\mathop\vphantom{#2}\fi
+%         \mathpalette\mov@rlay{#2\cr#3}
+%       }
+%     \ifx#1\mathop\expandafter\displaylimits\fi}
+% \makeatother
+
+% \newcommand{\cupplus}{\charfusion[\mathbin]{\cup}{+}}
+% \newcommand{\bigcupplus}{\charfusion[\mathop]{\bigcup}{+}}
 
 \newcommand{\lbl}[1]{\mathsf{#1}}
 \newcommand{\Tlbl}[1]{$\mathsf{#1}$}
@@ -563,10 +670,14 @@
 
 
 
-\newcommand{\polystruct}{field\ }
-\newcommand{\polyrat}{rational\ }
-\newcommand{\polytype}{field of rational\ }
+\newcommand{\polystruct}[0]{ring}
+\newcommand{\polyrat}[0]{}
+\newcommand{\polyform}[0]{multinomial}
+\newcommand{\polyforms}[0]{multinomials}
+\newcommand{\polytype}[0]{\polystruct\ of \polyrat\ \polyform}
+\newcommand{\polytypes}[0]{\polystruct\ of \polyrat\ \polyforms}
 
 %\newcommand{\polystruct}{rng\ }
 %\newcommand{\polyrat}{\ }
 %\newcommand{\polytype}{commutative rng of\ }
+\typeout{manifest.tex finished ******* }

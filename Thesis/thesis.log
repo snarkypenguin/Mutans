@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Arch Linux) (preloaded format=pdflatex 2015.12.22)  31 JUL 2016 16:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.20)  16 OCT 2016 14:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
 **thesis
 (./thesis.tex
-LaTeX2e <2015/10/01> patch level 2
-Babel <3.9m> and hyphenation patterns for 79 languages loaded.
+LaTeX2e <2016/03/31> patch level 3
+Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
 (/usr/share/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texmf-dist/tex/latex/base/size11.clo
@@ -40,24 +40,24 @@ Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks14
 )
 (/usr/share/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
+Package: graphics 2016/07/10 v1.0t Standard LaTeX Graphics (DPC,SPQR)
 
 (/usr/share/texmf-dist/tex/latex/graphics/trig.sty
-Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
 )
-(/usr/share/texmf-dist/tex/latex/latexconfig/graphics.cfg
-File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
-Package graphics Info: Driver file: pdftex.def on input line 94.
+Package graphics Info: Driver file: pdftex.def on input line 99.
 
-(/usr/share/texmf-dist/tex/latex/pdftex-def/pdftex.def
-File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+(/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2016/07/10 v0.06j Graphics/color for pdfTeX
 
 (/usr/share/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
 )
 (/usr/share/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
-Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
 )
 \Gread@gobject=\count88
 ))
@@ -95,13 +95,56 @@ les
 (/usr/share/texmf-dist/tex/latex/ntgclass/a4.sty
 Package: a4 2004/04/15 v1.2g A4 based page layout
 )
+(/usr/share/texmf-dist/tex/latex/esvect/esvect.sty
+Package: esvect 
+\symesvector=\mathgroup4
+)
+(/usr/share/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2016/06/19 v1.99m Standard LaTeX package
+
+(/usr/share/texmf-dist/tex/latex/base/ot1enc.def
+File: ot1enc.def 2016/06/19 v1.99m Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding OT1 on input line 48.
+))
+(/usr/share/texmf-dist/tex/latex/outline/outline.sty
+Package: outline 2002/08/23 Simple Outline Package
+\c@@outlndepth=\count89
+\@outlndepth=\count90
+\c@outlni=\count91
+\c@outlnii=\count92
+\c@outlniii=\count93
+\c@outlniv=\count94
+\c@outlnv=\count95
+\c@outlnvi=\count96
+)
+(/usr/share/texmf-dist/tex/latex/contour/contour.sty
+Package: contour 2004/11/18 v2.14 Print contoured text (HH, MH)
+
+(/usr/share/texmf-dist/tex/latex/graphics/color.sty
+Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
+
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package color Info: Driver file: pdftex.def on input line 147.
+)
+\con@length=\skip56
+
+Loading configuration file `contour.cfg'.
+(/usr/share/texmf-dist/tex/latex/contour/contour.cfg
+File: contour.cfg 2004/11/18 v2.14 Print contoured text (HH, MH)
+)
+contour: Using driver file `pdftex.cnt'.
+(/usr/share/texmf-dist/tex/latex/contour/pdftex.cnt
+File: pdftex.cnt 2004/11/18 v2.14 Print contoured text (HH, MH)
+))
 (/usr/share/texmf-dist/tex/latex/algorithms/algorithm.sty
 Package: algorithm 2009/08/24 v0.1 Document Style `algorithm' - floating enviro
 nment
 
 (/usr/share/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count89
+\c@float@type=\count97
 \float@exts=\toks15
 \float@box=\box26
 \@float@everytoks=\toks16
@@ -111,7 +154,7 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
 \@float@every@algorithm=\toks17
-\c@algorithm=\count90
+\c@algorithm=\count98
 )
 (/usr/share/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty
 Package: algpseudocode 
@@ -120,62 +163,62 @@ Package: algpseudocode
 Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
 
 Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
-\c@ALG@line=\count91
-\c@ALG@rem=\count92
-\c@ALG@nested=\count93
-\ALG@tlm=\skip56
-\ALG@thistlm=\skip57
-\c@ALG@Lnr=\count94
-\c@ALG@blocknr=\count95
-\c@ALG@storecount=\count96
-\c@ALG@tmpcounter=\count97
-\ALG@tmplength=\skip58
+\c@ALG@line=\count99
+\c@ALG@rem=\count100
+\c@ALG@nested=\count101
+\ALG@tlm=\skip57
+\ALG@thistlm=\skip58
+\c@ALG@Lnr=\count102
+\c@ALG@blocknr=\count103
+\c@ALG@storecount=\count104
+\c@ALG@tmpcounter=\count105
+\ALG@tmplength=\skip59
 )
 Document Style - pseudocode environments for use with the `algorithmicx' style
 ) (/usr/share/texmf-dist/tex/latex/amsmath/amsmath.sty
-Package: amsmath 2013/01/14 v2.14 AMS math features
-\@mathmargin=\skip59
+Package: amsmath 2016/06/28 v2.15d AMS math features
+\@mathmargin=\skip60
 
 For additional information on amsmath, use the `?' option.
 (/usr/share/texmf-dist/tex/latex/amsmath/amstext.sty
-Package: amstext 2000/06/29 v2.01
+Package: amstext 2000/06/29 v2.01 AMS text
 
 (/usr/share/texmf-dist/tex/latex/amsmath/amsgen.sty
-File: amsgen.sty 1999/11/30 v2.0
+File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks18
 \ex@=\dimen105
 ))
 (/usr/share/texmf-dist/tex/latex/amsmath/amsbsy.sty
-Package: amsbsy 1999/11/29 v1.2d
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen106
 )
 (/usr/share/texmf-dist/tex/latex/amsmath/amsopn.sty
-Package: amsopn 1999/12/14 v2.01 operator names
+Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count98
-LaTeX Info: Redefining \frac on input line 210.
-\uproot@=\count99
-\leftroot@=\count100
-LaTeX Info: Redefining \overline on input line 306.
-\classnum@=\count101
-\DOTSCASE@=\count102
-LaTeX Info: Redefining \ldots on input line 378.
-LaTeX Info: Redefining \dots on input line 381.
-LaTeX Info: Redefining \cdots on input line 466.
+\inf@bad=\count106
+LaTeX Info: Redefining \frac on input line 199.
+\uproot@=\count107
+\leftroot@=\count108
+LaTeX Info: Redefining \overline on input line 297.
+\classnum@=\count109
+\DOTSCASE@=\count110
+LaTeX Info: Redefining \ldots on input line 394.
+LaTeX Info: Redefining \dots on input line 397.
+LaTeX Info: Redefining \cdots on input line 518.
 \Mathstrutbox@=\box28
 \strutbox@=\box29
 \big@size=\dimen107
-LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
-LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
-\macc@depth=\count103
-\c@MaxMatrixCols=\count104
+LaTeX Font Info:    Redeclaring font encoding OML on input line 634.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 635.
+\macc@depth=\count111
+\c@MaxMatrixCols=\count112
 \dotsspace@=\muskip10
-\c@parentequation=\count105
-\dspbrk@lvl=\count106
+\c@parentequation=\count113
+\dspbrk@lvl=\count114
 \tag@help=\toks19
-\row@=\count107
-\column@=\count108
-\maxfields@=\count109
+\row@=\count115
+\column@=\count116
+\maxfields@=\count117
 \andhelp@=\toks20
 \eqnshift@=\dimen108
 \alignsep@=\dimen109
@@ -184,22 +227,30 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
 \totwidth@=\dimen112
 \lineht@=\dimen113
 \@envbody=\toks21
-\multlinegap=\skip60
-\multlinetaggap=\skip61
+\multlinegap=\skip61
+\multlinetaggap=\skip62
 \mathdisplay@stack=\toks22
-LaTeX Info: Redefining \[ on input line 2665.
-LaTeX Info: Redefining \] on input line 2666.
+LaTeX Info: Redefining \[ on input line 2739.
+LaTeX Info: Redefining \] on input line 2740.
+)
+(/usr/share/texmf-dist/tex/latex/stmaryrd/stmaryrd.sty
+Package: stmaryrd 1994/03/03 St Mary's Road symbol package
+\symstmry=\mathgroup5
+LaTeX Font Info:    Overwriting symbol font `stmry' in version `bold'
+(Font)                  U/stmry/m/n --> U/stmry/b/n on input line 89.
 )
 (/usr/share/texmf-dist/tex/latex/amsfonts/amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
-\symAMSa=\mathgroup4
-\symAMSb=\mathgroup5
+\symAMSa=\mathgroup6
+\symAMSb=\mathgroup7
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
-))
+)
+LaTeX Font Info:    Redeclaring math symbol \boxdot on input line 44.
+)
 (/usr/share/texmf-dist/tex/latex/amscls/amsthm.sty
 Package: amsthm 2015/03/04 v2.20.2
 \thm@style=\toks23
@@ -207,18 +258,18 @@ Package: amsthm 2015/03/04 v2.20.2
 \thm@headfont=\toks25
 \thm@notefont=\toks26
 \thm@headpunct=\toks27
-\thm@preskip=\skip62
-\thm@postskip=\skip63
-\thm@headsep=\skip64
+\thm@preskip=\skip63
+\thm@postskip=\skip64
+\thm@headsep=\skip65
 \dth@everypar=\toks28
 )
 (/usr/share/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2011/09/28 v3.5.2 Customized lists
-\labelindent=\skip65
+\labelindent=\skip66
 \enit@outerparindent=\dimen114
 \enit@toks=\toks29
 \enit@inbox=\box30
-\enitdp@description=\count110
+\enitdp@description=\count118
 )
 (/usr/share/texmf-dist/tex/latex/lm/lmodern.sty
 Package: lmodern 2009/10/30 v1.6 Latin Modern Fonts
@@ -260,16 +311,16 @@ Package: mathtools 2015/11/12 v1.18 mathematical typesetting tools
 
 (/usr/share/texmf-dist/tex/latex/tools/calc.sty
 Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count111
-\calc@Bcount=\count112
+\calc@Acount=\count119
+\calc@Bcount=\count120
 \calc@Adimen=\dimen115
 \calc@Bdimen=\dimen116
-\calc@Askip=\skip66
-\calc@Bskip=\skip67
+\calc@Askip=\skip67
+\calc@Bskip=\skip68
 LaTeX Info: Redefining \setlength on input line 80.
 LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count113
-\calc@Cskip=\skip68
+\calc@Ccount=\count121
+\calc@Cskip=\skip69
 )
 (/usr/share/texmf-dist/tex/latex/mathtools/mhsetup.sty
 Package: mhsetup 2010/01/21 v1.2a programming setup (MH)
@@ -278,9 +329,9 @@ LaTeX Info: Thecontrolsequence`\('isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\)'isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\['isalreadyrobust on input line 129.
 LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
-\g_MT_multlinerow_int=\count114
+\g_MT_multlinerow_int=\count122
 \l_MT_multwidth_dim=\dimen117
-\origjot=\skip69
+\origjot=\skip70
 \l_MT_shortvdotswithinadjustabove_dim=\dimen118
 \l_MT_shortvdotswithinadjustbelow_dim=\dimen119
 \l_MT_above_intertext_sep=\dimen120
@@ -294,16 +345,16 @@ Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 (/usr/share/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2005/11/02 line numbers on paragraphs v4.41
-\linenopenalty=\count115
+\linenopenalty=\count123
 \output=\toks30
-\linenoprevgraf=\count116
+\linenoprevgraf=\count124
 \linenumbersep=\dimen124
 \linenumberwidth=\dimen125
-\c@linenumber=\count117
-\c@pagewiselinenumber=\count118
-\c@LN@truepage=\count119
-\c@internallinenumber=\count120
-\c@internallinenumbers=\count121
+\c@linenumber=\count125
+\c@pagewiselinenumber=\count126
+\c@LN@truepage=\count127
+\c@internallinenumber=\count128
+\c@internallinenumbers=\count129
 \quotelinenumbersep=\dimen126
 \bframerule=\dimen127
 \bframesep=\dimen128
@@ -311,38 +362,37 @@ Package: lineno 2005/11/02 line numbers on paragraphs v4.41
 LaTeX Info: Redefining \\ on input line 3056.
 )
 (/usr/share/texmf-dist/tex/latex/oberdiek/pdflscape.sty
-Package: pdflscape 2008/08/11 v0.10 Display of landscape pages in PDF (HO)
+Package: pdflscape 2016/05/14 v0.11 Display of landscape pages in PDF (HO)
 
 (/usr/share/texmf-dist/tex/latex/graphics/lscape.sty
 Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
 )
 (/usr/share/texmf-dist/tex/generic/oberdiek/ifpdf.sty
-Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
-Package ifpdf Info: pdfTeX in PDF mode is detected.
+Package: ifpdf 2016/05/14 v3.1 Provides the ifpdf switch
 )
-Package pdflscape Info: Auto-detected driver: pdftex on input line 80.
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
 
 (/usr/share/texmf-dist/tex/generic/ifxetex/ifxetex.sty
 Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 ))
 (/usr/share/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count122
+\lst@mode=\count130
 \lst@gtempboxa=\box32
 \lst@token=\toks31
-\lst@length=\count123
+\lst@length=\count131
 \lst@currlwidth=\dimen129
-\lst@column=\count124
-\lst@pos=\count125
+\lst@column=\count132
+\lst@pos=\count133
 \lst@lostspace=\dimen130
 \lst@width=\dimen131
-\lst@newlines=\count126
-\lst@lineno=\count127
+\lst@newlines=\count134
+\lst@lineno=\count135
 \lst@maxwidth=\dimen132
 
 (/usr/share/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
-\c@lstnumber=\count128
-\lst@skipnumbers=\count129
+\c@lstnumber=\count136
+\lst@skipnumbers=\count137
 \lst@framebox=\box33
 )
 (/usr/share/texmf-dist/tex/latex/listings/listings.cfg
@@ -350,16 +400,8 @@ File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
 Package: listings 2015/06/04 1.6 (Carsten Heinz)
 
-(/usr/share/texmf-dist/tex/latex/graphics/color.sty
-Package: color 2014/10/28 v1.1a Standard LaTeX Color (DPC)
-
-(/usr/share/texmf-dist/tex/latex/latexconfig/color.cfg
-File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
-)
-Package color Info: Driver file: pdftex.def on input line 142.
-)
 (/usr/share/texmf-dist/tex/latex/base/textcomp.sty
-Package: textcomp 2005/09/27 v1.99g Standard LaTeX package
+Package: textcomp 2016/06/19 v1.99m Standard LaTeX package
 Package textcomp Info: Sub-encoding information:
 (textcomp)               5 = only ISO-Adobe without \textcurrency
 (textcomp)               4 = 5 + \texteuro
@@ -442,10 +484,10 @@ Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
 ) (./lstlang0.sty)
 (/usr/share/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
-\bibhang=\skip70
-\bibsep=\skip71
+\bibhang=\skip71
+\bibsep=\skip72
 LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count130
+\c@NAT@ctr=\count138
 )
 (/usr/share/texmf-dist/tex/latex/fundus-calligra/calligra.sty
 Package: calligra 2012/04/10 v1.9 LaTeX package calligra
@@ -454,59 +496,64 @@ Got packages
 Starting document
 (./prelude.tex (./manifest.tex
 ******* in manifest.tex
-\c@definition=\count131
-\c@corollary=\count132
-\c@proposition=\count133
-\c@lemma=\count134
-\c@theorem=\count135
-\c@remark=\count136
-\c@example=\count137
-)) (./newcom.tex) (./chap1.tex (./thesis.aux)
+\c@definition=\count139
+\c@corollary=\count140
+\c@proposition=\count141
+\c@lemma=\count142
+\c@theorem=\count143
+\c@remark=\count144
+\c@example=\count145
+manifest.tex finished ******* 
+)) (./newcom.tex) (./thesis.aux (./tree-ring-formulation.aux))
 \openout1 = `thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 1.
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 1.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 1.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 129.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 129.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 129.
+
 
 (/usr/share/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 1.
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 1.
+LaTeX Font Info:    ... okay on input line 129.
+LaTeX Font Info:    Try loading font information for OT1+ocm on input line 129.
 
-(/usr/share/texmf-dist/tex/latex/lm/ot1lmr.fd
-File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-(/usr/share/texmf-dist/tex/context/base/supp-pdf.mkii
+LaTeX Font Info:    No file OT1ocm.fd. on input line 129.
+
+
+LaTeX Font Warning: Font shape `OT1/ocm/m/n' undefined
+(Font)              using `OT1/cmr/m/n' instead on input line 129.
+
+(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count138
+\scratchcounter=\count146
 \scratchdimen=\dimen133
 \scratchbox=\box34
-\nofMPsegments=\count139
-\nofMParguments=\count140
+\nofMPsegments=\count147
+\nofMParguments=\count148
 \everyMPshowfont=\toks32
-\MPscratchCnt=\count141
+\MPscratchCnt=\count149
 \MPscratchDim=\dimen134
-\MPnumerator=\count142
-\makeMPintoPDFobject=\count143
+\MPnumerator=\count150
+\makeMPintoPDFobject=\count151
 \everyMPtoPDFconversion=\toks33
 ) (/usr/share/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
+Package: pdftexcmds 2016/05/21 v0.22 Utility functions of pdfTeX for LuaTeX (HO
 )
 
 (/usr/share/texmf-dist/tex/generic/oberdiek/ifluatex.sty
-Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
 )
 Package pdftexcmds Info: LuaTeX not detected.
@@ -515,173 +562,202 @@ Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 )
 (/usr/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
-Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
 
 (/usr/share/texmf-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
 
 (/usr/share/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
-Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
 ))
 (/usr/share/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
 
 (/usr/share/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
 
 (/usr/share/texmf-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
 (etexcmds)             that some package has redefined \expanded.
 (etexcmds)             In the latter case, load this package earlier.
 )))
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+38.
 Package grfext Info: Graphics extension search list:
 (grfext)             [.pdf,.png,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 452.
+(grfext)             \AppendGraphicsExtensions on input line 456.
 
 (/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\c@lstlisting=\count144
+\c@lstlisting=\count152
+ (./chap1.tex
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 2.
 
+(/usr/share/texmf-dist/tex/latex/lm/ot1lmr.fd
+File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
 <Utas_vert_BW.pdf, id=1, 614.295pt x 794.97pt>
 File: Utas_vert_BW.pdf Graphic file (type pdf)
  <use Utas_vert_BW.pdf>
-Package pdftex.def Info: Utas_vert_BW.pdf used on input line 4.
+Package pdftex.def Info: Utas_vert_BW.pdf used on input line 2.
 (pdftex.def)             Requested size: 614.29349pt x 794.96806pt.
  [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2 <./Utas_vert_BW.pdf>] [
-3]
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2 <./Utas_vert_BW.pdf>]
+
+LaTeX Font Warning: Font shape `OT1/ocm/m/sl' undefined
+(Font)              using `OT1/ocm/m/n' instead on input line 4.
+
+[3]
+
+LaTeX Font Warning: Font shape `OT1/ocm/m/it' undefined
+(Font)              using `OT1/ocm/m/n' instead on input line 5.
+
 [4] [1]
 Chapter 1.
-[2
+Chapter 1: Overview and introduction
 
-]
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 63.
- (/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
+LaTeX Font Warning: Font shape `OT1/ocm/bx/n' undefined
+(Font)              using `OT1/ocm/m/n' instead on input line 21.
+
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 47.
+(/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 63.
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 47.
 
 
 (/usr/share/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 63.
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 47.
 
 
 (/usr/share/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 63.
+(Font)              <10.95> on input line 47.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 63.
+(Font)              <8> on input line 47.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 63.
-LaTeX Font Info:    Try loading font information for U+msa on input line 63.
+(Font)              <6> on input line 47.
+LaTeX Font Info:    Try loading font information for U+esvect on input line 47.
+
+
+(/usr/share/texmf-dist/tex/latex/esvect/uesvect.fd
+File: uesvect.fd 
+)
+LaTeX Font Info:    Try loading font information for U+stmry on input line 47.
+
+(/usr/share/texmf-dist/tex/latex/stmaryrd/Ustmry.fd)
+LaTeX Font Info:    Try loading font information for U+msa on input line 47.
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 63.
+LaTeX Font Info:    Try loading font information for U+msb on input line 47.
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 63.
+(Font)              <9> on input line 51.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 63.
-LaTeX Font Info:    Try loading font information for OT1+lmtt on input line 99.
+(Font)              <5> on input line 51.
+LaTeX Font Info:    Try loading font information for OT1+lmtt on input line 51.
 
 
 (/usr/share/texmf-dist/tex/latex/lm/ot1lmtt.fd
 File: ot1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [3]) (./chap2.tex [4]
+) [2
+
+] [3] [4]
+LaTeX Font Info:    Try loading font information for TS1+ocm on input line 197.
+
+LaTeX Font Info:    No file TS1ocm.fd. on input line 197.
+
+
+LaTeX Font Warning: Font shape `TS1/ocm/m/n' undefined
+(Font)              using `TS1/cmr/m/n' instead
+(Font)              for symbol `textbullet' on input line 197.
+
+[5] [6]
+Chapter 1: Historical work
+[7]
+Chapter 1: Structure and function
+
+Overfull \hbox (1.51552pt too wide) in paragraph at lines 444--446
+[]\OT1/ocm/m/it/10.95 Both vari-able speed split-ting and dy-namic time-step se
+-lec-tion are flex-i-ble enough
+ []
+
+) (./chap2.tex [8]
 Chapter 2.
-[5
+Chapter 2: Prologue to the paper
+[9
 
-] [6] [7] [8] [9] [10] [11] [12]
-Overfull \hbox (4.77264pt too wide) in paragraph at lines 462--467
-\OT1/lmr/m/n/10.95 where $\OML/lmm/m/it/10.95 u \OT1/lmr/m/n/10.95 = 0\OML/lmm/
-m/it/10.95 :\OT1/lmr/m/n/10.95 02$ is the up-take rate, a de-cay rate which is 
-ap-prox-i-mately $\OML/lmm/m/it/10.95 ^^U \OT1/lmr/m/n/10.95 =$0.0059.
+] [10]
+Chapter 2: Increasing model efficiency by dynamically changing model representa
+tions
+Chapter 2: Introduction
+
+LaTeX Font Warning: Font shape `OT1/ocm/bx/it' undefined
+(Font)              using `OT1/ocm/bx/n' instead on input line 123.
+
+[11] [12] [13]
+Chapter 2: Overview: an {\em {ODD}} model description
+[14] [15]
+Chapter 2: Design concepts
+[16]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[17] [18]
+Overfull \hbox (4.7728pt too wide) in paragraph at lines 504--509
+\OT1/ocm/bx/n/10.95 where $\OML/lmm/m/it/10.95 u \OT1/lmr/m/n/10.95 = 0\OML/lmm
+/m/it/10.95 :\OT1/lmr/m/n/10.95 02$ \OT1/ocm/bx/n/10.95 is the up-take rate, a 
+de-cay rate which is ap-prox-i-mately $\OML/lmm/m/it/10.95 ^^U \OT1/lmr/m/n/10.
+95 =$\OT1/ocm/bx/n/10.95 0.0059.
  []
 
-[13] [14] [15]
+[19]
+Chapter 3: Results
+[20]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
+[21]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[16] [17] [18] [19] [20]) (./chap3.tex [21]
+[22]
+Chapter 3: Discussion
+[23] [24] [25]
+Chapter 3: Conclusion
+[26] [27]
+Chapter 3: Epilogue to the paper
+) (./chap3.tex [28]
 Chapter 3.
-LaTeX Font Info:    Try loading font information for OT1+lmss on input line 63.
+Chapter 3: Prologue to the paper
 
-(/usr/share/texmf-dist/tex/latex/lm/ot1lmss.fd
-File: ot1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [22
-
-] [23]
-Overfull \hbox (38.0129pt too wide) in paragraph at lines 240--240
-[] 
- []
+LaTeX Warning: Reference `treering' on page 29 undefined on input line 29.
 
 
-Overfull \hbox (55.21669pt too wide) in paragraph at lines 274--274
-[] 
- []
+LaTeX Warning: Reference `treering' on page 29 undefined on input line 34.
 
-[24] [25]
-Overfull \hbox (37.58366pt too wide) in paragraph at lines 407--410
-[]\OT1/lmr/m/n/10.95 Now sup-pose that there is some num-ber $\OML/lmm/m/it/10.
-95 n$ \OT1/lmr/m/n/10.95 for which $[]( []) \OMS/lmsy/m/n/10.95 ^^T \OML/lmm/m/
-it/10.95 n [] []\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/10.95 ^^T
- []
+[29
 
-[26]
-Overfull \hbox (85.2986pt too wide) in paragraph at lines 419--419
-[] 
- []
-
-
-Overfull \hbox (35.86964pt too wide) in paragraph at lines 425--425
-[] 
- []
-
-[27]
-Overfull \hbox (67.19711pt too wide) in paragraph at lines 486--486
-[] 
- []
-
-[28]
-Overfull \hbox (3.25043pt too wide) in paragraph at lines 524--525
-[]
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 524--525
-
- []
-
-[29] [30]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 655.
- [31] [32]
-LaTeX Font Info:    Try loading font information for U+euf on input line 756.
- (/usr/share/texmf-dist/tex/latex/amsfonts/ueuf.fd
-File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
-) [33]
-[34] [35]) (./chap4.tex [36] [37]
-Chapter 4.
-[38
-
-] [39] [40] [41]
+]
+Chapter 3: Adaptive submodel selection in hybrid models
+Chapter 3: Introduction
+[30] [31]
+Chapter 3: Model organization
+[32] [33]
 Package epstopdf Info: Source file: <Figure1.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 96987 bytes
@@ -690,17 +766,17 @@ Package epstopdf Info: Source file: <Figure1.eps>
 (epstopdf)                    size: 10547 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure1-eps-converted-to.p
 df Figure1.eps>
-(epstopdf)             \includegraphics on input line 920.
+(epstopdf)             \includegraphics on input line 293.
 Package epstopdf Info: Output file is already uptodate.
-
-<Figure1-eps-converted-to.pdf, id=178, 221.82875pt x 194.7275pt>
+ <Figure1-eps-converted-to.pdf, id=148, 221.82875pt x 194.7275pt>
 File: Figure1-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure1-eps-converted-to.pdf>
-Package pdftex.def Info: Figure1-eps-converted-to.pdf used on input line 920.
+Package pdftex.def Info: Figure1-eps-converted-to.pdf used on input line 293.
 (pdftex.def)             Requested size: 221.82819pt x 194.727pt.
- [42 <./Figure1-eps-converted-to.pdf>]
-[43] [44]
+ [34 <./Figure1-eps-converted-to.pdf>]
+[35] [36]
+Chapter 3: The example model
 Package epstopdf Info: Source file: <Figure2.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 2833 bytes
@@ -709,36 +785,45 @@ Package epstopdf Info: Source file: <Figure2.eps>
 (epstopdf)                    size: 4855 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure2-eps-converted-to.p
 df Figure2.eps>
-(epstopdf)             \includegraphics on input line 1086.
+(epstopdf)             \includegraphics on input line 460.
 Package epstopdf Info: Output file is already uptodate.
- <Figure2-eps-converted-to.pdf, id=197, 193.72375pt x 193.72375pt>
+<Figure2-eps-converted-to.pdf, id=166, 193.72375pt x 193.72375pt>
 File: Figure2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure2-eps-converted-to.pdf>
-Package pdftex.def Info: Figure2-eps-converted-to.pdf used on input line 1086.
+Package pdftex.def Info: Figure2-eps-converted-to.pdf used on input line 460.
 (pdftex.def)             Requested size: 193.72327pt x 193.72327pt.
- [45] [46 <./Figure2-eps-converted-to.pdf>]
-[47] [48] [49]
-LaTeX Font Info:    Try loading font information for TS1+lmr on input line 1433
+ [37 <./Figure2-eps-converted-to.pdf>]
+[38] [39]
+
+LaTeX Font Warning: Font shape `OT1/ocm/m/sc' undefined
+(Font)              using `OT1/ocm/m/n' instead on input line 646.
+
+[40] [41] [42]
+
+LaTeX Font Warning: Font shape `U/stmry/b/n' undefined
+(Font)              using `U/stmry/m/n' instead on input line 881.
+
+LaTeX Font Info:    Try loading font information for OT1+lmss on input line 889
 .
- (/usr/share/texmf-dist/tex/latex/lm/ts1lmr.fd
-File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [50] [51]
-LaTeX Font Info:    Try loading font information for OT1+pzc on input line 1548
-.
+(/usr/share/texmf-dist/tex/latex/lm/ot1lmss.fd
+File: ot1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
+) [43]
+LaTeX Font Info:    Try loading font information for OT1+pzc on input line 922.
+
 
 (/usr/share/texmf-dist/tex/latex/psnfss/ot1pzc.fd
 File: ot1pzc.fd 2001/06/04 font definitions for OT1/pzc.
 )
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1548
-.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <8> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1548
-.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <6> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1548
-.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+
 Package epstopdf Info: Source file: <Figure3.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 57495 bytes
@@ -747,16 +832,16 @@ Package epstopdf Info: Source file: <Figure3.eps>
 (epstopdf)                    size: 12059 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure3-eps-converted-to.p
 df Figure3.eps>
-(epstopdf)             \includegraphics on input line 1557.
+(epstopdf)             \includegraphics on input line 931.
 Package epstopdf Info: Output file is already uptodate.
 
-<Figure3-eps-converted-to.pdf, id=230, 248.93pt x 470.75874pt>
+<Figure3-eps-converted-to.pdf, id=200, 248.93pt x 470.75874pt>
 File: Figure3-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure3-eps-converted-to.pdf>
-Package pdftex.def Info: Figure3-eps-converted-to.pdf used on input line 1557.
+Package pdftex.def Info: Figure3-eps-converted-to.pdf used on input line 931.
 (pdftex.def)             Requested size: 248.92938pt x 470.7576pt.
- [52] [53 <./Figure3-eps-converted-to.pdf>]
+ [44] [45 <./Figure3-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <Figure4.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 9455 bytes
@@ -765,215 +850,248 @@ Package epstopdf Info: Source file: <Figure4.eps>
 (epstopdf)                    size: 6525 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure4-eps-converted-to.p
 df Figure4.eps>
-(epstopdf)             \includegraphics on input line 1628.
+(epstopdf)             \includegraphics on input line 1002.
 Package epstopdf Info: Output file is already uptodate.
 
-<Figure4-eps-converted-to.pdf, id=252, 219.82124pt x 126.4725pt>
+<Figure4-eps-converted-to.pdf, id=224, 219.82124pt x 126.4725pt>
 File: Figure4-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure4-eps-converted-to.pdf>
-Package pdftex.def Info: Figure4-eps-converted-to.pdf used on input line 1628.
+Package pdftex.def Info: Figure4-eps-converted-to.pdf used on input line 1002.
 (pdftex.def)             Requested size: 219.8207pt x 126.47218pt.
- [54 <./Figure4-eps-converted-to.pdf>]
-[55] [56]
-Overfull \hbox (1.17947pt too wide) in paragraph at lines 1822--1826
-[]\OT1/lmr/m/n/10.95 The do-main knowl-edge is en-cap-su-lated in the sets of t
-ar-gets the mon-i-tor matches
+ [46 <./Figure4-eps-converted-to.pdf>]
+Chapter 3: Discussion
+[47] [48]
+Overfull \hbox (1.18086pt too wide) in paragraph at lines 1197--1201
+[]\OT1/ocm/m/sc/10.95 The do-main knowl-edge is en-cap-su-lated in the sets of 
+tar-gets the mon-i-tor matches
  []
 
-[57]
+Chapter 3: Conclusion
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <9> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1875
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1251
 .
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <5> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1875
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1251
 .
-
-Underfull \hbox (badness 10000) in paragraph at lines 1892--1900
-\OT1/lmr/m/it/10.95 Acknowledgments
+[49]
+Underfull \hbox (badness 10000) in paragraph at lines 1268--1276
+\OT1/ocm/m/sc/10.95 Acknowledgments
  []
 
-[58] [59
+[50]
+Chapter 3: Appendix
+[51
 
 ]
-Overfull \hbox (76.94601pt too wide) in paragraph at lines 2061--2061
+Overfull \hbox (76.98438pt too wide) in paragraph at lines 1438--1438
 [] 
  []
 
-[60]
-Overfull \hbox (86.01927pt too wide) detected at line 2137
+[52]
+LaTeX Font Info:    Try loading font information for U+euf on input line 1473.
+ (/usr/share/texmf-dist/tex/latex/amsfonts/ueuf.fd
+File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
+)
+Overfull \hbox (85.4974pt too wide) detected at line 1514
 []\OT1/lmr/m/n/10.95 ( []\OML/lmm/m/it/10.95 ;  []\OT1/lmr/m/n/10.95 ) = []
  []
 
-[61]
-Overfull \hbox (17.20593pt too wide) detected at line 2176
+[53]
+Overfull \hbox (18.8497pt too wide) detected at line 1553
 \OT1/lmr/m/n/10.95 ^^A( []\OML/lmm/m/it/10.95 ;  []\OT1/lmr/m/n/10.95 ) = []
  []
 
-) (./chap5.tex
+Chapter 3: Epilogue to the paper
+) (./chap4.tex [54]
+\openout2 = `tree-ring-formulation.aux'.
 
-LaTeX Warning: Reference `chap2' on page 62 undefined on input line 5.
+ (./tree-ring-formulation.tex [55
 
-[62]
-Appendix A.
-) (./concl.tex [63
+] [56] [57]
+Overfull \hbox (37.91193pt too wide) in paragraph at lines 314--314
+[] 
+ []
 
-]
-Appendix B.
-) (./app0.tex) (./app1.tex [64
+[58]
+Overfull \hbox (55.8018pt too wide) in paragraph at lines 355--355
+[] 
+ []
 
-]
-Appendix A.
-[65
-
-] [66] (./model/framework [67
-
-]
-LaTeX Font Info:    Font shape `OT1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/lmtt/b/n' tried instead on input line 40.
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 44.
-
-
-(/usr/share/texmf-dist/tex/latex/lm/ts1lmtt.fd
-File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [68] [69] [70] [71] [72]
-[73] [74] [75] [76]) (./model/framework.scm [77] [78] [79] [80] [81] [82]
-[83] [84] [85] [86]) (./model/basic-population.scm [87] [88] [89] [90] [91]
-[92] [93] [94] [95] [96] [97]) (./model/framework-controls.scm [98] [99])
-(./model/framework-classes.scm [100] [101] [102] [103] [104] [105])
-(./model/framework-declarations.scm [106] [107] [108] [109] [110] [111]
-[112] [113]) (./model/framework-methods.scm [114] [115] [116] [117] [118]
-[119] [120] [121] [122] [123] [124] [125] [126] [127] [128] [129] [130]
-[131] [132] [133] [134] [135] [136] [137] [138] [139] [140] [141] [142]
-[143]) (./model/kernel.scm [144] [145] [146] [147] [148] [149] [150] [151]
-[152] [153] [154] [155] [156] [157] [158] [159] [160] [161] [162])
-(./model/log.scm [163]) (./model/log-classes.scm [164] [165] [166] [167])
-(./model/log-declarations.scm [168] [169] [170]) (./model/log-methods.scm
-[171] [172] [173] [174] [175] [176] [177] [178] [179] [180] [181] [182]
-[183] [184] [185] [186] [187] [188] [189] [190] [191] [192])
-(./model/landscape.scm [193]) (./model/landscape-classes.scm [194] [195]
-[196] [197] [198] [199] [200]) (./model/landscape-declarations.scm [201]
-[202] [203] [204]) (./model/landscape-methods.scm [205] [206] [207] [208]
-[209] [210] [211] [212] [213] [214] [215] [216] [217] [218] [219] [220]
-[221] [222] [223] [224] [225] [226] [227] [228] [229] [230] [231] [232]
-[233] [234] [235] [236] [237] [238] [239] [240] [241] [242] [243] [244]
-[245] [246] [247] [248] [249] [250] [251] [252] [253] [254] [255] [256]
-[257] [258] [259] [260] [261] [262] [263] [264] [265] [266] [267] [268])
-(./model/animal.scm [269]) (./model/animal-classes.scm [270] [271] [272]
-[273]) (./model/animal-declarations.scm [274]) (./model/animal-methods.scm
-[275] [276] [277] [278] [279] [280] [281] [282] [283] [284] [285] [286]
-[287] [288] [289] [290] [291] [292] [293] [294] [295])
-(./model/model-configuration.scm [296] [297] [298] [299] [300] [301] [302]
-[303] [304] [305] [306]) [307]) (./biby.tex (./thesis.bbl
-Overfull \hbox (74.3739pt too wide) in paragraph at lines 9--12
-[]\OT1/lmr/m/n/10 Guile ref-er-ence man-ual: Goops.  https://www.gnu.org/softwa
-re/guile/manual/html[]node/GOOPS.html,
+[59] [60]
+Overfull \hbox (37.5855pt too wide) in paragraph at lines 492--495
+[]\OT1/ocm/m/sc/10.95 Now sup-pose that there is some num-ber $\OML/lmm/m/it/10
+.95 n$ \OT1/ocm/m/sc/10.95 for which $[]\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/
+10.95 ^^T \OML/lmm/m/it/10.95 n [] []\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/10.
+95 ^^T
  []
 
 
-Underfull \hbox (badness 1888) in paragraph at lines 14--18
-[]\OT1/lmr/m/n/10 Mit/gnu scheme -- scheme ob-ject sys-tem.  https://www.gnu.or
-g/software/mit-
+Overfull \hbox (85.70796pt too wide) in paragraph at lines 504--504
+[] 
  []
 
+
+Overfull \hbox (36.27896pt too wide) in paragraph at lines 510--510
+[] 
+ []
+
+[61]
+Overfull \hbox (67.19751pt too wide) in paragraph at lines 571--571
+[] 
+ []
+
+[62] [63] [64]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 72.
+(Font)              <12> on input line 753.
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 753.
+
+ [65] [66]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 72.
+(Font)              <14.4> on input line 884.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 884.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 884.
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <14.4> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 72.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <7> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 72.
-[308
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+
+ [67] [68] [69] [70]) [71]) (./chap5.tex
+Chapter 4.
+[72
 
 
-] [309] [310]
-Underfull \hbox (badness 1014) in paragraph at lines 314--324
-\OT1/lmr/m/n/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions on
- the com-bined use of
+]) (./concl.tex [73]
+Chapter 5.
+) (./biby.tex (./thesis.bbl [74
+
+]
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ˜ in font cmr10!
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+ [75
+
+]
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+Missing character: There is no â in font cmr10!
+Missing character: There is no € in font cmr10!
+Missing character: There is no ™ in font cmr10!
+ [76]
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no ¸ in font cmr10!
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no ¼ in font cmr10!
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no ¼ in font cmr10!
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no ¸ in font cmr10!
+
+Underfull \hbox (badness 1859) in paragraph at lines 245--259
+\OT1/ocm/m/it/10 elling, 198(1-2):115 -- 126, 2006.  ISSN 0304-3800.  doi: $\OT
+1/lmr/m/n/10 DOI : 10 . 1016 / j .
+ []
+
+[77]
+Missing character: There is no Ã in font cmr10!
+Missing character: There is no § in font cmr10!
+
+Underfull \hbox (badness 1014) in paragraph at lines 355--365
+\OT1/ocm/m/it/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions o
+n the com-bined use of
  []
 
 
-Underfull \hbox (badness 2142) in paragraph at lines 314--324
-\OT1/lmr/m/it/10 elling\OT1/lmr/m/n/10 , 222(1):210 -- 218, 2011a.  ISSN 0304-3
-800.  doi: $DOI : 10 . 1016 / j .
+Underfull \hbox (badness 2189) in paragraph at lines 355--365
+\OT1/ocm/m/it/10 elling, 222(1):210 -- 218, 2011a.  ISSN 0304-3800.  doi: $\OT1
+/lmr/m/n/10 DOI : 10 . 1016 / j .
  []
 
 
-Underfull \hbox (badness 1014) in paragraph at lines 327--337
-\OT1/lmr/m/n/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions on
- the com-bined use of
+Underfull \hbox (badness 1014) in paragraph at lines 368--378
+\OT1/ocm/m/it/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions o
+n the com-bined use of
  []
 
 
-Underfull \hbox (badness 2088) in paragraph at lines 327--337
-\OT1/lmr/m/it/10 elling\OT1/lmr/m/n/10 , 222(1):210 -- 218, 2011b.  ISSN 0304-3
-800.  doi: $DOI : 10 . 1016 / j .
+Underfull \hbox (badness 2134) in paragraph at lines 368--378
+\OT1/ocm/m/it/10 elling, 222(1):210 -- 218, 2011b.  ISSN 0304-3800.  doi: $\OT1
+/lmr/m/n/10 DOI : 10 . 1016 / j .
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 344--347
-[]\OT1/lmr/m/n/10 webpage, Au-gust 2009.  URL $\OT1/lmtt/m/n/10 http : / / www 
-. ningaloo . org . au / www / en /
+[78]
+Underfull \hbox (badness 10000) in paragraph at lines 398--401
+[]\OT1/ocm/m/it/10 webpage, Au-gust 2009.  URL $\OT1/lmtt/m/n/10 http : / / www
+ . ningaloo . org . au / www / en /
  []
 
 )) (./index.tex
 No file thesis.ind.
-) [311] (./thesis.aux)
+) [79] (./thesis.aux (./tree-ring-formulation.aux))
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- )
-(\end occurred inside a group at level 1)
-
-### simple group (level 1) entered at line 58 ({)
-### bottom level 
+ ) 
 Here is how much of TeX's memory you used:
- 8886 strings out of 493054
- 124726 string characters out of 6140585
- 235592 words of memory out of 5000000
- 12080 multiletter control sequences out of 15000+600000
- 175347 words of font info for 129 fonts, out of 8000000 for 9000
+ 8369 strings out of 493013
+ 114697 string characters out of 6139317
+ 198965 words of memory out of 5000000
+ 11594 multiletter control sequences out of 15000+600000
+ 187965 words of font info for 173 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 40i,26n,43p,1005b,1764s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/shar
-e/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf-dist/fonts/enc/dv
-ips/base/8r.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share
-/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-dist/fonts/enc/d
-vips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{
-/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmsc.enc}</usr/share/texmf-dist/fon
-ts/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texmf-dist/fonts/type1/pu
-blic/lm/lmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></us
-r/share/texmf-dist/fonts/type1/public/lm/lmbx8.pfb></usr/share/texmf-dist/fonts
-/type1/public/lm/lmbxi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmcsc
-10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texm
-f-dist/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf-dist/fonts/type1/publ
-ic/lm/lmmi6.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/sh
-are/texmf-dist/fonts/type1/public/lm/lmmib10.pfb></usr/share/texmf-dist/fonts/t
-ype1/public/lm/lmmib7.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr10.pf
-b></usr/share/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf-dist
-/fonts/type1/public/lm/lmr17.pfb></usr/share/texmf-dist/fonts/type1/public/lm/l
-mr6.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf
--dist/fonts/type1/public/lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/
-lm/lmri10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri8.pfb></usr/shar
-e/texmf-dist/fonts/type1/public/lm/lmri9.pfb></usr/share/texmf-dist/fonts/type1
-/public/lm/lmro10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmro9.pfb></
-usr/share/texmf-dist/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf-dist/fo
-nts/type1/public/lm/lmss8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmss
-bx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/share/te
-xmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf-dist/fonts/type1/pub
-lic/lm/lmtk10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr
-/share/texmf-dist/fonts/type1/public/lm/lmtt8.pfb></usr/share/texmf-dist/fonts/
-type1/public/lm/lmtt9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/sy
-mbols/msam10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msb
-m10.pfb></usr/share/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on thesis.pdf (315 pages, 1176096 bytes).
+ 41i,26n,43p,980b,482s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf-dist/fo
+nts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.e
+nc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf-dist
+/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-
+mathex.enc}{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/u
+sr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmsc.enc}</usr/share/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6
+.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texmf-dist/font
+s/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texmf-dist/fonts/type1/pub
+lic/lm/lmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr
+/share/texmf-dist/fonts/type1/public/lm/lmbx6.pfb></usr/share/texmf-dist/fonts/
+type1/public/lm/lmbx8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbxi10.
+pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf-
+dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf-dist/fonts/type1/public
+/lm/lmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/sha
+re/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf-dist/fonts/type
+1/public/lm/lmmib10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmib7.pfb
+></usr/share/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf-dist/
+fonts/type1/public/lm/lmr12.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
+r17.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf
+-dist/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf-dist/fonts/type1/public/
+lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/share
+/texmf-dist/fonts/type1/public/lm/lmri8.pfb></usr/share/texmf-dist/fonts/type1/
+public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmss8.pfb></u
+sr/share/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/f
+onts/type1/public/lm/lmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
+sy8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/share/tex
+mf-dist/fonts/type1/public/lm/lmtt8.pfb></usr/share/texmf-dist/fonts/type1/publ
+ic/lm/lmtt9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam
+10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></
+usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf
+-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
+Output written on thesis.pdf (83 pages, 820339 bytes).
 PDF statistics:
- 1213 PDF objects out of 1440 (max. 8388607)
- 839 compressed objects within 9 object streams
+ 473 PDF objects out of 1000 (max. 8388607)
+ 333 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

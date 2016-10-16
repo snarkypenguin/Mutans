@@ -231,9 +231,11 @@
 										(+ y 80))
 									)
 											  ))
-					 (make-grid 3 3 '(0 0) '(210 294)
+					 (make-grid 3 3 '(0 0) A4domain
 									<patch> <polygon> "kunlun"
 									'environs %patch-initialiser)))
+
+(define trees '())
 
 (for-each
  (lambda (p)
@@ -259,8 +261,19 @@
 								(days 7) ;; max dt
 								#t       ;; do growth
 								'sigmoid p)
+	  (for-each
+		(lambda (q)
+		  (let ((t (make-simple-plant p (+ 10 (random-real 30)))))
+			 (set! Q (q-insert Q t Qcmp))
+			 (set! trees (cons t trees))))
+		(seq 100))
 	  )))
  (slot-ref habitat 'patch-list))
+
+
+
+
+
 
 (define Q '());
 

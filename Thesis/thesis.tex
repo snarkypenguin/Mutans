@@ -43,9 +43,15 @@
 %\usepackage{graphicx}
 %\usepackage{slashed}
 \usepackage{a4}
+\usepackage{esvect}
+\usepackage[OT1]{fontenc}
+\usepackage{outline}
+\renewcommand*\familydefault{ocm}
+\usepackage[outline]{contour}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{amsmath}
+\usepackage{stmaryrd}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{enumitem}
@@ -54,7 +60,6 @@
 \usepackage{url,lineno}
 \usepackage{graphicx}
 \usepackage{pdflscape}
-
 \usepackage{listings}
 \usepackage{color}
 \usepackage{textcomp}
@@ -86,8 +91,10 @@
 
 \DeclareGraphicsExtensions{.eps,.pdf,.png}
 
+\DeclareMathAlphabet{\mathocm}{OT1}{ocm}{m}{rm}
 \DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
 \DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
 
 \typeout{Got packages}
 
@@ -119,14 +126,15 @@
 % Include all the pieces of your thesis in here.
 \input{prelude} % Contains all the relevant candidate information (name, degrees, abstract etc)
 \input{newcom} % Place all you new commands in here
+\begin{document}
 \input{chap1}  % Introduction
 \input{chap2}  % paper 1
 \input{chap3}  % Definitions, proofs
 \input{chap4}  % paper 2
-\input{chap5}  % explicit model
+\input{chap5}  % explicit model discussion
 \input{concl}  % conclusion ... of course
-\input{app0}   % switch to appendix mode
-\input{app1}   % section 1: environment , section 2: code for explicit model
+%%\input{app0}   % switch to appendix mode
+%\input{app1}   % section 1: environment , section 2: code for explicit model
 \input{biby}   % Makes the bibliography from the BibTeX database
 \input{index}  % Places the index in the thesis
 \end{document}

@@ -1,55 +1,51 @@
-This is BibTeX, Version 0.99d (TeX Live 2015/Arch Linux)
+This is BibTeX, Version 0.99d (TeX Live 2016/Arch Linux)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: thesis.aux
+A level-1 auxiliary file: tree-ring-formulation.aux
 The style file: plainnat.bst
 Database file #1: thesis.bib
-Warning--to sort, need author or key in STklos
-Warning--to sort, need author or key in GNU-GOOPS
-Warning--to sort, need author or key in GNU-SOS
-Warning--empty year in GNU-GOOPS
-Warning--empty year in GNU-SOS
-Warning--empty year in STklos
-Warning--empty year in Swindle
-Warning--empty year in TinyCLOS
-You've used 49 entries,
+Warning--empty journal in bhatanacharoentipping
+Warning--empty year in bhatanacharoentipping
+Warning--empty year in bhatanacharoentipping
+You've used 57 entries,
             2773 wiz_defined-function locations,
-            902 strings with 14312 characters,
-and the built_in function-call counts, 26020 in all, are:
-= -- 2261
-> -- 1909
-< -- 27
-+ -- 654
-- -- 597
-* -- 2308
-:= -- 4056
-add.period$ -- 168
-call.type$ -- 49
-change.case$ -- 343
-chr.to.int$ -- 41
-cite$ -- 109
-duplicate$ -- 993
-empty$ -- 1835
-format.name$ -- 660
-if$ -- 5363
+            958 strings with 16037 characters,
+and the built_in function-call counts, 31113 in all, are:
+= -- 2726
+> -- 2233
+< -- 34
++ -- 759
+- -- 694
+* -- 2767
+:= -- 4882
+add.period$ -- 201
+call.type$ -- 57
+change.case$ -- 399
+chr.to.int$ -- 49
+cite$ -- 117
+duplicate$ -- 1215
+empty$ -- 2198
+format.name$ -- 772
+if$ -- 6413
 int.to.chr$ -- 9
 int.to.str$ -- 1
-missing$ -- 41
-newline$ -- 270
-num.names$ -- 181
-pop$ -- 677
+missing$ -- 54
+newline$ -- 317
+num.names$ -- 229
+pop$ -- 745
 preamble$ -- 1
-purify$ -- 298
+purify$ -- 345
 quote$ -- 0
-skip$ -- 822
+skip$ -- 980
 stack$ -- 0
-substring$ -- 855
-swap$ -- 110
-text.length$ -- 9
+substring$ -- 1124
+swap$ -- 140
+text.length$ -- 12
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 504
-warning$ -- 8
-while$ -- 187
+type$ -- 592
+warning$ -- 3
+while$ -- 245
 width$ -- 0
-write$ -- 674
-(There were 8 warnings)
+write$ -- 800
+(There were 3 warnings)

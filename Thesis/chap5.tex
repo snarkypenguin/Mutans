@@ -1,14 +1,68 @@
 % chap5.tex (Chapter 5 of the thesis)
 
 
-A more nuanced rule for the example presented in
-Chapter \ref{chap2} might be constructed by relating the number of
-individual-based agents needed to the area of a population's potential
-overlap with the contaminant plume.
+\chapter[An Explicit Implementation]{An Explicit Implementation}
+\WeAreOn{\cfive}\label{explicitmodel}
 
+Chapter \ref{modelefficiency} argued that switching models were worth
+considering on the basis of fidelity and efficiency. The results in
+the chapter clearly demonstrate advantages, and while the example used
+is quite simple compared to other models of marine or aquatic
+contaminant interaction, the results are credible.  The contaminant
+models I am most familiar with, \cite{Gray2006nws, Gray2014}, would
+have benefited greatly from the approach. Both models flirted with the
+idea without fully implementing it -- the latter came close, but
+required an extra,  separate modelling kernel to maintain the whales
+which left the system, rather than truly switching representations.
+The source code for the model is available at \linebreak
+\texttt{https://github.com/snarkypenguin/Explicit-Model.git}.
 
+\section{Software environment for the model}
+The model written to the template provided by
+Chapter \ref{adaptiveselection} seeks to redress this absence.  While
+arguably a model with very little real world application, the model
+seeks to provide a framework and a template for constructing useful
+models. The framework provided is based on Tiny-CLOS by Gregor
+Kiczales while he was working at Xeros PARC in 1992 and 1993.
+Tiny-CLOS is the basis from which many of the object systems used in modern
+implementations of Scheme were derived or designed.  I have used
+Gambit-C, a well regarded implementation of Scheme which is both
+compilable and readily links (even uncompiled) to external code and
+libraries. The choice was heavily influenced by the fact that it
+compiled to acceptibly fast code, and that adding hand-crafted C or
+C++ code for particularly intensive routines was not difficult.  
+A lesser consideration was that Gambit-C runs on all of the major
+platforms (Linux, Unix, MacOS, and Android, for example).
+Porting the model to other versions of Scheme should be relatively
+simple; the only potentially awkward issue would be the use
+of \texttt{define-macro} which is used to make the process of defining
+and using objects simpler and less error prone.
 
-\chapter[Explicit Model]{Explicit Model} \label{explicitmodel}
+\section{Model overview}
+How the model is organised
+\begin{itemize}
+\item The framework file and framework.scm
+\item local overloading of (load)
+\item overview of the classes
+\item how the files are connected (need to make it \textbf{not}
+dependent on the local initialisation.
+\end{itemize}
 
-\section{New Section}
-Explicit model based on the model of previous chapter.
+\section{The Kernel}
+how the kernel works, call-backs into the kernel
+
+\section{Agents}
+what makes an agent an agent, and why it is different from other object
+derived things
+
+\subsection{Environment classes}
+Describe the basic environment classes and why they are there
+
+\subsection{Plant classes}
+Plants: pertinent eh?
+
+\subsection{Animal classes}
+Difference between herbivores and carnivores
+
+\subsection{Data Loggers}
+How the loggers work with their call-backs

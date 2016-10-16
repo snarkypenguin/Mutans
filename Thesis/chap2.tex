@@ -1,35 +1,73 @@
-%% \documentclass[authoryear,final,5p,twocolumn]{elsarticle}
-%% \usepackage{amssymb}
-%% \journal{Journal of Environmental Modelling and Software}
-%% \begin{document}
-%% \begin{frontmatter}
-%% \title{Increasing model efficiency by dynamically changing model representations}
-%% \author{Randall Gray\corref{cor1}}
-%% \cortext[cor1]{Corresponding author}
-%% \address{CSIRO Division of Marine and Atmospheric Research}
-%% \ead{Randall.Gray@csiro.au}
-%% \author{Simon Wotherspoon}
-%% \address{University of Tasmania}
-%% \ead{Simon.Wotherspoon@utas.edu.au}
-%% \begin{abstract}
-%%   There are a number of strategies to deal with modelling large complex
-%%   systems such as large marine ecosystems. These systems are often comprised
-%%   of many submodels, each contributing to the overall trajectory of the
-%%   system. The balance between the acceptable modelling error and the run-time
-%%   often dictates the form of these submodels. There may be scope to improve
-%%   the position of this balance point in both regards by structuring models so
-%%   that submodels may change their algorithmic representation and state space
-%%   in response to their local state and the state of the model as a whole.
-  
-%%   This paper uses an example system consisting of a single population of
-%%   animals which periodically encounters a diffuse contaminant in a localised
-%%   region as an example of such a system, and discusses the key issues that
-%%   arise from the approach.
-%% \end{abstract}
-%% \end{frontmatter}
 
-\chapter[INCREASING MODEL EFFICIENCY BY DYNAMICALLY CHANGING MODEL REPRESENTATIONS]{Increasing model efficiency by dynamically changing model representations}\label{modelefficiency}
+\chapter[Increasing model efficiency by dynamically changing model
+  representations]{ Increasing model efficiency by dynamically
+  changing model representations}\label{modelefficiency}
 
+\WeAreOn{\ctwo}
+\typeout{Chapter 2: Prologue to the paper}
+\section{Prologue to the paper}
+This body of this chapter is a (verbatim) paper published in the
+refereed journal \emph{Environmental Modelling and Software}
+(\cite{Gray2012adaptive}).  The model discussed in this chapter is
+built using an older, much more primitive version of the framework
+used in Chapter \ref{adaptiveselection}, the source-code can be
+obtained from\linebreak
+\texttt{https://github.com/snarkypenguin/Model-Efficiency.git}
+
+The paper explores a model of marine organisms that periodically
+migrate through an intermittent plume of some contaminant.  The uptake
+and depuration of the contaminants in the organisms are modelled, and
+the paper compares the results and the run-time for the system in three
+forms in order to establish how useful using model switching may be in
+terms of run-time and fidelity.  The three configurations tested are
+\begin{itemize}
+\item a purely analytic representation of the
+  migrating population --- In this configuration a population whose
+  relative locations follow a Gaussian distribution is moved around the
+  migratory circle, and the uptake of contaminant is calculated using
+  a Runge-Kutta4 algorithm
+\item a purely individual-based model --- Individuals move through the
+  contaminant zone, integrating their contact with the plume and
+  generating an uptake level appropriately
+\item either a population (as described), a set of individuals (also
+  as described), or as a mix with part of the cohort represented as
+  individuals within the risk zone, and the balance represented as a
+  population --- Here, individuals are generated (and removed from the
+  population) as the population disk encroaches on the contaminant
+  zone. As individuals leave the contact zone, they are subsumed by
+  the population and their individual contaminant level is decayed
+  appropriately.
+\end{itemize}
+
+The analytic submodel is the simplest of the representations,
+consisting largely of a value (or vector) which records the
+contaminant load, and the number of individuals which are represented.
+A single instance of the analytic submodel is present in
+purely-analytic and in the switching model.  The individual-based
+model incorporates a number of state variables, such as velocity,
+contaminant load and the instantiated agents are independent of the
+analytic representation.
+
+In order to avoid confounding the results, the contaminant is inert
+since including toxicity effects would have the potential to alter
+both the number of entities modelled and their behaviour (such as
+movement rates); since slower individuals would take longer to move
+through contaminated regions, their likelihood of contact would be
+higher.  The scenario in the model would be substantially similar to
+simulating the uptake of isotopes associated with particular geographic
+locations.
+
+Given the very predictable dynamics of the populations, the inclusion
+of multiple contaminants or multiple sources, such as in
+\cite{Gray06:1, Gray2014}, seemed unlikely to improve the
+argument.\footnote{Had I incorporated mortality or morbidity
+  associated with contact, the mortality strategy used in
+  \citet{GrayNingaloo} would have been an appropriate choice.}
+
+\pagebreak
+
+\typeout{Chapter 2: Increasing model efficiency by dynamically changing model representations}
+\section*{Increasing model efficiency by dynamically changing model representations}
 \begin{center}
     Randall Gray\footnote{
      {Published in \emph{Environmental Modelling and Software}, 2012}\\
@@ -68,6 +106,7 @@
 
 \rule{\textwidth}{2pt}
 
+\typeout{Chapter 2: Introduction}
 \section{Introduction}\label{Intro}
 
 There is a body of literature stretching back several decades which discusses
@@ -170,7 +209,7 @@ contaminant plumes, though there is nothing that inherently limits the
 techniques to these sorts of studies. \Citeauthor{Lyne94:1} assessed the
 potential of contaminants originating in industrial waste percolating through
 the food chain into commercially exploited fish stocks. \citeauthor{Gray06:1}
-developed a regional model to assess managment strategies for human activity
+developed a regional model to assess management strategies for human activity
 which interacts with the biological systems along the Northwest Shelf of
 Australia.
 
@@ -223,6 +262,7 @@ dynamics of animals with behaviour where short periods of time have a
 significant influence on population levels (\citet{Wolff94:1} and
 \citet{Elderd08:1}, for example).
 
+\typeout{Chapter 2: Overview: an {\em{ODD}} model description}
 \section{Overview: an {\em{ODD}} model description}\label{ODD}
 
 The {\em{ODD}} protocol \citep{Grimm06:1} is used to describe the example
@@ -302,8 +342,8 @@ respect to time and location and maintains no state variables.
 
 \subsection{Process overview and scheduling}
 
-Simulations were run with 90 minute timesteps for a period representing twelve
-years. At each time-step, each instance of a submodel is rostered in a
+Simulations were run with 90 minute time-steps for a period representing twelve
+years. At each time-step, each instance of a submodel is roster-ed in a
 priority queue sorted on the ``time-to-run'' state variable, and when it comes
 to the top of the queue it executes.
 
@@ -311,15 +351,16 @@ Populations operate in a straightforward way: their path is deterministic,
 exposure to contaminants is calculated, and the resulting values are fed
 through the uptake-depuration equation. Individuals calculate their path (a
 segment of a directed random walk which follows the path of migration) and
-contact for the timestep and an apply the uptake-depuration equation. At the
-end of a timestep in non-mutating configurations, data is accumulated for
+contact for the time-step and an apply the uptake-depuration equation. At the
+end of a time-step in non-mutating configurations, data is accumulated for
 output and each submodel reinserts itself in the priority queue. Otherwise, a
 heuristic is used to choose an appropriate representation for the niche in
-next timestep and that is inserted into the queue. Randomisation within a
+next time-step and that is inserted into the queue. Randomisation within a
 time-step is unnecessary, since the individual's or the population's
 contaminant updates are resolved for the contaminant contact across their
 time-step and are not dependent on the state of any other agents.
 
+\typeout{Chapter 2: Design concepts}
 \section{Design concepts}
 
 The central reason for the model is the mutability of the representation of
@@ -336,6 +377,7 @@ property of those models. Since the objective is to examine the impact of
 changing model representation in a fairly narrow situation, no attempt is made
 to optimise the submodels in the ``non-contact'' areas which constitute most
 of the model domain.
+
 
 \section{Details}
 
@@ -381,7 +423,7 @@ of the individuals presented in Table \ref{IBMovement}.
 
 \begin{table}[h]
 \begin{center}
-  \caption{Parameters associated with individual movemement\label{IBMovement}}
+  \caption{Parameters associated with individual movement\label{IBMovement}}
   \begin{tabular}{ccc}
 \hline  &  &   \cr
     Parameter & Value & Description \cr
@@ -471,10 +513,10 @@ The individual-based representation requires no change to run in a mutating
 configuration, but the population-based representation must maintain a list of
 contaminant loads which are processed in exactly the same way a scalar might
 be processed in one of the simple configurations. In the mutating
-configuration, each instance of a model is assessed at the end of its timestep
+configuration, each instance of a model is assessed at the end of its time-step
 to determine whether a change in representation is appropriate.
 
-When a population disaggregates into individuals, the set of individuals with
+When a population dis-aggregates into individuals, the set of individuals with
 contaminant loads corresponding to the entries in the list are created. Their
 locations are normally distributed within the population disk. Any shortfall
 in numbers is handled by creating individuals which have no contaminant load
@@ -491,13 +533,14 @@ call is never used directly by the population, rather it is the supervising
 scheduler which organises the transfer to and from individuals and
 populations.
 
+\typeout{Chapter 3: Results}
 \section{Results}\label{Results}
 
 The data presented in section \ref{Correspondence} are based on two sets of
 simulations representing forty individuals. The first set uses a circular
 plume and the second an elliptical plume. These data sets allow a comparison
 of run-times, the equivalence (or lack of equivalence) amongst the submodels,
-and thet provide data to examine the robustness of the representations to
+and that provide data to examine the robustness of the representations to
 changes in the configuration of the plume. To ensure that run-time comparisons
 are meaningful all of the simulations in the first set of trials were run on
 the same computer.
@@ -668,7 +711,7 @@ Each run collected data regarding the amount of time spent in different parts
 of the submodel; predictably, most of the effort is in calculating contact and
 updating contaminant loads.
 
-The optimisation of supressing the contact calculations when a population is
+The optimisation of suppressing the contact calculations when a population is
 outside the area of potential contact seemed to make very little difference to
 the run-time of population submodel (about 3\%). It seems unlikely to make a
 great deal of difference to the mutating submodel. In the case of the purely
@@ -683,6 +726,7 @@ just over a mean time of 4205 cpu seconds with a standard deviation of
 approximately 16 seconds and the mean of the mutating submodel's run time was
 1157 cpu seconds with a standard deviation of slightly over 11 cpu seconds.
 
+\typeout{Chapter 3: Discussion}
 \section{Discussion}
 
 In the example our objective is to produce time-series data associated with
@@ -757,7 +801,7 @@ encounter the plume if the plume were at its maximum, switch a population to a
 group of individuals. Conversely, if there is no chance that an individual
 heading straight toward the plume (backwards) will encounter it, move the
 individual to a ``close enough'' population, or create a new population to
-accomodate the individual.}} The model was constructed so that any number of
+accommodate the individual.}} The model was constructed so that any number of
 populations could be run, and the heuristic was framed so that there were no
 assumptions about the number of population agents and the size of the groups
 they represented.
@@ -795,7 +839,7 @@ changing to another representation, they need to conform to the distributions
 of the representation they are leaving. If for some strange reason (like
 behavioural change) the distribution of individuals, for example, does
 {\em{not}} conform to the distribution associated with a coherent
-population, then additional steps need to be taken accomodate this when
+population, then additional steps need to be taken accommodate this when
 changing to a population-based representation.
 
 In section \ref{Heuristics}, transitions between representations in the
@@ -837,6 +881,7 @@ potential sources of error we must analyse. Since transitions can be recorded
 confidence based on our understanding of the representations used in a
 simulation.
 
+\typeout{Chapter 3: Conclusion}
 \section{Conclusion}
 
 Interesting and unanticipated results have come from this experiment. The
@@ -856,8 +901,8 @@ resilience and there is a growing need to model larger, more complex parts of
 the system we live in. Techniques for this have been iteratively moving toward
 a more systematic approach: many models will optimise their run-time and
 accuracy by suppressing unnecessary calculation, models will split their
-timesteps according to what they are simulating, or perhaps even adaptively
-set an appropriate timestep or spatial scale.
+time-steps according to what they are simulating, or perhaps even adaptively
+set an appropriate time-step or spatial scale.
 
 This paper proposes that actually changing the representations to suit the
 different regions of the state space of the model could provide a better
@@ -871,14 +916,43 @@ models may provide an effective means of concentrating the use of
 computational capacity where it is most needed.
 
 
-
 The authors would like to thank the three reviewers whose advice and
 suggestions have made this paper much clearer and to the point. Their care and
 insight are deeply appreciated.
-
-
-
 %% \bibliography{biblio}
 %% \bibliographystyle{elsarticle-harv}
 %% \biboptions{}
 %% \end{document}
+\pagebreak
+
+\typeout{Chapter 3: Epilogue to the paper}
+\section{Epilogue to the paper}
+
+This paper address two of the issues discussed in Chapter \ref{intro},
+namely situations where the mixing assumption fails, and improving the
+run-time efficiency of a model without sacrificing fidelity.  The
+initial motivation for considering this kind of model was the
+recurring need to incorporate contaminant modelling in marine
+environments \cite{Lyne1994pmez5, Gray06:1, GrayNingaloo}. 
+
+The decision strategy in this model was unusually straightforward and
+simple, but my fear was that addressing the central idea in a more
+realistic way might obscure the basic simplicity of the idea, and
+would need a significantly more capable modelling system for the
+discourse.  At the time, the mathematical and programmatic resources I
+could bring to bear on the matter were primitive.  A serendipitous
+coincidence came about soon after this paper was submitted. I became
+involved in what seemed to be unrelated work which sought to
+incorporate social survey data into systems-management models. This
+work lead to the development of a tree structure which could closely
+follow the structural characteristics of the surveys, and provide a
+robust mathematical means of allowing simulated individuals with
+different attitudes, organisations or events to exert influence
+(positively or negatively) the attitudes of others in the system.  The
+mathematical work presented later arose from that project, and during
+its development it became evident that this could provide a means of
+encoding complex relationships within a modelling system.
+
+
+
+

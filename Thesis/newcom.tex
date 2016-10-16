@@ -1,5 +1,31 @@
 % newcom.tex (new command definitions)
 
+%% set pagenumbers appropriately
+\newcommand{\ctwo}{9}
+\newcommand{\cthree}{29}
+\newcommand{\cfour}{45}
+\newcommand{\cfive}{71}
+
+%\newcommand{\ctwo}{200}
+%\newcommand{\cthree}{300}
+%\newcommand{\cfour}{400}
+%\newcommand{\cfive}{500}
+
+%\newcommand{\WeAreOn}[1]{}
+\newcommand{\WeAreOn}[1]{
+\ifforcepagenumbers
+\setcounter{page}{#1}
+\fi}
+
+\newif\ifforcepagenumbers
+%\forcepagenumberstrue  %% pick one...
+\forcepagenumbersfalse
+
+
+
+
+
+
 %% Some examples (yours may be different):
 %\newtheorem{theorem}{Theorem}[section]
 %\newtheorem{lemma}[theorem]{Lemma}
@@ -18,3 +44,4 @@
 %% \newcommand{\Citeauthor}[1]{#1}
 
 %% \newcommand{\leqslant}{\leq}
+

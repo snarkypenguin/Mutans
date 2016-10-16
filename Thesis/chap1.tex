@@ -1,5 +1,3 @@
-\begin{document}
-
 %% These are defined at the end of the mathphdthesis.sty
 \titlepg
 \signaturepage
@@ -8,37 +6,305 @@
 \ackpage
 % Set page numbering to arabic the first time we commence a chapter.
 % This is required to get the page numbering correct.
+
 \pagenumbering{arabic}
+
 
 % Note that the text in the [] brackets is the one that will
 % appear in the table of contents, whilst the text in the {}
 % brackets will appear in the main thesis.
+%\setcounter{page}{2}
+
 \chapter[INTRODUCTION]{Introduction}\label{intro}
 
-\section{Overview and introduction}
+\typeout{Chapter 1: Overview and introduction}
+\section: Overview and introduction{Overview and introduction}
 
-The primary aim of this thesis is to demonstrate an approach to
-constructing computational models which can be used to effect changes
-in the mathematical or algorithmic structure of model of complex
-systems in response to changes in their status. A simple
-uptake-depuration model of organisms which migrate through a
-contaminant field is presented in Chapter \ref{modelefficiency} to
-explore the fundamental principles and to demonstrate the utility of
-such a mechanism. The third chapter develops a mathematical structure
-with properties that make it a useful mechanism for representing the
-complex states of these structurally adaptible models. A number of
-useful functions are defined, and the basic properties of the
-structure are proved. Chapter \ref{adaptiveselection} uses this mathematical
-structure for encoding the complex states of a model and its
-components in a ``thought experiment'' which illustrates the dynamics
-which might arise in a simple model. 
+The term \emph{simulation modelling} covers an incredibly broad
+domain. The models which simulate ocean circulation are quite
+different from individual-based models of foraging ants or timber
+growth in a forest, but they share common ground. Simulation models
+are likely to be computer-based models which attempt to capture the
+dynamics of a system in order to predict or analyse the state of the
+system. More importantly, The systems we model are likely to be
+important to us and we model them in order to develop our
+understanding of the dynamics which govern them.  While there will be
+a bias toward using examples and a narrative based on the modelling of
+human-ecosystem interactions in this thesis, the central applies well
+to almost any domain. The work which lead to the ideas behind this
+thesis was conducted over many years modelling the impact of human
+activity and testing, by simulation, different ways of managing that
+impact.
 
-Chapter \ref{explicitmodel} provides a detailed discussion of a real
-implementation of the thought model used in Chapter
-\ref{adaptiveselection}. The chapter briefly describes the modelling
-framework used to implement the model, and then addresses the details
-of the implementation. \textbf{Using ODD?} {\emph The body of code is included in
-the Appendix.  If we include it all it is 500pp}
+In the last thirty years, simulation modelling has become a central
+tool in studying, predicting and attempting to manage the environment
+we live in. Simulation models are used to assess the likely impact of
+development, of management strategies, and of climatic changes.  Both
+the physical domains modelled and the complexity of the biotic and
+abiotic systems represented are increasing in size and complexity, and
+with this, our ability to comprehend these models in their entirety
+diminishes. Indeed, the last major model I worked on had a word count
+comparable to that of the entire ``Harry Potter'' series\footnote{A
+model of the human-ecosystem interactions on the NW coast of Western
+Australia (\cite{Gray2014}) with a ``\texttt{/usr/bin/wc}'' word count
+of somewhat more than 1.3 million words, compared to just over one
+million words in J.K. Rowling's ``Harry Potter'' series.}; this was
+more than twice the size of its predecessor and more than four times
+the complexity.  For most modellers, a corpus this size exceeds our
+ability to maintain a fine-scale understanding of all the component
+parts, much less to anticipate all of the possible interactions which
+might be possible.  Software engineering principles attempt to
+mitigate this in a number of ways, but these are primarily about the
+\emph{correctness} of the code, rather than the \emph{appropriateness} of the code,
+and very few projects have the scope, resources or skills to engage in
+the formal proof of the correctness of the program as a whole.
+
+Models of complex systems are vulnerable to a number of potential
+problems. In the case of models in population biology or ecosystem
+simulation, population levels may vary widely, and the inability of an
+analytic model to deal appropriately with an individual's influence on
+the population may become an issue at low population levels. At the
+other end of the spectrum, individual-based models often have
+difficulty with small errors in their fine-scale representation
+dominating the the results at high population numbers.  This
+corresponds to the disjunction between continuous processes and
+discrete processes.
+
+In these systems, it would be wonderful if the simpler systems which
+comprise them were easily partitioned, but---at least in ecosystem
+modelling---they usually seem interact directly or through indirect,
+sometimes cryptic ways. The challenge, then, is to construct our
+models with submodels of these simpler systems so that each submodel
+is as close to ``independent'' as we can make it, and to be able to
+tie the ensemble together in a reasonable facsimile of the system we
+wish to simulate. This strategy works reasonably well in a large
+majority of cases, and a modular approach also underpins our approach
+to the design of complex machinery. A critical difference is that
+engineers have a great deal more control over the components which
+make up an actual machine than ecosystem modellers, for example, have
+over the ocean or the biotic and abiotic environment in an ecosystem.
+
+Modellers \emph{do} have some advantages over engineers,
+however. In the domain of modelling we have the scope to employ
+techniques which are not typically possible in physical systems: we
+are able to change how we represent a subsystem within the model
+on-the-fly, in order to maximise some objective.  Of course there
+are common machines that \emph{do} change their physical
+characteristics; examples might include aircraft which change their
+physical shape according to needs (like the Concorde) and modern
+hybrid-electric vehicles which only run their engines either when
+their battery reserves are low, or they are under unusual
+load. Typically, these machines can only change in relatively
+constrained ways; a closer match to an adaptive model might be a bus
+that is able to automatically adjust its length and seating
+arrangements to accomodate the needs of its passengers and their
+cargo.
+
+Discrete changes in the behaviour of a system, or part of a system,
+are commonplace. The scales of systems that exhibit switching
+behaviour range from a molecular level, such as the behaviour of water
+as it freezes, through to climatic changes.  The discussion of
+``tipping points'' has increased dramatically in the last decade
+\cite{bhatanacharoentipping}, indicating a broad recognition that
+systems' dynamics can switch from one mode to another.  In this
+context, consider the assumption that the cumulative effect of
+individual variability tends toward a useful mean.  For \emph{many}
+systems, the error arising from the mixing assumption is small;
+if, however, there are processes modelled which apply to the subjects
+unevenly or asymmetrically, then modelling based on this assumption is
+likely to give an unsatisfactory result.  Sometimes the unevenness
+arises from the nature of the processes themselves; contaminant plumes
+or spills are usually localised and may have quite erratic footprints,
+for example, and there may be physical constraints may effectively
+preclude interactions with part of a population perhaps limited by
+gape.  A more subtle source of heterogeneity occurs when the behaviour
+of individuals within the population is not uniform, such as may occur
+in a population containing parents with dependent young. These
+examples are fairly straightforward -- while there is asymmetry, there
+is little risk of significant feedback.
+
+More complex interactions occur when the extent of the effect of a
+process is associated with the spread or reproduction of
+organisms. The effects of \emph{T. gondii} on
+rats \cite{berdoy2000fatal} is well known, and the positive
+reinforcement on the spread of \emph{T. gondii} afforded by the rats
+loss of fear of cats leads to greater potential for the pathogen to
+infect more rats.  \Citet{dobson1988population} investigates the
+population dynamics of these kinds of interactions, and present an
+approach to incorporating these effects into analytic
+models. \cite{dobson1988population} explored the population dynamics
+of parasite-host systems where the parasites influenced host behaviour
+found that the reproductive capacity of the host populations could be
+significantly modified by the behaviour altering
+parasites.  \cite{poulin1994meta} assesses the effect on host
+behaviour in a number of host-parasite pairings, and found that the
+parasites had a significant effect on the behaviour of their hosts.
+In the cases addressed in these papers, the process in question is
+predation, and the infected individuals are often either
+disproportionately preyed upon \cite{dobben1952food}, or involved in
+the parasite's reproductive cycle.
+
+Environmental conditions and contaminants may also change the
+behaviour of animals in affected areas. \cite{de2011reduced} finds
+that reduced seawater pH disrupts a hermit crab's ability to assess
+the the relative merit of shells, thus reducing its own reproductive
+potential. \cite{zala2004abnormal} presents a useful review of the
+the effects of behaviour disrupting contaminants in a broad range of
+animals.
+
+Further complications arise when components of a system experience
+fundamental changes in their basic dynamics, such as might occur in a
+population with adults which care for dependent young, or situations
+where adaptive behaviour is reinforced or breaks down as a consequence
+of environmental change.  This situation is particularly prone to
+``switching'' behaviour; populations of animals, for example, may have
+quite different behaviours according to their population density; a
+seminal, (and grim) example of this is described in
+\citet{calhoun1973death}. A less maladaptive example, concerning the
+behaviour of lynxes in response to declining prey populations, can be
+found in \citet{ward1985behavioural}; in this paper Ward notes that
+some animals choose a nomadic lifestyle when prey is scarce as a means
+of optimising their likelihood of hunting success, while others do not.
+In these cases, there are no pathogens or chemicals introduced which
+alter the behaviour of the organisms.
+
+Systems comprised of a number of the types of these types of systems
+may exhibit dynamics which are difficult to address in a conventional
+way. Moreover, the complexity of code intended to compass the range of
+possible modal states may become a source of errors or artifacts in
+the generated data. It may be difficult to validate a model which has
+many possible concurrent execution paths. While many modelling systems
+encourage loose coupling and narrow interfaces between components, the
+complexity and size of the domains being modelled is steadily
+increasing.  Even with very clean, robust code, the probability of
+poor interactions during a run increases dramatically as size of
+submodels and number of types and instances of these components
+increases. In my own experience, the size and complexity of the
+domains modelled has been increasing by roughly a factor of four every
+seven years, though it may be much faster.
+
+The basic questions, then, are ``\emph{How do we deal with situations 
+where the assumptions that underpin our representation no longer hold?}'' 
+and ``\emph{How do we manage the execution of submodels which simulate
+systems or entities with multi-modal behaviour?}''
+
+This thesis puts forward the argument that better models may be built
+if we allow the representation of component parts of a model to change
+according to their own needs and state, and the needs and states both
+of their neighbours and of the model as a whole. Such a strategy has a
+number of potential benefits,
+\begin{itemize}
+\item we can make many simple representations for a submodel, each of which
+      deals well with a particular part of the submodel's domain,
+\item the comparative simplicity of these representations effectively 
+      reduces the number of potential code paths within a model at any
+      given moment, since representations do not have to cope with
+      edge cases, they merely indicate that they are entering a marginal
+      or inappropriate domain
+\item we can use analytic representations which are more efficient at
+      representing large numbers of entities
+\item we can use individual-based representations which capture
+      the fine-scale dynamics that dominate when we are dealing with
+      discrete events or low numbers of entities
+\item we can choose representations that make the best use of available
+      data within the model, or can ask for better representations
+      in the ensemble
+\item it is simple to incorporate code to track information about
+      representation changes, relative execution speed, and cumulative
+      error into the modelling system
+\item we can include (or not) agents that identify the emergence of 
+      perverse dynamics within the system.
+\item we can decouple the production of the results from processes
+      which simulate the systems and subsystems being modelled
+\end{itemize}
+
+
+In both of these questions, we can address the issue by explicitly
+changing the representation of the entity in question.  So, rather
+than a single representation for the population of a coastal city, we
+may have a number of different \emph{submodels} with different levels
+of aggregation and different temporal or spatial scales.  In a
+hypothetical simulation of a cyclone season, we may represent the
+population in its most aggregated form until bad weather starts
+forming at sea.  As a tropical storm builds, we may dis\-aggregate the
+population into \emph{agents} --- instances of submodels --- which
+represent groups that live a long way inland, and other groups which
+may be more at risk.  As a cyclone approaches, we may resolve the
+representation further, instantiating emergency response agents and
+individuals at risk.  In the aftermath, aggregation may occur in
+regions where there are no acute effects, but other parts of the
+system may remain finely resolved.
+
+In this example, we can change the representations to deal with both
+of the questions above: We initially assumed that for most of the
+purposes of the simulation, our population could be treated as
+relatively homogeneous.  We may have kept aggregate information about
+population distribution, wealth and demographic characteristics, but
+as soon as the simulation needed to ``mark'' only a portion of the
+population (those with damaged property, for example), we would have
+to refine our representation.  Similarly, the behaviours following the
+storm are mod-ally different: those who live in protected areas are
+mostly free to carry on with essentially the same ``normal''
+representation, but those who lived in damaged areas must engage in
+quite different activities, and may have quite a different exposure to
+risks.
+
+Suppose now that the damage has been repaired and we wish to
+consolidate our representations and return to the original
+representation for the city. Exploring this facet is a major component
+of the model presented in Chapter \ref{modelefficiency}
+
+
+
+% SE-jarosite: 6 agent types (squid, jack mackrel, tuna, anson, plume,
+% current) ~200 agents
+
+% NWS: ~46 (23 top level types used in NWS) agent types, ~800 
+% Ningaloo: ~170 agent types with agent count in the 1000-2000 range
+
+% The primary aim of this thesis is to demonstrate an approach to
+% constructing computational models which can be used to effect changes
+% in the mathematical or algorithmic structure of model of complex
+% systems in response to changes in their status.
+
+
+% Traditionally, we might address changes in the dynamcis of a system by
+% incorporating alternative code paths or conditional expressions within
+% a model
+
+% Factors, such as the increasing need to explore the range of
+% consequences of management decisions and environmental changes, 
+
+% whether the environment we are talking about is the biotic/abiotic
+% world around us, the social support network for disadvantaged people
+% or the supply chain for a manufacturer 
+
+
+
+
+
+% The primary aim of this thesis is to demonstrate an approach to
+% constructing computational models which can be used to effect changes
+% in the mathematical or algorithmic structure of model of complex
+% systems in response to changes in their status. A simple
+% uptake-depuration model of organisms which migrate through a
+% contaminant field is presented in Chapter \ref{modelefficiency} to
+% explore the fundamental principles and to demonstrate the utility of
+% such a mechanism. The third chapter develops a mathematical structure
+% with properties that make it a useful mechanism for representing the
+% complex states of these structurally adaptible models. A number of
+% useful functions are defined, and the basic properties of the
+% structure are proved. Chapter \ref{adaptiveselection} uses this mathematical
+% structure for encoding the complex states of a model and its
+% components in a ``thought experiment'' which illustrates the dynamics
+% which might arise in a simple model. 
+
+% Chapter \ref{explicitmodel} provides a detailed discussion of a real
+% implementation of the thought model used in Chapter
+% \ref{adaptiveselection}. The chapter briefly describes the modelling
+% framework used to implement the model, and then addresses the details
+% of the implementation. \textbf{Using ODD?} {\emph The body of code is included in
+% the Appendix.  If we include it all it is 500pp}
 
 
 In this thesis, we will use \emph{model} to refer to a (possibly
@@ -52,11 +318,11 @@ More specifically, we will consider submodels to be the abstract or
 Traditional models of complex systems incorporate alternative code
 paths or expressions to deal with fundamentally different dynamics
 which may be required within a component of the model by testing for
-conditons which arise during a simulation and executing an alternate
+conditions which arise during a simulation and executing an alternate
 code path within the component. Examples of this approach can be found
 in models implemented in a number of popular modelling frameworks
-{\citep{netlogo,swarm,repast,mason} and in my previous work
-  \citep{nws,ningaloo}.
+\citep{netlogo,swarm,repast,mason} and in my previous work
+\citep{nws,ningaloo}.
 
 In contrast, the models used as examples in this thesis deal with such
 changes by changing the component used --- a number of agents
@@ -74,13 +340,13 @@ at particular times of the year, but be utterly indifferent to them at
 times when there is little likelihood of their presence in an
 accessible location. Similarly, the association of entities
 represented by a population-based model needs to be maintained if the
-population disaggregates into super-individual-based or
-individual-based agents.
+population dis\-aggregates into agents based on super-individuals
+(small cohorts) or agents representing individuals.
 
 These factors make a simple vector-based encoding mechanism for the
 states of a model and its components awkward, thus we turn to a metric
 space over a \rng\footnote{To avoid confusion, we take \rng\ to denote
-  a ring without a multiplicative indentity element.} of trees with a
+  a ring without a multiplicative identity element.} of trees with a
 finite number of weighted, labelled nodes. This simplifies the
 comparison of possible component mixes for a given global state, and
 makes available any algorithms (such as for clustering) which depend
@@ -94,34 +360,33 @@ effects of the current state on the , and be able to calculate (in
 some sense) the incremental costs of change.
 
 
+\typeout{Chapter 1: Historical work}
 \section{Historical work}
 
-\texttt{Probably need more historical work here}
-    
-Many individual-based models incorporate data which represents
-environmental characteristics and influences the behaviour of of the
-individuals simulated. \citet{Botkin72:2} and \citet{deangelis1978model}
-are important early example which model individuals in in the context
-of spatially explicit environmental gradients. In both cases, the
-subjects of the simulations are represented as individuals, and the
+Many individual-based models incorporate environmental characteristics
+that influence the behaviour of of the individuals
+simulated. \citet{Botkin72:2} and \citet{deangelis1978model} are
+important early examples, modelling individuals in in the context of
+spatially explicit environmental gradients. In both cases, the
 environments are relatively static (though interactions, such as
 shading in JABOWA, also played a role).  Even as formulated, we can
-consider the environments in these models as static models in their
+consider the environments in these models as static submodels in their
 own right: from its early inception, the individual-based modelling
 approach implicitly couples different styles of model components.
 
-The coastal marine ecosystem model in \cite{Gray06:1} used different
-representations for the agents which represented the organisms
-comprising the benthic habitat based on their life-stage, though the
-nature of this change was configured during the compilation of the
-model.  Here, juvenile biomasses could be represented by polygonal
-clouds which changed shape as they were advected, and adult stages
-could be represented by several different submodels which might be
-optimised either for speed or for spatial fidelity.  This model was in
-most other ways similar to conventional agent-based modelling of the
-time.
+The coastal marine ecosystem models in \cite{Gray06:1} used different
+representations for the organisms based on their life-stage. As
+organisms that comprised the benthic habitat matured their
+representations would change to suit their niche in the system.  In
+this case the sequence of transitions was determined before
+compilation of the model; juvenile biomasses could be represented
+either by gridded cellular automata or by polygonal clouds which
+changed shape as they were advected, while adult stages could be
+represented by several different submodels which might be optimised
+either for speed or for spatial fidelity.  This model was in most
+other ways similar to conventional agent-based modelling of the time.
 
-%\citea{gross2002multimodeling} describes using this approach as a
+%\cite{gross2002multimodeling} describes using this approach as a
 %basic element underpinning their model, ATLSS, of the Everglades
 %region in the U.S.A.
 
@@ -129,22 +394,55 @@ time.
 which the representation of populations or portions of populations are
 decided based on the number of infected individuals relative to a
 nominated trigger value. This model demonstrates that there is an
-advantage to changeing representation in terms of computational
+advantage to changing representation in terms of computational
 efficiency and the fidelity of the model. The model in Chapter
 \ref{modelefficiency} is similar: the rule governing the switching
-from one representation to another occurs when some monitored quantity
-(the number of infected individuals or the proximity to plume, for
-example) crosses a nominated boundary.  The primary operational model
-underpinning the work in \cite{Fulton2009crossingscales} takes a step
-further, migrating whales change their representation according to
-their putative geographic location, specifically whether they were in
-the model domain or outside it. This model also had to consider the
-linkages between agents: agents representing predators, wildlife
-management and tourism operators had to be aware of the presence of
-``in domain'' whales.
+from one representation to another depends on the state of the system:
+switching occurs when some monitored quantity crosses a nominated
+boundary.  The primary operational model underpinning the work in
+\cite{Gray2014,Fulton2009crossingscales} bases its switching decision on the
+location of individual whales, migrating whales are effectively
+removed from the system while they are outside the domain of the
+model, maintaining them in a rudimentary way until it was time for
+them to migrate back into the model domain. Other agents within the
+model, predators, wildlife management and tourism operators, were
+influenced in their decision processes by the presence or absence of
+whales in the model domain.
 
+\typeout{Chapter 1: Structure and function}
 \section{Structure and function}
 
+Replacing an instance of a submodel representing some entity within a
+model may substantially alter the natural time steps or spatial scales
+associated with an entity in the simulation model: an individual-based
+representation is likely to require a much shorter time step and a much
+richer spatial environment than a population-based representation, for
+example.  In practice, changing spatial resolution is relatively
+straightforward --- either the data is there already, we interpolate
+or we extrapolate. The sorts of causal issues that accompany
+predation, for example, tend not to arise when we move from a finely
+gridded landscape to a coarser version.
+
+Deciding how to manage the flow of time in an ecological simulation
+model is one of the first decisions in its design.  In decades past, a
+model might be constructed as a large set of arrays containing state
+variables which are inspected and updated in the body of a for
+loop. Some models achieve temporal optimisation by dividing the arrays
+into various groups of fast-stepping and slower-stepping variables,
+only dealing with the necessary parts of the system at each time-step
+(\emph{variable speed splitting} as in \cite{walters2000ecosystem},
+for example). \cite{Gray06:1} and \cite{Gray2014} allow agents to
+dynamically determine their own time step based on their state ---
+time steps may be truncated, or changed for their next turn. There is a
+trade-off in this, since with a variable speed splitting approach, we
+can calculate all values based on a temporally coherent set of data,
+and update them all in one pass, but, in the dynamic time-stepping
+approach, each interaction is essentially conducted in isolation, and
+the consequences of a set of interactions may be dependent on the
+order in which the interactions occurs.
+
+Both variable speed splitting and dynamic time-step selection are
+flexible enough to support representational changes for entities
 
 
 
@@ -154,41 +452,3 @@ management and tourism operators had to be aware of the presence of
 
 
 
-
-%% This new paragraph shows how to set \index{index items}index items
-%% and \index{index items!subindex items} subindex items.
-
-%% \subsection{New Subsection}
-%% Here's a subsection with some simple maths $a^2+b^2=c^2$.
-
-%% \subsubsection{subsubsection}
-%% Here's a \index{subsubsection}subsubsection...oooooooohh....wow
-%% wee!!!!!!
-
-%% \newpage
-%% Some more text to check indent and show how references work
-%% \cite{Williamson:STS}.
-
-%% Here's how we place a figure (Figure \ref{fig:utas}) on the page.
-%% \begin{figure}[hbtp]
-%% \begin{center}
-%% \scalebox{.30}{\includegraphics{Utas_vert_BW}} \caption{
-%% \label{fig:utas} The UTas logo}
-%% \end{center}
-%% \end{figure}
-
-%% And finally, here's a table example (Table \ref{tab:taba}).
-%% \begin{table}[hbtp]
-%% \begin{center}
-%% \begin{tabular}{|r|r|r|r|r|}
-%% \hline
-%% $n=$&2&3&4&5\\
-%% \hline
-%% $c$ (rad/day)&1.67&0.52&0.06&-0.17\\
-%% \hline
-%% period (days)&3.75&12.00&100.00&37.50\\
-%% \hline
-%% \end{tabular}
-%% \end{center}
-%% \caption{\label{tab:taba}A simple table}
-%% \end{table}
