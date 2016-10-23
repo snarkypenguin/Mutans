@@ -16,6 +16,22 @@
 
 ;;(load "stats-bins.scm")
 
+
+(include "kdnl.scm") ;; treat it as a part of this file 
+
+;  
+;  ***                                  *                      *     
+;   *                                   *                      *     
+;   *                                   *                      *     
+;   *   * * **   * ***    ****   * **  ****    ****   * ***   ****   
+;   *   ** *  *  **   *  *    *   *     *          *  **   *   *     
+;   *   *  *  *  *    *  *    *   *     *      *****  *    *   *     
+;   *   *  *  *  **   *  *    *   *     *     *    *  *    *   *     
+;   *   *  *  *  * ***   *    *   *     *  *  *   **  *    *   *  *  
+;  ***  *  *  *  *        ****    *      **    *** *  *    *    **   
+;                *                                                   
+;                *        
+
 ;;*** The kernel must be loaded *after* the agents are all created --
 ;;this is so it has access to the "run" "migrate" ... generic
 ;;methods.
@@ -34,6 +50,11 @@
 ;; sorting records with "reccmp"
 ;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
 
+
+(definition-comment 'lookit-running-names
+  "This is a flag used when debugging; if true the name of the running agent is"
+  "printed when it starts to run.")
+
 (define lookit-running-names #f) ;; emits the name of the running
 											;; agent if true
 
@@ -41,7 +62,7 @@
 ;;; This is loaded here since it may be used to produce all sorts of
 ;;; snapshot data spanning agents
 
-
+;; These variables are used by the postscript.scm code
 (define developing #t)
 (define current-page #f)
 (define current-page-number 0)
@@ -55,7 +76,7 @@
 ;               Kernel support
 ;---------------------------------------------------
 
-;; Compares the subjective time of two agents
+(definition-comment 'Qcmp "Compares the subjective time of two agents")
 (define (Qcmp r1 r2)
   (let ((st1 (subjective-time r1))
 		  (st2 (subjective-time r2)))
@@ -70,14 +91,18 @@
 				(#t (< (jiggle r1) (jiggle r2)))
 				))))))
 
+(definition-comment 'map-q "applies a query function (like 'subjective-time') to members of a runqueue, q")
 (define (map-q arg q)
   (map (lambda (s) (arg s)) q))
 
 
+(definition-comment 'q-filter
+  "uses 'filter' and the passed in predicate to return a subset" "of the list of agents, rq")
 (define (q-filter rq predicate)
   (filter (lambda (process) (predicate process)) rq))
 
-
+(definition-comment 'running-queue
+  "This returns a boolean which indicates if 'rq' is a valid runqueue" "which has not finished running")
 (define (running-queue rq stop)
   (cond
 	((null? rq) #f)
@@ -87,7 +112,7 @@
 	(#t (let ((f (car rq)))
 			(< (subjective-time f) stop)))))
 
-;; returns the "time" of the agent at the head of the queue (unused)
+(definition-comment 'model-time "returns the current 'now'  of the agent at the head of the queue (unused)")
 (define (model-time rq stop)
   (if (running-queue rq stop)
 		(if (or (null? rq) (not (list? rq)))
@@ -99,9 +124,11 @@
 		)
   )
 
-;; returns an interval (tick-length) based on the current time, the
-;; desired tick length, the nominated end of the run and a list of
-;; target times
+(definition-comment 'interval
+  "returns an interval (tick-length) based on the current time, the"
+  "desired tick length, the nominated end of the run and a list of"
+  "target times")
+
 (define (interval t ddt stopat tlist)
   ;; tlist is a sorted queue of times to run
   (if (< (- stopat t) ddt)
@@ -121,7 +148,9 @@
 	 (- (car tlist) t))
 	(else 'bad-time-to-run)))
 
-;; remove stale times in the time-to-run queue
+
+(definition-comment 'prune-local-run-queue
+  "remove stale times in the time-to-run queue")
 (define (prune-local-run-queue tm ttr)
   (let (
 ;		  (call-starts (cpu-time))
@@ -137,7 +166,8 @@
 	 r )
   )
 
-;; insert a run record in the queue Q
+(definition-comment 'q-insert
+  "inserts a run record in the right place in the queue Q")
 (define (q-insert Q rec reccmp)
   (let ((j (jiggle rec))
 ;		  (call-starts (cpu-time))
@@ -160,7 +190,8 @@
 ;           Kernel -- the main loop
 ;---------------------------------------------------
 
-;; this is so we catch runaway growth
+(definition-comment 'test-queue-size
+  "this is so we catch runaway growth")
 (define (test-queue-size rq N)
   (if (and (number? N) (> (length rq) N))
 		(begin
@@ -177,20 +208,32 @@
   )
 
 
-;; This is the main loop which runs agents and reinserts them after
-;; they've executed.
-;;
-;; There is extra support for inter-agent communication and migration.
-;;
-;;     The queue doesn't (and *shouldn't*) care at all about how much
-;;     time the agents used.
+(definition-comment 'queue
+"This is the main loop which runs agents and reinserts them after"
+"they've executed. Typically one would begin the simulation by "
+"calling (queue start stop run-queue)."
+""
+"(queue) dispatches control to an agent by a call to (run-agent ...)"
+""
+"There is extra support for inter-agent communication and migration."
+"The queue doesn't (and *shouldn't*) care at all about how much"
+"time the agents used.")
 
-;;
+(define heartbeat 7) ;; heart beat each week
+(define pulse 0) ;; the pulse follows the beat
 
 (define (queue t stop runqueue . N)
   (set! N (if (null? N) #f (car N)))
 
   (let loop ((rq runqueue))
+
+	 (if (and heartbeat (<= pulse t))
+		  (begin
+			 (set! pulse (+ pulse heartbeat))
+			 (display "   ")
+			 (display t)
+			 (display "\r")))
+
 	 (cond
 	  ((terminating-condition-test rq)
 		(list 'terminated rq))
@@ -212,7 +255,7 @@
 	 )
   )
 
-;; converts the parameter vector "params" to reflect a new representation
+(definition-comment 'convert-params "converts the parameter vector 'params' to reflect a new representation")
 (define (convert-params params rep)
   (let* ((newparams params)
 			)
@@ -222,6 +265,7 @@
 	 ))
 
 
+(definition-comment 'distances-to "Returns the nominal distance between agents of a given type and a location")
 (define (distances-to what agentlist loc)
   (map (lambda (agent) 
 			(if (and (procedure? agent)
@@ -232,6 +276,8 @@
 		 agentlist)
   )
 
+
+(definition-comment 'distances-to-agents "Returns a list of nominal distance between a location and a members of a set of agents")
 (define (distances-to-agents agentlist loc)
   (map (lambda (agent) 
 			(if (procedure? agent)
@@ -241,11 +287,12 @@
 		 agentlist)
   )
 
+(definition-comment 'distances-to "Returns the nominal distance between <population>s and a location")
 (define (distances-to-populations agentlist loc)
   (distances-to 'population agentlist loc))
 
 
-;; returns the index of the left-most value
+(definition-comment 'min-index "returns the index of the left-most (on the number line) value in n-list")
 (define (min-index n-list)
   (cond 
 	((not (list? n-list)) 'not-a-list)
@@ -281,12 +328,13 @@
 	)
   )
 
+(definition-comment 'kernel-call "This is the call into the kernel, can query for agent lists, agent count, times....")
 (define (kernel-call Q client query #!optional args)
   (cond
    ((and (or (eq? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
-	 ;;(filter (lambda (x) (and (query x) (not (eq? x client)))) Q) ;; *can* return itself ... monitors can monitor monitors
-	 (filter query Q)
-	 )
+	 (if monitors-monitor-themselves
+	 (filter query Q) ;; *can* return itself ... monitors can monitor monitors
+	 ))
 	 
    ((symbol? query)
     (case query
@@ -312,57 +360,58 @@
 	 )
    (#t (abort 'kernel-call:bad-argument))
    )
-  )
+  )	
+  
+
+
+  ;; The agent function, "process",  must respond to the following things
+  ;;    (snapshot agent)
+
+  ;;    (i-am agent)
+  ;;    (is-a agent)
+  ;;    (representation agent)
+  ;;    (name agent)
+  ;;    (subjective-time agent)
+  ;;    (dt agent)
+  ;;    (parameters agent)
+
+  ;;    (run-at agent t2)
+  ;;    (run agent currenttime stoptime kernel)
 
 
 
-;; The agent function, "process",  must respond to the following things
-;;    (snapshot agent)
+  ;; The return values from agents fall into the following categories:
 
-;;    (i-am agent)
-;;    (is-a agent)
-;;    (representation agent)
-;;    (name agent)
-;;    (subjective-time agent)
-;;    (dt agent)
-;;    (parameters agent)
+  ;; 	a symbol
+  ;; 		is automatically inserted at the head of the queue and
+  ;; 		execution is terminated (for debugging)
 
-;;    (run-at agent t2)
-;;    (run agent currenttime stoptime kernel)
+  ;; 	dt 
+  ;; 		normal execution
 
+  ;; 	(list 'introduce-new-agents dt list-of-new-agents)
+  ;; 	   indicates that the agents in list-of-new-agents should be
+  ;; 	   added to the simulation
 
+  ;; 	(list 'remove-me dt)
+  ;; 	   indicates that an agent should be removed from the simulation
 
-;; The return values from agents fall into the following categories:
+  ;; 	(list 'migrate dt list-of-suggestions)
+  ;; 	   the list-of-suggestions is so that an external assessment routine 
 
-;; 	a symbol
-;; 		is automatically inserted at the head of the queue and
-;; 		execution is terminated (for debugging)
+  ;; 	(list 'domain dt message-concering-domain-problem)
+  ;; 		usually something like requests for greater resolution...
 
-;; 	dt 
-;; 		normal execution
-
-;; 	(list 'introduce-new-agents dt list-of-new-agents)
-;; 	   indicates that the agents in list-of-new-agents should be
-;; 	   added to the simulation
-
-;; 	(list 'remove-me dt)
-;; 	   indicates that an agent should be removed from the simulation
-
-;; 	(list 'migrate dt list-of-suggestions)
-;; 	   the list-of-suggestions is so that an external assessment routine 
-
-;; 	(list 'domain dt message-concering-domain-problem)
-;; 		usually something like requests for greater resolution...
-
-;; 	(list 'migrated dt)
-;;      indicates that a model has changed its representation for some reason
+  ;; 	(list 'migrated dt)
+  ;;      indicates that a model has changed its representation for some reason
 
 
-" Both prep-agents and shutdown-agents make use of 'kernel-call' whose
-arguments are the runqueue, the agent making the request, and any
-arguments that might be required.
-"
-
+(definition-comment 'prep-agents
+  "prepares agents in Q for running, particularly at the start of a simulation"
+  "Both prep-agents and shutdown-agents make use of 'kernel-call' whose"
+  "arguments are the runqueue, the agent making the request, and any"
+  "arguments that might be required."
+  )	
 (define (prep-agents Q start end . args)
   (kdnl* 'prep "Prepping from" start "to" end "    with" Q)
   (for-each
@@ -377,6 +426,7 @@ arguments that might be required.
 	Q)
   )
 
+(definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
 (define (shutdown-agents Q . args)
   (for-each
 	(lambda (A)
@@ -389,9 +439,10 @@ arguments that might be required.
 	)
 
 
-;; Dispatches a call to the agent through the "run" routine. It also
-;; handles special requests from the agent like mutation and spawning.
-;; subjective time is set in  (run ...)
+(definition-comment 'run-agent
+  "Dispatches a call to the agent through the 'run' routine. It also"
+  "handles special requests from the agent like mutation and spawning."
+  "subjective time is set in  (run ...)")
 (define run-agent
   (let ((populist '())) ;; Remember the population list across
 								;; invocations ... (equiv to a "static" in C,
@@ -556,8 +607,9 @@ arguments that might be required.
 
 (define nested-agents '())
 
-;; Q is the preloaded run-queue
-;; Start and End are numbers s.t. Start < End
+(definition-comment 'run-simulation
+  "Q is the preloaded run-queue"
+  "Start and End are numbers s.t. Start < End")
 (define (run-simulation Q Start End . close-up-shop) 
   (prep-agents Q Start End)
 
@@ -570,6 +622,10 @@ arguments that might be required.
       ((car close-up-shop)))
   )
 
+(definition-comment 'continue-simulation
+  "Q is the currently running list of agents (run-queue)"
+  "End is a number that indicates the end of everything are numbers s.t. Start < End"
+  "close-up-shop is a procedure taking no arguments that may be run at the end.")
 (define (continue-simulation Q End . close-up-shop) 
   (set! Q (queue (subjective-time (car Q)) End Q))
   (if (and (not (null? close-up-shop)) (procedure? (car close-up-shop)))

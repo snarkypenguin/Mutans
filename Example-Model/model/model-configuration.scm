@@ -1,6 +1,3 @@
-
-;-  Identification and Changes
-
 ;--
 ;	model.scm -- Written by Randall Gray 
 ;	Initial coding: 
@@ -9,6 +6,16 @@
 ;
 ;-  Code 
 
+;--- logging
+
+;(add-kernel-msg-tag '*)
+
+;(add-kernel-msg-tag 'introspection) ;; all introspection agents
+;(add-kernel-msg-tag 'log-*) ;; all log messages
+(add-kernel-msg-tag 'running) ;; messages to track running
+(add-kernel-msg-tag 'run-agent) ;; messages indicating that "agent" code is running
+
+(display "Execute (kdnl*-info) to get more info\n")
 
 ;(dump wally)(newline)
 ;(aborts "Incomplete initialisation is making things fail when it runs")
@@ -16,27 +23,30 @@
 ;- Define the model domain now
 
 
+;-- Temporal
 (define start 0) ;; day zero
-(define end 741) ;; end at some day after the start
+(define end 61) ;; end at some day after the start
 
-(if (< end start) (error "The model doesn't work in that direction"))
+(if (< end start) (error "+++Entropy Error+++  The model doesn't work in that direction"))
 
-;;(define log-schedtimes 
-(define log-schedtimes (append 
-						  (cons 0 (seq 6))
-						 (map (lambda (x) (* 10.0 (1+ x))) (seq (/ end 10))))
-  ) ;; first six days, then on every tenth day from the beginning 
-
+;--- Set scheduled tick times.
+;;Scheduled dump times for the logger: by default the first six days,
+;;then every tenth day from the start.  I should make it so that it
+;;can be a function rather than a list.
+(define N-days 740)
+(define schedtimes (unique
+						  (sort
+							 (cons 0 (seq end))
+							<)))
+;-- Spatial
 
 (define A4domain (list 210 294 80)) ;; (x y z) corresponds to the size of an A4 page
 (define mA4domain (list 178 250 80))
 
 (define domain mA4domain)
 
-(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
 
-
-;-- Global data ---------------------------------------------------------------
+;- Global data ---------------------------------------------------------------
 
 (define missing-value 0)  ;; things arrived at by mortality are likely
 								  ;; to be inexact
@@ -56,120 +66,27 @@
   (filter (lambda (x) (string=? (car x) s)) d))
 
 
-(define A4domain (list 210 294 80))  ;; (x y z) corresponds to the
-												 ;; size of an A4 page
-(define mA4domain (list 178 250 80)) ;; Model domain (x-size y-size
-												 ;; z-size)
-
-(define domain mA4domain)
-
-;--- Set scheduled tick times.
-;;Scheduled dump times for the logger: by default the first six days,
-;;then every tenth day from the start.  I should make it so that it
-;;can be a function rather than a list.
-(define schedtimes (append 
-						 (cons 0 (seq 6))
-						 (map (lambda (x) (* 10.0 (1+ x))) (seq 7400))
-  ) ;; first six days, then on every tenth day from the beginning for
-	 ;; 74000 days
-)
-
 ;-- Set kernel flags ---------------------------------------------------------
 
 ;; The kernel will emit messages (with kdnl*) which have a label which
-;; matches something in the kernel-messages list
+;; matches something in the kernel-msg-tags list
 
-;(set! kernel-messages (append '(*) kernel-messages))
-
-;; Indicate which agents are "nested"; as an example patches may be
-;; present either as independent things or as components within a
-;; habitat
-
-(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
-
-(add-kernel-message! 'introspection)
-(add-kernel-message! 'log-*)
-
-;; options include focus stomach hunger-proximity eating log animal-running
-
-;-- extensions to basic framework (more complex models)  ---------------------
-
-;---- Load habitat support code
-
-;;(load "habitat-support.scm")
-
-;- Load the model properly ---------------------------------------------------
-
-;-- load specific models -----------------------------------------------------
-
-;; (make <landscape> ...)
-;; (make <habitat> ...)
-;; ...
-;(append! Q ...)
-
-(dnl "Registered submodels: " submodel-register)
-
-(let ((submodel-files
-		 (!filter
-		  null?
-		  (map
-			cdr
-			(!filter
-			 null?
-			 (!filter
-			  (lambda (x) (member (car x) logger-tags))
-			  submodel-register))))
-		 ))
-
-  (if (pair? submodel-files)
-		(begin 
-		  (dnl "Submodels: " submodel-files)
-		  (for-each (if #t
-							 load 
-							 (lambda (x)
-								(display "loading submodel: ")
-								(display x)
-								(newline)
-								(load x))
-							 )
-						submodel-files))
-		(dnl "No submodel files to be loaded"))
-  )
+;(set! kernel-msg-tags (append '(*) kernel-msg-tags))
 
 
-;;; loggers get inserted at the head of the queue
+;- Indicate any nesting
+;; As an example patches may be present either as independent things or 
+;; as components within a habitat
 
-(let ((logger-files
-		 (!filter
-		  null?
-		  (map
-			cdr
-			(!filter
-			 null?
-			 (filter
-			  (lambda (x) (member (car x) logger-tags))
-			  submodel-register))))
-		 ))
+;(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
 
-  (if (pair? logger-files)
-		(begin 
-		  (dnl "Loggers: " logger-files)
-		  (for-each (if #t
-							 load 
-							 (lambda (x)
-								(display "loading logger: ")
-								(display x)
-								(newline)
-								(load x))
-							 )
-						logger-files))
-		(dnl "No logger files to be loaded"))
-  )
 
+
+(load-submodels)
 
 ;-- Example code to run things....
 
-(define (Doit q) ;; Run till end without paus
+(define (Doit q) ;; Run till end without pause
   (if #f
 		(check-service-data-lists service-name-list
 										  service-type-list service-eqn-sym-list))
@@ -193,16 +110,14 @@
 
 ;-- nominate the models to include
 
-
-
-;;; Not currently working
-;(define psdumper 
-;  (make <log-map> (list 'name "Map" 
-;								'format 'ps
-;								'timestep-schedule schedtimes 
-;								'filename "map-" 'filetype "0.ps"
-;							  )
-;		  ))
+(define use-psdumper #f)  ;;; Not currently working
+;;; (define psdumper 
+;;;   (make <log-map> (list 'name "Map" 
+;;; 								'format 'ps
+;;; 								'timestep-schedule schedtimes 
+;;; 								'filename "map-" 'filetype "0.ps"
+;;; 							  )
+;;; 		  ))
 
 ;; <log-data> is pretty forgiving, but at the expense of verbosity
 ;; <log-agent-table> insists that only one agent be logged
@@ -233,7 +148,7 @@
 											  ))
 					 (make-grid 3 3 '(0 0) A4domain
 									<patch> <polygon> "kunlun"
-									'environs %patch-initialiser)))
+									'local-landscape %patch-initialiser)))
 
 (define trees '())
 
@@ -263,10 +178,10 @@
 								'sigmoid p)
 	  (for-each
 		(lambda (q)
-		  (let ((t (make-simple-plant p (+ 10 (random-real 30)))))
+		  (let ((t (make-simple-plant p (+ 10 (* 30 (random-real))))))
 			 (set! Q (q-insert Q t Qcmp))
 			 (set! trees (cons t trees))))
-		(seq 100))
+		(seq 4))
 	  )))
  (slot-ref habitat 'patch-list))
 
@@ -274,37 +189,47 @@
 
 
 
-
+;; This will be the runqueue!
 (define Q '());
 
+;; Define a nice function to insert an agent into the runqueue
 (define (iQ agnt)
   (set! Q (q-insert Q agnt Qcmp)))
 
 
 
-(iQ habitat)
-(for-each iQ (slot-ref habitat  'patch-list))
+(iQ habitat) ;; Add the habitat..................
+(for-each iQ (slot-ref habitat  'patch-list)) ;; and its subsidiary agents
 
+
+;; An introspection-list is a list of agents to be examined by a logging agent (in this case "logger")
 ;;(set-introspection-list! psdumper (copy-list Q))
-
 (set-introspection-list! logger (copy-list (service-list habitat)))
 
 
-(for-each (lambda (x) (set-map-projection! x mm->points)) Q)
+;; Tell each agent what spatial ordinate system their output should be in (if we don't do this,
+;; it defaults to whatever they use internally) 
+(for-each (lambda (x) (set-map-projection! x mm->points)) Q) 
 
-;;(if use-psdumper
-;;	 (set! Q (cons psdumper Q))
+(if use-psdumper
+	 (set! Q (cons psdumper Q))
 	 (set! Q (cons logger Q))
-;;	 )
+	 )
+
+
+
+(definition-comment 'terminating-condition
+  "If this condition becomes true, (queue) bails out immediately. Recall that it is"
+  "(run-simulation) that forces a 'shutdown on agents."
+  "Often this will just be a lambda returning #f")
 
 (define terminating-condition-test
-  (let* ((tct terminating-condition-test)
+  (let* ((tct terminating-condition-test) ;; chains from other terminating conditions
 			(l (lambda (Q)
 				  (and (tct Q)
-						 (number? (slot-ref wally 'mass))
-						 (number? (slot-ref wilma 'mass)))
+						 #f
 				  )
-				))
+				)))
 	 l))
 
 
@@ -330,8 +255,8 @@
 (dnl "Close up shop with (shutdown-agents Q) -- this closes files and things.")
 
 
-(display "Loaded: ")
-(apply dnl* (map (lambda (x) (slot-ref x 'name)) Q))
+;(display "Loaded: ")
+;(apply dnl* (map (lambda (x) (slot-ref x 'name)) Q))
 
 ;-  The End 
 

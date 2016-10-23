@@ -36,7 +36,6 @@
 
 (include "sclos.scm")
 
-
 (define-macro (with-exit name . body)
   `(call-with-current-continuation
     (lambda (,name) ,@body)))
@@ -51,10 +50,6 @@
 
 ;; Support for the "isa?" calls and for a mapping from the class
 ;; object to a name
-
-(define-macro (register-class cname)
-  `(class-register 'add ,cname ',cname))
-
 
 ;; Remember, if you try to unquote classtype without splicing, the
 ;; interpreter tries to evaluate it.
@@ -79,28 +74,28 @@
 		 (generic-register 'add g ',name)
 		 g)))
 		 
-(define-macro (default-object-initialization name . otherstuff)
-  (if (null? otherstuff)
-		`(add-method
-		  initialize
-		  (make-method (list ,name)
-							(lambda (initialize-parent self args)
-							  (initialise self '())
-							  ;; call "parents" last to make the
-							  ;; initialisation list work
-							  (initialize-parent) 
-							  )))
-		`(add-method
-		  initialize
-		  (make-method (list ,name)
-							(lambda (initialize-parent self args)
-							  (initialise self (list ,@otherstuff))
-							  ;; call "parents" last to make the
-							  ;; initialisation list work
-							  (initialize-parent) 
-							  )))
+;;; (define-macro (default-object-initialization name . otherstuff)
+;;;   (if (null? otherstuff)
+;;; 		`(add-method
+;;; 		  initialize
+;;; 		  (make-method (list ,name)
+;;; 							(lambda (initialize-parent self args)
+;;; 							  (set-state-variables self '())
+;;; 							  ;; call "parents" last to make the
+;;; 							  ;; initialisation list work
+;;; 							  (initialize-parent) 
+;;; 							  )))
+;;; 		`(add-method
+;;; 		  initialize
+;;; 		  (make-method (list ,name)
+;;; 							(lambda (initialize-parent self args)
+;;; 							  (set-state-variables self (list ,@otherstuff))
+;;; 							  ;; call "parents" last to make the
+;;; 							  ;; initialisation list work
+;;; 							  (initialize-parent) 
+;;; 							  )))
   
-  ))
+;;;   ))
 
 
 (define-macro (default-initialization name . otherstuff)
@@ -109,7 +104,7 @@
 		  initialize
 		  (make-method (list ,name)
 							(lambda (initialize-parent self args)
-							  (initialise self '())
+							  (set-state-variables self '())
 							  ;; call "parents" last to make the
 							  ;; initialisation list work
 							  (initialize-parent) 
@@ -118,13 +113,20 @@
 		  initialize
 		  (make-method (list ,name)
 							(lambda (initialize-parent self args)
-							  (initialise self (list ,@otherstuff))
+							  (set-state-variables self (list ,@otherstuff))
 							  ;; call "parents" last to make the
 							  ;; initialisation list work
 							  (initialize-parent) 
 							  )))
   
   ))
+
+(define-macro (default-object-initialization name . otherstuff)
+  `(default-initialization name ,@otherstuff))
+
+(define-macro (default-attribute-initialization name . otherstuff)
+  `(default-initialization name ,@otherstuff))
+
 
 
 ;; This works like so:
@@ -145,17 +147,20 @@
 ;; state variables are not available but you can use "my" and
 ;; "set-my!" or "slot-ref" and "slot-set!"
 
+
+"*** The only difference between an object-method and a model-method is
+that object-methods do not keep track of a kernel.  attribute-methods 
+are identical to object methods. ***"
+
 (define-macro (object-method . madness)
   ;; Call like (object-method classname (mname * margs) . body) where
   ;;   the margs doesn't include the call-parent-method and 'self' is
   ;;   the placeholder
   (if (< (length madness) 3)
 		(error "object-method: bad arguments to method call " madness))
-
   (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
-		(error "method: bad (mname args...) in (method ...) "
+		(error "object-method: bad (mname args...) in (object-method ...) "
 				 (caadr madness)))
-
   (if (not (eq? (cadadr madness) 'self))
 		(error "object-method: missing 'self' placeholder in definition "
 				 (caadr madness)))
@@ -170,17 +175,57 @@
 		  )
 	 `(add-method
 		,mname
-		(make-method
-		 (list ,@classlst) 
-		 (lambda (,(string->symbol
-						(string-append
-						 (symbol->string mname) "-parent")) self ,@margs) 
-			(let ((my (lambda (x) (slot-ref self x)))
-					(set-my! (lambda (x y) (slot-set! self x y)))
-					)
-			  ,@body)
-			)
-		 )
+		(make-method (list ,@classlst) 
+						 (lambda (,(string->symbol
+										(string-append (symbol->string mname)
+															"-parent"))
+									 self ,@margs) 
+							(let ((my (lambda (x) (slot-ref self x)))
+									(set-my! (lambda (x y)
+												  (slot-set! self x y)))
+									)
+							  ,@body)
+							)
+						 )
+		)
+	 )
+  )
+
+(define-macro (attribute-method . madness)
+  ;; Call like (attribute-method classname (mname * margs) . body) where
+  ;;   the margs doesn't include the call-parent-method and 'self' is
+  ;;   the placeholder
+  (if (< (length madness) 3)
+		(error "attribute-method: bad arguments to method call " madness))
+  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+		(error "attribute-method: bad (mname args...) in (attribute-method ...) "
+				 (caadr madness)))
+  (if (not (eq? (cadadr madness) 'self))
+		(error "attribute-method: missing 'self' placeholder in definition "
+				 (caadr madness)))
+
+  (let ((classlst (if (list? (car madness))
+							 (car madness)
+							 (list (car madness))))
+		  (mname (caadr madness))
+		  (star (cadadr madness))
+		  (margs (cddadr madness))
+		  (body (cddr madness))
+		  )
+	 `(add-method
+		,mname
+		(make-method (list ,@classlst) 
+						 (lambda (,(string->symbol
+										(string-append (symbol->string mname)
+															"-parent"))
+									 self ,@margs) 
+							(let ((my (lambda (x) (slot-ref self x)))
+									(set-my! (lambda (x y)
+												  (slot-set! self x y)))
+									)
+							  ,@body)
+							)
+						 )
 		)
 	 )
   )
@@ -203,7 +248,7 @@
   (if (< (length madness) 3)
 		(error "model-method: bad arguments to method call " madness))
   (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
-		(error "method: bad (mname args...) in (method ...) "
+		(error "model-method: bad (mname args...) in (model-method ...) "
 				 (caadr madness)))
   (if (not (eq? (cadadr madness) 'self))
 		(error "model-method: missing 'self' placeholder in definition "
@@ -262,7 +307,7 @@
   `(add-method
 	 run-model-body
 	 (make-method (list ,myclass)
-					  (lambda (parent-body self t dt) 
+					  (lambda (parent-body self t dt)
 						 (let ((my (lambda (x) (slot-ref self x)))
 								 (set-my! (lambda (x y) (slot-set! self x y)))
 								 (kernel (slot-ref self 'kernel))
@@ -274,13 +319,18 @@
 															(1+ (slot-ref self 'counter)))
 											 (slot-set! self 'agent-body-ran #t)))) )
 								 )
-							(begin
-							  ,@body
+							(let ((result
+									 (begin
+										,@body)))
+
 							  (if (not (slot-ref self 'agent-body-ran))
-										  (begin
-											 (slot-set! self 'counter
-															(1+ (slot-ref self 'counter)))
-											 (slot-set! self 'agent-body-ran #t)))
+									(begin
+									  (slot-set! self 'counter
+													 (1+ (slot-ref self 'counter)))
+									  (slot-set! self 'agent-body-ran #t))
+									)
+							  result
+							  
 							  )
 							)
 						 )
@@ -314,6 +364,22 @@
 									 (lambda (self)
 										(slot-ref self ',variable)))))
 
+;; This constructs an alist of those defined things that have comments
+(define-macro (definition-comment name . body)
+  `(set! definition-comments (cons (cons ,name ',body) definition-comments)))
+
+(define-macro (describe item)
+  `(let* ((r (assq ,item definition-comments))
+			 (s (if r r (assq ',item definition-comments))))
+	  
+	  (if s
+			(begin
+			  (display item)(display ": ")
+				(pp s)(newline))
+			(begin
+			  (display "The indicated object, ")
+			  (write item)
+			  (display "does not have a comment recorded by (definition-comment ...)\n")))))
 
 (include "framework.scm")
 

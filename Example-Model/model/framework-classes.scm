@@ -82,6 +82,18 @@
 (register-class <method>)
 
 
+;--- attributes -- data associated with an agent which needs
+;;                 more complex support than <object> provides
+
+(define <attribute>
+  (make-class (inherits-from <object>) 
+				  (state-variables note
+										 map-projection
+										 )
+				  ))
+(register-class <attribute>)
+
+
 ;--- agent based classes
 
 (define <agent>

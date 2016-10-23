@@ -6,7 +6,7 @@
 
 ;--- basic wrangling -- ALL classes
 (declare-method
- initialise ;; *** Note spelling ***
+ set-state-variables ;; *** Note spelling ***
  "handles the initialisation of state variables") 
 (declare-method
  dump
@@ -136,7 +136,7 @@
  (string-append "set parameters using a list of the form "
 					 "'(pval...) where vals are in the right order"))
 (declare-method
- query
+ kquery
  "Send a query to the kernel")
 (declare-method
  run-at

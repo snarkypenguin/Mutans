@@ -136,7 +136,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 (model-method 
  <simple-plant> (initialize self args)
- (initialise self (list 'max-age +inf.0
+ (set-state-variables self (list 'max-age +inf.0
 								'max-mass +inf.0
 								'lai 1.7
 								'water-stress 0
@@ -160,7 +160,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 								;; gives about 15 fruiting trees per 100
 								))
  (initialize-parent)
- (initialise self args) ;; set specifics passed in here...
+ (set-state-variables self args) ;; set specifics passed in here...
 
  (slot-set! self 'mass (* (random-real) (random-real)
 								  (slot-ref self 'max-mass)))
@@ -171,7 +171,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
  
 												 
 (model-body <simple-plant>
-	(kdnl* 'model-bodies "In " (class-name-of self))
+	(kdnl* '(model-bodies plant-running)  (class-name-of self) (name self) "@" t "/" dt)
 	(parent-body)
 
 	;; Calculate water requirements
@@ -288,7 +288,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   ;; If no reproduction-mechanism is specified, the plant does not
   ;; reproduce -- never fruits
 
-  (if (number? (car otherargs))
+  (if (and (pair? otherargs) (number? (car otherargs)))
 		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
 
   (let ((sp (apply make (cons <simple-plant>

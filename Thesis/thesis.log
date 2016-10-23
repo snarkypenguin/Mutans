@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.20)  16 OCT 2016 14:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.20)  16 OCT 2016 15:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -906,20 +906,23 @@ Chapter 3: Epilogue to the paper
 ) (./chap4.tex [54]
 \openout2 = `tree-ring-formulation.aux'.
 
- (./tree-ring-formulation.tex [55
+ (./tree-ring-formulation.tex
+Chapter 4.
+[55
 
-] [56] [57]
-Overfull \hbox (37.91193pt too wide) in paragraph at lines 314--314
+
+] [56] [57] [58]
+Overfull \hbox (37.91193pt too wide) in paragraph at lines 315--315
 [] 
  []
 
-[58]
-Overfull \hbox (55.8018pt too wide) in paragraph at lines 355--355
+
+Overfull \hbox (55.8018pt too wide) in paragraph at lines 356--356
 [] 
  []
 
 [59] [60]
-Overfull \hbox (37.5855pt too wide) in paragraph at lines 492--495
+Overfull \hbox (37.5855pt too wide) in paragraph at lines 493--496
 []\OT1/ocm/m/sc/10.95 Now sup-pose that there is some num-ber $\OML/lmm/m/it/10
 .95 n$ \OT1/ocm/m/sc/10.95 for which $[]\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/
 10.95 ^^T \OML/lmm/m/it/10.95 n [] []\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/10.
@@ -927,49 +930,49 @@ Overfull \hbox (37.5855pt too wide) in paragraph at lines 492--495
  []
 
 
-Overfull \hbox (85.70796pt too wide) in paragraph at lines 504--504
+Overfull \hbox (85.70796pt too wide) in paragraph at lines 505--505
 [] 
  []
 
 
-Overfull \hbox (36.27896pt too wide) in paragraph at lines 510--510
+Overfull \hbox (36.27896pt too wide) in paragraph at lines 511--511
 [] 
  []
 
 [61]
-Overfull \hbox (67.19751pt too wide) in paragraph at lines 571--571
+Overfull \hbox (67.19751pt too wide) in paragraph at lines 572--572
 [] 
  []
 
 [62] [63] [64]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 753.
+(Font)              <12> on input line 754.
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 753.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 754.
 
- [65] [66]
+ [65] [66] [67]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 884.
+(Font)              <14.4> on input line 885.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 884.
+(Font)              <10> on input line 885.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 884.
+(Font)              <7> on input line 885.
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <14.4> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <7> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 884.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
 
- [67] [68] [69] [70]) [71]) (./chap5.tex
-Chapter 4.
+ [68] [69] [70]) [71]) (./chap5.tex
+Chapter 5.
 [72
 
 
 ]) (./concl.tex [73]
-Chapter 5.
+Chapter 6.
 ) (./biby.tex (./thesis.bbl [74
 
 ]
@@ -1049,11 +1052,11 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  8369 strings out of 493013
  114697 string characters out of 6139317
- 198965 words of memory out of 5000000
+ 195949 words of memory out of 5000000
  11594 multiletter control sequences out of 15000+600000
  187965 words of font info for 173 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,26n,43p,980b,482s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,26n,43p,980b,472s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf-dist/fo
 nts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.e
 nc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf-dist
@@ -1088,7 +1091,7 @@ ic/lm/lmtt9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam
 10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></
 usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf
 -dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on thesis.pdf (83 pages, 820339 bytes).
+Output written on thesis.pdf (83 pages, 820207 bytes).
 PDF statistics:
  473 PDF objects out of 1000 (max. 8388607)
  333 compressed objects within 4 object streams

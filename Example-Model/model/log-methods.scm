@@ -108,19 +108,51 @@ close pages and emit 'showpage' for postscript stuff.
  initialize
  (make-method (list <introspection>)
 				  (lambda (initialize-parent self args)
-					 ;;(dnl "<thing> init")
-					 (initialise self (list 'type 'introspection
+					 (set-state-variables self (list 'type 'introspection
 													'priority introspection-priority
 													'jiggle 0 'introspection-list '() 
 													'timestep-epsilon 1e-6 'file #f
 													'filename #f 'filetype #f
 													'format 'text 'missing-val "NoData"
 													'show-field-name #f 'preamble-state '()
+													'dont-log '(ready-for-prep
+																	;; agent things
+																	agent-body-ran agent-schedule
+																	agent-epsilon map-projection counter 
+																	migration-test state-flags
+																	dont-log timestep-schedule kernel
+																	
+																	;; log agent things
+																	introspection-list introspection-schedule
+																	timestep-epsilon 
+
+																	dims ;; thing things
+
+																	;; environment things
+																	default-value minv maxv 
+
+																	;; ecoservice things
+																	plateau-interval growth-rate 
+
+																	;; landscape things
+																	service-list service-update-map
+																	update-equations terrain-function
+																	dump-times scale 
+																	log-services-from-patch
+																	log-patches-from-habitat
+
+																	;; animal things
+																	domain-attraction food-attraction 
+																	near-food-attraction searchspeed
+																	wanderspeed foragespeed	
+																	movementspeed foodlist homelist
+																	breedlist habitat
+																	)
 													'variables-may-be-set #t
 													))
 					 (initialize-parent) ;; call "parents" last to make the
 												;; initialisation list work
-					 (initialise self args)
+					 (set-state-variables self args)
 					 )))
 
 (model-method <introspection> (agent-prep self start end kernel . args)
@@ -140,34 +172,33 @@ close pages and emit 'showpage' for postscript stuff.
 					 ))
 
 (model-body <introspection>
+				(kdnl* '(log-* introspection-trace)
+						 "[" (my 'name) ":" (class-name-of self) "]"
+						 "Introspection: model-body")
 
-						(kdnl* '(log-* introspection-trace)
-								 "[" (my 'name) ":" (class-name-of self) "]"
-								 "Introspection: model-body")
+				(let ((sched (my 'timestep-schedule))
+						)
 
-						(let ((sched (my 'timestep-schedule))
-								)
+				  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
+									(- (car sched) t)
+									dt))
 
-						  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
-											(- (car sched) t)
-											dt))
+				  (kdnl* '(log-* introspection-trace)
+							"      list:     " (my 'introspection-list))
+				  (kdnl* '(log-* introspection-trace)
+							"      schedule: "
+							(list-head (my 'timestep-schedule) 3)
+							(if (> (length (my 'timestep-schedule)) 3)
+								 '... ""))
+				  
+				  (set-my! 'variables-may-be-set #f)
+				  (emit-page self)
 
-						  (kdnl* '(log-* introspection-trace)
-									"      list:     " (my 'introspection-list))
-						  (kdnl* '(log-* introspection-trace)
-									"      schedule: "
-									(list-head (my 'timestep-schedule) 3)
-									(if (> (length (my 'timestep-schedule)) 3)
-										 '... ""))
-						  
-						  (set-my! 'variables-may-be-set #f)
-						  (emit-page self)
-
-						  ;(skip-parent-body)
-						  (parent-body)
-						  ;;(max dt (* 2.0 dt))
-						  dt
-						))
+				  ;;(skip-parent-body)
+				  (parent-body)
+				  ;;(max dt (* 2.0 dt))
+				  dt
+				  ))
 
 
 
@@ -233,9 +264,9 @@ close pages and emit 'showpage' for postscript stuff.
 (model-method <snapshot> (initialize self args)
 				  (initialize-parent) ;; call "parents" last to make the
 											 ;; initialisation list work
-				  (initialise self (list 'type snapshot 'lastfile #f
+				  (set-state-variables self (list 'type snapshot 'lastfile #f
 												 'currentfile #f))
-				  (initialise self args)
+				  (set-state-variables self args)
 				  )
 
 (use-parent-body <logfile>)
@@ -357,13 +388,12 @@ close pages and emit 'showpage' for postscript stuff.
 (add-method initialize
 				(make-method (list <log-map>)
 								 (lambda (initialize-parent self args)
-									;;(dnl "<thing> init")
 									(initialize-parent) ;; call "parents" last
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
-									(initialise self '(type log-map format ps))
-									(initialise self args)
+									(set-state-variables self '(type log-map format ps))
+									(set-state-variables self args)
 									;; keep all files
 									)))
 
@@ -476,13 +506,12 @@ close pages and emit 'showpage' for postscript stuff.
 (add-method initialize
 				(make-method (list <log-data>)
 								 (lambda (initialize-parent self args)
-									;;(dnl "<thing> init")
-									(initialise self '(type log-data)) ;; keep all files
+									(set-state-variables self '(type log-data)) ;; keep all files
 									(initialize-parent) ;; call "parents" last
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
-									(initialise self args)
+									(set-state-variables self args)
 									)))
 
 (use-parent-body <log-data>)
@@ -570,8 +599,7 @@ close pages and emit 'showpage' for postscript stuff.
 																	 ;; easy to prune
 																	 ;; the first line
 									  (begin
-										 (display (string-append "# " (name (car il)))
-													 (my 'file))
+										 (display (string-append "# " (name (car il))) file)
 										 (newline file)))
 							  
 								 (let ((header 

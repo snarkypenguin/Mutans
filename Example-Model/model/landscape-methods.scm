@@ -150,7 +150,6 @@
 
 (define print-environment-data
   (lambda (ps p x n ns loc rad)
-	 ;;(dnl (pno (value x)))
 	 (ps 'moveto (map p (map + (list-head loc 2)
 									 (map p (list (* 1.0 rad)
 													  (* (- (/ ns 2.0) n) 1.0))))))
@@ -341,6 +340,7 @@ ecoservices is half (or less) of the timestep of the patch.
   
   (make <ecoservice>
 	 'name N
+	 'type 'eqn-based
 	 'sym n
 	 'patch P
 	 'value V
@@ -356,7 +356,10 @@ ecoservices is half (or less) of the timestep of the patch.
 )
 
 
-(model-method <ecoservice> (dump self . count)
+(model-method <ecoservice> (dump self)
+				  (dump self '()))
+
+(model-method <ecoservice> (dump self count)
 				  (set! count (if (null? count) 0 (car count)))
 				  (display (make-string count #\space))
 				  (display "<ecoservice>\n")
@@ -379,17 +382,17 @@ ecoservices is half (or less) of the timestep of the patch.
 (model-method (<ecoservice> <pair>) (service? self symlist)
 				  (or (memq (my 'type) symlist) (memq (my 'name) symlist)))
 
-(model-method <ecoservice> (value self)
+(model-method (<ecoservice>) (value self)
 				  (my 'value))
 
-(model-method <ecoservice> (capacity self)
+(model-method (<ecoservice>) (capacity self)
 				  (my 'capacity))
 
 (model-method (<ecoservice>) (set-value! self val)
 				  ;;(dnl* "Setting" (name self) "from" (my 'value) "to" val)
 				  (set-my! 'value val))
 
-(model-method <ecoservice> (growth-model self)
+(model-method (<ecoservice>) (growth-model self)
 				  (my 'growth-model))
 
 ;--- adjustment
@@ -416,9 +419,7 @@ ecoservices is half (or less) of the timestep of the patch.
 
 
 (model-body <ecoservice>
-
-						(kdnl* "[" (my 'name) ":" (class-name-of self) "]"
-								 'model-bodies "In " (class-name-of self) t)
+						(kdnl* '(model-bodies ecoservice-running) (class-name-of self) (my 'name)  "@"  t)
 
 						;;;(dnl* 'b1)
 						(let ((h (slot-ref self 'history)))
@@ -449,13 +450,15 @@ ecoservices is half (or less) of the timestep of the patch.
 										 ;; the value at the end of the timestep
 										 ;; (such as a table, or a regular
 										 ;; increment, for example).
+
+
+
+
 										 (newvalue 
 										  (cond
 											((procedure? ecoserv-growth)
-											 ;;;(dnl 'c1)
 											 (growth-model t dt value))
 											((eq? ecoserv-growth 'sigmoid)
-											 ;;;(dnl 'c2)
 											 (let* (;; This is a logistic update
 													  (ipt (/ value capacity)) 
 													  (pt (inverse-sigmoid* ipt))
@@ -463,10 +466,8 @@ ecoservices is half (or less) of the timestep of the patch.
 													  )
 												(* capacity (sigmoid* (+ pt rdt)))))
 											((eq? ecoserv-growth 'linear)
-											 ;;;(dnl 'c3)
 											 (min capacity (+ value (* dt (my 'r)))))
 											(#t
-											 ;;;(dnl 'c4)
 											 value)))
 										 )
 								  ;;(dnl* (name (my 'patch)) "/" (my 'name)
@@ -489,8 +490,11 @@ ecoservices is half (or less) of the timestep of the patch.
 (model-method <ecoservice> (location self)
 				  (location (my 'patch)))
 
+(model-method <ecoservice> (log-data self logger format caller targets)
+				  (log-data self logger format caller targets '()))
+
 (model-method <ecoservice>
-				  (log-data self logger format caller targets . args)
+				  (log-data self logger format caller targets args)
 				  (let ((f (if (pair? args) (car args) #f))
 						  (p (if (and (pair? args)
 										  (pair? (cdr args)))
@@ -571,68 +575,18 @@ ecoservices is half (or less) of the timestep of the patch.
 				  )
 
 
-;--- <circle>
-(default-object-initialization <circle>)
-
-(define (make-circle centre radius)
-  (make <circle> 'locus centre 'radius radius))
-
-(object-method (<circle>) (dump self . count)
-				  (set! count (if (null? count) 0 (car count)))
-
-				  (display (make-string count #\space))
-				  (display "<circle>\n")
-				  (let* ((slots (map car (class-slots (class-of self))))
-							(vals  (map (lambda (x) (slot-ref self x)) slots)))
-					 (for-each (lambda (x y) 
-									 (begin
-										(display (make-string (+ 2 count) #\space))
-										(display x)
-										(display ": ")
-										(display y)
-										(newline)))
-					 slots vals))
-				  )
-				  
-
-(object-method (<circle> <list>) (contains? self loc)
-				  (<= (distance (my 'locus) loc) (my 'radius)))
-
-(object-method (<circle>) (centre self)
-				  (my 'locus))
-
-(object-method (<circle>) (radius self)
-				  (my 'radius))
-
-(object-method (<circle>) (min-bound self)
-				  (my 'radius))
-
-(object-method (<circle>) (max-bound self)
-				  (my 'radius))
-
-(object-method (<circle> <list>) (distance-to-boundary self loc)
-				  (if (contains? self loc)
-						0
-						(- (distance loc (my 'locus)) (my 'radius))))
-
-(object-method (<circle>) (random-point self)
-					(let ((c (my 'locus))
-							(r (my 'radius)))
-					  (map (lambda (x)
-								(+ x (* r
-										(-
-										 (* 2.0 (random-real))
-										 1.0)))) c)))
-
 ;--- <polygon>
 (default-object-initialization <polygon>)
 
 (define (make-polygon centre polygon)
   (if (not (eq? (car polygon) (car (reverse polygon))))
 		(set! polygon (append polygon (list (car polygon)))))
-  (make <polygon> 'locus centre 'perimeter (copy-list polygon)))
+  (make <polygon> 'type 'area 'locus centre 'perimeter (copy-list polygon)))
 
-(object-method (<polygon>) (dump self . count)
+(object-method (<polygon>) (dump self)
+					(dump self '()))
+
+(object-method (<polygon>) (dump self count)
 				  (set! count (if (null? count) 0 (car count)))
 
 				  (display (make-string count #\space))
@@ -701,6 +655,70 @@ ecoservices is half (or less) of the timestep of the patch.
 									  (+ (* (random-real) dy) miny))))))
 							  
 
+;--- <circle>
+(default-object-initialization <circle>)
+
+(define (Circle c r n)
+  (translate-trace c (map (lambda (x)
+									 (list (cos (* (/ x n) 2.0 pi)) (sin (* (/ x n) 2.0 pi)))
+									 ) (append (seq n) '(0)))
+						 ))
+
+(define (make-circle centre radius . n)
+  (make <circle> 'type 'area 'locus centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
+  )
+
+(object-method (<circle>) (dump self)
+					(dump self '()))
+
+
+(object-method (<circle>) (dump self count)
+				  (set! count (if (null? count) 0 (car count)))
+
+				  (display (make-string count #\space))
+				  (display "<circle>\n")
+				  (let* ((slots (map car (class-slots (class-of self))))
+							(vals  (map (lambda (x) (slot-ref self x)) slots)))
+					 (for-each (lambda (x y) 
+									 (begin
+										(display (make-string (+ 2 count) #\space))
+										(display x)
+										(display ": ")
+										(display y)
+										(newline)))
+					 slots vals))
+				  )
+
+(object-method (<circle> <list>) (contains? self loc)
+				  (<= (distance (my 'locus) loc) (my 'radius)))
+
+(object-method (<circle>) (centre self)
+				  (my 'locus))
+
+(object-method (<circle>) (radius self)
+				  (my 'radius))
+
+(object-method (<circle>) (min-bound self)
+				  (my 'radius))
+
+(object-method (<circle>) (max-bound self)
+				  (my 'radius))
+
+(object-method (<circle> <list>) (distance-to-boundary self loc)
+				  (if (contains? self loc)
+						0
+						(- (distance loc (my 'locus)) (my 'radius))))
+
+(object-method (<circle>) (random-point self)
+					(let ((c (my 'locus))
+							(r (my 'radius)))
+					  (map (lambda (x)
+								(+ x (* r
+										(-
+										 (* 2.0 (random-real))
+										 1.0)))) c)))
+
+
 ;-- <boundary> -> <circle>, <polygon>
 
 ;-- <boundary> methods and bodies
@@ -708,25 +726,36 @@ ecoservices is half (or less) of the timestep of the patch.
 (default-object-initialization <boundary> 'rep #f)
 
 (define (make-boundary rep centre arg)
-  (let ((M (make <boundary>)))
+  (let ((M (make <boundary> 'type 'area)))
 	 (case rep
 		((circle)
-		 (slot-set! M 'rep (make <circle> 'locus centre 'radius arg))
+		 (slot-set! M 'rep (make <circle> 'type 'area 'locus centre 'radius arg))
+
+		 (slot-set! M 'rep (make <polygon> 'type 'area 'locus centre
+										 'perimeter (copy-list arg)))
+		 
 		 )
 
 		((polygon absolute-polygon)
-		 (slot-set! M 'rep (make <polygon> 'locus centre
+		 (slot-set! M 'rep (make <polygon> 'type 'area 'locus centre
+										 'perimeter (copy-list arg)))
+		 (slot-set! M 'rep (make <polygon> 'type 'area 'locus centre
 										 'perimeter (copy-list arg)))
 		 )
 
 		((relative-polygon)
-		 (slot-set! M 'rep (make <polygon> 'locus centre
+		 (slot-set! M 'rep (make <polygon> 'type 'area 'locus centre
+										 'perimeter (translate-trace centre arg)))
+		 (slot-set! M 'rep (make <polygon> 'type 'area 'locus centre
 										 'perimeter (translate-trace centre arg)))
 		 )
 
 		(else (error "Bad representation specified for a <boundary>" rep)))))
 
-(object-method (<boundary>) (dump self . count)
+(object-method (<boundary>) (dump self)
+					(dump self '()))
+
+(object-method (<boundary>) (dump self count)
 				  (set! count (if (null? count) 0 (car count)))
 
 				  (display (make-string count #\space))
@@ -785,7 +814,10 @@ ecoservices is half (or less) of the timestep of the patch.
 ;--- (initialize...) 
 (default-initialization <patch>)
 
-(model-method <patch> (dump self . count)
+(model-method <patch> (dump self)
+				  (dump self '()))
+
+(model-method <patch> (dump self count)
 				  (set! count (if (null? count) 0 (car count)))
 
 				  (display (make-string count #\space))
@@ -866,7 +898,8 @@ ecoservices is half (or less) of the timestep of the patch.
 					 (if (< R 0) 0 R)))
 
 ;--- (contains?...) predicate to indicate if something is in the patch
-(model-method <patch> (contains? self . bit)
+
+(model-method <patch> (contains? self bit)
 				  (if (null? bit) 
 						(abort "Missing argument to contains?")
 						(set! bit (car bit)))
@@ -886,7 +919,10 @@ ecoservices is half (or less) of the timestep of the patch.
 
 ;--- (services...) returns services matching the sym or in the symlist
 
-(model-method (<patch>) (service-list self . ss)
+
+  
+
+(model-method (<patch>) (service-list self ss)
 				  (if (and (pair? ss) (pair? (car ss))) (set! ss (car ss)))
 				  (let ((S (my 'service-list)))
 					 (if (null? ss)
@@ -895,12 +931,24 @@ ecoservices is half (or less) of the timestep of the patch.
 							(lambda (x) (or (member (type x) ss) (member (name x) ss)))
 							S))))
 
+(define (service-list self . ss)
+  (cond
+	((null? ss)	(wrapped-service-list self '() #t))
+	((and (pair? ss) (pair? (car ss))) (wrapped-service-list self  (car ss) #t))
+	((pair? ss) (wrapped-service-list self ss #t))
+	(#t (wrapped-service-list self '() #f))))
 
-(model-method (<patch>) (services self . ss)
+
+(model-method (<patch>) (services self)
+				  (services self '()))
+
+(model-method (<patch>) (services self ss)
 				  (if (null? ss)
 						(map (lambda (x) (type x)) (my 'service-list))
 						(map type (apply service-list (cons self ss)))))
 
+(model-method (<patch>) (specific-services self)
+				  (specific-services self '()))
 
 (model-method (<patch>) (specific-services self . ss)
 				  (if (null? ss)
@@ -1069,8 +1117,7 @@ ecoservices is half (or less) of the timestep of the patch.
 
 ;--- model-body <patch>
 (model-body <patch>
-						(kdnl* 'model-bodies "In " (class-name-of self)
-								 (name self) "@" t)
+						(kdnl* '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
 
 						;; this does the growth  and endemic mortality
 						(if (member 'nested-habitat nested-agents)
@@ -1158,7 +1205,7 @@ ecoservices is half (or less) of the timestep of the patch.
 (add-method initialize
 				(make-method (list <dynamic-patch>)
 								 (lambda (initialize-parent self args)
-									(initialise self (list 'population-names '()
+									(set-state-variables self (list 'population-names '()
 																  'population-symbols '()
 																  'd/dt-list '()
 																  'do-dynamics #t
@@ -1221,7 +1268,7 @@ ecoservices is half (or less) of the timestep of the patch.
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
-									(initialise self args)
+									(set-state-variables self args)
 									)))
 
 
@@ -1237,13 +1284,15 @@ ecoservices is half (or less) of the timestep of the patch.
 		(append (list clss)
 				  (cond
 					((eq? bdry <circle>)
-					 (list 'rep (make <circle> 'name name 'type type '
-											locus centre 'radius radius)
+					 (list 'rep (make <circle> 'name name 'type type
+											'locus centre 'radius radius)
 							 ))
 					((eq? bdry <polygon>)
-					 (list 'rep (make <polygon> 'name name 'type type
-											'locus centre 'point-list (copy-list box))
-							 ))
+					 (let ((p (list 'rep (make <polygon> 'name name 'type type
+											'locus centre 'perimeter (copy-list box))
+										 )))
+						;(dump (cadr p))
+						p))
 					(#t
 					 (error "bad boundary class specified in patch-initialiser"
 							  bdry)))
@@ -1353,6 +1402,7 @@ args can be  an update map or an update map and update equations
 				  (map (lambda (x) (value self x)) (my 'service-update-map)))	
 
 ;--- model-method <dynamic-patch> (dump self . count)
+
 (model-method <dynamic-patch> (dump self . count)
 				  (set! count (if (null? count) 0 (car count)))
 
@@ -1488,22 +1538,22 @@ args can be  an update map or an update map and update equations
 						  (tpf (apply andf (map procedure? pf))))
 					 (if (not (and  tpn tps tpf))
 						  (begin
-							 (display (string-append "There was at least one erroneous "
-															 "argument passed to define-population-dynamics!\n"))
+							 (ednl* (string-append "There was at least one erroneous"
+															 "argument passed to define-population-dynamics!"))
 							 (if (not tpn)
 								  (let ((culprits (!filter string? pn)))
-									 (dnl "The following members of the name list should be strings:")
-									 (apply dnl* (cons "   " culprits)))
+									 (ednl* "The following members of the name list should be strings:")
+									 (apply ednl* (cons "   " culprits)))
 								  )
 							 (if (not tps)
 								  (let ((culprits (!filter symbol? ps)))
-									 (dnl "The following members of the symbol list should be symbols:")
-									 (apply dnl* (cons "   " culprits)))
+									 (ednl "The following members of the symbol list should be symbols:")
+									 (apply ednl* (cons "   " culprits)))
 								  )
 							 (if (not tpf)
 								  (let ((culprits (!filter procedure? pf)))
-									 (dnl "The following members of the d/dt list should be functions:")
-									 (apply dnl* (cons "   " culprits)))
+									 (ednl "The following members of the d/dt list should be functions:")
+									 (apply ednl* (cons "   " culprits)))
 								  )
 							 )))
 				  (slot-set! self 'population-names pn)
@@ -1559,7 +1609,8 @@ args can be  an update map or an update map and update equations
 
 ;---  model-body <dynamic-patch
 (model-body <dynamic-patch>
-						(kdnl* 'model-bodies "In " (class-name-of self) t)
+						(kdnl* '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
+
  						;; Ok, I need to be able to refer to service
 						;; directly (names) and to classes (types). Type
 						;; values are aggregates of the members of the
@@ -1572,7 +1623,7 @@ args can be  an update map or an update map and update equations
 
 						;; Changes in a type value are implemented pro-rata.
 
-						;;(dnl "Running <dynamic-patch> model body")
+						;;( dnl "Running <dynamic-patch> model body")
 
 						(if (<= dt 1e-12)
 							 (abort
@@ -1591,7 +1642,7 @@ args can be  an update map or an update map and update equations
 														  (/ dt (my 'subdivisions))
 														  pop-values)))
 										)
-								  ;;(dnl "Got past the rk4* for " (my 'name) "
+								  ;;( dnl "Got past the rk4* for " (my 'name) "
 								  ;;and " (my 'population-names))
 
 								  ;;(set-my! 'dP dP) ;; Don't really *need*
@@ -1602,7 +1653,6 @@ args can be  an update map or an update map and update equations
 										 (if (not (zero? (imag-part v)))
 											  (abort "got complex number, wanted a real"))
 
-										 ;;(dnl (class-name-of self))
 										 
 
 										 (add! self x (- v (value self x)))
@@ -1646,12 +1696,9 @@ args can be  an update map or an update map and update equations
 
 ;; This is to keep the "run" chain consistent
 (model-body <landscape>
-						(kdnl* 'model-bodies "In " (class-name-of self) t)
-						(kdnl* 'nested-habitat (name self) "@" t "/"
-								 (subjective-time self) ":" dt "/" (my 'dt))
+						(kdnl* '(model-bodies landscape-running nested-habitat)  (class-name-of self) (name self) "@" t "/" dt "(dt)" (subjective-time self) "(subj time)" )
 						(parent-body)
-						(kdnl* 'nested-habitat (name self) "@" t "/"
-								 (subjective-time self) ":" dt "/" (my 'dt))
+						(kdnl* '(nested-habitat)  "after parent body ->" (class-name-of self) (name self) "@" t "/" dt "(dt)" (subjective-time self) "(subj time)" )
 						dt
 						)
 
@@ -1679,7 +1726,10 @@ args can be  an update map or an update map and update equations
   (let* ((H (make <habitat> 'name name 'default-value default-ht
 						'minv (car domain) 'maxv (cadr domain)
 						'terrain-function terrain-function
-						'patch-list patch-list))
+						'patch-list patch-list
+						'type 'landscape
+						)			
+				)
 			)
 	 H)
   )
@@ -1708,12 +1758,12 @@ args can be  an update map or an update map and update equations
 (add-method initialize
 				(make-method (list <habitat>)
 								 (lambda (initialize-parent self args)
-									(initialise self (list 'scale #f))
+									(set-state-variables self (list 'scale #f))
 									(initialize-parent) ;; call "parents" last
 															  ;; to make the
 															  ;; initialisation list
 															  ;; work
-									(initialise self args)
+									(set-state-variables self args)
 									)))
 
 ;--- model-method <habitat> (dump self . count) dumps the state of the habitat
@@ -1770,7 +1820,7 @@ args can be  an update map or an update map and update equations
 ;--- model-method (<habitat>) (service-list self . ss)
 ;; returns the slist of provided services: ss is an optional list of
 ;; patch names/symbols
-(model-method (<habitat>)
+(model-method <habitat>
 				  (service-list self . ss)
 				  (uniq
 					(if (null? ss) 
@@ -1983,7 +2033,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-body <habitat>
 (model-body <habitat>
-	(kdnl* 'model-bodies "In " (class-name-of self) (name self) "@" t)
+	(kdnl* '(model-bodies habitat-running) (class-name-of self) (name self) "@" t)
 
 	(if (member 'nested-habitat nested-agents)
 		 (for-each (lambda (x) 

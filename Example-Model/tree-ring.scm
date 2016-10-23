@@ -172,9 +172,6 @@ constructors to generate it.
 
 ;-  Code 
 
-(load "maths.scm") ;; Includes utils.scm
-(load "crossproduct.scm")
-
 (define (power b e) ;; also defined in maths.scm
   (cond
 	((< e 0) (/ 1 (power b (- e))))
@@ -366,6 +363,68 @@ constructors to generate it.
 
 ;---- String utilities
 ;----- (string-head s n (string? integer?)) returns the first part of a string
+
+(define (reverse-string s)
+  (list->string (reverse (string->list s))))
+
+
+(define (filter-formatting S)
+  (let ((excisions
+			'(#\newline #\linefeed #\return
+			  #\" #\'
+			))
+		  (replacements '((#\{ . #\() (#\} . #\)))))
+	 (let* ((s0 (string->list S))
+			  (s1 (!filter (lambda (x) (member x excisions)) s0))
+			  (s2 (map (lambda (x) (let ((k (assq x replacements)))
+											 (if k (cdr k) x)))
+						  s1))
+			  )
+		(list->string s2))))
+
+(define (strcar s) ;; expects a char, returns a char
+  (if (string=? s "")
+		#f
+		(string-ref s 0)))
+
+(define (strcdr s) ;; expects a string, returns a string
+  (if (string=? s "")
+		#f
+		(let ((n (string-length s)))
+		  (substring s 1 n))))
+
+(define (strindex S ch)
+  (cond
+	((char? ch)
+	 (let strindex-loop ((s S)
+					(i 0))
+		(cond
+		 ((string=? s "") #f)
+		 ((char=? (strcar s) ch) i)
+		 (#t (strindex-loop (strcdr s) (+ i 1))))))
+	((and (string? ch) (= (string-length ch) 1))
+	 (strindex S (strcar ch)))
+	((string? ch)
+	 (map (lambda (c) (strindex S c)) (string->list)))))
+	
+	
+(define (!strindex S ch)
+  (cond
+	((char? ch)
+	 (let !strindex-loop ((s S)
+					(i 0))
+		(cond
+		 ((string=? s "") #f)
+		 ((not (char=? (strcar s) ch)) i)
+		 (#t (!strindex-loop (strcdr s) (+ i 1))))))
+	((and (string? ch) (= (string-length ch) 1))
+	 (!strindex S (strcar ch)))
+	(#t 'bad-character)
+	((string? ch)
+	 (map (lambda (c) (!strindex S c)) (string->list)))))
+	
+
+
 (define (string-head s n)
   (let ((N (string-length s)))
 	 (cond
@@ -607,6 +666,52 @@ constructors to generate it.
 			  ((member t '(#\space #\tab))
 				(erode-whitespace (substring string 0 (max 0 (- N 1)))))
 			  (#t string))))))
+
+(define (strsub string old new)
+  (let ((lold (string-length old))
+		  (chold (string-ref old 0))
+		  (lnew (string-length new))
+		  (lstr (string-length string))
+		  )
+	 (let strsub-loop ((s "")
+					(i 0))
+		(if (>= i lstr)
+			 s
+			 (let ((si (string-ref string i)))
+				(cond
+				 ((not (char=? (string-ref string i) chold))
+				  (strsub-loop (string-append s (list->string (list (string-ref string i))))
+						  (+ i 1)))
+
+				 ((> (+ i lold) lstr)
+				  (string-append s (substring string i lstr)))
+
+		 
+				 ((string=? (substring string i (+ i lold)) old)
+				  (strsub-loop (string-append s new) (+ i lold)))
+
+				 (#t (strsub-loop (string-append s (list->string (list (string-ref string i))))
+							  (+ i 1)))
+				 )
+				)))))
+(define (strsub* string old new)
+  (let strsub*-loop ((os string)
+				 (s (strsub string old new))
+				 )
+	 (if (string=? os s)
+		  s
+		  (strsub*-loop s (strsub s old new)))))
+
+(define (tidy-string-ends s)
+  
+  (let* ((s (strsub* s "  " " "))
+			(z (substring s (!strindex s " ") (string-length s)))
+			(d (reverse-string z))
+			(b (substring d (!strindex d " ") (string-length d)))
+			)
+	 (reverse-string b)))
+
+
 
 ;--- Code for polynomials
 
@@ -1424,6 +1529,19 @@ which represents an exponent. "
 
 ;---- polynomial->string & string->polynomial routines
 
+
+(define (rectify-tree-string S)
+	(let ((S (tidy-string-ends
+				 (strsub*
+				  (strsub*
+					(strsub* (filter-formatting (tidy-string-ends S))
+								"  " " ")
+					"( " "(")
+				  " )" ")")
+				 ))
+			)
+	  (strsub* S "( )" "()")))
+
 ;----- (string->term str) maps a term in string form to a polynomial
 (define (string->term str . neg)
   "4 a b^3 c^2 d"
@@ -1672,6 +1790,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 (define emptyset '())
 (define zerotree (list 0 0 emptyset))  ;; [Definition 1]
+(define onetree (list 1 1 emptyset))  ;; [Definition 1]
 
 ;--- Accessors: weight label children children child
 
@@ -1799,6 +1918,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (node w p c) ; weight polynomial-label extensions 
 ;;  (ddnl "\nnode: " w " " p " " c)
   (if (not (number? w)) (error "Weight must be a number" w))
+  (if (string? p)	(set! p (string->polynomial p)))
+  
   (if (not (polynomial? p)) (error "Label must be a polynomial" p))
 
   (if (irregular-children? c)
@@ -1931,6 +2052,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
         ;;;(dnl r)
 		  r))
 	  (#t '()))))
+
 ;----- (L* tree) construct a recursive (label)
 (define (L* t)
   (cond
@@ -2040,10 +2162,44 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	(#t (error "Encountered a dragon in addition" u v))))
 
 
-(define (*T+ . args)
-  (if (null? args)
-		zerotree
-		(T+ (car args) (apply *T+ (cdr args)))))
+(define (T+ . args)
+  (case (length args)
+	((0) zerotree)
+	((1) (car args))
+	((2)
+	 (cond
+	  ((null? (car args)) (apply T+ (cdr args)))
+	  ((not (compatible? (car args)  (cadr args)))
+		(error "Attempted to add incompatible trees" (label u) (label v)))
+	  ((and (node? (car args)) (node? (cadr args)))
+		(node (+ (weight u) (weight v))
+				(label u)
+				(cond
+				 ((and (pair? (children u)) (pair? (children v)))
+				  (if (list-intersection (map label (children u)) (map label (children u)))
+						(!filter null? (append
+											 (U_!v u v)
+											 (U_!v v u)
+											 (map (lambda (l)
+													  (T+ (child u l) (child v l))) 
+													(list-intersection (map label (children u))
+																			 (map label (children v))))))
+						))
+				 ((pair? (children v))
+				  (copy-list (children v)))
+				 ((pair? (children u))
+				  (copy-list (children u)))
+				 (#t emptyset))))
+	  (#t (error "Encountered a dragon in addition" u v))))
+	(else (apply T+ (car args) (apply T+ (cdr args)))))
+  )
+
+(define (T- . args)
+  (case (length args)
+	 ((0) zerotree)
+	 ((1) (T*-scalar -1 (car args)))
+	 ((2) (T+ (car args) (T*-scalar -1 (cadr args))))
+	 (else (T+ (car args (T*-scalar (apply T+ (cdr args))))))))
 
 
 ;---- (box+ B C) [Definition 10]
@@ -2213,135 +2369,6 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 
 
-;--- test trees T0 T[12]a T1a[1234] 
-
-(define T0 (node 0 0 emptyset))
-(define T1a (node (random-real) "x + 1" emptyset))
-(define T1a1 (node (random-real) "x + 1"
-						(new-children (node (random-real) "a + 1" emptyset)
-									  )
-						))
-(define T1a2 (node (random-real) "x + 1"
-						(new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-									  )
-						))
-(define T1a3 (node (random-real) "x + 1"
-						 (new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-										(node (random-real) "b^2 + 2 a + 1" emptyset)
-										(node (random-real) "b^2 + 4 b + 1" emptyset)
-									  )
-						))
-
-(define T1a4 (node (random-real) "x + 1"
-						 (new-children (node (random-real) "a^2 + 2 a + 1" (new-children
-																						 (node (random-real) "x + 1"
-																								 (new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-																												(node (random-real) "b^2 + 2 a + 1" emptyset)
-																												(node (random-real) "b^2 + 4 c + 1" emptyset)
-																												)
-																								 )))
-
-										(node (random-real) "b^2 + 2 a + 1" emptyset)
-										(node (random-real) "b^2 + 4 c + 1" emptyset)
-										)))
-						 
-(define T2a (node (random-real) "y + 1" emptyset))
-(define T2a1 (node (random-real) "y + 1"
-						(new-children (node (random-real) "a + 1" emptyset)
-									  )
-						))
-(define T2a2 (node (random-real) "y + 1"
-						(new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-									  )
-						))
-(define T2a3 (node (random-real) "y + 1"
-						 (new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-										(node (random-real) "b^2 + 2 a + 1" emptyset)
-										(node (random-real) "b^2 + 4 c + 1" emptyset)
-									  )
-						))
-
-(define T2a4 (node (random-real) "y + 1"
-						 (new-children (node (random-real) "a^2 + 2 a + 1" (new-children
-																						 (node (random-real) "y + 1"
-																								 (new-children (node (random-real) "a^2 + 2 a + 1" emptyset)
-																												(node (random-real) "b^2 + 2 a + 1" emptyset)
-																												(node (random-real) "b^2 + 4 c + 1" emptyset)
-																												)
-																								 )
-
-																						 (node (random-real) "b^2 + 2 a + 1" emptyset)
-																						 (node (random-real) "b^2 + 4 c + 1" emptyset)
-																						 )
-												))
-						 ))
-						 
-
-(define M0 (node 2 "1 + 2 x + x^2" (new-children (node 2 "1 + y" emptyset)
-															 (node 3 "1 + z" emptyset))))
-(define M1 (node 3 "1 + 2 x + x^2" (new-children (node 5 "1 + w" emptyset)
-															 (node 7 "1 + x" emptyset))))
-
-
-
-(define U0 (node 1 "rt" emptyset))
-(define V0 (node 1 "rt" emptyset))
-;; (U_v U0 V0) should be '()
-;; (U_!v U0 V0) should be '() -- both set of children are empty
-
-
-
-
-(define S1 (node 1 "rt" (new-children (node 2.11 "ea" emptyset)
-											  (node 2.21 "ea^2" emptyset)
-											  (node 2.31 "ea^4" emptyset)
-											  (node 2.41 "ea^8" emptyset)
-											  )))
-
-(define S2 (node 1 "rt" (new-children (node 2.12 "ea" emptyset)
-											  (node 2.22 "ea^2" emptyset)
-											  (node 2.32 "ea^3" emptyset)
-											  (node 2.42 "ea^5" emptyset)
-											  )))
-
-(define U1 (node 1 "rt" (new-children (node 2.11 "ea" emptyset)
-											  (node 2.21 "ea^2" emptyset)
-											  (node 2.31 "ea^4" emptyset)
-											  (node 2.41 "ea^8" emptyset))))
-
-(define V1 (node 1 "rt" (new-children (node 2.12 "ea" emptyset)
-											  (node 2.22 "ea^2" emptyset)
-											  (node 2.32 "ea^3" emptyset)
-											  (node 2.42 "ea^5" emptyset))))
-
-;;########################################################################
-
-(define U2 (node 1 "rt" (new-children (node 2.11 "ea" emptyset)
-											  (node 2.21 "ea^2" emptyset)
-											  (node 2.31 "ea^4" emptyset)
-											  (node 2.41 "ea^8" emptyset)
-											  (node 2.51 "ea^7" emptyset)
-											  )
-					  ))
-(define V2 (node 1 "rt" (new-children (node 2.12 "ea" emptyset)
-											  (node 2.22 "ea^2" emptyset)
-											  (node 2.32 "ea^3" emptyset)
-											  (node 2.42 "ea^5" emptyset)
-											  (node 2.52 "ea^7" emptyset)
-											  )
-					  ))
-
-;;########################################################################
-
-(define U3 (node 1 "rt" (new-children (node 2.11 "ea" (new-children (node 3.1 "ea" emptyset)))
-											  (node 2.21 "ea^2" (new-children (node 3.2 "ec^2" emptyset)))
-											  (node 2.31 "ea^4" emptyset)
-											  (node 2.41 "ea^8" emptyset))))
-
-(define V3 (node 1 "rt" (new-children (node 2.12 "ea" (new-children (node 3.1 "eb" emptyset)))
-											  (node 2.22 "ea^2" (new-children (node 3.2 "ed^2" emptyset)))
-											  (node 2.32 "ea^4" emptyset)
-											  (node 2.42 "ea^8" emptyset))))
 
 
 
@@ -2353,6 +2380,238 @@ a root (the node which is (uniquely) the child of no other node in the set).
   (if (eq? (car rcg) 'ok)
 		20160707 ;; success
 		#f))
+
+
+(define (p-n . arg)
+  (if (null? arg)
+		(if (even? (random-integer 3)) 1 -1)
+		(* (if (even? (random-integer 3)) 1 -1) (car arg))))
+
+
+;---- (random-polynomial-term L s E)  set-of-labels, scale, max exponent
+(define (random-polynomial-term L s E) 
+  (cond
+	((zero? s) (list 0))
+	((zero? E) (list (random-integer s)))
+	(#t
+	 (let* ((te (* (p-n (random-integer (* 2 (+ 1 E))))))
+			  (e (if (zero? te) E te))
+			  (coef  (* (p-n) (random-integer s)))
+			  (facts (map (lambda (x)
+								 (list (list-ref L (random-integer (length L)))
+										 (* (p-n) (random-integer  e)))
+								 ) (seq E)))
+			  )
+	
+		(cons (if (zero? coef) 1 coef) ;; we don't want zero coefficients associated with a factor!
+				facts
+				))
+	 ))
+	 )
+	
+
+
+(define (poly-to-tree p)
+  (list p '()))
+
+
+;---- (random-polynomial L S k E)  set-of-labels, Scalar, k terms,  max Exponent
+(define (random-polynomial L S k E)
+  (let* ((n-terms (random-integer k))
+			;;(s (* 2.0 (- (random-real) 0.5) (random-integer S))) ;; scalar part
+			(s (* (p-n) (random-integer S))) ;; scalar part
+			(pt (map (lambda (x) (random-polynomial-term L (+ 1 (random-integer S)) E)) (seq (+ 1 (random-integer k)))))
+			)
+	 (normalise-polynomial (cons s pt))))
+
+(define (rndpoly . args)
+  (random-polynomial '(w x y z) 5 6 3))
+
+
+;---- (random-node L w D E z) Labels, (w)eight param for polynomials,  Depth, E= number param for children terms in poly
+;; The weights of nodes will naturally progressively dwindle in the extension sets since at each extension the max weight is drawn from [0-W]
+(define (random-3-node L w D E k )
+  (if (not (and (list? L) (apply andf (map symbol? L)))) (error "bad label list" L))
+  (if (not (apply andf (map integer? (list w D E k))))
+		(error "bad numeric argument to random-node" (list w D E k)))
+  
+  (list (* (random-real) w) (random-polynomial L w k E)
+		  (if (zero? D)
+				'() ;; We have bottomed out depth wise
+				(let ((e (random-integer E))) ;; 
+				  (if (zero? e)
+						'()
+						(map (lambda (x) (random-node L w (- D 1) (random-integer (* 2 k)) k)) (seq e))))))
+  )
+
+
+(define (make-random-3-tree S c e tc d) ;; setofsyms const-range maxexponent termcount depth
+  (let ((nS (length S))
+		  (exponent (map (lambda (x) (random-integer e)) (make-list tc)))
+		  )
+	 (if (zero? d)
+		  '()
+		  (list
+			(normalise-polynomial
+			 (cons (random-integer c)
+					 (map (lambda (x) (list (random-integer (- (* 2 c) c))
+													(list (list-ref S (random-integer nS))
+															x))) exponent)))
+			(!filter null? (map (lambda (x) (make-random-3-tree S c e tc (- d 1))) (seq (random-integer d))))
+			))))
+
+
+(define random-node random-3-node)
+(define random-tree make-random-3-tree)
+
+;---- (random-node L w D E z) Labels, (w)eight param for polynomials,  Depth, E= number param for children terms in poly
+;; The weights of nodes will naturally progressively dwindle in the extension sets since at each extension the max weight is drawn from [0-W]
+(define (random-2-node L w D E z )
+  (if (not (and (list? L) (apply andf (map symbol? L)))) (error "bad label list" L))
+  (if (not (apply andf (map integer? (list w D W z))))
+		(error "bad numeric argument to random-node" (list w D E z)))
+  
+  (list (random-polynomial L w z)
+		  (if (zero? D)
+				'() ;; We have bottomed out depth wise
+				(let ((e (random-integer E))) ;; 
+				  (if (zero? e)
+						'()
+						(map (lambda (x) (random-node L w (- D 1) (random-integer (* 2 e)) z)) (seq e))))))
+  )
+
+(define (make-random-2-tree S c e tc d) ;; setofsyms const-range maxexponent termcount depth
+  (let ((nS (length S))
+		  (exponent (map (lambda (x) (random-integer e)) (make-list tc)))
+		  )
+	 (if (zero? d)
+		  '()
+		  (list
+			(normalise-polynomial
+			 (cons (random-integer c)
+					 (map (lambda (x) (list (random-integer (- (* 2 c) c))
+													(list (list-ref S (random-integer nS))
+															x))) exponent)))
+			(!filter null? (map (lambda (x) (make-random-2-tree S c e tc (- d 1))) (seq (random-integer d))))
+			))))
+
+
+(define (rndtree . args)
+  (make-random-tree '(x y z) 24 3 5 4))
+
+(define (test-associativity-+ p q r)
+  (dnl "Testing additive associativity")
+  (if (equal?
+		 (tree+ p (tree+ q r))
+		 (tree+ (tree+ p q) r))
+		'associative-addition
+		'non-associative-addition
+		))
+
+(define (debug-non-associative-addition p q r)
+  (dnl "debugging additive associativity")
+  (set! v1 p)
+  (set! v2 (tree+ q r))
+  (set! v3 (tree+ p (tree+ q r)))
+  (set! v4 (tree+ p q))
+  (set! v5 r)
+  (set! v6 (tree+ (tree+ p q) r))
+  (if (equal? v3 v6) 'associative-addition  'non-associative-addition )
+  )
+
+(define (test-commutativity-+ p q)
+  (dnl "Testing additive commutativity")
+  (if (equal? (tree+ p q) (tree+ q p))
+		'commutative-addition
+		'non-commutative-addition
+  ))
+
+; "4 * x^2 - 2 * x + 3"  "-4 x^2 + 2*x + 1"
+
+(define (debug-non-associative-multiplication p q r)
+  (dnl "debugging multiplicative associativity")
+  (set! v1 p)
+  (set! v2 (tree* q r))
+  (set! v3 (tree* p (tree* q r)))
+  (set! v4 (tree* p q))
+  (set! v5 r)
+  (set! v6 (tree* (tree* p q) r))
+  (if (equal? v3 v6) 'associative-addition  'non-associative-multiplication )
+  )
+
+(define (test-associativity-* p q r)
+  (dnl "Testing multiplicative associativity")
+  (if (equal?
+		 (tree* p (tree* q r))
+		 (tree* (tree* p q) r))
+		'associative-multiplication
+		'non-associative-multiplication
+		))
+
+(define (test-commutativity-* p q)
+  (dnl "Testing multiplicative commutativity")
+  (if (equal? (tree+ p q) (tree+ q p))
+		'commutative-multiplication
+		'non-commutative-multiplication
+		))
+
+
+(define (test-distribution p q r)
+  (dnl "Testing distribution of multiplication over addition")
+  (if (equal? (tree+	(tree* p q) (tree* p r))
+				  (tree* p (tree+ q r)))
+		'multiplication-distributes-over-addition
+		'multiplication-does-not-distribute-over-addition
+		))
+
+(define (debug-multiplication-does-not-distribute-over-addition p r s)
+  (dnl "debugging multiplicative distribution over addition")
+  (set! v1 (tree* p r))
+  (set! v2 (tree* p s))
+  (set! v3 (tree+ v1 v2))
+  (set! v4 (tree+ r s))
+  (set! v5 (tree* p v4))
+  (set! v6 (tree* v4 p))
+
+  (if (equal? (tree+
+					(tree* p r) (tree* p s))
+				  (tree* p (tree+ r s)))
+		(tree* p (tree+ r s))
+		(list 'do-not-match
+				(tree+
+				 (tree* p r) (tree* p s))
+				(tree* p (tree+ r s)))))
+
+
+(define (test-multiplication-compatibility s p)
+  'compatibility-of-multiplications-not-tested)
+
+
+(define (test-simple-properties p q r)
+	(test-associativity-+ p q r)
+	(test-commutativity-+ p q)
+	(test-associativity-* p q r)
+	(test-commutativity-* p q)
+	)
+
+(define (test-properties p q r )
+  (let*	 ((S '(associative-addition
+					 commutative-addition
+					 associative-multiplication
+					 commutative-multiplication
+					 multiplication-distributes-over-addition))
+			  (R (list
+					(test-associativity-+ p q r)
+					(test-commutativity-+ p q)
+					(test-associativity-* p q r)
+					(test-commutativity-* p q)
+					(test-distribution p q r)))
+			  (F (filter (lambda (x) (not (member x S))) R)))
+
+	 (if (null? F)
+		  'all-good
+		  F
+		  )))
 
 
 

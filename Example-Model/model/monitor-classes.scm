@@ -11,9 +11,13 @@
 ;
 ;-  Code 
 
-
-
-
+(define <config-control>
+  (make-class
+	(inherits-from <monitor>)
+	(state-variables
+	 )
+	))
+						
 
 
 

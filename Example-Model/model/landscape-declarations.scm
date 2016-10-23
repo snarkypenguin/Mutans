@@ -31,6 +31,7 @@
 (declare-method remove-service "remove-service")
 (declare-method service "service") ;; returns value
 (declare-method service-list "service-list") ;; returns value
+;;(declare-method service-list "service-list") ;; returns value
 (declare-method services "services") ;; returns value
 (declare-method specific-services "names of species (or services)") 
 (declare-method service-values 

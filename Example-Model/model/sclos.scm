@@ -1173,6 +1173,6 @@
 (define <vector>      (make-primitive-class))
 (define <char>        (make-primitive-class))
 (define <string>      (make-primitive-class))
-(define  <input-port> (make-primitive-class))
+(define <input-port>  (make-primitive-class))
 (define <output-port> (make-primitive-class))
 

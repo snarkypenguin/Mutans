@@ -11,9 +11,10 @@
 ;
 ;-  Code 
 
-(declare-method action "trigger a representation change, or whatever")
+(declare-method pass-preparation "collect any data which the (process-agent...) routines need")
 (declare-method process-agent "do what ever it needs to do")
-
+(declare-method pass-resolution "generate a list of actions to take")
+(declare-method action "trigger a representation change, or whatever")
 
 ;-  The End 
 

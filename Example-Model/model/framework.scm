@@ -42,25 +42,6 @@
 ;; These are not necessarily controls, but they are used in a similar
 ;; fashion and need to preceed framework-classes.
 
-
-(define (class-name-of x)
-  (cond
-   ((isa? x <agent>) 
-    (let ((n (class-register 'name? (class-of x))))
-      (and n
-           ;;(string->symbol (string-append "instance-of-"
-           ;;   (symbol->string n)))
-           n
-          )
-      ))
-   ((and (sclos-object? x) (assoc x (class-register))) 
-    (let ((n (class-register 'name? x)))
-      (and n
-           (string->symbol (string-append "class:" (symbol->string n)))
-           )))
-   (else #f)))
-   
-
 (define class-register 
   (let ((register '())
         )
@@ -108,6 +89,25 @@
              (else (error "failed call to class-register"
                           args))))))))
                   
+(define (class-name-of x)
+  (cond
+   ((isa? x <agent>) 
+    (let ((n (class-register 'name? (class-of x))))
+      (and n
+           ;;(string->symbol (string-append "instance-of-"
+           ;;   (symbol->string n)))
+           n
+          )
+      ))
+   ((and (sclos-object? x) (assoc x (class-register))) 
+    (let ((n (class-register 'name? x)))
+      (and n
+           (string->symbol (string-append "class:" (symbol->string n)))
+           )))
+   (else #f)))
+   
+
+
 
 (define generic-register 
   (let ((register '())
@@ -178,6 +178,9 @@
         (display (car args))
         (for-each (lambda (x) (display x)) t)))
   (newline))
+
+(define ednl dnl)
+(define ednl* dnl*)
   
 
 (define files-included-immediately
@@ -298,9 +301,25 @@
           )))
   )
 
+
 (define load framework-load)
 
 (define (aborts . args) (error (apply string-append args)))
+
+;; This is a list of data added by a (definition-comment ...) clause associated with a
+;; (define...)
+(define definition-comments '())
+
+
+(definition-comment 'load-model
+  "This first loads the basic files which build the modelling framework"
+  "and the supporting function libraries.  It then loads the files which"
+  "are specific to a particular model---submodels.scm, kernel.scm and"
+  "mode-configuration.scm.  'submodels.scm' defines the object classes"
+  "which are to be used, 'kernel.scm' contains the code which manages the"
+  "execution loop, and 'model-configuration.scm' actually instantiates"
+  "the entities in the model, configures them, and calls the kernel to"
+  "begin the run.")
 
 (define (load-model . extra-files)
   (if (and (pair? extra-files) (pair? (car extra-files)))
@@ -321,6 +340,63 @@
   (if (pair? extra-files)
       (for-each load extra-files))
   )
+
+(define (load-submodels)
+
+  "The following code takes the list of registered submodels and loads any files they may be 
+dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
+
+  (let ((submodel-files
+			(!filter null? (map	cdr (!filter null? (!filter (lambda (x) (member (car x) logger-tags)) submodel-register))))
+			))
+
+	 (if (pair? submodel-files)
+		  (begin 
+			 ;;(dnl "Submodels: " submodel-files)
+			 (for-each (if #t
+								load 
+								(lambda (x)
+								  ;;(display "loading submodel: ")
+								  ;;(display x)
+								  ;;(newline)
+								  (load x))
+								)
+						  submodel-files))
+		  (dnl "No submodel files to be loaded"))
+	 )
+
+
+;;; loggers get inserted at the head of the queue
+
+  (let ((logger-files
+			(!filter
+			 null?
+			 (map
+			  cdr
+			  (!filter
+				null?
+				(filter
+				 (lambda (x) (member (car x) logger-tags))
+				 submodel-register))))
+			))
+
+	 (if (pair? logger-files)
+		  (begin 
+			 ;;(dnl "Loggers: " logger-files)
+			 (for-each (if #t
+								load 
+								(lambda (x)
+								  ;;(display "loading logger: ")
+								  ;;(display x)
+								  ;;(newline)
+								  (load x))
+								)
+						  logger-files))
+		  (dnl "No logger files to be loaded"))
+	 )
+
+)
+
 
 
 

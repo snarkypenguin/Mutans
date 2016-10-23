@@ -48,16 +48,16 @@
 ;----- initialize
 
 (model-method <simple-metabolism> (initialize self args)
-				  (initialise self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
+				  (set-state-variables self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
 				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
-				  (initialise self args)
+				  (set-state-variables self args)
 				  )
 
 
 
 (model-body <metabolism> ;; A thing with metabolism *must* have mass
-						(kdnl* 'model-bodies "In " (class-name-of self))
+						(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
 						(parent-body)
 
 						(if (not (number? (my 'mass)))
@@ -280,7 +280,6 @@
 (add-method initialize
 				(make-method (list <animal>)
 								 (lambda (initialize-parent self args)
-									;;(dnl "<animal> init")
 									(slot-set! self 'current-interest 
 												  (lambda args 
 													 (aborts
@@ -290,10 +289,10 @@
 													  (slot-ref self 'name) ":"
 													  (slot-ref self 'type) ":"
 													  (slot-ref self 'representation))))
-									(initialise self (list 'age #f 'sex #f))
+									(set-state-variables self (list 'age #f 'sex #f))
 									(initialize-parent)
 									;; call "parents" last to make the initialisation list work
-									(initialise self args)
+									(set-state-variables self args)
 									)))
 
 ;----- (age) 
@@ -463,12 +462,12 @@
 				  (wander-around self dt point attr (my speedtag)))
 
 (model-body <animal>
-	(kdnl* 'model-bodies "In " (class-name-of self) t)
+				(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
 	(let ((dt/2 (/ dt 2.0))
 			(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
 										 (if #t
 											  (begin 
-												 (dnl "SQRT got a value of " x)
+												 (kdnl* 'math-error "SQRT got a value of " x)
 												 0)
 											  (abort "I see ... a rhinoceros ...")
 											  )) ) )

@@ -79,18 +79,19 @@ A typical construction of an ecoservice might look like
 					)))  
 
 
-(define <circle> (make-class (inherits-from <object>)
-									  (state-variables locus radius)
-									  ))
-(register-class <circle>)
-
-(define <polygon> (make-class (inherits-from <object>)
-										(state-variables locus point-list)
+(define <polygon> (make-class (inherits-from <agent>)
+										(state-variables locus perimeter)
 										))
 (register-class <polygon>)
 
+(define <circle> (make-class (inherits-from <agent>)
+									  (state-variables locus perimeter radius)
+									  ))
+(register-class <circle>)
 
-(define <boundary> (make-class (inherits-from <object>)
+
+
+(define <boundary> (make-class (inherits-from <agent>)
 										 (state-variables rep))) 
 (register-class <boundary>)
 (Comment "<boundary> provides the spatial context for <patch>
