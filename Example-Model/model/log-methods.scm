@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 
@@ -10,18 +11,16 @@ close pages and emit 'showpage' for postscript stuff.
 "
 
 
-
-
 (define introspection-priority 10000)
 
 (define (schedule-times self class-sym)
-  (if (eq? class-sym 'introspection) (schedule-times self T 'timestep)
+  (if (eqv? class-sym 'introspection) (schedule-times self T 'timestep)
 		(slot-ref self
 					 (string->symbol
 					  (string-append (symbol->string class-sym) "schedule")))))
 
 (define (schedule-epsilon self class-sym)
-  (if (eq? class-sym 'introspection) (schedule-epsilon self T 'timestep)
+  (if (eqv? class-sym 'introspection) (schedule-epsilon self T 'timestep)
 		(slot-ref self
 					 (string->symbol
 					  (string-append
@@ -29,25 +28,25 @@ close pages and emit 'showpage' for postscript stuff.
 						"epsilon")))))
 
 (define (set-schedule-times! self class-sym lst)
-  (if (eq? class-sym 'introspection) (set-schedule-times! self T 'timestep)
+  (if (eqv? class-sym 'introspection) (set-schedule-times! self T 'timestep)
 		(slot-set! self (string->symbol (string-append (symbol->string class-sym)
 																	  "schedule")) lst)))
 
 (define (insert-schedule-time! self class-sym t)
-  (if (eq? class-sym 'introspection) (insert-schedule-time! self T 'timestep)
+  (if (eqv? class-sym 'introspection) (insert-schedule-time! self T 'timestep)
 		(slot-set! self (string->symbol (string-append (symbol->string class-sym)
 																	  "schedule"))
 					  (uniq (sort (cons t (schedule-times self class-sym)) <=)))))
 
 (define (set-schedule-epsilon! self class-sym val)
-  (if (eq? class-sym 'introspection) (set-schedule-epsilon! self T 'timestep)
+  (if (eqv? class-sym 'introspection) (set-schedule-epsilon! self T 'timestep)
 		(slot-set! self (string->symbol (string-append (symbol->string class-sym)
 																	  "epsilon"))
 					  val)))
 
 
 (define (flush-stale-schedule-entries! self class-sym)
-  (if (eq? class-sym 'introspection)
+  (if (eqv? class-sym 'introspection)
 		(flush-stale-schedule-entries! self T 'timestep)
 		(let ((cs-sym (string->symbol (string-append
 												 (symbol->string class-sym) "-schedule")))
@@ -62,7 +61,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 (define (scheduled-now? self T class-sym)	
-  (if (eq? class-sym 'introspection)
+  (if (eqv? class-sym 'introspection)
 		(scheduled-now? self T 'timestep)
 		(let ((cs-sym (string->symbol (string-append
 												 (symbol->string class-sym)
@@ -104,62 +103,59 @@ close pages and emit 'showpage' for postscript stuff.
 ;; Logger agents (things that inherit from introspection, really) have
 ;; a high priority; as a consequence they get sorted to the front of a
 ;; timestep
-(add-method
- initialize
- (make-method (list <introspection>)
-				  (lambda (initialize-parent self args)
-					 (set-state-variables self (list 'type 'introspection
-													'priority introspection-priority
-													'jiggle 0 'introspection-list '() 
-													'timestep-epsilon 1e-6 'file #f
-													'filename #f 'filetype #f
-													'format 'text 'missing-val "NoData"
-													'show-field-name #f 'preamble-state '()
-													'dont-log '(ready-for-prep
-																	;; agent things
-																	agent-body-ran agent-schedule
-																	agent-epsilon map-projection counter 
-																	migration-test state-flags
-																	dont-log timestep-schedule kernel
-																	
-																	;; log agent things
-																	introspection-list introspection-schedule
-																	timestep-epsilon 
+(model-method <introspection> (initialize self args)
+				  (set-state-variables self (list 'type 'introspection
+				  											 'priority introspection-priority
+				  											 'jiggle 0 'introspection-list '() 
+				  											 'timestep-epsilon 1e-6 'file #f
+				  											 'filename #f 'filetype #f
+				  											 'format 'text 'missing-val "NoData"
+				  											 'show-field-name #f 'preamble-state '()
+				  											 'dont-log '(ready-for-prep
+				  															 ;; agent things
+				  															 agent-body-ran agent-schedule
+				  															 agent-epsilon map-projection counter 
+				  															 migration-test state-flags
+				  															 dont-log timestep-schedule kernel
+																			 
+				  															 ;; log agent things
+				  															 introspection-list introspection-schedule
+				  															 timestep-epsilon 
 
-																	dims ;; thing things
+				  															 dims ;; thing things
 
-																	;; environment things
-																	default-value minv maxv 
+				  															 ;; environment things
+				  															 default-value minv maxv 
 
-																	;; ecoservice things
-																	plateau-interval growth-rate 
+				  															 ;; ecoservice things
+				  															 plateau-interval growth-rate 
 
-																	;; landscape things
-																	service-list service-update-map
-																	update-equations terrain-function
-																	dump-times scale 
-																	log-services-from-patch
-																	log-patches-from-habitat
+				  															 ;; landscape things
+				  															 service-list service-update-map
+				  															 update-equations terrain-function
+				  															 dump-times scale 
+				  															 log-services-from-patch
+				  															 log-patches-from-habitat
 
-																	;; animal things
-																	domain-attraction food-attraction 
-																	near-food-attraction searchspeed
-																	wanderspeed foragespeed	
-																	movementspeed foodlist homelist
-																	breedlist habitat
-																	)
-													'variables-may-be-set #t
-													))
-					 (initialize-parent) ;; call "parents" last to make the
-												;; initialisation list work
-					 (set-state-variables self args)
-					 )))
-
-(model-method <introspection> (agent-prep self start end kernel . args)
-				  (agent-prep-parent)
+				  															 ;; animal things
+				  															 domain-attraction food-attraction 
+				  															 near-food-attraction searchspeed
+				  															 wanderspeed foragespeed	
+				  															 movementspeed foodlist homelist
+				  															 breedlist habitat
+				  															 )
+				  											 'variables-may-be-set #t
+				  											 ))
+				  (initialize-parent) ;; call "parents" last to make the
+				  ;; initialisation xxxxxxxxxxxxxxxxxxxblist work
+				  (set-state-variables self args)
 				  )
 
-(model-method <introspection> (agent-shutdown self . args)
+(model-method (<introspection> <number> <number>) (agent-prep self start end)
+				  (agent-prep-parent self start end) ;; parents should prep first
+				  )
+
+(model-method <introspection> (agent-shutdown self)
 				  (let ((file (my 'file)))
 					 (if (and (my 'file)
 								 (output-port? (my 'file))
@@ -200,15 +196,17 @@ close pages and emit 'showpage' for postscript stuff.
 				  dt
 				  ))
 
-
+(define (exclude-voids lst)
+  (filter (lambda (x) (not (equal? #!void x))) lst))
 
 (model-method (<introspection> <agent>) (insert-agent! self target)
-				  (set-my! 'introspection-list (cons target
-																 (my 'introspection-list))))
+				  (set-my! 'introspection-list (exclude-voids  (cons target
+																 (my 'introspection-list)))))
 
 (model-method (<introspection> <agent>) (append-agent! self target)
-				  (set-my! 'introspection-list (append (my 'introspection-list)
-																	(list target))))
+				  (if (not (equal? target #!void))
+						(set-my! 'introspection-list (exclude-voids (append (my 'introspection-list)
+																		 (list target))))))
 
 (model-method <introspection> (introspection-list self)
 				  (my 'introspection-list))
@@ -216,9 +214,9 @@ close pages and emit 'showpage' for postscript stuff.
 				  (my 'timestep-schedule))
 
 (model-method (<introspection> <list>) (set-introspection-list! self lst)
-				  (set-my! 'introspection-list lst))				  
+				  (set-my! 'introspection-list (exclude-voids lst)))
 (model-method (<introspection> <list>) (set-introspection-times! self lst)
-				  (set-my! 'timestep-schedule lst))
+				  (set-my! 'timestep-schedule (exclude-voids lst)))
 
 (model-method (<introspection> <list>) (set-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
@@ -246,15 +244,15 @@ close pages and emit 'showpage' for postscript stuff.
 																 ;; only open the
 																 ;; first time
 
-					 (for-each 
-					  (lambda (ila)
-						 (kdnl* '(log-* introspection-trace) "   processing "
-								  (cnc ila) " "  (procedure? ila))
-						 (log-data ila self format self (my 'variables))
-						 #f
-						 )
-					  (my 'introspection-list))
-					 )
+					 (let ((proc (lambda (ila)
+										(kdnl* '(log-* introspection-trace) "   processing "
+												 (cnc ila) " "  (procedure? ila))
+										(log-data ila self format self (my 'variables))
+										#f
+										)))
+;;						(dnl proc)
+					 (for-each proc (my 'introspection-list))
+					 ))
 				  (page-epilogue self self (slot-ref self 'format))
 				  )
 
@@ -268,8 +266,7 @@ close pages and emit 'showpage' for postscript stuff.
 												 'currentfile #f))
 				  (set-state-variables self args)
 				  )
-
-(use-parent-body <logfile>)
+	(use-parent-body <logfile>)
 
 
 (model-method <snapshot> (page-preamble self logger format)
@@ -294,6 +291,9 @@ close pages and emit 'showpage' for postscript stuff.
 						(error (string-append (my 'name) " has a subjective time "
 													 "which is not a number.")))
 					  )
+
+					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+							  (class-name-of self) "]" "is opening a log file" "(" filename ")")
 
 					 ;; Open a new file
 					 (cond
@@ -333,7 +333,13 @@ close pages and emit 'showpage' for postscript stuff.
 						  )
 						)
 					  )
-					 (set-my! 'file file)))
+					 
+					 (set-my! 'file file)
+
+					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+							  (class-name-of self) "]" "opened" file)
+					 )
+				  )
 
 (model-method <snapshot> (page-epilogue self logger format)
 				  (let ((file (my 'file)))
@@ -353,31 +359,42 @@ close pages and emit 'showpage' for postscript stuff.
 
 (model-method <logfile> (page-preamble self logger format)
 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
-							(class-name-of self) "]" "is preparing to dump")
+							(class-name-of self) "]" "is preparing to dump, file is currently" (my 'filename) (my 'file))
 				  (let ((filename (my 'filename))
 						  (file (my 'file))
 						  )
 					 
+					 (kdnl* 'logfile-issues "In: logfile preamble filename " filename "and file" file)
+
 					 (if (not (or (not filename) (string? filename)))
 						  (error (string-append (my 'name) " has a filename which is "
 														"neither false, nor a string.")))
-
 					 ;; Open a new file
 					 (if (not file)
 						  (begin
 							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
-									  (class-name-of self) "]" "is opening a log file")
+									  (class-name-of self) "]" "is opening a log file" "(" filename ")")
 							 (if (zero? (string-length filename))
 								  (set! file (current-output-port))
-								  (set! file (open-output-file filename)))
+								  (set! file (open-output-file filename))
 							 )
+							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+									  (class-name-of self) "]" "opened" file)
+							 )
+						  )
+					 (kdnl* 'logfile-issues "Mid: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
 
-						  (set-my! 'file file)))
+					 (set-my!'file file)
+
+					 (kdnl* 'logfile-issues "Out: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
+					 )
 				  )
 
 (model-method <logfile> (page-epilogue self logger format)
+				  (kdnl* 'logfile-issues "In: logfile epilogue filename " (my 'filename) "and file" (my 'file))
 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
 							(class-name-of self) "]" "has finished a dump")
+				  (kdnl* 'logfile-issues "Out: logfile epilogue filename " (my 'filename) "and file" (my 'file))
 				  #!void)
 
 
@@ -385,17 +402,16 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 ;----- (initialize) 
-(add-method initialize
-				(make-method (list <log-map>)
-								 (lambda (initialize-parent self args)
-									(initialize-parent) ;; call "parents" last
-															  ;; to make the
-															  ;; initialisation list
-															  ;; work
-									(set-state-variables self '(type log-map format ps))
-									(set-state-variables self args)
-									;; keep all files
-									)))
+(model-method <log-map> (initialize self args)
+				  (initialize-parent)
+				  ;; call "parents" last
+				  ;; to make the
+				  ;; initialisation list
+				  ;; work
+				  (set-state-variables self '(type log-map format ps))
+				  (set-state-variables self args)
+				  ;; keep all files
+				  )
 
 (use-parent-body <log-map>)
 
@@ -483,7 +499,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;; This logs to an open file
 (model-method (<log-map> <procedure> <procedure> <symbol> <list>)
-				  (log-data self logger format caller targets)
+				  (log-data% self logger format caller targets)
 				  (lambda (target)	
 					 (kdnl* '(log-* log-map) (name self) "[" (my 'name)
 							  ":" (class-name-of self) "]" "in log-data"
@@ -503,22 +519,20 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;---- log-data methods
 ;----- (initialize) 
-(add-method initialize
-				(make-method (list <log-data>)
-								 (lambda (initialize-parent self args)
-									(set-state-variables self '(type log-data)) ;; keep all files
-									(initialize-parent) ;; call "parents" last
-															  ;; to make the
-															  ;; initialisation list
-															  ;; work
-									(set-state-variables self args)
-									)))
+(model-method <log-data> (initialize self args)
+				  (set-state-variables self '(type log-data)) ;; keep all files
+				  (initialize-parent) ;; call "parents" last
+				  ;; to make the
+				  ;; initialisation list
+				  ;; work
+				  (set-state-variables self args)
+				  )
 
 (use-parent-body <log-data>)
 
-(model-method <log-data> (agent-prep self start end kernel . args)
+(model-method (<log-data> <number> <number>) (agent-prep self start end)
 				  ;; This opens the output file on initialisation.
-				  (agent-prep-parent) ;; parents should prep first
+				  (agent-prep-parent self start end) ;; parents should prep first
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in agent-prep")
 				  
@@ -558,7 +572,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 
-(model-method <log-data> (agent-shutdown self . args)
+(model-method <log-data> (agent-shutdown self)
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in agent-shutdown")
 				  (if (and (my 'file) (output-port? (my 'file))
@@ -573,8 +587,14 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 (model-method <log-data> (page-preamble self logger format)
+				  (kdnl* 'logfile-issues "In: log-data preamble filename " (my 'filename) "and file" (my 'file))
+
 				  (page-preamble-parent) ;; opens the file
 
+				  (kdnl* 'logfile-issues "In: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
+
+				  (kdnl* 'log-init "Logfile is" (my 'filename)
+							"(output-port?" (my 'file) ") =" (output-port? (my 'file)))
 				  (if (not (output-port? (my 'file)))
 						(abort "Serious problems getting an output port for "
 								 (my 'name)))
@@ -619,8 +639,7 @@ close pages and emit 'showpage' for postscript stuff.
 														(loop
 														 (append
 														  (map car
-																 (class-slots
-																  (class-of (car entities))))
+																 (class-slots-of (car entities)))
 														  (extra-variable-list (car entities))
 														  all-vars) (cdr entities))))
 												)
@@ -637,12 +656,14 @@ close pages and emit 'showpage' for postscript stuff.
 						 )
 						)
 					 )
+				  (kdnl* 'logfile-issues "Out: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
+				  
 				  )
 						
 ;; This is typically never called since it "logs" the logfile.  Mostly
 ;; here as an example.
-(model-method (<log-data> <procedure> <procedure> <symbol> <list> <boolean>)
-				  (log-data self logger format caller targets . file)
+(model-method (<log-data> <procedure> <procedure> <symbol> <list>)
+				  (log-data% self logger format caller targets file)
 				  (kdnl* '(log-* log-data) (name self) "[" (my 'name) ":"
 							(class-name-of self) "]" "in log-data")
 				  (let ((file (my 'file))
@@ -662,7 +683,7 @@ close pages and emit 'showpage' for postscript stuff.
 										 (cond
 										  ((member field
 													  (map car
-															 (class-slots (class-of target))))
+															 (class-slots-of target)))
 											(kdnl* '(log-* log-data logging-debug)
 													 "     Dumping " field "="
 													 (if (has-slot? self t)

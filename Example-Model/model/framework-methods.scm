@@ -1,3 +1,4 @@
+(include "framework")
 ;- Identification and Changes
 
 ;- Load initial libraries 
@@ -33,10 +34,6 @@
 (define DefaultPriority 0)
 
 
-
-(load "log-methods.scm")
-
-
 ;; the list representation of a vector from s to d, but smart about <agent>s
 (define (vector-to s d)
   (let ((src (if (isa? s <thing>) (slot-ref s 'location) s))
@@ -45,9 +42,7 @@
 
 (define (do-map-conversion pfn gfn)
   (let ((cmd (string-append "gs -q -dQUIET -dNOPAUSE -r300x300 -sDEVICE=pnggray -sOutputFile=" gfn " - " pfn " < /dev/null &")))
-	 (kdnl* '(log-* do-map-conversion) "[" (my 'name) ":" (class-name-of self) "]" "Running" cmd (class-name-of self))
 	 (shell-command cmd)))
-
 
 (define (arg-pairings symlist objlist)
   (if (> (length objlist) (length symlist))
@@ -77,7 +72,21 @@
 ;; Ditto for the "make-class" calls.
 
 
-;--- Helper classes (wart classes)
+;--- maintenance code (for submodels maintaining data for another representation)
+
+(default-initialization <model-maintenance>)
+
+
+(model-body <model-maintenance>
+				(let ((status-list (map (lambda (kernel t dt maint-routine)
+												  (maint-routine kernelt t dt))
+												(slot-ref self 'maintenance-list)
+												)))
+				  ;; Now do something with  the status-list!
+				dt))
+
+
+
 ; none yet
 
 ;--- Agent classes
@@ -86,67 +95,49 @@
 
 ;--- Helper classes (wart classes)
 
-;----- (set-state-variables) ;; fundamental component in the init routine
-;; set-state-variables sets nominated state variables to nominated values
-
-(object-method <object> (set-state-variables self args)
-					;; args should be null or a list of the form ('tag value ...),
-					;; slotlist is a list of valid slotnames
-					(if (and (pair? args) (pair? (car args)) (= (length args) 1))
-						 (set! args (car args)))
-					(let ((slots  (map car (class-slots (class-of self)))))
-					  (for-each 
-						(lambda (slotname argval)
-						  (if (member slotname slots)
-								(set-my! slotname argval)
-								(begin
-								  (display
-									(string-append
-									 "Use of undeclared class variable: "
-									 (if (string? slotname)
-										  slotname
-										  (object->string slotname))
-									 " in " (symbol->string (class-name-of self)) "\n"))
-								  (error "+++Redo from Start+++" '--Hex:TP!=NTP))
-								)
-						  )
-						(evens args) (odds args)))
-					)
 
 
 (attribute-method <attribute> (initialize self args)
+						(initialize-parent)
 						(set-state-variables ;; We set some reasonable default values for
 						 ;; some of the slots
 						 self '()
 						 )
-						(initialize-parent)
 						;; call "parents" last to make the initialisation list work
 						(set-state-variables self args) ;; we now set-state-variables the slot values passed in args
 						)
 
+;--- Agent classes
+;---- <agent> methods
+
+;----- (initialize) 
 
 
-(model-method <agent> (initialize self args)
-				  (set-state-variables ;; We set some reasonable default values for
-					;; some of the slots
-					self '()
-					(initialize-parent)
-					;; call "parents" last to make the initialisation list work
-					(set-state-variables self args) ;; we now set-state-variables the slot values passed in args
-					)
-				  )
+(default-initialization <agent> 'state-flags '()
+								  'subjective-time 0.0
+								  'dt 1.0
+								  'maintenance-list '() ;; this is a list of funcs
+								  'jiggle 0.0
+								  'priority DefaultPriority
+								  'migration-test uninitialised
+ 								  'counter 0 'map-projection (lambda (x) x)
+								  'agent-schedule '() 'agent-epsilon 1e-6
+								  'agent-state 'ready-for-prep 
+								  'agent-body-ran #f)
 
-(model-method <class> (run self pt pstop pkernel)
+
+(model-method (<class>) (run self pt pstop pkernel)
 				  (if (not (isa? self <agent>))
 						(begin (display "Attempt to (run ...) a non-agent\n")
 								 (error "+++Curcurbit Error+++"
 										  (slot-ref self 'name)))))
 
 
-;--- Agent classes
-;---- <agent> methods
+(model-method (<agent>) (Westley self)
+				  (dnl* "The Dread Pirate Roberts."))
 
-;----- (initialize) 
+
+
 
 (model-method <agent> (initialize self args)
 				  (kdnl* '(track-init) "<agent> initialise---")(pp args)
@@ -170,11 +161,13 @@
 				  )
 
 
-(model-method <agent> (agent-prep self)
+;(model-method <agent> (agent-prep self start end)
+(model-method (<agent> <number> <number>) (agent-prep self start end)
+				  (kdnl* 'prep (slot-ref self 'name) "entered prep: " start end)
 				  (slot-set! self 'timestep-schedule
 								 (unique (sort (slot-ref self 'timestep-schedule) <)))
 				  ;; ensures no duplicate entries
-				  (if (eq? (slot-ref self 'agent-state) 'ready-for-prep)
+				  (if (eqv? (slot-ref self 'agent-state) 'ready-for-prep)
 						(slot-set! self 'agent-state 'ready-to-run)
 						(error (string-append
 								  (name self)
@@ -190,12 +183,30 @@
 
 ;----- (dump) ;; This dumps all the slots from agent up.  
 
-(model-method <agent> (dump self)
-				  (dump self 0))
+;(model-method <agent> (dump% self)
+;				  (dump% self 0))
 
-(model-method <agent> (dump self count)
-				  (set! count (if (null? count) 0 (car count)))
-				  (let* ((slots (map car (class-slots (class-of self))))
+
+(model-method (<object>) (dump% self count)
+				  (set! count (cond
+									((number? count) count)
+									((not (pair? count)) 0)
+									(#t (car count))))
+				  (let* ((slots (class-slots-of self))
+							(vals  (map (lambda (x) (slot-ref self x)) slots)))
+					 (for-each (lambda (x y)
+									 (display (make-string count #\space))
+									 (display "[")
+									 (display x) (display ": ")
+									 (display y)(display "]")(newline))
+								  slots vals)))
+
+(model-method (<agent>) (dump% self count)
+				  (set! count (cond
+									((number? count) count)
+									((not (pair? count)) 0)
+									(#t (car count))))
+				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
 					 (for-each (lambda (x y)
 									 (display (make-string count #\space))
@@ -203,9 +214,8 @@
 									 (display y)(newline))
 								  slots vals)))
 
-;; This is the default log method in the absence of more specific code.
 
-(model-method (<agent>) (log-data self logger format caller targets)
+(model-method (<agent>) (log-data% self logger format caller targets)
 				  (kdnl* '(log-* log-data)
 							(name self)
 							"[" (my 'name) ":"
@@ -266,12 +276,19 @@
 					 )
 				  )
 
+(model-method (<monitor> <list>) (pass-preparation self  agentlist)
+				  (kdnl* 'monitor "Default monitor prep pass" (name self)))
+
+(model-method (<monitor> <list>) (pass-resolution self  agentlist)
+				  (kdnl* 'monitor "Default monitor resolve pass" (name self)))
+
+
 
 (definition-comment 'run-agents
   "is called by run-nested-agents and is used as a proxy for the call to queue;"
   "this may occur when a habitat takes over patches, for example")
 (model-method (<agent>) (run-agents self t dt agentlist run)
-				  (let ((monitor-list (filter (lambda (x) (isa? x <monitor>)) agent-list))
+				  (let ((monitor-list (filter (lambda (x) (isa? x <monitor>)) agentlist))
 						  )
 					 (for-each (lambda (x)
 									 (pass-preparation x agentlist))
@@ -304,8 +321,8 @@
 
 ;----- (name) 
 
-(model-method <agent> (name self)
-				  (if (not (or (string? (my 'name)) (eq? (my 'name) #f)))
+(model-method (<agent>) (name self)
+				  (if (not (or (string? (my 'name)) (eqv? (my 'name) #f)))
 						(error "agent:name -- not a string")
 						(my 'name)))
 
@@ -329,7 +346,7 @@
 (define undefined (lambda x 'undefined))
 (define undefined-state-flag (lambda x 'undefined-state-flag))
 
-(model-method <agent> (type self)
+(model-method (<agent>) (type self)
 				  (my 'type))
 
 ;;
@@ -405,7 +422,7 @@
 
 
 ;----- (jiggle) 
-(model-method <agent> (jiggle self)
+(model-method (<agent>) (jiggle self)
 				  (my 'jiggle))
 
 ;----- (set-jiggle!) 
@@ -415,63 +432,55 @@
 						(error "agent:set-jiggle! -- arg is not a number")))
 
 ;----- (migration-test) 
-(add-method migration-test
-				(make-method (list <agent>)
-								 (lambda (migration-test self)
-									(slot-ref self 'migration-test))))
+(model-method <agent> (migration-test self)
+				  (my 'migration-test))
+
+;(add-method migration-test
+;				(make-method (list <agent>)
+;								 (lambda (migration-test self)
+;									(slot-ref self 'migration-test))))
 
 ;----- (set-migration-test!) 
-(add-method set-migration-test!
-				(make-method (list <agent> <number>)
-								 (lambda (set-migration-test!-parent self ntest)
-									(if (procedure? ntest)
-										 (slot-set! self 'migration-test ntest)
-										 (error (string-append
-													"agent:set-migration-test! -- "
-													"arg is not a procedure")))
-									)))
+(model-method (<agent> <number>) (set-migration-test! self ntest)
+				  (if (procedure? ntest)
+						(slot-set! self 'migration-test ntest)
+						(error (string-append
+								  "agent:set-migration-test! -- "
+								  "arg is not a procedure")))
+				  )
 
 ;----- (timestep-schedule) 
-(add-method timestep-schedule
-				(make-method (list <agent>)
-								 (lambda (timestep-schedule self)
-									(slot-ref self 'timestep-schedule))))
+(model-method <agent> (timestep-schedule self)
+				  (slot-ref self 'timestep-schedule))
 
 
 ;----- (set-timestep-schedule!) 
-(add-method set-timestep-schedule!
-				(make-method (list <agent> <number>)
-								 (lambda (set-timestep-schedule!-parent self nbody)
+(model-method (<agent> <number>) (set-timestep-schedule! self nbody)
 									(if (list? nbody)
 										 (slot-set! self 'timestep-schedule nbody)
 										 (error (string-append
 													"agent:set-timestep-schedule! -- "
 													"arg is not a procedure")))
 									(slot-set! self 'timestep-schedule nbody)
-									)))
+									)
 
 ;----- (kernel) 
-(add-method kernel
-				(make-method (list <agent>)
-								 (lambda (kernel self)
-									(slot-ref self 'kernel))))
+(model-method (list <agent>) (kernel self)
+									(slot-ref self 'kernel))
 
 ;----- (set-kernel!) 
-(add-method set-kernel!
-				(make-method (list <agent> <number>)
-								 (lambda (set-kernel! self n)
-									(if (number? n)
-										 (slot-set! self 'kernel n)
-										 (error (string-append
-													"agent:set-kernel! -- "
-													"arg is not a number"))
-										 )))
-				)
 
+(model-method (<agent> <number>) (set-kernel! self n)
+				  (if (number? n)
+						(slot-set! self 'kernel n)
+						(error (string-append
+								  "agent:set-kernel! -- "
+								  "arg is not a number"))
+						))
 
 (model-method (<agent>) (snapshot self)
 				  (map (lambda (x) (list x (slot-ref self x)))
-						 (class-slots (class-of self))))
+						 (class-slots-of self)))
 
 
 (model-method <agent> (i-am self) (my 'representation))
@@ -480,10 +489,10 @@
 				  (member (my 'representation) list-of-kinds))
 
 (model-method <agent> (parameter-names self)
-				  (map car (class-slots (class-of self))))
+				  (class-slots-of self))
 (model-method <agent> (parameters self)
 				  (map (lambda (x) (slot-ref self x))
-						 (map car (class-slots (class-of self)))))
+						 (class-slots-of self)))
 
 (model-method (<agent> <pair>) (set-parameters! self newparams)
 				  (for-each (lambda (x y) (slot-set! self x y))
@@ -503,6 +512,47 @@
 				  (let ((tq (cons x (my 'timestep-schedule))))
 					 (set-my! 'timestep-schedule (sort tq <=))))
 
+(definition-comment 'interval
+  "returns an interval (tick-length) based on the current time, the"
+  "desired tick length, the nominated end of the run and a list of"
+  "target times")
+
+(define (interval t ddt stopat tlist)
+  ;; tlist is a sorted queue of times to run
+  (if (< (- stopat t) ddt)
+		(set! ddt (- stopat t)))
+
+  (cond
+	((null? tlist)	
+	 ddt)
+	((and (list? tlist) 
+			(number? (car tlist))
+			(= (car tlist) t)
+			)
+	 ddt)
+	((and (list? tlist) 
+			(number? (car tlist))
+			)
+	 (- (car tlist) t))
+	(else 'bad-time-to-run)))
+
+(definition-comment 'prune-local-time-queue
+  "remove stale times in the time-to-run queue")
+(define (prune-local-time-queue tm ttr)
+  (dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
+  (let ((r '())
+		  )
+	 (if (uninitialised? ttr) (set! ttr (list 0)))
+	 (set! r (let loop ((l ttr))
+				  (if (or (null? l)
+							 (> tm (car l))
+							 )
+						l
+						(loop (cdr l)))))
+;	 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
+	 r )
+  )
+
 (add-method
  run
  (make-method
@@ -517,7 +567,7 @@
 			 (let ((kernel pkernel))
 				(let ((ttr (begin
 								 (set-my! 'timestep-schedule
-											 (prune-local-run-queue
+											 (prune-local-time-queue
 											  (my 'subjective-time)
 											  (my 'timestep-schedule)))
 								 (my 'timestep-schedule))))
@@ -550,19 +600,19 @@
 																 (- (+ t dt)
 																	 subj-time)))))
 												 (cond
-												  ((eq? m #!void)
+												  ((eqv? m #!void)
 													(error (string-append
 															  "The model body for "
 															  (class-name-of
 																self)
 															  " returned an error: #!void")))
-												  ((eq? dt #!void)
+												  ((eqv? dt #!void)
 													(error (string-append
 															  "dt for "
 															  (class-name-of
 																self)
 															  " is somehow #!void (error)")))
-												  ((eq? DT #!void)
+												  ((eqv? DT #!void)
 													(error (string-append
 															  "DT for "
 															  (class-name-of
@@ -583,11 +633,11 @@
 														(min (- t subj-time)
 															  (my 'dt)
 															  dt)))
-													 (else #!void))
+													 (#t #!void))
 													((or (symbol? m) (list? m))
 													 (kdnl* "BORK!!!" m))
-													(else (kdnl* "BORK!!!" m)))
-												  (else #!void))
+													(#t (kdnl* "BORK!!!" m)))
+												  (#t #!void))
 
 												 m))
 											))
@@ -628,11 +678,11 @@
 							 (let ((m (if (isa? self <agent>)
 											  (run-model-body self t dt)
 											  dt)))
-								(if (not (number? m)) (error bummer))
+								(if (not (number? m)) (error 'bummer))
 
 								(set! DT (+ DT m))
 								m))
-							(else #!void))
+							)
 						  (if (zero? DT)
 								(and (dnl "*******************************")
 									  (error "BAD TICK")))
@@ -740,19 +790,8 @@
 
 ;---- <tracked-agent> methods
 
-;----- (set-state-variables) 
-(add-method initialize
-				(make-method (list <tracked-agent>)
-								 (lambda (initialize-parent self args)
-									(set-state-variables self
-																'(track #f tracked-paths #f
-																		  track-schedule '()
-																		  track-epsilon 1e-6))
-									;; call "parents" last to make the
-									;; initialisation list work
-									(initialize-parent)
-									(set-state-variables self args)
-									)))
+(default-initialization <tracked-agent> 'track #f 'tracked-paths #f 'track-schedule '() 'track-epsilon 1e-6)
+
 
 
 (model-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
@@ -801,108 +840,88 @@
 
 ;---- <thing> methods
 
-;----- (set-state-variables) 
-(add-method initialize
-				(make-method (list <thing>)
-								 (lambda (initialize-parent self args)
-									(set-state-variables self '(dim #f location #f
-																			  direction #f
-																			  speed #f mass #f
-																			  track #f
-																			  tracked-paths #f))
-									(initialize-parent) ;; call "parents" last
-									;; to make the
-									;; initialisation list
-									;; work
-									(set-state-variables self args)
-									)))
+(default-initialization 'dim #f 'location #f
+  'direction #f
+  'speed #f 'mass #f
+  'track #f
+  'tracked-paths #f)
 
 ;----- (mass) 
-(add-method mass
-				(make-method 
-				 (list <thing>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'mass))))
+(model-method
+ (<thing>)
+ (mass self)
+ (slot-ref self 'mass))
 
 
 ;----- (set-mass!) 
-(add-method set-mass!
-				(make-method 
-				 (list <thing> <number>)
-				 (lambda (call-parent-method self n)
-					(if (not (number? n))
-						 (error "thing:set-mass! -- bad number")
-						 (slot-set! self 'mass n)))))
+(model-method
+ (<thing> <number>)
+ (set-mass! self n)
+ (if (not (number? n))
+	  (error "thing:set-mass! -- bad number")
+	  (slot-set! self 'mass n)))
 
 ;----- (dim) 
-(add-method dim
-				(make-method 
-				 (list <thing>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'dim))))
+(model-method
+ (<thing>)
+				 (dim self)
+					(slot-ref self 'dim))
 
 
 ;----- (set-dim!) 
-(add-method set-dim!
-				(make-method 
-				 (list <thing> <number>)
-				 (lambda (call-parent-method self n)
+(model-method
+ (<thing> <number>)
+				 (set-dim! self n)
 					(if (not (integer? n))
 						 (error "thing:set-dim! -- bad integer")
-						 (slot-set! self 'dim n)))))
+						 (slot-set! self 'dim n)))
 
 ;----- (speed) 
-(add-method speed
-				(make-method 
-				 (list <thing>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'speed))))
+(model-method
+ (<thing>)
+				 (speed self)
+					(slot-ref self 'speed))
 
 
 ;----- (set-speed!) 
-(add-method set-speed!
-				(make-method 
-				 (list <thing> <number>)
-				 (lambda (call-parent-method self n)
-					(if (not (number? n))
-						 (error "thing:set-speed! -- bad number")
-						 (slot-set! self 'speed n)))))
+(model-method 
+ (<thing> <number>)
+ (set-speed! self n)
+ (if (not (number? n))
+	  (error "thing:set-speed! -- bad number")
+	  (slot-set! self 'speed n)))
 
 
 ;----- (location) 
-(add-method location
-				(make-method 
-				 (list <thing>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'location))))
+(model-method 
+ (<thing>)
+ (location self)
+ (slot-ref self 'location))
 
 
 ;----- (set-location!) 
-(add-method set-location!
-				(make-method 
-				 (list <thing>)
-				 (lambda (call-parent-method self vec)
-					(if (not (= (length vec) (slot-ref self 'dim)))
-						 (error "thing:set-location! -- bad list length")
-						 (slot-set! self 'location vec)))))
+(model-method 
+ (<thing>)
+ (set-location! self vec)
+ (if (not (= (length vec) (slot-ref self 'dim)))
+	  (error "thing:set-location! -- bad list length")
+	  (slot-set! self 'location vec)))
 
 
 ;----- (direction) 
-(add-method direction
-				(make-method 
-				 (list <pair>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'location))))
+(model-method 
+ (<pair>)
+ (direction self)
+ (slot-ref self 'location))
 
 
 ;----- (set-direction!) 
-(add-method set-direction!
-				(make-method 
-				 (list <thing> <pair>)
-				 (lambda (call-parent-method self vec)
-					(if (not (= (length vec) (slot-ref self 'dim)))
-						 (error "thing:set-direction! -- bad list length")
-						 (slot-set! self 'direction vec)))))
+(model-method 
+ (<thing> <pair>)
+ (set-direction! self vec)
+ (if (not (= (length vec) (slot-ref self 'dim)))
+	  (error "thing:set-direction! -- bad list length")
+	  (slot-set! self 'direction vec)))
 
 
 
@@ -920,8 +939,8 @@
 				  (let ((mbounds (min-bound self))
 						  (Mbounds (max-bound self))
 						  )
-					 (apply andf (append (map < mbounds eloc)
-												(map < eloc Mbounds)))))
+					 (apply andf (append (map < mbounds loc)
+												(map < loc Mbounds)))))
 
 
 ;; Default environment only has the default value, oddly enough

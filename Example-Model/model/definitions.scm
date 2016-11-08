@@ -46,7 +46,7 @@
 									 (loop (cons bit file))))))
 							 ))
 						)
-		 (defines (map cadr (filter (lambda (x) (eq? (car x) 'define)) rawdata)))
+		 (defines (map cadr (filter (lambda (x) (eqv? (car x) 'define)) rawdata)))
 		 )
 	 defines))
 

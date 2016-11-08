@@ -72,7 +72,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 "
 
 
-(load "maths.scm")
+;;(load "maths.scm")
 
 (define (deep-copy l)
   (cond
@@ -195,7 +195,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 		  (nn (length nums)))
   (cond
 	((zero? n) (op))
-	((not (eq? op *)) (apply matrix-element-map args))
+	((not (equal? op *)) (apply matrix-element-map args))
 	((= n nn) (apply op args))
 	((zero? nn) ;; all matrices....
 	 (frisk-values (cond
@@ -246,23 +246,27 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 							 M))
 
 ;; sum of ((lambda (x)....) i) from i in [m, M]
-(define (sum m M lmbda)
+(define (Sum m M lmbda)
   (apply + (map lmbda (map (lambda (p) (+ m p)) (seq (1+ (- M m)))))))
 
 ;; product of ((lambda (x)....) i) from i in [m, M]
-(define (prod m M lmbda)
+(define (Prod m M lmbda)
   (apply * (map lmbda (map (lambda (p) (+ m p)) (seq (1+ (- M m)))))))
 
 
 (define (general-determinant A)
   ;;(dnl "general-determinant: " (A))
-  (sum 1 (A 'nc) (lambda (i) (* (if (odd? i) 1 -1) (A 1 i) (determinant (A 'comp-matrix 1 i))))))
+  (Sum 1 (A 'nc) (lambda (i) (* (if (odd? i) 1 -1) (A 1 i) (determinant (A 'comp-matrix 1 i))))))
+(define the-id 'unset)
 
 (define (identity n)
-  (let ((I (deep-copy (make-list n (make-list n 0)))))
-	 (for-each (lambda (i) (list-set! (list-ref I i) i 1)) (seq n))
-	 (make-matrix I)
-	 ))
+  (set! the-id n)
+  (if (and (integer? n) (positive? n))
+		(let ((I (deep-copy (make-list n (make-list n 0)))))
+		  (for-each (lambda (i) (list-set! (list-ref I i) i 1)) (seq n))
+		  (make-matrix I)
+		  )
+		(abort 'bad-dimensioning-in-identity n)))
 
 
 (define (determinant A)
@@ -437,7 +441,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						 ;; row multiplication by a constant
 						 ;; 
 						 
-						 ((and (eq? (car x) 'row!*) (= 3 N) cadr-is-n caddr-is-n)
+						 ((and (eqv? (car x) 'row!*) (= 3 N) cadr-is-n caddr-is-n)
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
@@ -447,7 +451,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 							 (make-matrix M2)))
 
 						 ;; row division by a constant
-						 ((and (eq? (car x) 'row!/) (= 3 N) cadr-is-n caddr-is-n)
+						 ((and (eqv? (car x) 'row!/) (= 3 N) cadr-is-n caddr-is-n)
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
@@ -457,7 +461,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 							 (make-matrix M2)))
 
 						 ;; row addition -- first ordinate is the row that gets modified
-						 ((and (eq? (car x) 'row!+) (= 3 N) cadr-is-n caddr-is-n)
+						 ((and (eqv? (car x) 'row!+) (= 3 N) cadr-is-n caddr-is-n)
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
@@ -468,7 +472,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 							 (make-matrix M2)))
 
 						 ;; row subtraction -- first ordinate (v) is the row that gets set to v - u, where u is the second row
-						 ((and (eq? (car x) 'row!-) (= 3 N) cadr-is-n caddr-is-n)
+						 ((and (eqv? (car x) 'row!-) (= 3 N) cadr-is-n caddr-is-n)
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
@@ -481,7 +485,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 						 ;; row reduction --  v <= v - u/k 
 						 ;;        where v = (cadr x), u = (caddr x) and k = (cadddr x)
-						 ((and (eq? (car x) 'row!-/) (= 4 N) cadr-is-n caddr-is-n (number? (cadddr x)))
+						 ((and (eqv? (car x) 'row!-/) (= 4 N) cadr-is-n caddr-is-n (number? (cadddr x)))
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
@@ -493,7 +497,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 						 ;; ASSIGN A VALUE TO AN ELEMENT
 
-						 ((and (eq? (car x) 'set) (= 4 N) cadr-is-n caddr-is-n (number? (cadddr x)))
+						 ((and (eqv? (car x) 'set) (= 4 N) cadr-is-n caddr-is-n (number? (cadddr x)))
 						  (let ((M2 (deep-copy M))
 								  )
 							 (make-matrix (list-set! (list-ref M (cadr x)) (caddr x) (cadddr x)))))

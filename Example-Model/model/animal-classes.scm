@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 ;--
@@ -5,45 +6,42 @@
 
 ;-  Code 
 
-(define <simple-metabolism>
-  (make-class (inherits-from <object>)
-				  (state-variables days-of-hunger hunger-limit)))
-(register-class <simple-metabolism>)
-
-(define <metabolism>
-  (make-class
-	(inherits-from <object>)
-	(state-variables stomach-contents 
-						  mass            ;; kg
-						  structural-prop ;; structural-mass increases as
-						                  ;; mass increases -- all things
-						                  ;; that have metabolism must have
-						                  ;; mass
-						  structural-mass ;; the maximum amount it could eat
-						                  ;; in a given period, assuming
-						                  ;; aninfinite stomach
-						  max-consumption-rate ;; the amount of "stuff" or "stuff-equivalent" 
-						  ;; needed per kg per unit of time
-						  metabolic-rate
-						  starvation-level ;; death if
-												 ;; (mass/structural-mass) goes
-												 ;; below this value
-						  gut-size        ;; stomach capacity as a
-												;; proportion of structural-mass
-						  condition       ;; "fat" reserves
-						  food->condition-conversion-rate 
-						  condition->food-conversion-rate
-						  food->mass-conversion-rate
-						  mass->food-conversion-rate
-						  condition-conversion-rate
-						  mass-conversion-rate
-						  max-growth-rate
-						  max-condition-rate
-						  )
-				  ))
+(define-class <simple-metabolism>
+  (inherits-from <object>)
+  (state-variables days-of-hunger hunger-limit))
 
 
-(register-class <metabolism>)
+(define-class <metabolism>
+  (inherits-from <object>)
+  (state-variables stomach-contents 
+						 mass            ;; kg
+						 structural-prop ;; structural-mass increases as
+						 ;; mass increases -- all things
+						 ;; that have metabolism must have
+						 ;; mass
+						 structural-mass ;; the maximum amount it could eat
+						 ;; in a given period, assuming
+						 ;; aninfinite stomach
+						 max-consumption-rate ;; the amount of "stuff" or "stuff-equivalent" 
+						 ;; needed per kg per unit of time
+						 metabolic-rate
+						 starvation-level ;; death if
+						 ;; (mass/structural-mass) goes
+						 ;; below this value
+						 gut-size        ;; stomach capacity as a
+						 ;; proportion of structural-mass
+						 condition       ;; "fat" reserves
+						 food->condition-conversion-rate 
+						 condition->food-conversion-rate
+						 food->mass-conversion-rate
+						 mass->food-conversion-rate
+						 condition-conversion-rate
+						 mass-conversion-rate
+						 max-growth-rate
+						 max-condition-rate
+						 )
+  )
+
 
 ;; structural-mass is pegged at (max (* (my 'mass) (my
 ;; 'structural-prop))) through time
@@ -76,40 +74,36 @@
 ;; max-consumption-rate is the rate at which things can move through
 ;; the system
 
-(define <simple-animal>
-  (make-class (inherits-from <simple-metabolism> <thing>)
-				  (state-variables age sex habitat searchradius 
-										 foodlist homelist breedlist
-										 domain-attraction
-										 food-attraction
-										 ))
+(define-class <simple-animal>
+  (inherits-from <simple-metabolism> <thing>)
+  (state-variables age sex habitat searchradius 
+						 foodlist homelist breedlist
+						 domain-attraction
+						 food-attraction
+						 )
   ) ;; lists of attributes it looks for for eating, denning and breeding
-(register-class <simple-animal>)
 
 
 ;; current-interest is a function which takes (self age t dt ...) and
 ;; returns a meaningful symbol
 ;; 
 
-(define <animal>
-  (make-class (inherits-from <metabolism> <thing>)
-				  ;; lists of attributes it looks for for eating, denning
-				  ;; and breeding
-				  (state-variables
-					current-interest age sex
-					habitat searchradius foodlist homelist breedlist
-					movementspeed
-					searchspeed 
-					foragespeed
-					wanderspeed
-					objective
-					domain-attraction
-					food-attraction
-					near-food-attraction
-					)
-				  
-				  ))
-(register-class <animal>)
+(define-class <animal>
+  (inherits-from <metabolism> <thing>)
+  ;; lists of attributes it looks for for eating, denning
+  ;; and breeding
+  (state-variables
+	current-interest age sex
+	habitat searchradius foodlist homelist breedlist
+	movementspeed
+	searchspeed 
+	foragespeed
+	wanderspeed
+	objective
+	domain-attraction
+	food-attraction
+	near-food-attraction
+	))
 
 ;-  The End 
 

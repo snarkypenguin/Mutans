@@ -12,9 +12,6 @@
 ;-  Code 
 
 
-;; This allows me to put in comments which I can "articulate" if needs be.
-(define (Comment . args) #!void)
-
 ;;(define (guess-type ob)
 ;;  (let ((s (make-string 200)))
 ;;	 (with-output-to-string s (lambda () (display ob)))
@@ -24,19 +21,11 @@
 (define (listify a)
   (if (list? a) a (list a)))
 
-
-
-;---- (!filter selector lst) -- returns a list of those elements which fail the selector
-
-(define (!filter selector lst)
-  (filter (lambda x (not (apply selector x))) lst))
-
-
 ;; This next is probably quite gambit specific w.r.t. procedures
 
 (define (object-type ob)
   (cond 
-	((eq? ob #!void) '(void))
+	((equal? ob #!void) '(void))
 	((null? ob) '(null))
 	((list? ob) '(list))
 	((pair? ob) '(pair))
@@ -52,7 +41,7 @@
 			  (lst (list-tail (reverse tmp) (length (member #\space tmp))))
 			  )
 
-		(if (eq? (car lst) #\#)
+		(if (equal? (car lst) #\#)
 			 (list 'procedure (list->string (cdr lst)))
 			 (list 'procedure (string->symbol (list->string lst))))
 		))
@@ -78,7 +67,7 @@
 			(k (* (random-real) total-weight))
 			(ps (filter (lambda (x) (<= k x)) (partial-sums class-weights)))
 			)
-	 (if (eq? (length ps) (length class-weights))	
+	 (if (= (length ps) (length class-weights))	
 		  (car (reverse lst))
 		  (list-ref lst (- (length class-weights) (length ps))))
 	 )
@@ -133,12 +122,12 @@
 (define (character? x) (char? x))
 (define (close f) (close-port f))
 
-;;(define (make-list n . init)
-;;  (if (<= n 0) 
-;;		'()
-;;		(if (null? init)
-;;			 (cons '() (make-list (- n 1)))
-;;			 (cons (car init) (make-list (- n 1) (car init))))))
+(define (make-list% n . init)
+  (if (<= n 0) 
+		'()
+		(if (null? init)
+			 (cons '() (make-list% (- n 1)))
+			 (cons (car init) (make-list% (- n 1) (car init))))))
 
 
 ;;(define (dnl* . args)
@@ -204,10 +193,10 @@
 (define (nrandom mean . its) ;; very dodgey ... but bog simple
   (let ((N (if (null? its) 100 (car its))))
 	 (let loop ((i 0)
-					(sum 0))
+					(the-sum 0))
 		(if (>= i N)
-			 (* (/ mean (/ N 2.0)) sum)
-			 (loop ((+ 1  i) (+ sum (random-real))))))))
+			 (* (/ mean (/ N 2.0)) the-sum)
+			 (loop ((+ 1  i) (+ the-sum (random-real))))))))
 
 
 (define (general-biomass-growth-rate x peak width scale y) 
@@ -350,12 +339,40 @@
   (generate-iteration-list lst))
 
 
-;-- (map-** (lambda (oblst itlst) ..) obj iterlist)
-(define (map-** l oblst)
-  (let* ((itl (iteration-list* oblst))
+;-- (**-map (lambda (oblst/ob) ...) ll*ist) -- preserves list structure
+(define (**-map L ll*ist)
+  (if (null? ll*ist)
+		'()
+		(cons 
+		 (if (atom? (car ll*ist))
+			  (L (car ll*ist))
+			  (**-map L (car ll*ist)))
+		 (**-map L (cdr ll*ist)))))
+
+
+;-- (map-**-ix (lambda (oblst itlst) ..) objlst) 
+;; returns a list (with a depth of one) where the function has been applied to each element
+;; and the indices for each element are available to the processing function, l.
+
+(define (map-**-ix l oblst)
+  (let* ((itl (iteration-list* oblst)) ; generates indices for stepping through objlst
 			(obl (map (lambda (x) (list-ref* oblst x)) itl)))
 	 (map l obl itl)))
 
+;;; (map-** (lambda (x i) (dnl* "x" x "--" "i" i)) '((a b c d) (e f g h) (i j k l)))
+;;; x a -- i (0 0)
+;;; x b -- i (0 1)
+;;; x c -- i (0 2)
+;;; x d -- i (0 3)
+;;; x e -- i (1 0)
+;;; x f -- i (1 1)
+;;; x g -- i (1 2)
+;;; x h -- i (1 3)
+;;; x i -- i (2 0)
+;;; x j -- i (2 1)
+;;; x k -- i (2 2)
+;;; x l -- i (2 3)
+;;; (#!void #!void #!void #!void #!void #!void #!void #!void #!void #!void #!void #!void)
 
 ;; (acons a b c) => ((a . b) c)
 (define (acons key val alist)
@@ -410,13 +427,13 @@
 (define (list2-assoc-set! k v k2 v2) 
   (let loop ((kl k) (vl v))
 	 (cond ((or (null? kl) (null? vl)) #f)
-			 ((eq? (car kl) k2) (set-car! vl v2))
+			 ((equal? (car kl) k2) (set-car! vl v2))
 			 (else (loop (cdr kl) (cdr vl))))))
 
 (define (list2-assoc k v k2) 
   (let loop ((kl k) (vl v))
 	 (cond ((or (null? kl) (null? vl)) #f)
-			 ((eq? (car kl) k2) vl)
+			 ((equal? (car kl) k2) vl)
 			 (else (loop (cdr kl) (cdr vl))))))
 
 ;;(define-macro (++ i) `(let ((j ,i)) (set! ,i (+ 1 j))))
@@ -538,7 +555,7 @@
 (define (uniq? l)
   (if (<= (length l) 1)
 		#t  
-		(if (eq? (car l) (cadr l))
+		(if (equal? (car l) (cadr l))
 			 #f
 			 (uniq? (cdr l)))))
 
@@ -546,7 +563,7 @@
   (cond
 	((null? lst) '())
 	((null? (cdr lst)) lst)
-	((not (eq? (car lst) (cadr lst))) (cons (car lst) (uniq (cdr lst))))
+	((not (equal? (car lst) (cadr lst))) (cons (car lst) (uniq (cdr lst))))
 	(else (uniq (cdr lst)))))
 
 (define (unique lst) ;; returns the unique elements w.r.t. equal?: should be sorted
@@ -579,6 +596,7 @@
 	(else #f)))
 
 (define (not-member lst) (lambda (x) (not (member x  lst))))
+(define (not-memq lst) (lambda (x) (not (memq x  lst))))
 
 
 
@@ -951,6 +969,257 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
 
 
+(define (string-contains? str . targets) ;; (string-contains? "The quick brown fox" "ox" "hen") ==> #t (string-contains? "The quick brown fox" "oxo" "hen") ==> #f
+  (if (= (length targets) 1)
+      (let* ((st (car targets))
+	     (n (string-length st))
+	     )
+	(cond
+	 ((< (string-length str) n) #f)
+	 ((string=? (substring str 0 n) (substring st 0 n)) #t)
+	 (#t (string-contains? (substring 1 (- (string-length str) 1)) st))))
+      (let loop ((st targets))
+	(cond
+	 ((null? st) #f)
+	 ((string-contains? str (car st)) #t)
+	 (#t (loop (cdr st)))))))
+
+ ;;
+ ;; (strspn str set) returns index of first char not in set
+ ;; (strcspn str set) returns index of first char in set
+ ;;
+
+ (define (strspn str set)
+   (let loop ((s str))
+     (if (zero? (string-length s))
+         (string-length str)
+         (if (let inner-loop ((chset set))
+               (if (zero? (string-length chset))
+                   #f
+                   (if (equal? (string-ref s 0)
+                            (string-ref chset 0))
+                       #t
+                       (inner-loop (substring chset 1 (string-length chset))))))
+             (loop (substring s 1 (string-length s)))
+             (- (string-length str) (string-length s))))))
+
+ (define (strcspn str set)
+   (let loop ((s str))
+     (if (zero? (string-length s))
+         (string-length str)
+         (if (let inner-loop ((chset set))
+               (if (zero? (string-length chset))
+                   #t
+                   (if (equal? (string-ref s 0)
+                            (string-ref chset 0))
+                       #f
+                       (inner-loop (substring chset 1 (string-length chset))))))
+             (loop (substring s 1 (string-length s)))
+             (- (string-length str) (string-length s))))))
+
+
+
+;; This silently collapses multiple instances of either spaces or the indicated separator
+ (define (collapsing-strtok str . separator)
+   (if (null? separator)
+       (set! separator " ")
+       (set! separator (car separator)))
+
+   (if (string? str)
+       (let loop ((results '())
+                  (sstr str))
+         (if (zero? (string-length sstr))
+             results
+             (if (zero? (strspn sstr separator))
+                 (loop (append results (list (substring sstr 0 (strcspn sstr separator) )))
+                       (substring sstr (strcspn sstr separator) (string-length sstr)))
+                 (loop results
+                       (substring sstr (strspn sstr separator) (string-length sstr)))))))
+   )
+
+;; This does not collapse multiple instances of either spaces or the indicated separator 
+ (define (strtok str . separator)
+   (if (null? separator)
+       (set! separator " ")
+       (set! separator (car separator)))
+
+   (if (string? str)
+       (let loop ((results '())
+                  (sstr str))
+         (if (zero? (string-length sstr))
+             results
+             (if (zero? (strspn sstr separator))
+                 (loop (append results (list (substring sstr 0 (strcspn sstr separator) )))
+                       (substring sstr (strcspn sstr separator) (string-length sstr)))
+
+					  (loop (if (and (> (string-length sstr) 1) (zero? (strspn (substring sstr 1 (string-length sstr)) separator))) results (append results (list "")))
+							  (substring sstr 1 (string-length sstr)))))))
+   )
+
+
+
+;; reconstructs the string either with spaces or the indicated separator
+
+ (define (reconstruct-string strarray . separator)
+   (if (null? separator)
+       (set! separator " ")
+       (set! separator (car separator)))
+
+   (if (null? strarray)
+       ""
+       (let loop ((sa (cdr strarray))
+                  (ns (car strarray)))
+         (if (null? sa)
+             ns
+             (loop (cdr sa) (string-append ns separator (car sa)))))))
+
+ ;;
+ ;; Searching
+ ;;
+
+
+ ;; Depth first search
+ (define (dfs node target nodemap carnode cdrnode)
+   (if (null? node)
+       #f
+       (if (equal? (nodemap node) target)
+           node
+           (if (pair? node)
+               (let ((l (dfs (carnode node) target nodemap carnode cdrnode)))
+                 (if l
+                     l
+                     (dfs (cdrnode node) target nodemap carnode cdrnode)))
+               #f))))
+
+
+ (define (dfs-path node target nodemap carnode cdrnode)
+   (if (or (null? node) (not node))
+       #f
+       (if (equal? (nodemap node) target)
+           (list node)
+           (if (not (pair? node))
+               #f
+               (letrec ((l (dfs-path (carnode node) target nodemap carnode cdrnode)))
+                 (if l
+                     (if (pair? l) 
+                         (cons (car l) (cons 'car (cdr l)))
+                         (cons l 'car))
+
+                     (letrec ((r (dfs-path (cdrnode node) target nodemap carnode cdrnode)))
+                       (if r
+                           (if (pair? r)
+                               (cons (car r) (cons 'cdr (cdr r)))
+                               (cons r 'cdr))
+                           #f))))
+               ))))
+
+
+ ;; breadth first search
+ (define (bfs-list key list-of-lists)
+   (let bsof ((lol (copy-list list-of-lists)))
+     (if (or (not (pair? lol)) (null? lol))
+         #f
+         (if (equal? key (car lol))
+             (car lol)
+             (let ()
+               (if (and (list? (car lol)) (list? lol))
+                   (bsof (append (cdr lol) (car lol))) ; strip off a level of nesting
+                   (bsof (cdr lol)) 
+                   ) 
+               )
+             )
+         )
+     )
+   )
+
+
+ (define (bfs key list-of-lists unwrapper)
+   (let ((uw #f))
+     
+     (if (not (procedure? unwrapper))
+         (set! uw (lambda (x) x))
+         (set! uw (lambda (x) (unwrapper x)))
+         )
+     
+     (if (null? list-of-lists)
+         #f
+         (let bsof ((lol (copy-listemacs list-of-lists)))
+           (if (or (not (pair? lol)) (null? lol))
+               #f
+               (if (pair? (car lol)) 
+                   (if (and (pair? lol) (equal? key (uw (car lol))))
+                       (car lol)
+                       (let ()
+                         (if (and (list? (car lol)) (list? lol))
+                             (bsof (append (cdr lol) (car lol))) ; strip off a level of nesting
+                             (bsof (cdr lol)) 
+                             ) 
+                         )
+                       )
+                   (bsof (cdr lol)))
+               )
+           )
+         )
+     )
+   )
+
+
+ ;; String/number mappings
+ (define (hms->h t)
+   (let loop ((h 0)
+              (d 1)
+              (s (strtok t ":")))
+     (if (null? s)
+         h
+         (loop (+ h (/ (string->number (car s)) d)) (* d 60) (cdr s)))))
+
+
+ (define (glog b e) (/ (log e) (log b)))
+
+ (define (power b e)
+   (cond
+    ((< e 0) (if t '()))
+    ((zero? e) 1)
+    ((even? e) (power (* b b) (/ e 2)))
+    (t (* b (power b (- e 1))))))
+
+(define power
+  (let ((p power))
+	 (lambda (x e)
+		(cond
+		 ((and (zero? x) (zero? e))
+		  1) ;; because it is what it is, not a bug.
+		 ((and (not (zero? x)) (zero? e))
+		  1)
+		 ((and (integer? e) (not (negative? e)))
+		  (p x e))
+		 ((and (integer? e) (negative? e))
+		  (/ 1 (p x (* -1 e))))
+		 ((complex? e) (exp (* e (log x))))
+		 ))))
+
+
+ (define (gexp b e) 
+   (exp (* (log b) e)))
+
+
+ ;; This creates an escape using a most unlikely environment variable name 
+ ;; to see if we have finished loading
+ (define getenv
+   (let ((ge getenv))
+     (lambda (str . thing)
+       (if (string=? str " Is scheme.rc loaded? ")
+           #t
+           (if (null? thing) (ge str) (ge str (car thing)))))))
+;)
+
+
+;; (make-sequence (lambda (x) (* x x)) 1 20 2)
+(define (make-sequence gen m Mx . step)
+  (set! step (if (null? step) 1 (car step)))
+  (if (< (* step Mx) (* step m)) 
+      '() 
+      (cons (gen m) (make-sequence gen (+ m step) Mx step))))
 
 
 ;-  The End ;;; ;;; 

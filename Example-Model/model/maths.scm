@@ -24,7 +24,7 @@
 
 ;-  Code 
 
-(load "utils.scm")
+;(load "utils.scm")
 
 (define pi (acos -1.))
 (define 2pi (* 2.0 pi))
@@ -71,7 +71,7 @@
 ;; This is exp( 4*pi*lmb * (x -phi))
 
 (define (general-sigmoid-g v)
-  (/ v (1+ v)))
+  (/ v (+ 1 v)))
 
 (define (general-sigmoid  x lmb phi) 
   (general-sigmoid-g (general-sigmoid-f x lmb phi)))
@@ -118,7 +118,7 @@
   (cond
 	((<= P_0 0) 0)
 	((>= P_0 1) 1)
-	(else (/ (log (1- (/ 1 P_0))) (* 4 pi lmb)))))
+	(else (/ (log (- (/ 1 P_0) 1)) (* 4 pi lmb)))))
 
 (define (power b e)
   (cond
@@ -128,14 +128,14 @@
 	((and (integer? e) (rational? b)) ;; This will keep them as exact numbers if they are exact
 	 (cond
 	  ((even? e) (power (* b b) (/ e 2)))
-	  (t (* b (power b (1- e)))))
+	  (t (* b (power b (- e 1)))))
 	 )
 	(else (exp (* e (log b))))))
 
 
 (define (count n)
   (let ((f 0))
-  (map (lambda (x) (set! f (1+ f)) (1- f)) (make-list n 0))))
+  (map (lambda (x) (set! f (+ 1 f)) (- f 1)) (make-list n 0))))
 
 (define (plist? a)
   (and (pair? a) (list? a)))
@@ -153,10 +153,10 @@
       (* x x)))
 
 (define-macro (sum mn mx lmbda)
-  `(apply + (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(1+ mx) ,mn))))))
+  `(apply + (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(+ 1 mx) ,mn))))))
 
 (define-macro (prod mn mx lmbda)
-  `(apply * (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(1+ mx) ,mn))))))
+  `(apply * (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(+ 1 mx) ,mn))))))
 
 
 
@@ -197,7 +197,7 @@
 	  ((and (number? p1) (list? p2))
 		(list-operator op (make-list (length p2) p1) p2))
 ;		(map (lambda (x) (list-operator op p1 x)) p2))
-	  ((and (list? p1) (list? p2) (eq? (length p1) (length p2)))
+	  ((and (list? p1) (list? p2) (= (length p1) (length p2)))
 		(map op p1 p2))
 	  ((and (number? p2) (list? p1))
 		(list-operator op p1 (make-list (length p1) p2)))
@@ -258,7 +258,7 @@
 	  ((pair? poly) (distance r (car poly)))
 	  (#t +inf.0)))
 
-  (d2p r  (append  poly (if (eq? (car poly) (car (reverse poly))) '() (list (car poly))))))
+  (d2p r  (append  poly (if (equal? (car poly) (car (reverse poly))) '() (list (car poly))))))
 
 
 
@@ -288,11 +288,11 @@
 
 
 (define (point-in-polygon p poly)
-  (if (or? (null? p) (null? poly) (< (length poly) 3)) 
+  (if (or (null? p) (null? poly) (< (length poly) 3)) 
 		#f
 		
 		(let ((ptail (car (reverse poly))))
-		  (if (not (eq? (car poly) ptail))
+		  (if (not (equal? (car poly) ptail))
 				(set! poly (append poly (list (car poly)))))))
 
   (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
@@ -316,8 +316,8 @@
 		  (v (or (and (list? V) V) (and (vector? V) (vector->list V))))
 		  (n (length V)))
   (cond
-   ((eq? n 1) V)
-   ((eq? n 2)
+   ((= n 1) V)
+   ((= n 2)
 	 (let ((r (list (- (* (car v) (cos theta)) (* (cadr v) (sin theta)))
 						 (+ (* (cadr v) (cos theta)) (* (car v) (sin theta))))))
 		(if isvec (list->vector v) v)))
@@ -336,7 +336,7 @@
 
 ;; Composition operator
 (define (o . funlist)  ;; general
-  (if (eq? (length funlist) 1)
+  (if (= (length funlist) 1)
       (lambda x (apply (car funlist) x))
       (lambda x ((car funlist) (apply (apply o (cdr funlist)) x)))))
 
@@ -351,7 +351,7 @@
                (v (list-operator - s r))
                (theta '())
                )
-          (if (eq? n 1)
+          (if (= n 1)
               v
               (rotated-vector v (- 0 (atan (car r) (cadr r))))))
         'change-basis:too-many-dimensions)))
@@ -382,7 +382,7 @@
 (define (mult x . y)  ;; general
   (cond
 	((null? y) x)
-	((eq? (length y) 1) (mult2 x (car y)))
+	((= (length y) 1) (mult2 x (car y)))
 	(#t (mult2 x (apply mult y)))))
 
 (define (div x y) ;; general
@@ -406,7 +406,7 @@
 (define (add x . y) ;; general
   (cond
 	((null? y) x)
-	((eq? (length y) 1.0) (add2 x (car y)))
+	((= (length y) 1.0) (add2 x (car y)))
 	(#t (add2 x (apply add y)))))
 
 (define (sub2 x  y) ;; general
@@ -421,7 +421,7 @@
 (define (sub x . y) ;; general
   (cond
 	((null? y) (sub2 0 x))
-	((eq? (length y) 1.0) (sub2 x (car y)))
+	((= (length y) 1.0) (sub2 x (car y)))
 	(#t (sub2 x (apply add y)))))
 
 (define (make-pprnd m) ;
@@ -433,17 +433,17 @@
         'make-pprnd:m-really-needs-to-be-a-number
 
         (let loop ((i 0))
-          (if (and (eq? size 0) (< i 1024))
+          (if (and (= size 0) (< i 1024))
               (begin
                 (vector-set! table i (- 1.0 (exp (/ (* -1.0 i) mean))))
-                (if (> (vector-ref table i) 0.9999) (begin (set! size (1+ i)) (vector-set! table size 1.0)))
-                (loop (1+ i))))))
+                (if (> (vector-ref table i) 0.9999) (begin (set! size (+ 1 i)) (vector-set! table size 1.0)))
+                (loop (+ 1 i))))))
 	 
     (lambda mode
       (cond
-       ((and (plist? mode) (eq? (car mode) 'mean))
+       ((and (plist? mode) (eqv? (car mode) 'mean))
         mean)
-       ((and (plist? mode) (eq? (car mode) 'size))
+       ((and (plist? mode) (eqv? (car mode) 'size))
         size)
        (#t (let (
 ;		   			  (r (randomo:uniform))
@@ -457,7 +457,7 @@
                     ((< r (vector-ref table i))
                      i)
                     (#t
-                     (loop (1+ i)) )
+                     (loop (+ 1 i)) )
                     )
                    (cond
                     ((>= i size) 1.0)
@@ -465,7 +465,7 @@
                     ((< r (vector-ref table i))
                      (/ i size))
                     (#t
-                     (loop (1+ i)) )
+                     (loop (+ 1 i)) )
                     )
                    )
                )
@@ -528,7 +528,7 @@
 			  )
 			pwl)
 		  x))
-	  (map 1+ (seq (1- (length (car pwl)))))))
+	  (map (lambda (x) (+ x 1)) (seq (- (length (car pwl)) 1)))))
 	((<= x (caar pwl)) (cadar pwl))
 	((null? (cdr pwl)) (cadar pwl))
 	((< x (caadr pwl)) 

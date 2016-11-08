@@ -139,7 +139,7 @@
 	 ddt)
 	((and (list? tlist) 
 			(number? (car tlist))
-			(eq? (car tlist) t)
+			(= (car tlist) t)
 			)
 	 ddt)
 	((and (list? tlist) 
@@ -149,41 +149,34 @@
 	(else 'bad-time-to-run)))
 
 
-(definition-comment 'prune-local-run-queue
-  "remove stale times in the time-to-run queue")
-(define (prune-local-run-queue tm ttr)
-  (let (
-;		  (call-starts (cpu-time))
-		  (r '())
-		  )
-	 (set! r (let loop ((l ttr))
-				  (if (or (null? l)
-							 (> tm (car l))
-							 )
-						l
-						(loop (cdr l)))))
-;	 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-	 r )
-  )
-
 (definition-comment 'q-insert
   "inserts a run record in the right place in the queue Q")
+
 (define (q-insert Q rec reccmp)
-  (let ((j (jiggle rec))
+  (dnl "In q-insert")
+  (if (isa? rec <agent>)
+		(let ((j (jiggle rec))
 ;		  (call-starts (cpu-time))
-		  )
-	 (set! Q (remove rec Q))
-
-	 (if (and (positive? j) (< j 1.0))
-		  (set-jiggle! rec (abs (random-real))))
-
-	 (let* ((f (append Q (list rec)))
-			  (sf (sort f reccmp))
-			  )
+				)
+		  (dnl "About to remove rec from Q")
+		  (set! Q (remove rec Q))
+		  
+		  (dnl* "Maybe adjust jiggle: " j)
+		  (if (and (positive? j) (< j 1.0))
+				(set-jiggle! rec (abs (random-real))))
+		  
+		  (dnl "About to append and sort")
+		  (let* ((f (append Q (list rec)))
+					(sf (sort f reccmp))
+					)
 ;		(set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-		sf)
-	 )
-  )
+			 sf)
+		  )
+		(begin
+		  (dnl* "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+		  (kdnl* 'error "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+		  Q)
+  ))
 
 
 ;---------------------------------------------------
@@ -260,7 +253,7 @@
   (let* ((newparams params)
 			)
 	 (list-set! newparams 3 rep)
-	 (list-set! newparams 5 (if (eq? rep 'individual) 1 0))
+	 (list-set! newparams 5 (if (eqv? rep 'individual) 1 0))
 	 newparams
 	 ))
 
@@ -269,7 +262,7 @@
 (define (distances-to what agentlist loc)
   (map (lambda (agent) 
 			(if (and (procedure? agent)
-						(eq? (representation agent) what))
+						(eqv? (representation agent) what))
 				 (distance loc (location agent ))
 				 2e308)
 			)
@@ -331,7 +324,7 @@
 (definition-comment 'kernel-call "This is the call into the kernel, can query for agent lists, agent count, times....")
 (define (kernel-call Q client query #!optional args)
   (cond
-   ((and (or (eq? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
+   ((and (or (eqv? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
 	 (if monitors-monitor-themselves
 	 (filter query Q) ;; *can* return itself ... monitors can monitor monitors
 	 ))
@@ -339,13 +332,13 @@
    ((symbol? query)
     (case query
 		((runqueue)
-		 (if (or (eq? client 'KERNEL) (isa? client <monitor))
+		 (if (or (eqv? client 'KERNEL) (isa? client <monitor))
 			  rq
 			  #f))
 		((time) (model-time Q +inf.0))
 		((agent-count) (length Q))
 		((next-agent)
-		 (if (or (eq? client 'KERNEL) (isa? client <monitor))
+		 (if (or (eqv? client 'KERNEL) (isa? client <monitor))
 			  (if (null? Q) Q (car Q))
 			  #f))
 		((min-time)
@@ -412,18 +405,34 @@
   "arguments are the runqueue, the agent making the request, and any"
   "arguments that might be required."
   )	
-(define (prep-agents Q start end . args)
-  (kdnl* 'prep "Prepping from" start "to" end "    with" Q)
-  (for-each
-	(lambda (A)
-	  (kdnl* 'prep "Prepping in lambda" (name A))
-	  (let ((kernel (lambda x (apply kernel-call (append (list rq A) x ))))
+
+(define boink 'undone)
+
+(define (prep-activate q-entry)
+  (kdnl* 'prep "Prepping, in lambda")
+  (set! boink q-entry)
+  (if (isa? q-entry <agent>)
+		(let ((kernel (lambda x (apply kernel-call (append (list rq q-entry) x ))))
 				)
-		 (kdnl* 'prep "Prepping in apply" (name A))
-		 (apply agent-prep (append (list A start end kernel) args))
-		 )
-	  )
-	Q)
+		  (kdnl* 'prep "Prepping in apply" (name q-entry))
+		  (slot-set! q-entry 'agent-state 'ready-to-run)
+		  ;;(agent-prep q-entry start end)
+		  )
+		(and (kdnl* 'complaint q-entry "is not an agent: cannot prep") #f)
+		)
+  )
+
+(define (prep-agents Q start end)
+  (kdnl* 'prep "Prepping from" start "to" end "    with" Q)
+  (dnl* "Prepping from" start "to" end)
+;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
+  
+  
+  (dnl* "Dumping")
+  (dnl (map name Q))
+  (dnl* "Dumped")
+
+  (map prep-activate Q)
   )
 
 (definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
@@ -458,9 +467,9 @@
 				 (agent-state (slot-ref process 'agent-state))
 				 )
 
-		  (or (eq? agent-state 'running)
-				(eq? agent-state 'ready-to-run)
-				(and (eq? agent-state 'ready-for-prep)
+		  (or (eqv? agent-state 'running)
+				(eqv? agent-state 'ready-to-run)
+				(and (eqv? agent-state 'ready-for-prep)
 					  (abort (string-append
 								 "Attempted to run " 
 								 (symbol->string (class-name-of process)) ":"
@@ -490,7 +499,7 @@
 					
 					(result (if (symbol? process) 
 									'bad-runqueue
-									(if (eq? agent-state 'suspended)
+									(if (eqv? agent-state 'suspended)
 										 ;; A suspended agent "consumes" its
 										 ;; time without doing anything, except
 										 ;; update its subj. time.
@@ -535,7 +544,7 @@
 					 'missed-model-body))
 				  (let ()
 					 (cond
-					  ((eq? result 'ok)
+					  ((eqv? result 'ok)
 						(set! rq (q-insert rq process Qcmp))
 						rq)
 
@@ -553,12 +562,12 @@
 						  (dnl "Got " result)
 
 						  (cond
-							((eq? result 'remove)
+							((eqv? result 'remove)
 							 rq)
 							(else 
 							 (cons result rq)))
 						  ))
-					  ((eq? result #!void)
+					  ((eqv? result #!void)
 						(let ((s
 								 (string-append "A " (symbol->string
 															 (class-name-of process))

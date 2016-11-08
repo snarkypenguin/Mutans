@@ -10,6 +10,7 @@
 ;	History:
 ;
 ;-  Code 
+(include "framework")
 
 (define <config-control>
   (make-class

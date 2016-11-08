@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 ;--
@@ -277,58 +278,44 @@
 ;---- animal methods
 
 ;----- (initialize) 
-(add-method initialize
-				(make-method (list <animal>)
-								 (lambda (initialize-parent self args)
-									(slot-set! self 'current-interest 
-												  (lambda args 
-													 (aborts
-													  (string-append
-														"current-interest isn't "
-														"defined for a <animal>: ")
-													  (slot-ref self 'name) ":"
-													  (slot-ref self 'type) ":"
-													  (slot-ref self 'representation))))
-									(set-state-variables self (list 'age #f 'sex #f))
-									(initialize-parent)
-									;; call "parents" last to make the initialisation list work
-									(set-state-variables self args)
-									)))
+(model-method <animal> (initialize self args)
+				  (slot-set! self 'current-interest 
+								 (lambda args 
+									(aborts
+									 (string-append
+									  "current-interest isn't defined for a "
+									  "member of the <animal> class: ")
+									 (slot-ref self 'name) ":"
+									 (slot-ref self 'type) ":"
+									 (slot-ref self 'representation))))
+				  (set-state-variables self (list 'age #f 'sex #f))
+				  (initialize-parent)
+				  ;; call "parents" last to make the initialisation list work
+				  (set-state-variables self args)
+				  )
 
 ;----- (age) 
-(add-method age
-				(make-method 
-				 (list <animal>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'age))))
+(model-method <animal> (age self)
+				  (slot-ref self 'age))
 
 
 ;----- (set-age!) 
-(add-method set-age!
-				(make-method 
-				 (list <animal> <number>)
-				 (lambda (call-parent-method self n)
-					(if (not (number? n))
-						 (aborts "thing:set-age! -- bad number")
-						 (slot-set! self 'age n)))))
+(model-method (<animal> <number>) (set-age! self n)
+				  (if (not (number? n))
+						(aborts "thing:set-age! -- bad number")
+						(slot-set! self 'age n)))
 
 
 ;----- (sex) 
-(add-method sex
-				(make-method 
-				 (list <animal>)
-				 (lambda (call-parent-method self)
-					(slot-ref self 'sex))))
+(model-method <animal> (sex self)
+				  (slot-ref self 'sex))
 
 
 ;----- (set-sex!) 
-(add-method set-sex!
-				(make-method 
-				 (list <animal> <symbol>)
-				 (lambda (call-parent-method self n)
+(model-method (<animal> <symbol>) (set-sex! self n)
 					(if (not (member n '(female male)))
 						 (aborts "thing:set-sex! -- symbol should be male or female")
-						 (slot-set! self 'sex n)))))
+						 (slot-set! self 'sex n)))
 
 ;----- (map-log-track-segment
 (model-method <animal> (map-log-track-segment self track wt p ps)
@@ -400,7 +387,7 @@
 					 #t)
 				  )
 				  
-(model-method <animal> (log-data self logger format caller targets)
+(model-method <animal> (log-data% self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -411,7 +398,7 @@
 						 (map-log-data self logger format caller targets p ps)
 						 )
 						(else 
-						 (log-data-parent))
+						 (log-data%-parent))
 						)
 
 					 (if (and (assoc 'track-segments
@@ -519,12 +506,12 @@
 										  (* 2.0 (my 'domain-attraction)) 'wanderspeed)
 					  #t)
 					 ;;(aborts "Dinna y' ken?"))
-					 ((eq? focus 'wander)
+					 ((eqv? focus 'wander)
 					  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
 										  (my 'domain-attraction) 'wanderspeed)
 					  )
 
-					 ((eq? focus 'hungry)
+					 ((eqv? focus 'hungry)
 					  (kdnl* 'debugging-eating "[" (my 'name)
 								":" (class-name-of self) "]" "hungry")
 
@@ -608,11 +595,11 @@
 							  )
 						 )
 					  )
-					 ((eq? focus 'flee)
+					 ((eqv? focus 'flee)
 					  ;; Not implemented yet
 					  #f
 					  )
-					 ((eq? focus 'breed)
+					 ((eqv? focus 'breed)
 					  ;; Not implemented yet
 					  #f
 					  )

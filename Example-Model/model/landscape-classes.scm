@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 ;--
@@ -7,29 +8,29 @@
 
 ;-- Environmental things
 
-(define <ecoservice>
-  (make-class (inherits-from <agent>)
-              (state-variables
-               name ;; Used in output
-               sym ;; symbol (possibly used in updates by other agents
-               patch ;; spatial agent associated with the ecoservice
-               value ;; current value of the ecoservice
-               capacity ;; maximum value of the ecoservice
-               
-               r        ;; recovery rate parameter
-               ;; -- sharpness of
-               ;; transition in growth
-               ;; curve(sigmoid) ,
-               ;; increase per unit of
-               ;; time (linear)
-               
-               delta-T-max ;; largest stepsize the ecoservice can accept
-               do-growth   ;; #t/#f 
-               growth-model ;; routine to effect growth of the form (f
-                            ;; t dt currentvalue)
-               history      ;; maintains  ((t value) ...)
-               )))  
-(register-class <ecoservice>)
+(define-class <ecoservice>
+  (inherits-from <agent>)
+  (state-variables
+	name ;; Used in output
+	sym ;; symbol (possibly used in updates by other agents
+	patch ;; spatial agent associated with the ecoservice
+	value ;; current value of the ecoservice
+	capacity ;; maximum value of the ecoservice
+	
+	r        ;; recovery rate parameter
+	;; -- sharpness of
+	;; transition in growth
+	;; curve(sigmoid) ,
+	;; increase per unit of
+	;; time (linear)
+	
+	delta-T-max ;; largest stepsize the ecoservice can accept
+	do-growth   ;; #t/#f 
+	growth-model ;; routine to effect growth of the form (f
+	;; t dt currentvalue)
+	history      ;; maintains  ((t value) ...)
+	))
+
 
 (Comment "An <ecoservice> stands for biogenic parts of the system (ground
 water) The update function is of the form (lambda (self t dt) ...)
@@ -40,101 +41,89 @@ be specified by passing the appropriate symbol.
 
 A typical construction of an ecoservice might look like
 (make <ecoservice> 
-      'patch P 
-      'value 42000 
-      'capacity +inf.0 
-      'r 1 
-      'delta-T-max (days 2) 
-      'do-growth #t 
-      'growth-model
+  'patch P 
+  'value 42000 
+  'capacity +inf.0 
+  'r 1 
+  'delta-T-max (days 2) 
+  'do-growth #t 
+  'growth-model
 	      ;;; 'sigmoid
 	      ;;; 'linear
-         (lambda (t dt v) 
-            (let* ((tssn (/ t 365.0)) 
-                   (ssn (- tssn (trunc tssn)))) 
-                 (cond 
-                   ((<= 0 0.3) (/ r 12))
-                   ((<= 0 0.7) (/ r 3))
-                   ((<= 0 0.8) (/ r ))
-                   (#t (/ r 6)))))
-		;; 
-)
+  (lambda (t dt v) 
+	 (let* ((tssn (/ t 365.0)) 
+			  (ssn (- tssn (trunc tssn)))) 
+		(cond 
+		 ((<= 0 0.3) (/ r 12))
+		 ((<= 0 0.7) (/ r 3))
+		 ((<= 0 0.8) (/ r ))
+		 (#t (/ r 6)))))
+  ;; 
+  )
 ")
 
 
-(define <population-system>
-  (make-class (inherits-from <ecoservice>)
-				  (state-variables
-					patch ;; spatial agent associated with the ecoservice
-					value ;; current value of the ecoservice
-					capacity ;; maximum value of the ecoservice
-					r        ;; recovery rate parameter (sharpness of
-								;; sigmoidal growth)
-					delta-T-max ;; largest stepsize the ecoservice can
-									;; accept
-					do-growth   ;; #t/#f 
-					growth-model ;; routine to effect growth of the form 
-									 ;;   (f t dt currentvalue)
-					history      ;; maintains  ((t value) ...)
-					)))  
+(define-class <population-system>
+  (inherits-from <ecoservice>)
+  (state-variables
+	patch ;; spatial agent associated with the ecoservice
+	value ;; current value of the ecoservice
+	capacity ;; maximum value of the ecoservice
+	r        ;; recovery rate parameter (sharpness of
+	;; sigmoidal growth)
+	delta-T-max ;; largest stepsize the ecoservice can
+	;; accept
+	do-growth   ;; #t/#f 
+	growth-model ;; routine to effect growth of the form 
+	;;   (f t dt currentvalue)
+	history      ;; maintains  ((t value) ...)
+	))
 
 
-(define <polygon> (make-class (inherits-from <agent>)
-										(state-variables locus perimeter)
-										))
-(register-class <polygon>)
+(define-class <polygon> (inherits-from <object>)
+  (state-variables locus perimeter radius)
+  )
 
-(define <circle> (make-class (inherits-from <agent>)
-									  (state-variables locus perimeter radius)
-									  ))
-(register-class <circle>)
-
-
-
-(define <boundary> (make-class (inherits-from <agent>)
-										 (state-variables rep))) 
-(register-class <boundary>)
-(Comment "<boundary> provides the spatial context for <patch>
-in the way that <landscape> provides a terrain for <habitat>")
+(define-class <circle> (inherits-from <object>)
+  (state-variables locus perimeter radius)
+  )
 
 
 
 
-(define <patch> (make-class (inherits-from  <environment> <boundary>)
-									 (state-variables service-list)))
+(define-class <patch> (inherits-from  <environment>)
+  (state-variables service-list rep))
 
 (Comment "A patch is a geographic region with a list of ecological
-services.")
-
-(register-class <patch>)
+services.  The representation (rep) is a spatial thingie.")
 
 ;;
-(define <dynamic-patch>
-  (make-class (inherits-from <patch>)
-				  (state-variables
-					population-names ;; list of strings associated with
-										  ;; each population
+(define-class <dynamic-patch>
+  (inherits-from <patch>)
+  (state-variables
+	population-names ;; list of strings associated with
+	;; each population
 
-					population-symbols ;; unique symbols for each of the
-											 ;; pops
+	population-symbols ;; unique symbols for each of the
+	;; pops
 
-					population-definitions  ;; list of the form ((nameA
-													;; dA/dt) ...)
-					do-dynamics       ;; #t/#f whether to do the dynamics
-											;; or not if this is false, state
-											;; values are modified externally
-											;; with calls to (set-value!
+	population-definitions  ;; list of the form ((nameA
+	;; dA/dt) ...)
+	do-dynamics       ;; #t/#f whether to do the dynamics
+	;; or not if this is false, state
+	;; values are modified externally
+	;; with calls to (set-value!
 
-					do-growth   ;; #t/#f whether to do growth using the
-									;; ecoservice growth-model or not
+	do-growth   ;; #t/#f whether to do growth using the
+	;; ecoservice growth-model or not
 
-					dP    ;; This is generated using rk4* and d/dt-list
+	dP    ;; This is generated using rk4* and d/dt-list
 
-					d/dt-list   ;; differential equations which describe
-									;; the dynamics
+	d/dt-list   ;; differential equations which describe
+	;; the dynamics
 
-					subdivisions)))  ;; the definitions are kept for
-										  ;; debugging
+	subdivisions))  ;; the definitions are kept for
+;; debugging
 
 
 (Comment "<dynamic-patches> are patches that have a system of
@@ -183,19 +172,16 @@ services must be there or Bad Things Happen.
 
 ;; species-index is an association list which pairs ecoservice names
 ;; to indices in the
-(register-class <dynamic-patch>)
 
-(define <landscape> (make-class (inherits-from <environment>)
-										  (state-variables terrain-function)))
+(define-class <landscape> (inherits-from <environment>)
+  (state-variables terrain-function))
 ;; terrain-function is a function in x and y that returns a DEM
-(register-class <landscape>)
 
-(define <habitat> (make-class (inherits-from <landscape>)
-										(state-variables patch-list dump-times scale)))
+(define-class <habitat> (inherits-from <landscape>)
+  (state-variables patch-list dump-times scale))
 ;; sites is a list of patches -- the patches can be either patches,
 ;; dynamic-patches or a mix -- the list is passed in at initialisation.
 
-(register-class <habitat>)
 
 
 ;-  The End 

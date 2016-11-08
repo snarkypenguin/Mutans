@@ -1,18 +1,8 @@
+
+(include "framework")
 ;- Identification and Changes
 
 ;- Load initial libraries 
-
-;; sclos.scm *must* be loaded before this file
-
-
-;;-------------------------------------------;;
-;; This is the order things must happen in   ;;
-;; any file defining methods or model bodies ;;
-;;---------------------------------------------
-;; (include "framework-preamble%.scm")
-;; (load-model-framework)
-;;---------------------------------------------
-
 
 ;-- Define/allocate new classes
 
@@ -59,6 +49,7 @@
 
 ;; sclos classes
 (register-class <pair>)
+(register-class <list>)
 (register-class <null>)
 (register-class <boolean>)
 (register-class <integer>)
@@ -75,55 +66,75 @@
 (register-class <output-port>)
 (register-class <class>)
 (register-class <top>)
-(register-class <object>)
+(register-class <primitive-object>)
 (register-class <procedure-class>)
 (register-class <entity-class>)
 (register-class <generic>)
 (register-class <method>)
 
 
-;--- attributes -- data associated with an agent which needs
-;;                 more complex support than <object> provides
+;--- objects 
 
-(define <attribute>
-  (make-class (inherits-from <object>) 
-				  (state-variables note
-										 map-projection
-										 )
-				  ))
-(register-class <attribute>)
+"<primitive-object> is a (the?) basic class for SCLOS -- the name was
+changed so we could use <object> as the basic entity in the framework.
+An <object> knows very little about the modelling framework, and has no
+implicit connections to any of the other model classes; thus, it has
+no inherent representation of time or space, nor of inter-entity
+communication (without cheating)."
 
+(define-class <object>
+  (inherits-from <primitive-object>)
+  (state-variables note map-projection)
+  ;; 'note is just explanatory data
+  ;; 'map-projection exists to assist projecting data in and out of the attributes data-space
+  ;; 'sup-model is the parent entity so the two can communicate
+  )
+
+
+
+;--- attributes -- data associated with an agent which needs more complex support than <object> provides
+"An instances of a <attribute> act as encapsulated components of a
+submodel, they (usually) cannot interact with other submodels directly
+without cheating."
+
+(define-class <attribute>
+  (inherits-from <object>)
+  (state-variables note map-projection sup-model)
+  ;; 'note is just explanatory data
+  ;; 'map-projection exists to assist projecting data in and out of the attributes data-space
+  ;; 'sup-model is the parent entity so the two can communicate
+  )
 
 ;--- agent based classes
 
-(define <agent>
-  (make-class (inherits-from <object>) 
-				  (state-variables name type representation agent-state
-										 note
-										 kernel 
-										 subjective-time priority jiggle 
-										 dt
-										 schedule
-										 migration-test timestep-schedule counter
-										 map-projection
-										 state-flags
-										 agent-epsilon
-										 agent-schedule
-										 dont-log
-										 agent-body-ran
+(define-class <agent>
+  (inherits-from <object>)
+  (state-variables name type representation agent-state
+						 note
+						 kernel 
+						 subjective-time priority jiggle 
+						 dt
+						 schedule
+						 migration-test timestep-schedule counter
+						 map-projection
+						 state-flags
+						 agent-epsilon
+						 agent-schedule
+						 dont-log
+						 agent-body-ran
 
-										 ;; as a parent of other agents
-										 subsidiary-agents active-subsidiary-agents
-										 parent-nesting-state
+						 ;; as a parent of other agents
+						 subsidiary-agents active-subsidiary-agents
+						 parent-nesting-state
 
-										 ;; as a child of other agents
-										 nest-parent child-nesting-state
+						 ;; as a child of other agents
+						 nest-parent child-nesting-state
 
-										 ;;
-										 maintenance-list
-										 )
-				  ))
-(register-class <agent>)
+						 ;;
+						 maintenance-list
+						 )
+	)
+
 
 ;; subsidiary-agents are agents which may be embedded in a larger
 ;; dynamic agent. Agents know what their parent agent is (if they have
@@ -150,12 +161,18 @@
 ;; kernel is a function that can be used to interact with
 ;;    the kernel of the simulation
 
-(define <monitor>
-  (make-class (inherits-from <agent>)
-				  (state-variables am-i-interested-in? accessor)))
+
+"<monitor> agents play a special role, keeping an eye on subsets of
+the population of agents.  Monitors can effect changes in the
+composition of both the population and the constituents which comprise
+an agent. In many ways, monitors are similar to introspection agents."
+
+(define-class <monitor>
+  (inherits-from <agent>)
+  (state-variables am-i-interested-in? accessor))
 ;; am-i-interested-in is a predicate that takes an agent
 ;; accessor is a function which takes an agent and returns a data vector
-(register-class <monitor>)
+
 
 "
 specific-targets are agents that the monitor is interested in, any
@@ -169,38 +186,30 @@ to see if they are of interest (slooow)
 (load "log-classes.scm") ;; These are used to generate output.
 
 
-(define <tracked-agent>
-  (make-class (inherits-from
-					<agent>) (state-variables track tracked-paths track-schedule
-													  track-epsilon)))
+(define-class <tracked-agent>
+  (inherits-from <agent>)
+  (state-variables track tracked-paths track-schedule track-epsilon))
 ;; "track" will either be a list like (... (t_k x_k y_k) ...) or false
 ;; "tracked-paths" is a list of non-false traces or false
 
-(register-class <tracked-agent>)
-
-(define <thing>
-  (make-class (inherits-from <tracked-agent>)
-				  (state-variables mass dim location direction speed)))
-(register-class <thing>)
-;;(class-register 'add <thing> "<thing>")
-
-(define <environment>
-  (make-class (inherits-from <agent>)
-				  (state-variables default-value minv maxv))) ;; bounding volume
-
-(register-class <environment>)
+(define-class <thing>
+  (inherits-from <tracked-agent>)
+  (state-variables mass dim location direction speed))
 
 
-(define <model-maintenance>
-  (make-class (inherits-from <object>)
-				  (state-variables I-need)))
+(define-class <environment>
+  (inherits-from <agent>)
+  (state-variables default-value minv maxv)) ;; bounding volume
+
+
+(define-class <model-maintenance>
+  (inherits-from <object>)
+  (state-variables maintenance-list I-need))
 ;; I-need is a list of fields which comprise the env-vector, and must be filled in by the
 ;;   agent which is maintaining the reduced model.
 ;; Agents with a model-maintenance class must supply state-variables and a method to update them
 ;; the form for the function is (update-state self t dt)
 ;; 
-
-(register-class <model-maintenance>)
 
 
 ;;; Local Variables:

@@ -1,3 +1,4 @@
+(include "framework")
 ;--
 ;	landscape-declarations.scm -- Written by Randall Gray 
 
@@ -8,16 +9,12 @@
 (declare-method enable-growth! "disables the growth model for the ecoservice")
 (declare-method disable-growth! "disables the growth model for the ecoservice")
 (declare-method growth-model "returns the growth model for the ecoservice")
-(declare-method rvalue
-					 (string-append "returns the r value (sharpness "
-										 "or exponent) of an ecoservice's growth model"))
+(declare-method rvalue "returns the r value (sharpness or exponent) of an ecoservice's growth model")
 
 ;--- <boundary>, <circle> and <polygon> generics
-(declare-method contains?
-					 "indicates whether a location is within a boundary object")
+(declare-method contains? "indicates whether a location is within a boundary object")
 (declare-method my-rep "returns the underlying agent which defines the domain")
-(declare-method distance-to-boundary
-					 "returns the distance to a boundary")
+(declare-method distance-to-boundary "returns the distance to a boundary")
 (declare-method rep "returns the representation object")
 (declare-method centre "returns the centre/centroid of an object")
 (declare-method set-centre! "returns the centre/centroid of an object")
@@ -30,13 +27,11 @@
 (declare-method add-service "add-service")
 (declare-method remove-service "remove-service")
 (declare-method service "service") ;; returns value
-(declare-method service-list "service-list") ;; returns value
+(declare-method service-list% "service-list%") ;; returns value
 ;;(declare-method service-list "service-list") ;; returns value
-(declare-method services "services") ;; returns value
-(declare-method specific-services "names of species (or services)") 
-(declare-method service-values 
-					 (string-append "values of species/services (aggregates things "
-										 "with the same id)")) ;; returns value
+(declare-method services% "services") ;; returns value
+(declare-method specific-services% "names of species (or services)") 
+(declare-method service-values "values of species/services (aggregates things with the same id)") ;; returns value
 (declare-method set-services! "set-services!") ;; sets value
 (declare-method distance-to-centre "distance-to-centre")
 (declare-method distance-to-interior "distance-to-interior")
@@ -47,34 +42,17 @@
 
 ;--- <dynamic-patch> generics 
 
-(declare-method service-list-index
-					 "returns the index of a species in the species list")
-(declare-method service-matrix-index
-					 "returns the index of a species in the species matrix")
-(declare-method set-population-dynamics!
-					 (string-append "Sets things up for population dynamics "
-										 "using differential equations and rk4*"))
-(declare-method define-population-dynamics!
-					 (string-append "Sets things up for population dynamics using "
-										 "definitions, alternative to "
-										 "set-population-dynamics!"))
-(declare-method growth-model
-					 (string-append "returns the growth model for the patch (ties "
-										 "all the represented populations together)"))
-(declare-method enable-growth!
-					 "enables the system level growth model for the dynamic-patch")
-(declare-method disable-growth!
-					 "disables the system level growth model for the dynamic-patch")
-(declare-method enable-service-growth!
-					 (string-append "enables the service level growth model for a "
-										 "service in the dynamic-patch"))
-(declare-method disable-service-growth!
-					 (string-append "disables the service level growth model for "
-										 "for a service in the dynamic-patch"))
-(declare-method enable-all-service-growth!
-					 "enables the service level growth model for the dynamic-patch")
-(declare-method disable-all-service-growth!
-					 "disables the service level growth model for the dynamic-patch")
+(declare-method service-list-index "returns the index of a species in the species list")
+(declare-method service-matrix-index "returns the index of a species in the species matrix")
+(declare-method set-population-dynamics! "Sets things up for population dynamics using differential equations and rk4*")
+(declare-method define-population-dynamics!"Sets things up for population dynamics using definitions, alternative to set-population-dynamics!")
+(declare-method growth-model "returns the growth model for the patch (ties all the represented populations together)")
+(declare-method enable-growth! "enables the system level growth model for the dynamic-patch")
+(declare-method disable-growth! "disables the system level growth model for the dynamic-patch")
+(declare-method enable-service-growth! "enables the service level growth model for a service in the dynamic-patch")
+(declare-method disable-service-growth! "disables the service level growth model for for a service in the dynamic-patch")
+(declare-method enable-all-service-growth! "enables the service level growth model for the dynamic-patch")
+(declare-method disable-all-service-growth! "disables the service level growth model for the dynamic-patch")
 
 
 
@@ -94,7 +72,7 @@
 (declare-method service-sites "returns the list of patches with particular services")
 (declare-method add-patch "add a patch to a habitat")
 (declare-method remove-patch "remove a patch from a habitat")
-(declare-method patch-list "return a list of all patches or only the ones with particular services")
+(declare-method patch-list% "return a list of all patches or only the ones with particular services")
 (declare-method aggregate-value "aggregate-value of a services within a nominated circle")
 (declare-method spatial-scale "an indication of some 'natural scale' of the habitat based on the dist between patches")
 

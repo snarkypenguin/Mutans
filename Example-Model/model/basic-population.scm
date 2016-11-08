@@ -7,7 +7,7 @@ population machinery for the dynamic patch class."
 
 
 ;(load "utils.scm")
-(load "units.scm")
+;(load "units.scm")
 ;(load "sort.scm")
 ;(load "maths.scm")
 ;(load "integrate.scm")
@@ -31,9 +31,9 @@ population machinery for the dynamic patch class."
 
 
 ;; Multiplicative cap on the growth of the species. k = "unbounded" makes it go away 
-;;(define (logistic-- a k) (if (eq? k unbounded) 1.0 (- 1 (pow (/ a k) 2.4))))
+;;(define (logistic-- a k) (if (eqv? k unbounded) 1.0 (- 1 (pow (/ a k) 2.4))))
 
-(define (logistic-- a k) (if (eq? k unbounded) 1.0 (- 1 (/ a k))))
+(define (logistic-- a k) (if (eqv? k unbounded) 1.0 (- 1 (/ a k))))
 
 (define (logistic-growth-- a k) (if (> a k) 0.0 (- 1.0 (/ a k))))
 (define (logistic-mort-- a k) (if (< a k) 0.0 (- (/ a k) 1.0)))
@@ -169,7 +169,7 @@ The usual pattern for a std-d/dt would be
 								 ((null? args)
 								  val)
 								 
-								 ((eq? (car args) 'dump)
+								 ((eqv? (car args) 'dump)
 								  (pp (list
 										 'name name 
 										 'self self 
@@ -182,10 +182,10 @@ The usual pattern for a std-d/dt would be
 										 'd/dt d/dt 
 										 'func population)))
 
-								 ((eq? (car args) 'set!)
+								 ((eqv? (car args) 'set!)
 								  (set! val  (cadr args)))
 												
-								 ((eq? (car args) 'register-populations)
+								 ((eqv? (car args) 'register-populations)
 								  ;; expects (animal 'register-populations
 								  ;;    (list plant animal toothy-animal....))
 								  (if (not (apply andf (map procedure? (cadr args))))
@@ -195,7 +195,7 @@ The usual pattern for a std-d/dt would be
 										(set! populations (copy-list (cadr args)))
 										))
 								 
-								 ((eq? (car args) 'register-prey)
+								 ((eqv? (car args) 'register-prey)
 								  (if (not populations)
 										(error  "You must register the populations before registering the prey")
 										(begin
@@ -211,7 +211,7 @@ The usual pattern for a std-d/dt would be
 										  )
 										))
 								 
-								 ((eq? (car args) 'register-predators)
+								 ((eqv? (car args) 'register-predators)
 								  (if (not prey-rates)
 										(abort (string-append
 												  (symbol->string name)
@@ -222,7 +222,7 @@ The usual pattern for a std-d/dt would be
 								  ;;(dnl name pred-att-rate)
 								  )	
 								 
-								 ((eq? (car args) 'logistic)
+								 ((eqv? (car args) 'logistic)
 								  (if (not (or (null? (cdr args)) (boolean? (cadr args)) (number? (cadr args))))
 										(abort "argument to (entity 'logistic) must be null, #f #t or a number"))
 								  (if (null? (cdr args))
@@ -236,7 +236,7 @@ The usual pattern for a std-d/dt would be
 								  
 								  )
 								 
-								 ((eq? (car args) 'register-helpers)
+								 ((eqv? (car args) 'register-helpers)
 								  (if (not populations)
 										(error  "You must register the populations before registering interactions")
 										(begin
@@ -252,7 +252,7 @@ The usual pattern for a std-d/dt would be
 										  )
 										))
 
-								 ((eq? (car args) 'register-competitors)
+								 ((eqv? (car args) 'register-competitors)
 								  (if (not populations)
 										(error  "You must register the populations before registering interactions")
 										(begin
@@ -269,7 +269,7 @@ The usual pattern for a std-d/dt would be
 										  )
 										))
 
-								 ((eq? (car args) 'logistic-growth)
+								 ((eqv? (car args) 'logistic-growth)
 								  (if (not (or (null? (cdr args))
 													(boolean? (cadr args))
 													(number? (cadr args))))
@@ -281,7 +281,7 @@ The usual pattern for a std-d/dt would be
 
 								  )
 
-								 ((eq? (car args) 'logistic-mort)
+								 ((eqv? (car args) 'logistic-mort)
 								  (if (not (or (null? (cdr args))
 													(boolean? (cadr args))
 													(number? (cadr args))))
@@ -293,7 +293,7 @@ The usual pattern for a std-d/dt would be
 								  (if logistic-mort (set! logistic #f))
 								  )
 
-								 ((and (eq? (car args) 'attack-rate) (procedure? (cadr args)))
+								 ((and (eqv? (car args) 'attack-rate) (procedure? (cadr args)))
 								  (if (not prey-rates) 	
 										(if fascist-init
 											 (abort
@@ -304,15 +304,15 @@ The usual pattern for a std-d/dt would be
 										(let ((p (list2-assoc populations prey-rates (cadr args))))
 										  (if p (car p) 0))))
 
-								 ((eq? (car args) 'update)
+								 ((eqv? (car args) 'update)
 								  (let ((dP (apply self (cdr args))))
 									 (set! value (+ value (* dP (cadr args))))
 									 ))
 
-								 ((eq? (car args) 'set-d/dt!)
+								 ((eqv? (car args) 'set-d/dt!)
 								  (set! d/dt (cadr args)))
 
-								 ((eq? (car args) 'd/dt)
+								 ((eqv? (car args) 'd/dt)
 								  d/dt)
 								 
 								 ((number? (car args))

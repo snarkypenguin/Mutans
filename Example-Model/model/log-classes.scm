@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 ;;; #|
@@ -34,7 +35,8 @@
 (register-class <introspection>)
 
 (define <logfile> (make-class (inherits-from <introspection>)
-										(no-state-variables)))
+										(no-state-variables)
+										))
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout
 ;;- if append-time is not false it must either be true or the size of
@@ -68,7 +70,8 @@
 (register-class <log-map>)
 
 (define <log-data> (make-class (inherits-from <logfile>)
-										 (no-state-variables)))
+										 (no-state-variables)
+										 ))
 
 ;;- projections is an association list of slot-names and the projection
 ;;  functions to apply before output

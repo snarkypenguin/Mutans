@@ -155,8 +155,8 @@
 													  (simple-wildmatch (cdr pattern) string))
 
 													 ;; An empty string matches any of the "star" type wildcards
-													 ((and (null? string) (pair? pattern) (or (and (null? (cdr pattern)) (eq? (car pattern) wildstar))
-																					  (and (= 2 (length pattern)) (eq? (cadr pattern) wildstar) (member (car pattern) (map cadr wildcard-sets))
+													 ((and (null? string) (pair? pattern) (or (and (null? (cdr pattern)) (equal? (car pattern) wildstar))
+																					  (and (= 2 (length pattern)) (equal? (cadr pattern) wildstar) (member (car pattern) (map cadr wildcard-sets))
 																							 )))
 													  #t)
 

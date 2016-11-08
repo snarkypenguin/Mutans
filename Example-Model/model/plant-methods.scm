@@ -1,3 +1,4 @@
+(include "framework")
 ; -*- mode: scheme; -*-
 ;-  Identification and Changes
 
@@ -266,7 +267,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   (if (number? (car otherargs))
 		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
 
-  (let ((sp (apply make (cons <simple-plant>
+  (let ((sp (apply make-agent (cons <simple-plant>
 										(append (list 'habitat env
 														  'location loc
 														  'mass mass) otherargs)))))
@@ -274,7 +275,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 		  sp
 		  (error "location for simple-plant is not in indicated environment" loc env))))
 
-(define (make-simple-plant env mass . otherargs)
+(define (make-simple-plant env mass . more)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -288,14 +289,17 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   ;; If no reproduction-mechanism is specified, the plant does not
   ;; reproduce -- never fruits
 
-  (if (and (pair? otherargs) (number? (car otherargs)))
-		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
+  (if (and (pair? more) (number? (car more)))
+		(set! more (arg-pairings simple-plant-arg-order more)))
 
-  (let ((sp (apply make (cons <simple-plant>
-										(append (list 'habitat env
-														  'location (random-point env)
-														  'mass mass) otherargs)))))
-	 sp))
+  (dnl* "env:" env  "args:"  more)
+  (set! more (append (list 'habitat env
+									;'location (random-point env)
+									'mass mass) more))
+  (dnl* "->args:"  more)
+  (let ((sp (make-agent <simple-plant> )	))
+	 sp
+	 ))
 
 
 ;--- Only logging methods below
@@ -332,7 +336,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 									  (set! leading-entry #t))
 								 (display field file)))
 						 
-						 (let ((val (if (eq? field 'name) 
+						 (let ((val (if (eqv? field 'name) 
 											 (if (slot-ref self 'patch)
 												  (string-append
 													(slot-ref
@@ -362,14 +366,14 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 				  #f)))
 		(uniq (if #t
 					 targets
-					 (filter (not-memq (slot-ref logger 'dont-log))
+					 (filter (not-member (slot-ref logger 'dont-log))
 								targets)))
 		)
 	  (newline file)
 	  )
 	)
 
-(model-method <simple-plant> (log-data self logger format caller targets)
+(model-method <simple-plant> (log-data% self logger format caller targets)
     (let ((file (slot-ref logger 'file)))
 		(kdnl* '(log-* log-simple-plant)
 				 "[" (my 'name) ":" (class-name-of self) "]"
@@ -401,7 +405,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 										(set! leading-entry #t))
 								  (display field file)))
 						  
-						  (let ((val (if (eq? field 'name) 
+						  (let ((val (if (eqv? field 'name) 
 											  (if (slot-ref self 'patch)
 													(string-append
 													 (slot-ref

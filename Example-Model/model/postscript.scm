@@ -19,7 +19,7 @@
 
 ;-  Code 
 
-(load "utils.scm")
+;;(load "utils.scm")
 
 (define (make-it-a-string s) 
   (or (and (string? s) s) (and (char? s) (make-string 1 s)) (object->string s)))
@@ -137,7 +137,7 @@
 		#f
 		
 		(let ((ptail (car (reverse poly))))
-		  (if (not (eq? (car poly) ptail))
+		  (if (not (equal? (car poly) ptail))
 				(set! poly (append poly (list (car poly)))))))
 
   (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
@@ -174,7 +174,7 @@
 (define (translate-pointlist* n offset lstlst) ;; This should be generalised....
   (if (zero? n)
 		(adjust + offset lstlst)
-		(map (lambda (lst) (translate-pointlist* (1- n) offset lst)) lstlst)))
+		(map (lambda (lst) (translate-pointlist* (- n 1) offset lst)) lstlst)))
 
 (define pi (* 4.0 (atan 1.0)))
 (define 100pi 314)
@@ -372,7 +372,7 @@
 
 
     (define (showpage)
-      (set! pagecount (1+ pagecount))
+      (set! pagecount (+ 1  pagecount))
       (ps-display "showpage"))
 
     (define (select-page vert horiz) ; in units of one page length or width
@@ -729,7 +729,7 @@
 			 (begin
 				(ps 'moveto (* i g) 0)
 				(ps 'rlineto 0 h)
-				(first (1+ i))
+				(first (+ 1  i))
 				))
       )
     (let second ((i 0))
@@ -737,7 +737,7 @@
 			 (begin
 				(ps 'moveto 0 (* i g))
 				(ps 'rlineto w 0)
-				(second (1+ i))
+				(second (+ 1  i))
 				))
 		
       )

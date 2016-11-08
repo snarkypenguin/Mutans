@@ -1,3 +1,4 @@
+(include "framework")
 ;-  Identification and Changes
 
 ;--
@@ -5,246 +6,122 @@
 
 
 ;--- basic wrangling -- ALL classes
-(declare-method
- set-state-variables ;; *** Note spelling ***
- "handles the initialisation of state variables") 
-(declare-method
- dump
- "dumps a 'readable' view of the state of an object")
 
-(declare-method
- agent-prep
- "runs any 'prep' code, like opening files")
-(declare-method
- agent-shutdown
- "runs any 'shutdown' code, like closing files")
+;;; (declare-method
+;;;  dump%
+;;;  "dumps a 'readable' view of the state of an object")
 
-(declare-method
- set-state-flag!
- "set a flag in the ad hoc state-variable list")
-(declare-method
- add-state-flag
- "add a flag to the ad hoc state-variable list")
-(declare-method
- state-flag
- "return the value of the flag in the ad hoc state-variable list")
+(define agent-prep (make-generic))
+(generic-method-register 'add agent-prep 'agent-prep)
 
-(declare-method
- insert-agent!
- "add an agent in the introspection list")
-(declare-method
- append-agent!
- "add an agent in the introspection list")
-
-;--- Misc.
-
+(declare-method Westley "No one of consequence.")
+(declare-method action "trigger a representation change, or whatever")
+(declare-method add-state-flag "add a flag to the ad hoc state-variable list")
+(declare-method agent-shutdown "runs any 'shutdown' code, like closing files")
+(declare-method append-agent! "add an agent in the introspection list")
+(declare-method close-p/n "close a logging port")
+(declare-method comment "reference information for agent")
+(declare-method contains? "predicate which indicates containment")
+(declare-method data-emit-page "specific for data output")
+(declare-method data-log-data "specific for data output")
+(declare-method data-log-track-segment "description needed")
+(declare-method dim "Return the number of dimension an entity works in")
+(declare-method direction "Return the direction of an entity")
+(declare-method dt "the amount of time the agent is running for or will run")
+(declare-method dump% "Internal (fixed arg) version for dumping an agent")
+(declare-method emit-page "set the list of agents to be examined")
+(declare-method extend-variables! "extend the list of variables")
+(declare-method extra-variable "refer used in the logging to get non-slot data out of a class")
+(declare-method extra-variable-list "refer used in the logging to get non-slot data out of a class")
+(declare-method i-am "returns the representation of the entity")
+(declare-method insert-agent! "add an agent in the introspection list")
+(declare-method insert-schedule-time! "insert a time into a schedule")
+(declare-method introspection-list "return the introspection list")
+(declare-method introspection-times "return the introspection list")
+(declare-method is-a "representation predicate")
+(declare-method jiggle "the current random adjustment when being inserted in the runqueue")
+(declare-method kernel "function which handles kernel queries")
+(declare-method kquery "Send a query to the kernel")
+(declare-method location "Return the location of an entity")
+(declare-method log-data% "err, ...log data to an open output") 
+(declare-method log-this-agent "log an agent's data")
+(declare-method maintain-state "constructs a closure which can maintain and report the state, and provide a list of things needed from other representations")
+(declare-method map-emit-page "specific for postscript output")
+(declare-method map-log-data "specific for postscript output")
+(declare-method map-log-track-segment "description needed")
+(declare-method map-projection "description needed")
+(declare-method mass "Return the mass of an entity")
+(declare-method max-bound "list of maxima for the dimensions")
+(declare-method migrate "description needed")
+(declare-method migration-test "test if an entity should change representation")
+(declare-method min-bound "list of minima in the dimensions")
+(declare-method name "A unique identifier for the agent")
+(declare-method new-track! "indicates that a new segment of tracking is to start")
+(declare-method open-p/n "open a port for logging")
+(declare-method page-epilogue "make things tidy")
+(declare-method page-preamble "open files & such")
+(declare-method parameter-names "names of all parameters (slots) of the agent's class") 
+(declare-method parameters "values of the parameters (slots) of the agent;s class")
+(declare-method pass-preparation "Does any preprocessing associated with <monitor> activity")
+(declare-method pass-resolution "Implements any actions a <monitor> may need")
+(declare-method priority "run priority")
+(declare-method process-agent "do what ever it needs to do")
+(declare-method representation "individual, aggregate, analytic, circle, polygon...")
+(declare-method run "run an agent")
+(declare-method run-agents "This routine runs a list of agents using the passed 'run' procedure")
+(declare-method run-at "schedule a tick at a particular time")
+(declare-method run-model-body "run an agent's model-body")
+(declare-method run-nested-agents "This routine hands a list of nested agents to run-agents")
+(declare-method run-nested-model-body "run a nested model body")
+(declare-method schedule-epsilon "return a schedule's epsilon")
+(declare-method schedule-times "return a schedule")
+(declare-method set-comment! "reference information for agent")
+(declare-method set-dim! "Set the dimensionality of an entity -- (x y z) would be 3'")
+(declare-method set-direction! "Set the direction of an entity")
+(declare-method set-dt! "change the dt")
+(declare-method set-introspection-list! "set the list of agents to be examined")
+(declare-method set-introspection-times! "set the list of agents to be examined")
+(declare-method set-jiggle! "reset the jiggle")
+(declare-method set-kernel! "change the kernel query function")
+(declare-method set-location! "Set the location of an entity")
+(declare-method set-map-projection! "description needed")
+(declare-method set-mass! "Set the mass of an entity")
+(declare-method set-migration-test! "set/change the migration test function")
+(declare-method set-name! "Set the unique name")
+(declare-method set-parameters! "set parameters using a list")
+(declare-method set-priority! "change the run priority")
+(declare-method set-representation! "record the agent's representation")
+(declare-method set-schedule-epsilon! "set the epsilon for the schedule")
+(declare-method set-schedule-times! "set the times the agents is scheduled to do something")
+(declare-method set-speed! "Set the speed of an entity")
+(declare-method set-state-flag! "set a flag in the ad hoc state-variable list")
+(declare-method set-subjective-time! "adjust the agents view of 'now'")
+(declare-method set-timestep-schedule! "change the timestep list")
+(declare-method set-track! "set the track to the supplied 'track' list")
+(declare-method set-type! "set/change the type of an agent")
+(declare-method set-value! "set a value -- in the case of the environment, its default value")
+(declare-method set-variables! "set the list of variables")
+(declare-method snapshot "used by logging mechanism")
+(declare-method speed "Return the speed of an entity")
+(declare-method state-flag "return the value of the flag in the ad hoc state-variable list")
+(declare-method subjective-time "the agent's current time")
+(declare-method timestep-schedule "a list of scheduled timesteps")
 (declare-method total-value "description needed")
-
-;--- state variables
-(declare-method
- name
- "A unique identifier for the agent")
-(declare-method
- set-name!
- "Set the unique name")
-(declare-method
- type
- "the categorical type of agent (analogous to species or genus)")
-(declare-method
- set-type!
- "set/change the type of an agent")
-(declare-method
- representation
- "individual, aggregate, analytic, circle, polygon...")
-(declare-method
- set-representation!
- "record the agent's representation")
-(declare-method
- comment
- "reference information for agent")
-(declare-method
- set-comment!
- "reference information for agent")
-(declare-method
- subjective-time
- "the agent's current time")
-(declare-method
- set-subjective-time!
- "adjust the agents view of 'now'")
-(declare-method
- priority
- "run priority")
-(declare-method
- set-priority!
- "change the run priority")
-(declare-method
- jiggle
- "the current random adjustment when being inserted in the runqueue")
-(declare-method
- set-jiggle!
- "reset the jiggle")
-(declare-method
- dt
- "the amount of time the agent is running for or will run")
-(declare-method
- set-dt!
- "change the dt")
-(declare-method
- migration-test
- (string-append "a function which indicates if an entity"
-					 " should change representation: "
-					 "(f self t ldt return)"))
-(declare-method
- set-migration-test!
- "set/change the migration test function")
-(declare-method
- timestep-schedule
- "a list of scheduled timesteps")
-(declare-method
- set-timestep-schedule!
- "change the timestep list")
-(declare-method
- kernel
- "function which handles kernel queries")
-(declare-method
- set-kernel!
- "change the kernel query function")
-
-;--- supporting the modelling framework
-(declare-method
- maintain-state
- "constructs a closure which can maintain and report the state, 
-  and provide a list of things needed from other representations")
-
-(declare-method
- snapshot
- "used by logging mechanism")
-(declare-method
- i-am
- "returns the representation of the entity")
-(declare-method
- is-a
- "representation predicate")
-(declare-method
- parameter-names
- "names of all parameters (slots) of the agent's class") 
-(declare-method
- parameters
- "values of the parameters (slots) of the agent;s class")
-(declare-method
- set-parameters!
- (string-append "set parameters using a list of the form "
-					 "'(pval...) where vals are in the right order"))
-(declare-method
- kquery
- "Send a query to the kernel")
-(declare-method
- run-at
- "schedule a tick at a particular time")
-(declare-method
- run
- "run an agent")
-(declare-method
- run-model-body
- "run an agent's model-body")
-(declare-method
- run-nested-model-body
- "run a nested model body")
-(declare-method
- run-agents
- "This routine runs a list of agents using the passed 'run' procedure")
-(declare-method
- run-nested-agents
- "This routine hands a list of nested agents to run-agents")
-
-
+(declare-method track "return the entity's track")
+(declare-method track-locus! "Insert the time and location in the track list")
+(declare-method tracks "returns a list of track segments (or false)")
+(declare-method type "the categorical type of agent (analogous to species or genus)")
+(declare-method value "typically the value of an ecoservice or patch")
 ;;(declare-method model "description needed")
 ;;(declare-method set-model! "description needed")
-
-(declare-method
- extra-variable
- "refer used in the logging to get non-slot data out of a class")
-(declare-method
- extra-variable-list
- "refer used in the logging to get non-slot data out of a class")
-
-(declare-method migrate "description needed")
-
-;--- <thing>
-(declare-method
- mass
- "Return the mass of an entity")
-(declare-method
- set-mass!
- "Set the mass of an entity")
-(declare-method
- dim
- "Return the number of dimension an entity works in")
-(declare-method
- set-dim!
- "Set the dimensionality of an entity -- (x y z) would be 3'")
-(declare-method
- location
- "Return the location of an entity")
-(declare-method
- set-location!
- "Set the location of an entity")
-(declare-method
- direction
- "Return the direction of an entity")
-(declare-method
- set-direction!
- "Set the direction of an entity")
-(declare-method
- speed
- "Return the speed of an entity")
-(declare-method
- set-speed!
- "Set the speed of an entity")
-
-(declare-method
- track-locus!
- "Insert the time and location in the track list")
-(declare-method
- track
- "return the entity's track")
-(declare-method
- set-track!
- "set the track to the supplied 'track' list")
-(declare-method
- new-track!
- "indicates that a new segment of tracking is to start")
-(declare-method
- tracks
- "returns a list of track segments (or false)")
-
-;--- <environment> generics
-(declare-method
- contains?
- "predicate which indicates containment")
-(declare-method
- value
- "typically the value of an ecoservice or patch")
-(declare-method
- set-value!
- "set a value -- in the case of the environment, its default value")
-(declare-method
- min-bound
- "list of minima in the dimensions")
-(declare-method
- max-bound
- "list of maxima for the dimensions")
-
-
-(load "log-declarations.scm")
 
 ;-  The End 
 
 
-;;; Local Variables:
-;;; mode: scheme
-;;; outline-regexp: ";-+"
-;;; comment-column:0
-;;; comment-start: ";;; "
-;;; comment-end:"" 
+;;; Local Variables: 
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
 ;;; End:

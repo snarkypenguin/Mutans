@@ -22,16 +22,16 @@
 				  ;; call "parents" last to make the initialisation list work
 				  )
 
-(model-method (pass-preparation self subject-list . args)
+(model-method (pass-preparation self subject-list args)
 				  (kdnl* "Preparing to process list" (slot-ref subject 'name) "at" t "+" dt)
 				  #t
 				  )
 
-(model-method (process-agent self subject . args)
+(model-method (process-agent self subject args)
 				 (kdnl* "Processing" (slot-ref subject 'name) "at" t "+" dt))
 				 #t)
 
-(mode-method (pass-resolution self subject-list . args)
+(mode-method (pass-resolution self subject-list args)
 				 (kdnl* "Tidying up" (slot-ref subject 'name) "at" t "+" dt)
 				 #t)
 

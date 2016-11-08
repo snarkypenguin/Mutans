@@ -21,7 +21,7 @@
 ;-  Code 
 
 ;;(load "utils.scm") ;; for cross-product of lists -- included by maths.scm
-(load "maths.scm")
+;;(load "maths.scm")
 
 
 (define debugging-integration #f)
@@ -87,11 +87,11 @@
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (if (zero? ss) 
 		(integrate f a b eps k)
-		(let loop ((sum 0)
+		(let loop ((the-sum 0)
 					  (x a))
 		  (if (>= (+ x ss) b)
-				(+ sum (integrate f x b eps k))
-				(loop (+ sum (integrate f x (+ x ss) eps k))
+				(+ the-sum (integrate f x b eps k))
+				(loop (+ the-sum (integrate f x (+ x ss) eps k))
 						(+ x ss))))))
 
 
@@ -272,11 +272,11 @@
 			)
 	 (if (<= HdH eps) 
 		  (integrate-RV f a b eps k)
-		  (let loop ((sum 0)
+		  (let loop ((the-sum 0)
 						 (x a))
 			 (if (>= (v-length (list-operator - (add x dx) a)) HdH)
-				  (+ sum (integrate-RV f x b eps k))
-				  (loop (+ sum (integrate-RV f x (add x dx) eps k))
+				  (+ the-sum (integrate-RV f x b eps k))
+				  (loop (+ the-sum (integrate-RV f x (add x dx) eps k))
 						  (add x dx)))))))
 					
 #|
@@ -633,7 +633,7 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
   (set! ZT (if (null? ZT) #f (car ZT)))
   (if (not (list? F))
 		(abort "rk4 expects a list of functions as the first argument"))
-  (if (or (not (list? Xo)) (not (eq? (length F) (length Xo))))
+  (if (or (not (list? Xo)) (not (= (length F) (length Xo))))
 		(abort "rk4 expects list of the initial values of the functions as the fifth (and final) argument"))
 
   (let* ((h (* 1 ss))
