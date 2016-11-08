@@ -1,0 +1,17 @@
+#!/bin/xs
+
+#  Check for multiply defined generics
+
+#v = `{egrep -h '^ *\(declare-method ' framework-declarations.scm declarations.scm | cut -d\  -f2 | sort | wc -l}
+#u = `{egrep -h '^ *\(declare-method ' framework-declarations.scm declarations.scm | cut -d\  -f2 | sort | uniq | wc -l}
+
+v = `{egrep -h '^ *\(declare-method ' *.scm | cut -d\  -f2 | sort | wc -l}
+u = `{egrep -h '^ *\(declare-method ' *.scm | cut -d\  -f2 | sort | uniq | wc -l}
+
+if {! ~ $v $u} {
+	egrep -h '^ *\(declare-method ' framework-declarations.scm declarations.scm | cut -d\  -f2 | sort > /tmp/model-check.v
+	egrep -h '^ *\(declare-method ' framework-declarations.scm declarations.scm | cut -d\  -f2 | sort | uniq > /tmp/model-check.u
+	diff /tmp/model-check.v /tmp/model-check.u
+}
+	
+
