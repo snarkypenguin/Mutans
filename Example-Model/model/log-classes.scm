@@ -32,7 +32,7 @@
 ;;- the introspection list is the list of agent to be looked at
 ;;- the timestep schedule is the set of times to run at
 
-(register-class <introspection>)
+(register-unique class <introspection>)
 
 (define <logfile> (make-class (inherits-from <introspection>)
 										(no-state-variables)
@@ -44,7 +44,7 @@
 ;;- if filetype is defined it must be a string and it will be appended
 ;;  to the filename
 
-(register-class <logfile>)
+(register-unique class <logfile>)
 
 (define <snapshot> (make-class (inherits-from <introspection>)
 									  (state-variables lastfile currentfile)))
@@ -55,7 +55,7 @@
 ;;- if filetype is defined it must be a string and it will be appended
 ;;  to the filename
 
-(register-class <snapshot>)
+(register-unique class <snapshot>)
 
 
 ;; This is the basis for all the logging things like the log-map agent
@@ -67,7 +67,7 @@
 ;; ps and png indicate whether the files should be left on disk at the
 ;; end of the step
 
-(register-class <log-map>)
+(register-unique class <log-map>)
 
 (define <log-data> (make-class (inherits-from <logfile>)
 										 (no-state-variables)
@@ -77,7 +77,7 @@
 ;;  functions to apply before output
 ;;- Data is generated using
 
-(register-class <log-data>)
+(register-unique class <log-data>)
 
 (define <log-agent-table> (make-class (inherits-from <log-data>)
 												  (state-variables target-agent))) 
@@ -86,7 +86,7 @@
 ;;  functions to apply before output
 ;;- Data is generated using
 
-(register-class <log-agent-table>)
+(register-unique class <log-agent-table>)
 
 (define <log-table> (make-class (inherits-from <log-data>)
 										  (no-state-variables))) 
@@ -94,7 +94,7 @@
 ;;  projection functions to apply before output
 ;;- Data is generated using 
 
-(register-class <log-table>)
+(register-unique class <log-table>)
 
 (define <log-agent-table*> (make-class (inherits-from <log-agent-table>)
 													(no-state-variables))) 
@@ -104,7 +104,7 @@
 ;;  projection functions to apply before output
 ;;- Data is generated using 
 
-(register-class <log-agent-table*>)
+(register-unique class <log-agent-table*>)
 
 (define <log-table*> (make-class (inherits-from <log-table>)
 											(no-state-variables))) 
@@ -115,7 +115,7 @@
 ;;  projection functions to apply before output
 ;;- Data is generated using 
 
-(register-class <log-table*>)
+(register-unique class <log-table*>)
 
 
 ;-  The End 

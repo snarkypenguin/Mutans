@@ -1,7 +1,0 @@
-support = utils.scm units.scm maths.scm integrate.scm matrix.scm postscript.scm basic-population.scm
-classdecs = framework-classes.scm framework-declarations.scm log-classes.scm log-declarations.scm landscape-classes.scm landscape-declarations.scm plant-classes.scm plant-declarations.scm animal-classes.scm animal-declarations.scm 
-chassis = kdnl.scm framework.scm framework-wrappers.scm framework-controls.scm framework-methods.scm
-log = log-methods.scm
-landscape =  landscape-methods.scm
-plant = plant-methods.scm
-animal = animal-methods.scm

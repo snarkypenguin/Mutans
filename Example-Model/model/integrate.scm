@@ -279,7 +279,7 @@
 				  (loop (+ the-sum (integrate-RV f x (add x dx) eps k))
 						  (add x dx)))))))
 					
-#|
+(define rk4-doco "
 	Runge-Kutta 4
 
 
@@ -355,82 +355,81 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
    return y;
 }
 
-|#
-
-;; The Butcher tableau for RK4 is 
-
-;;	0	|
-;;	1/2|	1/2
-;;	1/2|	0		1/2
-;;	1	|	0		0		1
-;;-----------------------------
-;;		|	1/6	1/3	1/3	1/6
-;;
-;; A Butcher tableau is represented by 
-;
-;; ((c_1 ... c_s) ((a_1|1 ... a_1|s) ...(a_s|1 ... a_s|s)) (b_1 ... b_s))
-;;
-;; for explicit methods, or
-;;
-;; ((c_1 ... c_s) ((a_1|1 ... a_1|s) ...(a_s|1 ... a_s|s)) (b_1 ... b_s) (b'_1 ... b'_s))
-;; 
-;; for implicit methods, though I council against trying to use a single quote as a part of 
-;; a symbol in scheme or lisp.
 
 
-;; The R-K methods give numerical solutions for functions of the form f(t,y)
-;;                                s
-;; of the form y_{n+1} = y_n + h ∑ b_i k_i
-;;                               i=1
-;;
-;;                                    i-1
-;; where k_i = f(t_n + c_i h, y_n + h ∑ a_ij k_j
-;;                                    j=1
-;; for *explicit* methods.  
+The Butcher tableau for RK4 is 
 
-;; Implicit methods are whole different kettle of fish, since we would have to solve a system 
-;; of s equations at each step to calculate k_i. In this case, we use the second form of the 
-;; tableau, evaluate the sum in the expression for y_{n+1} from zero to s,  and additionally 
-;; define 
-;;                                s
-;;            y'_{n+1} = y_n + h ∑ b'_i k_i
-;;                               i=1
-;;
-;;                                              s
-;;            e_{n+1} = y_{n+1} - y'_{n+1} = h ∑ (b_i - b'_i) k_i
-;;                                             i=1
-;;
-;; which can be used to change the step size, h. I would usually do by dividing h into 
-;; more segments.
+	0	|
+	1/2|	1/2
+	1/2|	0		1/2
+	1	|	0		0		1
+  -----------------------------
+		|	1/6	1/3	1/3	1/6
+
+A Butcher tableau is represented by 
+
+((c_1 ... c_s) ((a_1|1 ... a_1|s) ...(a_s|1 ... a_s|s)) (b_1 ... b_s))
+
+for explicit methods, or
+
+((c_1 ... c_s) ((a_1|1 ... a_1|s) ...(a_s|1 ... a_s|s)) (b_1 ... b_s) (b'_1 ... b'_s))
+
+for implicit methods, though I council against trying to use a single quote as a part of 
+a symbol in scheme or lisp.
 
 
-;; We can construct a piecewise linear interpolating function with the 
-;; line segments defined by the  (t_i, y_i) as is shown in rk4, below.
+The R-K methods give numerical solutions for functions of the form f(t,y)
+                               s
+of the form y_{n+1} = y_n + h ∑ b_i k_i
+                              i=1
 
-;; The following is the classic RK4 with a tableau of '((0 1/2 1/2 1) ((0 0 0 0) (1/2 0 0 0) (0 1/2 0 0) (0 0 1 0)) (1/6 1/3 1/3 1/6))
+                                   i-1
+where k_i = f(t_n + c_i h, y_n + h ∑ a_ij k_j
+                                   j=1
+for *explicit* methods.  
 
-;;
+Implicit methods are whole different kettle of fish, since we would have to solve a system 
+of s equations at each step to calculate k_i. In this case, we use the second form of the 
+tableau, evaluate the sum in the expression for y_{n+1} from zero to s,  and additionally 
+define 
+                               s
+           y'_{n+1} = y_n + h ∑ b'_i k_i
+                              i=1
 
-;; We have an expression of the form dy/dt = f where y is a scalar function of t and f is a function in terms of y and t
-;; and the function y is not known.
-;; In this case we could write something like (define dy/dt f) (define y (rk4 dy/dt mn mt step y_0))
-;; where f (and thus dy/dt) looks like "(lambda (t y) (some expression in y and t, where y is treated as a variable))"
-;; and y is of the form "(lambda (t) (some expression in t))"
+                                             s
+           e_{n+1} = y_{n+1} - y'_{n+1} = h ∑ (b_i - b'_i) k_i
+                                            i=1
 
-;; (define P (rk4 (lambda (t y)  y) 0 10 0.1 1))
-;; (exp 10) => 22026.465794806718
-;; (P 10) => 22026.296900876645
-;;
-;; compared to the librcg version in C 
-;; 
-;;; evaluate 'ode(dy/dt = y(t), y(0) = 1, 0.1, 10)'
-;;; ode(dy/dt = y(t), y(0) = 1, 0.1, 10) = 22026.296901
+which can be used to change the step size, h. I would usually do by dividing h into 
+more segments.
 
 
+We can construct a piecewise linear interpolating function with the 
+line segments defined by the  (t_i, y_i) as is shown in rk4, below.
+
+The following is the classic RK4 with a tableau of '((0 1/2 1/2 1) ((0 0 0 0) (1/2 0 0 0) (0 1/2 0 0) (0 0 1 0)) (1/6 1/3 1/3 1/6))
+
+We have an expression of the form dy/dt = f where y is a scalar function of t and f is a function in terms of y and t
+and the function y is not known.
+In this case we could write something like (define dy/dt f) (define y (rk4 dy/dt mn mt step y_0))
+where f (and thus dy/dt) looks like (lambda (t y) (some expression in y and t, where y is treated as a variable))
+and y is of the form (lambda (t) (some expression in t))
+
+(define P (rk4 (lambda (t y)  y) 0 10 0.1 1))
+(exp 10) => 22026.465794806718
+(P 10) => 22026.296900876645
+
+compared to the librcg version in C 
+
+   evaluate 'ode(dy/dt = y(t), y(0) = 1, 0.1, 10)'
+   ode(dy/dt = y(t), y(0) = 1, 0.1, 10) = 22026.296901
+
+")
 
 ;; Here f is dy/dt, [a,b] is the domain over which the 
 ;; returned function is defined, ss is the stepsize and 
 ;; Y0 is the initial value at a.  dy/dt is in terms of t and y
+
 (define (rk4 f a b ss Y0) 
   (if (not (procedure? f))
 		(abort "rk4 expects a function as its first argument"))
@@ -527,7 +526,8 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 				 )
 		  XY))))
 
-
+(define simple-rk4-example
+"
 ;; (define P (rk4* (list (lambda (t y)  y)) 0 10 0.1 (list 1)))
 ;; (exp 10) => 22026.465794806718
 ;; (P 10) => 22026.296900876645
@@ -538,8 +538,8 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 ;; We have an expression of the form dy/dt = f where y is a scalar function of t and f is a function in terms of y and t
 ;; and the function y is not known.
 ;; In this case we could write something like (define dy/dt f) (define y (rk4 dy/dt mn mt step y_0))
-;; where f (and thus dy/dt) looks like "(lambda (t y) (some expression in y and t, where y is treated as a variable))"
-;; and y is of the form "(lambda (t) (some expression in t))"
+;; where f (and thus dy/dt) looks like (lambda (t y) (some expression in y and t, where y is treated as a variable))
+;; and y is of the form (lambda (t) (some expression in t))
 
 ;;(define sincos (rk4-2d (lambda (t x y)  y) (lambda (t x y) (- x)) 0 (* 2 pi) 0.001 0 1))
 ;; where (lambda (t x y)  y) is d sin/dt and (lambda (t x y) (- x)) is d cos/dt, the domain 
@@ -549,6 +549,10 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 ;;  REMEMBER: this returns a function f:R^1->R^{(length F)}
 
 ;;-------------------
+
+")
+
+(define rk4-examples-with-charplot
 "
 ;; In the example below, Q is the function which represents the trace of the system through time.
 (define (rk*-example-1)
@@ -623,7 +627,9 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
        ;;;    |_:____.____:____.____:____.____:____.____:____.____:____.____:___|   
        ;;;      0         10        20        30        40        50        60      
     ))
-"
+")
+
+
 (define (rk4* F a b ss Xo . ZT) ;; F is a list of functions, say dy/dt dx/dt, and dz/dt, where each is in terms of t, x, y, z
                                 ;; and the initial values of x, y, and z are specified in Xo.  rk4* returns
                                 ;; a vector function with the values of x, y and z over the domain t in [a,b].
@@ -796,7 +802,7 @@ double simple_rk4(double stepsize, int NI, double *X, double *Y, double Y0, doub
 
 
 
-#|
+"
 As an example, consider the two-stage second-order Runge–Kutta method with α = 2/3. It is given by the tableau
 
 	0		|
@@ -830,9 +836,10 @@ y_{n+1} = y_n + h(1/4 k_1 + 3/4 k_2);
 
 The first row of coefficients gives the fourth-order accurate method, and the second row gives the fifth-order accurate method.
 
-|#
+"
 
-#|
+(define rkf-exclusion
+"
 ;; (define P (rkf* (list (lambda (t y)  y)) 0 10 0.1 (list 1)))
 ;; (exp 10) => 22026.465794806718
 ;; (P 10) =/=> 22026.296900876645
@@ -860,7 +867,6 @@ The first row of coefficients gives the fourth-order accurate method, and the se
 
 	 (letrec ((rkfi
 				  (lambda args
-					 (dnl "RKFI ËNTRY [" (car args) "]:  " (cdr args))
 					 (let* ((step (car args))
 							  (t (cadr args))
 							  (funcs (cddr args))
@@ -973,15 +979,6 @@ The first row of coefficients gives the fourth-order accurate method, and the se
 										 ((> err 1/1000) (/ step 2))
 										 (else step)))
 							  ) ;; end of let* variables
-						;;(dnl "step " step ", nstep " nstep ", V " V ", V* " V*  ", err " err ", num " num ", den " den ", num/den " (/ num den))
-						(dnl "   Q1 " q1)
-						(dnl "   Q2 " q2)
-						(dnl "   Q3 " q3)
-						(dnl "   Q4 " q4)
-						(dnl "   Q5 " q5)
-						(dnl "   Q6 " q6)
-						(dnl "   V* " V*)
-						(dnl "    V " V)
 
 						
 						(if (> (+ t h) b)
@@ -1000,7 +997,7 @@ The first row of coefficients gives the fourth-order accurate method, and the se
 				 )
 		  XY)
 		)))
-|#
+")
 
 
 

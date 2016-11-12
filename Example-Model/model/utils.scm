@@ -10,7 +10,7 @@
 ;--    Public data 
 
 ;-  Code 
-
+;;(load "constants.scm")
 
 ;;(define (guess-type ob)
 ;;  (let ((s (make-string 200)))
@@ -142,9 +142,6 @@
 ;;			 (newline))))
 
 
-;; Used as the placeholder for uninitialised things in classes
-(define uninitialised (lambda args 'uninitialised))
-
 
 ;; surjections onto subspaces for lists representing vectors
 (define (txyz->xy x) (list-head (cdr x) 2))
@@ -155,12 +152,6 @@
 (define (txyz->y x) (caddr x))
 (define (txyz->z x) (cadddr x))
 
-
-;; This is the function composition operator
-(define (o f . g) (lambda (x) (if (null? g) (f x) (f ((apply o g) x)))))
-
-
-(define pi (* 4.0 (atan 1.0)))
 
 ;(define (general-sigmoid x y) (/ 1.0 (+ 1.0  (exp (- (* x y))))))
 ;
@@ -424,17 +415,18 @@
 		  (list-tail lst (- n (length m)))
 		  #f)))
 
-(define (list2-assoc-set! k v k2 v2) 
-  (let loop ((kl k) (vl v))
-	 (cond ((or (null? kl) (null? vl)) #f)
-			 ((equal? (car kl) k2) (set-car! vl v2))
-			 (else (loop (cdr kl) (cdr vl))))))
+;; Commented out only to avoid multiple definitions
+;;; (define (list2-assoc-set! k v k2 v2) 
+;;;   (let loop ((kl k) (vl v))
+;;; 	 (cond ((or (null? kl) (null? vl)) #f)
+;;; 			 ((equal? (car kl) k2) (set-car! vl v2))
+;;; 			 (else (loop (cdr kl) (cdr vl))))))
 
-(define (list2-assoc k v k2) 
-  (let loop ((kl k) (vl v))
-	 (cond ((or (null? kl) (null? vl)) #f)
-			 ((equal? (car kl) k2) vl)
-			 (else (loop (cdr kl) (cdr vl))))))
+;;; (define (list2-assoc k v k2) 
+;;;   (let loop ((kl k) (vl v))
+;;; 	 (cond ((or (null? kl) (null? vl)) #f)
+;;; 			 ((equal? (car kl) k2) vl)
+;;; 			 (else (loop (cdr kl) (cdr vl))))))
 
 ;;(define-macro (++ i) `(let ((j ,i)) (set! ,i (+ 1 j))))
 ;;(define-macro (-- i) `(let ((j ,i)) (set! ,i (+ -1 j))))
@@ -810,19 +802,19 @@
 
 
 ;; remove an object from a list
-(define (remove obj lst)
+(define (remove-element obj lst)
   (letrec ((head (list '*head*)))
-	 (letrec ((remove
+	 (letrec ((inner-remove
 				  (lambda (lst tail)
 					 (cond ((null? lst)
 							  lst)
 							 ((not (pair? lst))
 							  #f)
-							 ((eqv? obj (car lst)) (remove (cdr lst) tail))
+							 ((eqv? obj (car lst)) (inner-remove (cdr lst) tail))
 							 (#t
 							  (set-cdr! tail (list (car lst)))
-							  (remove (cdr lst) (cdr tail)))))))
-		(remove lst head))
+							  (inner-remove (cdr lst) (cdr tail)))))))
+		(inner-remove lst head))
 	 (cdr head)))
 
 
@@ -860,8 +852,6 @@ between them of d, we get the area of intersection, A, to be the value calculate
 Ref:  Weisstein, Eric W., 'Circle-circle intersection.' from 
 Mathworld, http://MathWorld.wolfram.com/Circle-CircleIntersection.html 2010-06-30
 "
-
-(define pi (* 4.0 (atan 1.0)))
 
 (define (intersection-of-two-circles d R r) ;; R and r are the radii, d is the distance
   (if (< R r)
@@ -1143,7 +1133,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
      
      (if (null? list-of-lists)
          #f
-         (let bsof ((lol (copy-listemacs list-of-lists)))
+         (let bsof ((lol (copy-list list-of-lists)))
            (if (or (not (pair? lol)) (null? lol))
                #f
                (if (pair? (car lol)) 
@@ -1176,27 +1166,27 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
  (define (glog b e) (/ (log e) (log b)))
 
- (define (power b e)
-   (cond
-    ((< e 0) (if t '()))
-    ((zero? e) 1)
-    ((even? e) (power (* b b) (/ e 2)))
-    (t (* b (power b (- e 1))))))
+;;;  (define (power b e)
+;;;    (cond
+;;;     ((< e 0) (if t '()))
+;;;     ((zero? e) 1)
+;;;     ((even? e) (power (* b b) (/ e 2)))
+;;;     (t (* b (power b (- e 1))))))
 
-(define power
-  (let ((p power))
-	 (lambda (x e)
-		(cond
-		 ((and (zero? x) (zero? e))
-		  1) ;; because it is what it is, not a bug.
-		 ((and (not (zero? x)) (zero? e))
-		  1)
-		 ((and (integer? e) (not (negative? e)))
-		  (p x e))
-		 ((and (integer? e) (negative? e))
-		  (/ 1 (p x (* -1 e))))
-		 ((complex? e) (exp (* e (log x))))
-		 ))))
+;;; (define power
+;;;   (let ((p power))
+;;; 	 (lambda (x e)
+;;; 		(cond
+;;; 		 ((and (zero? x) (zero? e))
+;;; 		  1) ;; because it is what it is, not a bug.
+;;; 		 ((and (not (zero? x)) (zero? e))
+;;; 		  1)
+;;; 		 ((and (integer? e) (not (negative? e)))
+;;; 		  (p x e))
+;;; 		 ((and (integer? e) (negative? e))
+;;; 		  (/ 1 (p x (* -1 e))))
+;;; 		 ((complex? e) (exp (* e (log x))))
+;;; 		 ))))
 
 
  (define (gexp b e) 

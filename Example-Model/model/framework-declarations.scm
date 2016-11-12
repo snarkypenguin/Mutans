@@ -14,7 +14,6 @@
 (define agent-prep (make-generic))
 (generic-method-register 'add agent-prep 'agent-prep)
 
-(declare-method Westley "No one of consequence.")
 (declare-method action "trigger a representation change, or whatever")
 (declare-method add-state-flag "add a flag to the ad hoc state-variable list")
 (declare-method agent-shutdown "runs any 'shutdown' code, like closing files")

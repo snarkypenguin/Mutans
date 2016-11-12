@@ -10,12 +10,6 @@
 ;	History:
 ;
 
-;-  Copyright 
-
-;
-;   (C) 2012 CSIRO Australia
-;   All rights reserved
-;
 
 ;-  Discussion 
 

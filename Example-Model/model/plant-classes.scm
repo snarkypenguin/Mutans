@@ -34,7 +34,8 @@
 					habitat            ;; #f or a landscape thing
 					;; <thing> mass is our mass
 					)))
-(register-class <simple-plant>)
+
+(register-unique class <simple-plant>)
 
 
 

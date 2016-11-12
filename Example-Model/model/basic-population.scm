@@ -23,6 +23,20 @@ population machinery for the dynamic patch class."
 
 (define unbounded +inf.0)
 
+(define (list2-assoc-set! k v k2 v2) 
+  (let loop ((kl k) (vl v))
+	 (cond ((or (null? kl) (null? vl)) #f)
+			 ((equal? (car kl) k2) (set-car! vl v2))
+			 (else (loop (cdr kl) (cdr vl))))))
+
+(define (list2-assoc k v k2) 
+  (let loop ((kl k) (vl v))
+	 (cond ((or (null? kl) (null? vl)) #f)
+			 ((equal? (car kl) k2) vl)
+			 (else (loop (cdr kl) (cdr vl))))))
+
+
+
 ;;========================================================================;;
 ;;
 ;;                      TERMS FOR THE dP/dt expression
@@ -163,171 +177,173 @@ The usual pattern for a std-d/dt would be
 					 )
 				)
 			  (accessor
-				(letrec ((population
-							 (lambda args
-								(cond
-								 ((null? args)
-								  val)
-								 
-								 ((eqv? (car args) 'dump)
-								  (pp (list
-										 'name name 
-										 'self self 
-										 'pops popnames populations 
-										 'params val cap growth nmort
-										 'prey-rates prey-rates
-										 'pred-att-rate pred-att-rate 
-										 'logistic/-growth/-mort
+			   (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+				  (letrec ((population
+								(lambda args
+								  (cond
+									((null? args)
+									 val)
+									
+									((eqv? (car args) 'dump)
+									 (pp (list
+											'name name 
+											'self self 
+											'pops popnames populations 
+											'params val cap growth nmort
+											'prey-rates prey-rates
+											'pred-att-rate pred-att-rate 
+											'logistic/-growth/-mort
 										   logistic logistic-growth logistic-mort
-										 'd/dt d/dt 
-										 'func population)))
+											'd/dt d/dt 
+											'func population)))
 
-								 ((eqv? (car args) 'set!)
-								  (set! val  (cadr args)))
-												
-								 ((eqv? (car args) 'register-populations)
-								  ;; expects (animal 'register-populations
-								  ;;    (list plant animal toothy-animal....))
-								  (if (not (apply andf (map procedure? (cadr args))))
-										(error ))
-								  (if (null? (cdr args))
-										(error  "No populations?  What's the point?")
-										(set! populations (copy-list (cadr args)))
-										))
-								 
-								 ((eqv? (car args) 'register-prey)
-								  (if (not populations)
-										(error  "You must register the populations before registering the prey")
-										(begin
-										  (set! prey-rates (make-list (length populations) '(0 0)))
-										  (if (not (null? (cdr args)))
-												(begin
-												  (for-each
-													(lambda (x y)
-													  (list2-assoc-set! populations prey-rates x y))
-													(map car (cdr args)) (map cdr (cdr args)))
+									((eqv? (car args) 'set!)
+									 (set! val  (cadr args)))
+									
+									((eqv? (car args) 'register-populations)
+									 ;; expects (animal 'register-populations
+									 ;;    (list plant animal toothy-animal....))
+									 (if (not (apply andf (map procedure? (cadr args))))
+										  (error ))
+									 (if (null? (cdr args))
+										  (error  "No populations?  What's the point?")
+										  (set! populations (copy-list (cadr args)))
+										  ))
+									
+									((eqv? (car args) 'register-prey)
+									 (if (not populations)
+										  (error  "You must register the populations before registering the prey")
+										  (begin
+											 (set! prey-rates (make-list (length populations) '(0 0)))
+											 (if (not (null? (cdr args)))
+												  (begin
+													 (for-each
+													  (lambda (x y)
+														 (list2-assoc-set! populations prey-rates x y))
+													  (map car (cdr args)) (map cdr (cdr args)))
+													 )
 												  )
-												)
-										  )
-										))
-								 
-								 ((eqv? (car args) 'register-predators)
-								  (if (not prey-rates)
-										(abort (string-append
+											 )
+										  ))
+									
+									((eqv? (car args) 'register-predators)
+									 (if (not prey-rates)
+										  (abort (string-append
+													 (symbol->string name)
+													 " has been called before both the prey list has been registered")))
+									 (set! pred-att-rate (map (lambda (y) (y 'attack-rate self)) populations))
+									 (if (zero? (apply + (map abs (map car pred-att-rate))))
+										  (set! pred-att-rate #f))
+									 ;;(dnl name pred-att-rate)
+									 )	
+									
+									((eqv? (car args) 'logistic)
+									 (if (not (or (null? (cdr args)) (boolean? (cadr args)) (number? (cadr args))))
+										  (abort "argument to (entity 'logistic) must be null, #f #t or a number"))
+									 (if (null? (cdr args))
+										  (set! logistic 1.0)
+										  (set! logistic (cadr args)))
+
+									 (if logistic
+										  (begin
+											 (set! logistic-growth #f)
+											 (set! logistic-mort #f)))
+									 
+									 )
+									
+									((eqv? (car args) 'register-helpers)
+									 (if (not populations)
+										  (error  "You must register the populations before registering interactions")
+										  (begin
+											 (set! helper-rate (make-list (length populations) 0))
+											 (if (not (null? (cdr args)))
+												  (begin
+													 (for-each
+													  (lambda (x y)
+														 (list2-assoc-set! populations helper-rate x y))
+													  (map car (cdr args)) (map cadr (cdr args)))
+													 )
+												  )
+											 )
+										  ))
+
+									((eqv? (car args) 'register-competitors)
+									 (if (not populations)
+										  (error  "You must register the populations before registering interactions")
+										  (begin
+											 (set! competitor-rate
+													 (make-list (length populations) 0))
+											 (if (not (null? (cdr args)))
+												  (begin
+													 (for-each
+													  (lambda (x y)
+														 (list2-assoc-set! populations competitor-rate x y))
+													  (map car (cdr args)) (map cadr (cdr args)))
+													 )
+												  )
+											 )
+										  ))
+
+									((eqv? (car args) 'logistic-growth)
+									 (if (not (or (null? (cdr args))
+													  (boolean? (cadr args))
+													  (number? (cadr args))))
+										  (abort "argument to (entity 'logistic-growth) must be null, #f #t or a number"))
+									 (if (null? (cdr args))
+										  (set! logistic-growth 1.0)
+										  (set! logistic-growth (cadr args)))
+									 (if logistic-growth (set! logistic #f))
+
+									 )
+
+									((eqv? (car args) 'logistic-mort)
+									 (if (not (or (null? (cdr args))
+													  (boolean? (cadr args))
+													  (number? (cadr args))))
+										  (abort
+											"argument to (entity 'logistic-mort) must be null, #f #t or a number"))
+									 (if (null? (cdr args))
+										  (set! logistic-mort 1.0)
+										  (set! logistic-mort (cadr args)))
+									 (if logistic-mort (set! logistic #f))
+									 )
+
+									((and (eqv? (car args) 'attack-rate) (procedure? (cadr args)))
+									 (if (not prey-rates) 	
+										  (if fascist-init
+												(abort
+												 (string-append
 												  (symbol->string name)
-												  " has been called before both the prey list has been registered")))
-								  (set! pred-att-rate (map (lambda (y) (y 'attack-rate self)) populations))
-								  (if (zero? (apply + (map abs (map car pred-att-rate))))
-										(set! pred-att-rate #f))
-								  ;;(dnl name pred-att-rate)
-								  )	
-								 
-								 ((eqv? (car args) 'logistic)
-								  (if (not (or (null? (cdr args)) (boolean? (cadr args)) (number? (cadr args))))
-										(abort "argument to (entity 'logistic) must be null, #f #t or a number"))
-								  (if (null? (cdr args))
-										(set! logistic 1.0)
-										(set! logistic (cadr args)))
+												  " has been called before both the prey list has been registered"))
+												0)
+										  (let ((p (list2-assoc populations prey-rates (cadr args))))
+											 (if p (car p) 0))))
 
-								  (if logistic
-										(begin
-										  (set! logistic-growth #f)
-										  (set! logistic-mort #f)))
-								  
-								  )
-								 
-								 ((eqv? (car args) 'register-helpers)
-								  (if (not populations)
-										(error  "You must register the populations before registering interactions")
-										(begin
-										  (set! helper-rate (make-list (length populations) 0))
-										  (if (not (null? (cdr args)))
-												(begin
-												  (for-each
-													(lambda (x y)
-													  (list2-assoc-set! populations helper-rate x y))
-													(map car (cdr args)) (map cadr (cdr args)))
-												  )
-												)
-										  )
+									((eqv? (car args) 'update)
+									 (let ((dP (apply self (cdr args))))
+										(set! value (+ value (* dP (cadr args))))
 										))
 
-								 ((eqv? (car args) 'register-competitors)
-								  (if (not populations)
-										(error  "You must register the populations before registering interactions")
-										(begin
-										  (set! competitor-rate
-												  (make-list (length populations) 0))
-										  (if (not (null? (cdr args)))
-												(begin
-												  (for-each
-													(lambda (x y)
-													  (list2-assoc-set! populations competitor-rate x y))
-													(map car (cdr args)) (map cadr (cdr args)))
-												  )
-												)
-										  )
-										))
+									((eqv? (car args) 'set-d/dt!)
+									 (set! d/dt (cadr args)))
 
-								 ((eqv? (car args) 'logistic-growth)
-								  (if (not (or (null? (cdr args))
-													(boolean? (cadr args))
-													(number? (cadr args))))
-										(abort "argument to (entity 'logistic-growth) must be null, #f #t or a number"))
-								  (if (null? (cdr args))
-										(set! logistic-growth 1.0)
-										(set! logistic-growth (cadr args)))
-								  (if logistic-growth (set! logistic #f))
-
-								  )
-
-								 ((eqv? (car args) 'logistic-mort)
-								  (if (not (or (null? (cdr args))
-													(boolean? (cadr args))
-													(number? (cadr args))))
-										(abort
-										 "argument to (entity 'logistic-mort) must be null, #f #t or a number"))
-								  (if (null? (cdr args))
-										(set! logistic-mort 1.0)
-										(set! logistic-mort (cadr args)))
-								  (if logistic-mort (set! logistic #f))
-								  )
-
-								 ((and (eqv? (car args) 'attack-rate) (procedure? (cadr args)))
-								  (if (not prey-rates) 	
-										(if fascist-init
-											 (abort
-											  (string-append
-												(symbol->string name)
-												" has been called before both the prey list has been registered"))
-											 0)
-										(let ((p (list2-assoc populations prey-rates (cadr args))))
-										  (if p (car p) 0))))
-
-								 ((eqv? (car args) 'update)
-								  (let ((dP (apply self (cdr args))))
-									 (set! value (+ value (* dP (cadr args))))
-									 ))
-
-								 ((eqv? (car args) 'set-d/dt!)
-								  (set! d/dt (cadr args)))
-
-								 ((eqv? (car args) 'd/dt)
-								  d/dt)
-								 
-								 ((number? (car args))
-								  (apply d/dt args))
-								 
-								 (else (abort
-										  (string-append "The argument to "
-															  (symbol->string name) ", "
-															  (object->string (car args))
-															  ", is not recognised")))
-								 ) ;; cond
-								) ;; lambda
-							 ) ;; population defn
-							) ;; letrec closure
-				  population) ;; letrec 
+									((eqv? (car args) 'd/dt)
+									 d/dt)
+									
+									((number? (car args))
+									 (apply d/dt args))
+									
+									(else (abort
+											 (string-append "The argument to "
+																 (symbol->string name) ", "
+																 (object->string (car args))
+																 ", is not recognised")))
+									) ;; cond
+								  ) ;; lambda
+								) ;; population defn
+							  ) ;; letrec closure
+					 population) ;; letrec
+				  ) ;; let ((andf...))
 				) ;; accessor definition
 			  ) ;; let* closure
 		(set! self accessor) ;; so we can identify ourselves to others

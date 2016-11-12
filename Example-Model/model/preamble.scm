@@ -7,11 +7,121 @@
 (define false #f)
 
 
-(define (dumpslots ent)
-  (let ((s (class-slots-of ent)))
-	 (map (lambda (x)
-			  (list x (slot-ref ent x)))
-			s)))
+;; Registers to associate  classes, methods and objects with their name.
+
+
+(define overdue-loans '())
+
+(define (bind-string-to-closure cls)
+  (with-output-to-file "/dev/null"
+	 (lambda ()
+		(write cls))))
+
+
+(define (abstract-register thingtype thingname . errata)
+  (letrec ((register '()))
+	 (lambda args
+		(if (null? args)
+			 (copy-list register)
+			 (letrec ((cmd (car args))
+						 (opts (if (null? (cdr args)) #f (cdr args))))
+				(cond
+				 ((not (symbol? cmd))
+				  (abort "+++DIVISION BY DRIED FROG IN THE CARD CATALOG+++" cmd))
+				 ((eqv? cmd 'help)
+				  (dnl* "'help")
+				  (dnl* "passing no arguments or 'get returns a copy of the register")
+				  (dnl* "'reg returns the register")
+				  (dnl* "'flush or 'clear  sets the register to null")
+				  (dnl* "'dump prints the register")
+				  (dnl* "'add" thingtype (string-append thingtype "name") "description")
+				  (dnl* "'add-unique" thingtype (string-append thingtype "name") "description")
+				  (dnl* "'name?" thingtype "- not" thingname)
+				  (dnl* "'type?" thingname)
+				  (dnl* "'rec/name" thingtype)
+				  (dnl* "'rec/type" thingtype)
+				  (dnl* "'rec?" thingname thingtype "or the print string")
+				  )
+
+				 ((eqv? cmd 'reg) register)
+				 ((eqv? cmd 'get)
+				  (copy-list register)
+				  )
+
+				 ((member cmd '(flush clear))
+				  (set! register '()))
+
+
+				 ((eqv? cmd 'dump)
+				  (for-each pp register)
+				  )
+
+				 ((eqv? cmd 'add)
+				  (bind-string-to-closure (car opts))
+				  (set! register ;; save things as lists
+						  (cons (cons (car opts) (cdr opts)) register))
+				  (car opts)
+				  )
+
+				 ((eqv? cmd 'add-unique)
+				  (bind-string-to-closure (car opts))
+				  (if (not (assq (car opts) register))
+						(set! register ;; save things as lists
+								(cons (cons (car opts) (cdr opts)) register)))
+				  (car opts)
+				  )
+
+				 ((and (member cmd '(name? name)) opts)
+				  (let ((a (assq (car opts) register)))
+					 (and a (cadr a))))
+
+				 ((and (member cmd '(rec? record?)) opts)
+				  (let ((a (filter (lambda (x) (or (eqv? (car x) (car opts))
+															  (string=? (object->string (car x))(object->string (car opts)))
+															  (string=? (object->string (cdr x)) (object->string (car opts)))
+															  )) register)))
+					 (if (null? a) #f a)) )
+
+				 ((and (member cmd '(rec/type record-by-type rec-by-type rb-type)) opts)
+				  (let ((a (assq (car opts) register)))
+					 a))
+
+				 ((and (member cmd '(type? type)) opts)
+				  (let ((a (filter (lambda (x)
+											(eqv? (car opts) (cadr x)))
+										 register)))
+					 a
+					 ))
+
+				 ((and (member cmd '(rec/type record-by-name rec-by-name rb-name)) opts)
+				  (let ((a (filter (lambda (x)
+											(eqv? (car opts) (cadr x)))
+										 register)))
+					 (and a (car a))))
+
+				 (else
+				  (dnl* "Called a " thingtype "/" thingname "register with " cmd )
+				  
+				  (pp (cdr args))
+				  (display "... Didn't really work, was that a real command?\n")
+				  (error "\n\n+++BANANA UNDERFLOW ERROR+++\n" args))
+				 )
+				)
+			 )
+		)
+	 )
+  )
+
+
+
+;; classes ought to be unique
+(define class-register (abstract-register "class" "class-name" #t))
+
+;; We can (must) have many methods of the same name, like "dump"
+(define generic-method-register (abstract-register "generic-method" "generic-method-name" #t))
+(define method-register (abstract-register "method" "method-name"))
+(define object-register (abstract-register "object" "object-name"))
+(define agent-register (abstract-register "agent" "agent-name"))
 
 
 
@@ -30,8 +140,8 @@
 
 
 ;;; Smart load prevent us from accidentally loading a file twice.  This could pose problems if the
-;;; file *needs* to be loaded more than once, but this can be dealt with by running
-;;;     (load '
+;;; file *needs* to be loaded more than once, but this can be dealt with by a forced load.
+
 
 (define *primitive-load* load)
 
@@ -124,15 +234,15 @@
 						                "attempts to\n"
 						"               load a file more that once\n"
 						"!warn-loaded   turns off the warning\n"
-						"always-load    (load ...) will alway load the files "
+						"always-load    (load...) will alway load the files "
 						                "indicated\n"
-						"!alway-load    (load ...) only loads files which have not been "
+						"!alway-load    (load...) only loads files which have not been "
                                   "loaded\n"
 						"print-loaded   the list of loaded files is printed at each call "
-                                  "to (load ...)\n"
+                                  "to (load...)\n"
 						"!print-loaded  turns off the previous flag\n"
 						"print-loading  the list of loading files is printed at each call "
-                                  "to (load ...)\n"
+                                  "to (load...)\n"
 						"!print-loading turns off the previous flag\n"
 						"\n")))
                (#t
@@ -399,12 +509,6 @@
 ;; (define size+filename-list (load-list-from-pipe (list "ls" "-1s")))
 
 
-(define (bind-string-to-closure cls)
-  (with-output-to-file "/dev/null"
-	 (lambda ()
-		(write cls))))
-
-
 
 ;;(define (load-flat-list-from-pipe command . args)
 ;;  (let* ((f (apply open-input-pipe (cons command args)))
@@ -448,11 +552,6 @@
 
 
 
-
-(define (load-data fname)
-  (let ((data (deep-string->number (load-list-from-file fname))))
-	 ;;(display (string-append "Loaded " fname "\n"))
-	 data))
 
 
 (define (load-flat-list-from-file filename)

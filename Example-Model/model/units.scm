@@ -1,34 +1,3 @@
-;-  Identification and Changes
-
-;--
-;	units.scm -- Written by Randall Gray 
-;	Initial coding: 
-;		Date: 2010.06.12
-;		Location: loki:/data/study-runs/playpen/units.scm
-;
-;	History:
-;
-
-;-  Copyright 
-
-;
-;   (C) 2010 CSIRO Australia
-;   All rights reserved
-;
-
-;-  Discussion 
-
-;-  Configuration stuff 
-
-;-  Included files 
-
-;-  Variables/constants both public and static
-
-;--    Static data
-
-;--    Public data 
-
-;-  Code 
 
 ;***************** UNITS ******************
 

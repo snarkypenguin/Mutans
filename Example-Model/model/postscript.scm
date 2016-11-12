@@ -20,14 +20,15 @@
 ;-  Code 
 
 ;;(load "utils.scm")
+;;(load "constants.scm")
 
 (define (make-it-a-string s) 
   (or (and (string? s) s) (and (char? s) (make-string 1 s)) (object->string s)))
 
-(define (andf . args)
+(define (ps-andf . args)
   (if (null? args)
 		#t
-		(and (car args) (apply andf (cdr args)))))
+		(and (car args) (apply ps-andf (cdr args)))))
 
 (define (gmap l x)
   (if (pair? x)
@@ -73,21 +74,94 @@
 		(map copy-list rows)
 		#f))
 
+(define (ps-list-ref*? lst ix)
+  (cond
+	((and (number? ix) (<= 0 ix) (< ix (length lst)))
+	 #t)
+	((and (pair? lst) (number? (car ix)) (<= 0 (car ix)) (< (car ix) (length lst)))
+	 (ps-list-ref*? (list-ref lst (car ix)) (cdr ix)))
+	((and (null? lst) (not (null? ix))) #f)
+	((and (null? ix) (not (null? lst))) #t)
+	(#t #t)))
 
-(define (list-matrix? m)
+;; (list-ref* '((a b c d) (e f g h i j) (k l m)) '(1 0)) => e
+;;; (define (list-ref* lst ix)
+;;;   (cond
+;;; 	((number? ix)
+;;; 	 (list-ref lst ix))
+;;; 	((= (length ix) 1)
+;;; 	 (list-ref lst (car ix)))
+;;; 	(else
+;;; 	 ;;		(list-ref* (map (lambda (x) (list-ref x (car ix))) lst) (cdr ix))
+;;; 	 (list-ref (map (lambda (x) (list-ref* x (cdr ix))) lst) (car ix))
+;;; 	 )))
+
+(define (ps-list-ref* lst ix)
+  (cond
+	((and (list? ix) (= 1 (length ix))) (list-ref lst (car ix)))
+	((and (number? ix) (<= 0 ix) (< ix (length lst)))
+	 (list-ref lst ix))
+	((and (pair? lst) (number? (car ix)) (<= 0 (car ix)) (< (car ix) (length lst)))
+	 (ps-list-ref* (list-ref lst (car ix)) (cdr ix)))
+	((and (null? lst) (not (null? ix))) (error "Index list ran off the end of the list" ix))
+	((and (null? ix) (not (null? lst))) lst)
+	(#t (error "Should never get here, bad arguments" lst ix))))
+
+
+;; (define p '((a b c d) (e f g h i j) (k l m)))
+;; (list-set* p '(1 0) '(tst))
+;; p  => ((a b c d) ((tst) f g h i j) (k l m))
+(define (ps-list-set* lst ix vv)
+  (cond
+	((number? ix)
+	 (list-set! lst ix vv))
+	((= (length ix) 1)
+	 (dnl "unit list")
+	 (list-set! lst (car ix) vv))
+	(else
+	 (let ((tv (ps-list-ref* lst ix)))
+		(if (atom? tv)
+			 ;; indices fully resolve an element
+			 (let* ((short-ix (reverse (cdr (reverse ix))))
+					  (tv (ps-list-ref* lst short-ix)))
+				(list-set! tv (car (reverse ix)) vv))
+			 (if (= (length tv) (length vv))
+				  ;; it's ok, do it
+				  (ps-list-set* (map (lambda (x) (ps-list-ref* x (car ix)) lst) (cdr ix)) vv)
+				  (abort "The value list does not have the indicated number of elements"))))
+	 )))
+
+(define (ps-make-list* . dims)
+  (let ((defval 0))
+	 (if (and (pair? dims) (pair? (car dims))) 
+		  (begin
+			 (if (pair? (cdr dims))
+				  (set! defval (cadr dims)))
+
+			  (set! dims (car dims))))
+
+		  (if (null? (cdr dims))
+				(make-list (car dims) defval)
+				(map (lambda (x) (ps-make-list* (cdr dims) defval)) (make-list (car dims) )))))
+
+(define (ps-simple-list? l)	
+  (apply ps-andf (map atom? l)))
+
+
+(define (ps-list-matrix? m)
   (and (pair? m) 
-		 (apply andf (map simple-list? m)) 
+		 (apply ps-andf (map simple-list? m)) 
 		 (apply = (map length m))))
 
 (define (transpose-list-matrix A)
   (if (list-matrix? A) 
 		(let* ((dima (list (length A) (length (car A))))
-				 (B (make-list* (list (cadr dima) (car dima)) 0)))
+				 (B (ps-make-list* (list (cadr dima) (car dima)) 0)))
 		  (for-each
 			(lambda (i) 
 			  (for-each
 				(lambda (j)
-				  (list-set* B (list j i) (list-ref* A (list i j))))
+				  (ps-list-set* B (list j i) (ps-list-ref* A (list i j))))
 				(seq (cadr dima))))
 			(seq (car dima)))
 		  B)
@@ -108,39 +182,39 @@
 
 
 
-;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
-;; With changes 
-(define (pt-in-poly2 xp yp x y) 
-  (let loop ((c #f) 
-				 (i (- (length xp) 1)) 
-				 (j 0))
-    (if (< i 0)
-      c
-      (if (or (and (or (> (list-ref yp i) y)
-                       (>= y (list-ref yp j)))
-                   (or (> (list-ref yp j) y)
-                       (>= y (list-ref yp i))))
-              (>= x
-                       (+ (list-ref xp i)
-                               (/ (*
-                                        (- (list-ref xp j)
-                                                (list-ref xp i))
-                                        (- y (list-ref yp i)))
-                                       (- (list-ref yp j)
-                                               (list-ref yp i))))))
-        (loop c (- i 1) i)
-        (loop (not c) (- i 1) i)))))
+;;; ;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
+;;; ;; With changes 
+;;; (define (pt-in-poly2 xp yp x y) 
+;;;   (let loop ((c #f) 
+;;; 				 (i (- (length xp) 1)) 
+;;; 				 (j 0))
+;;;     (if (< i 0)
+;;;       c
+;;;       (if (or (and (or (> (list-ref yp i) y)
+;;;                        (>= y (list-ref yp j)))
+;;;                    (or (> (list-ref yp j) y)
+;;;                        (>= y (list-ref yp i))))
+;;;               (>= x
+;;;                        (+ (list-ref xp i)
+;;;                                (/ (*
+;;;                                         (- (list-ref xp j)
+;;;                                                 (list-ref xp i))
+;;;                                         (- y (list-ref yp i)))
+;;;                                        (- (list-ref yp j)
+;;;                                                (list-ref yp i))))))
+;;;         (loop c (- i 1) i)
+;;;         (loop (not c) (- i 1) i)))))
 
 
-(define (point-in-polygon p poly)
-  (if (or? (null? p) (null? poly) (< (length poly) 3)) 
-		#f
+;;; (define (point-in-polygon p poly)
+;;;   (if (or? (null? p) (null? poly) (< (length poly) 3)) 
+;;; 		#f
 		
-		(let ((ptail (car (reverse poly))))
-		  (if (not (equal? (car poly) ptail))
-				(set! poly (append poly (list (car poly)))))))
+;;; 		(let ((ptail (car (reverse poly))))
+;;; 		  (if (not (equal? (car poly) ptail))
+;;; 				(set! poly (append poly (list (car poly)))))))
 
-  (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
+;;;   (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
 
 
 
@@ -176,10 +250,6 @@
 		(adjust + offset lstlst)
 		(map (lambda (lst) (translate-pointlist* (- n 1) offset lst)) lstlst)))
 
-(define pi (* 4.0 (atan 1.0)))
-(define 100pi 314)
-(define 10000pi 31416)
-(define tau (* 2.0 pi))
 
 (define (fold-A-series-paper aN)
   (list (/ (cadr aN) 2.0) (car aN)))
@@ -201,14 +271,15 @@
       ((< i 0) ans)))
 
 (define (make-circle location radius-pts divisions)
-  (translate-pointlist 
-	location 
-	(scale-pointlist radius-pts 
-						  (map (lambda (x) 
-									(list (cos (/ (* tau x) divisions)) 
-											(sin (/ (* tau x) divisions))))
-								 (list-tabulate divisions (lambda (x) x))
-								 ))))
+  (let ((tau (* (acos -1))))
+	 (translate-pointlist 
+	  location 
+	  (scale-pointlist radius-pts 
+							 (map (lambda (x) 
+									  (list (cos (/ (* tau x) divisions)) 
+											  (sin (/ (* tau x) divisions))))
+									(list-tabulate divisions (lambda (x) x))
+									)))))
 
 (define (deep-string->number lst) 
   (cond
@@ -764,7 +835,7 @@
 		  (if (and (list? v) 
 					  (list? (car v)) 
 					  (not (null? (car v))) 
-					  (apply andf (map number? (car v))))
+					  (apply ps-andf (map number? (car v))))
 				(begin
 				  (ps 'lineto (caar v) (cadar v))
 				  (loop (cdr v))))))
@@ -785,7 +856,7 @@
 		  (if (and (list? v) 
 					  (list? (car v)) 
 					  (not (null? (car v))) 
-					  (apply andf (map number? (car v))))
+					  (apply ps-andf (map number? (car v))))
 				(	begin
 				  (ps 'lineto (caar v) (cadar v))
 				  (loop (cdr v))))))

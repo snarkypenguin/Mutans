@@ -1,5 +1,5 @@
-;set-  Identification and Changes
-(include "framework.config")
+;-  Identification and Changes
+
 ;--
 ;	framework -- Written by Randall Gray 
 ;	Initial coding: 
@@ -24,8 +24,6 @@
 
 ;;; |#
 
-(include "framework.config")
-
 ;-  Code 
 
 ;; See also Kiczales, Gregor; Jim des Rivieres; Daniel G. Bobrow (July
@@ -43,7 +41,11 @@
   `(call-with-current-continuation
     (lambda (,name) ,@body)))
 
-(define-macro (state-variables . lst) `'(,@lst))
+(define-macro (state-variables . lst)
+  (let ((rslt `'(,@lst)))
+	 ;;(pp rslt)
+	 rslt))
+
 ;; This makes it clear when classes are defining state vars
 
 (define-macro (no-state-variables) `'())
@@ -58,44 +60,56 @@
 ;; interpreter tries to evaluate it.
 
 
-
-
-
 ;; cpl... class precedent list
 (define-macro (isa? self . classtype)
-  (let ((txt `(let ((ancestors (class-cpl (class-of ,self))))
-					 (if (apply orf
-									(map (lambda (x) (member x ancestors))
-										  (list ,@classtype))) 
-						  #t #f)
-					 )
-				 ))
-	 ;(pp txt)
+  (letrec ((orf (lambda x (if (null? x #f) (or (car x) (apply orf (cdr x)))))))
+	 (let ((txt `(let ((ancestors (class-cpl (class-of ,self))))
+						(if (apply orf
+									  (map (lambda (x) (member x ancestors))
+											 (list ,@classtype))) 
+							 #t #f)
+						)
+					))
+		;;(pp txt)
+		txt)))
+
+
+
+
+
+;;; (define-macro (register-class cname . stuff)
+;;; 	 `(class-register 'add ,cname ',cname))
+
+;;; (define-macro (register-method mname descr . stuff)
+;;; 	 `(method-register 'add ,mname ',mname))
+
+;;; (define-macro (register-generic-method mname . stuff )
+;;; 	 `(generic-method-register 'add-unique ,mname ',mname )
+;;;   )
+
+(define-macro (register regname mname . val)
+  (let ((txt
+			(if (not (null? val))
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add ,mname ',mname ,@val)
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add ,mname ',mname)) )
+		  )
+	 (display "register: ") (pp txt)
 	 txt))
 
-
-
-
-
-(define-macro (register-class cname . stuff)
-	 `(class-register 'add ,cname ',cname))
-
-(define-macro (register-method mname descr . stuff)
-	 `(method-register 'add ,mname ',mname))
-
-(define-macro (register-generic-method mname . stuff )
-	 `(generic-method-register 'add-unique ,mname ',mname )
-  )
-
-
-
-
-
+(define-macro (register-unique regname mname . val)
+  (let ((txt (if (not (null? val))
+					  `(,(string->symbol (string-append (symbol->string regname) "-register"))
+						 'add-unique ,mname ',mname ,@val)
+					  `(,(string->symbol (string-append (symbol->string regname) "-register"))
+						 'add-unique ,mname ',mname)) )
+		  )
+	 (display "register-unique: ") (pp txt)
+	 txt))
 
 (define-macro (make-object% class . initargs)
-					 `(let ((instance (allocate-instance ,class)))
-						 (initialize instance ,@initargs)
-						 instance))
+  `(let ((instance (allocate-instance ,class)))
+	  (initialize instance ,@initargs)
+	  instance))
 
 (define-macro (make-agent% class . initargs)
   `(let ((instance (allocate-instance ,class)))
@@ -104,31 +118,29 @@
 	  instance))
 
 (define-macro (define-class cname . margs)
-  `(define ,cname (class-register 'add (make-class ,@margs) ',cname))
-)
+  ;;`(define ,cname (register-unique class ,(make-class ,@margs))))
+  (let ((allargs (list 'register-unique 'class `(make-class ,@margs))))
+	 `(define ,cname ,allargs)))
 
 (define-macro (declare-method name descr . otherstuff)
-  `(define ,name (generic-method-register 'add (make-generic) ',name))
+  `(define ,name (register-unique generic-method (make-generic)))
   )
-
-
-
 
 
 ;; Objects do not chain to their parents on initialising
 (define-macro (default-object-initialization name . margs)
-  ;(display name) (display " MARGS = ")(display margs) (display (if (null? margs) " NULL" ""))(newline)
+;(display name) (display " MARGS = ")(display margs) (display (if (null? margs) " NULL" ""))(newline)
   (let ((txt (if (null? margs)
 					  `(object-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
+											(let ()
 											  (if (pair? initargs) (set-state-variables self initargs))
 											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
 											  )
-										  )
+											)
 
 					  `(object-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
-											  (set-state-variables self ',margs)
+											(let ((Margs ',margs))
+											  (set-state-variables self Margs)
 											  (if (pair? initargs) (set-state-variables self initargs))
 											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
 											  )
@@ -138,24 +150,24 @@
 
 
 (define-macro (default-attribute-initialization name . margs)
-  ;(display name) (display " MARGS = ")(display margs) (display (if (null? margs) " NULL" ""))(newline)
+;(display name) (display " MARGS = ")(display margs) (display (if (null? margs) " NULL" ""))(newline)
   (let ((txt (if (null? margs)
 					  `(attribute-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
-											  (initialize-parent)
-											  (if (pair? initargs) (set-state-variables self initargs))
-											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
-											  )
-										  )
+												(let ((margs ',margs))
+												  (initialize-parent)
+												  (if (pair? initargs) (set-state-variables self initargs))
+												  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
+												  )
+												)
 
 					  `(attribute-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
-											  (set-state-variables self ',margs)
-											  (initialize-parent) 
-											  (if (pair? initargs) (set-state-variables self initargs))
-											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
-											  )
-											))))
+												(let ((Margs ',margs))
+												  (set-state-variables self Margs)
+												  (initialize-parent) 
+												  (if (pair? initargs) (set-state-variables self initargs))
+												  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
+												  )
+												))))
 	 ;;(pp txt)(newline)
 	 txt))
 
@@ -163,24 +175,24 @@
   ;;(display name) (display " MARGS = ")(display margs) (display (if (null? margs) " NULL" ""))(newline)
   (let ((txt (if (null? margs)
 					  `(model-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
-											  (initialize-parent)
-											  (if (pair? initargs) (set-state-variables self initargs))
-											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
-											  )
-											)
+										  (let ((Margs ',margs))
+											 (initialize-parent)
+											 (if (pair? initargs) (set-state-variables self initargs))
+											 ;;(display "###### dumpslots exiting init: ") (dumpslots self)
+											 )
+										  )
 
 					  `(model-method (,name) (initialize self initargs)
-											(let ((margs ',margs))
-											  (set-state-variables self ',margs)
-											  (initialize-parent) 
-											  (if (pair? initargs) (set-state-variables self initargs))
-											  ;;(display "###### dumpslots exiting init: ") (dumpslots self)
-											  )
-											))))
+										  (let ((Margs ',margs))
+											 (set-state-variables self Margs)
+											 (initialize-parent) 
+											 (if (pair? initargs) (set-state-variables self initargs))
+											 ;;(display "###### dumpslots exiting init: ") (dumpslots self)
+											 )
+										  ))))
 	 ;;(pp txt)(newline)
 	 txt))
- 
+
 
 
 ;; This works like so:
@@ -200,6 +212,7 @@
 ;; the agent within the body code "t" is the current model time dt is
 ;; the requested dt the state variables are not directly available --
 ;; use "my" or "set-my!", "slot-ref" or "slot-set!"
+
 
 
 (define-macro (model-method #!rest madness)
@@ -223,41 +236,42 @@
 		  (margs (cddadr madness))
 		  (body (cddr madness))
 		  )
-	 (if (and #t (not (generic-method-register 'type? ',mname)))
-		  (begin
-			 (display "********* Instantiating the method (")
-			 (display ',mname)
-			 (display " ...) ********* before the method has been declared\n")))
 
-	 (let ((txt `(let ((M (make-method (list ,@classlst) ;; make-method returns a function....
-												  (lambda (,(string->symbol
-																 (string-append (symbol->string mname)
-																					 "-parent"))
-															  self
-															  ,@margs)
+	 (let ((txt `(let ((M
+							  (if (and #t (not (generic-method-register 'type? ',mname)))
+									(begin
+									  (display "********* Instantiating the method (")
+									  (display ',mname)
+									  (display " ...) ********* before the method has been declared\n"))
+									(make-method (list ,@classlst) ;; make-method returns a function....
+													 (lambda (,(string->symbol
+																	(string-append (symbol->string mname)
+																						"-parent"))
+																 self
+																 ,@margs)
 
-							  (kdnl* 'trace-model-methods "Enteriing" (class-name-of self)":"' self `,margs)
-													 (let ((my (lambda (x) (slot-ref self x)))
-															 (set-my! (lambda (x y)
-																			(slot-set! self x y)))
-															 (kernel (if (member 'kernel (map car (class-slots (class-of self))))
-																			 (slot-ref self 'kernel)
-																			 #f))
-															 )
-														(let ((result
-																 (begin 
-																	,@body)))
-							  (kdnl* 'trace-model-methods "Leaving" (class-name-of self)":"' self "with" result)
-														  result)
+														(kdnl* 'trace-model-methods "Enteriing" (class-name-of self)":"' self `,margs)
+														(let ((my (lambda (x) (slot-ref self x)))
+																(set-my! (lambda (x y)
+																			  (slot-set! self x y)))
+																(kernel (if (member 'kernel (map car (class-slots (class-of self))))
+																				(slot-ref self 'kernel)
+																				#f))
+																)
+														  (let ((result
+																	(begin 
+																	  ,@body)))
+															 (kdnl* 'trace-model-methods "Leaving" (class-name-of self)":"' self "with" result)
+															 result)
+														  )
 														)
-													 )
-												  )))
+													 ))
+							  ))
 						(add-method ,mname M)
 						(method-register 'add M ',mname )
-						
-						))
-			 )
-		;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
+						)
+					))
+		;;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
 		txt)))
 
 
@@ -287,37 +301,38 @@
 		  (margs (cddadr madness))
 		  (body (cddr madness))
 		  )
-	 (if (and #t (not (generic-method-register 'type? ',mname)))
-		  (begin
-			 (display "********* Instantiating the method (")
-			 (display ',mname)
-			 (display " ...) ********* before the method has been declared\n")))
-
-	 (let ((txt `(let ((M (make-method (list ,@classlst) ;; make-method returns a function....
-												  (lambda (,(string->symbol
-																 (string-append (symbol->string mname)
-																					 "-parent"))
-															  self
-															  ,@margs)
-							  (kdnl* 'trace-object-methods "Enteriing" (class-name-of self)":"' self `,margs)
-													 (let ((my (lambda (x) (slot-ref self x)))
-															 (set-my! (lambda (x y)
-																			(slot-set! self x y)))
-															 )
-														(let ((result
-																 (begin 
-																	,@body)))
-							  (kdnl* 'trace-object-methods "Leaving" (class-name-of self)":"' self "with" result)
-														  result)
+	 
+	 (let ((txt `(let ((M
+							  (if (and #t (not (generic-method-register 'type? ',mname)))
+									(begin
+									  (display "********* Instantiating the method (")
+									  (display ',mname)
+									  (display " ...) ********* before the method has been declared\n"))
+									(make-method (list ,@classlst) ;; make-method returns a function....
+													 (lambda (,(string->symbol
+																	(string-append (symbol->string mname)
+																						"-parent"))
+																 self
+																 ,@margs)
+														(kdnl* 'trace-object-methods "Enteriing" (class-name-of self)":"' self `,margs)
+														(let ((my (lambda (x) (slot-ref self x)))
+																(set-my! (lambda (x y)
+																			  (slot-set! self x y)))
+																)
+														  (let ((result
+																	(begin 
+																	  ,@body)))
+															 (kdnl* 'trace-object-methods "Leaving" (class-name-of self)":"' self "with" result)
+															 result)
+														  )
 														)
-													 )
-												  )))
+													 ))
+							  ))
 						(add-method ,mname M)
 						(method-register 'add M ',mname )
-						
-						))
-			 )
-		;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
+						)
+					))
+		;;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
 		txt)))
 
 ;; An attribute would usually correspond to something that wasn't a
@@ -351,41 +366,41 @@
 		  (margs (cddadr madness))
 		  (body (cddr madness))
 		  )
-	 (if (and #t (not (generic-method-register 'type? ',mname)))
-		  (begin
-			 (display "********* Instantiating the method (")
-			 (display ',mname)
-			 (display " ...) ********* before the method has been declared\n")
-			 ))
 
-	 (let ((txt `(let ((M (make-method (list ,@classlst) ;; make-method returns a function....
-												  (lambda (,(string->symbol
-																 (string-append (symbol->string mname)
-																					 "-parent"))
-															  self
-															  ,@margs)
-							  (kdnl* 'trace-attribute-methods "Enteriing" (class-name-of self)":"' self `,margs)
-													 (let ((my (lambda (x) (slot-ref self x)))
-															 (set-my! (lambda (x y)
-																			(slot-set! self x y)))
-															 (sup-model (if (member 'sup-model (map car (class-slots (class-of self))))
-																			 (slot-ref self 'sup-model)
-																			 #f))
-															 )
-														(let ((result
-																 (begin 
-																	,@body)))
-							  (kdnl* 'trace-attribute-methods "Leaving" (class-name-of self)":"' self "with" result)
-														  result)
+	 (let ((txt `(let ((M (if (and #t (not (generic-method-register 'type? ',mname)))
+									  (begin
+										 (display "********* Instantiating the method (")
+										 (display ',mname)
+										 (display " ...) ********* before the method has been declared\n")
+										 )
+									  (make-method (list ,@classlst) ;; make-method returns a function....
+														(lambda (,(string->symbol
+																	  (string-append (symbol->string mname)
+																						  "-parent"))
+																	self
+																	,@margs)
+														  (kdnl* 'trace-attribute-methods "Enteriing" (class-name-of self)":"' self `,margs)
+														  (let ((my (lambda (x) (slot-ref self x)))
+																  (set-my! (lambda (x y)
+																				 (slot-set! self x y)))
+																  (sup-model (if (member 'sup-model (map car (class-slots (class-of self))))
+																					  (slot-ref self 'sup-model)
+																					  #f))
+																  )
+															 (let ((result
+																	  (begin 
+																		 ,@body)))
+																(kdnl* 'trace-attribute-methods "Leaving" (class-name-of self)":"' self "with" result)
+																result)
 														)
 													 )
-												  )))
+												  ))
+							 ))
 						(add-method ,mname M)
 						(method-register 'add M ',mname )
-						
-						))
-			 )
-		;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
+						)
+					))
+		;;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
 		txt)))
 
 
@@ -484,7 +499,7 @@ are identical to object methods. ***"
 										(slot-ref self ',variable)))))
 
 (define-macro (load-config)
-  `(include "model.config"))
+  `( include "model.config"))
 
 
 ;-  The End 

@@ -1,3 +1,4 @@
+(define matrhix-doco
 "
 
 These matrices are indexed from 1.  At the moment there is no way to augment
@@ -70,7 +71,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 	is matrix addition
 
 "
-
+)
 
 ;;(load "maths.scm")
 
@@ -82,10 +83,10 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 (define (one? x) (= x 1))
 
-;; (list-nth* '((a b c) (d e f) (g h i) (j k l)) 2) => (c f i l)
-(define (list-nth* lst n) (apply (lambda x (map (lambda (y) (list-ref y n)) x)) lst))
+;; (*list-nth* '((a b c) (d e f) (g h i) (j k l)) 2) => (c f i l)
+(define (*list-nth* lst n) (apply (lambda x (map (lambda (y) (list-ref y n)) x)) lst))
 
-;; (!list-nth* '((a b c) (d e f) (g h i) (j k l)) 2) => ((a b) (d e) (g h) (j k))
+;; (!*list-nth* '((a b c) (d e f) (g h i) (j k l)) 2) => ((a b) (d e) (g h) (j k))
 
 ;; cols *must* be sorted!
 (define (list-ref-cols L cols)
@@ -137,7 +138,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
   (cond 
 	((atom? x) x)
 	((and (pair? x) (pair? (car x)))
-	 (map (lambda (y) (list-nth* x y)) (seq (length (car x)))))
+	 (map (lambda (y) (*list-nth* x y)) (seq (length (car x)))))
 	((and (pair? x) (number? (car x))) ;; pivot a row vector
 	 (abort "pivot-failure: not a matrix list")
 	 (map list x)) 
@@ -310,6 +311,64 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
   (let ((n (!span l kl)))
 	 (list-head l (- (length l) (length n)))))
 
+(define (matrix-list-ref*? lst ix)
+  (cond
+	((and (number? ix) (<= 0 ix) (< ix (length lst)))
+	 #t)
+	((and (pair? lst) (number? (car ix)) (<= 0 (car ix)) (< (car ix) (length lst)))
+	 (matrix-list-ref*? (list-ref lst (car ix)) (cdr ix)))
+	((and (null? lst) (not (null? ix))) #f)
+	((and (null? ix) (not (null? lst))) #t)
+	(#t #t)))
+
+;; (list-ref* '((a b c d) (e f g h i j) (k l m)) '(1 0)) => e
+;;; (define (list-ref* lst ix)
+;;;   (cond
+;;; 	((number? ix)
+;;; 	 (list-ref lst ix))
+;;; 	((= (length ix) 1)
+;;; 	 (list-ref lst (car ix)))
+;;; 	(else
+;;; 	 ;;		(list-ref* (map (lambda (x) (list-ref x (car ix))) lst) (cdr ix))
+;;; 	 (list-ref (map (lambda (x) (list-ref* x (cdr ix))) lst) (car ix))
+;;; 	 )))
+
+(define (matrix-list-ref* lst ix)
+  (cond
+	((and (list? ix) (= 1 (length ix))) (list-ref lst (car ix)))
+	((and (number? ix) (<= 0 ix) (< ix (length lst)))
+	 (list-ref lst ix))
+	((and (pair? lst) (number? (car ix)) (<= 0 (car ix)) (< (car ix) (length lst)))
+	 (matrix-list-ref* (list-ref lst (car ix)) (cdr ix)))
+	((and (null? lst) (not (null? ix))) (error "Index list ran off the end of the list" ix))
+	((and (null? ix) (not (null? lst))) lst)
+	(#t (error "Should never get here, bad arguments" lst ix))))
+
+
+;; (define p '((a b c d) (e f g h i j) (k l m)))
+;; (list-set* p '(1 0) '(tst))
+;; p  => ((a b c d) ((tst) f g h i j) (k l m))
+(define (matrix-list-set* lst ix vv)
+  (cond
+	((number? ix)
+	 (list-set! lst ix vv))
+	((= (length ix) 1)
+	 (dnl "unit list")
+	 (list-set! lst (car ix) vv))
+	(else
+	 (let ((tv (matrix-list-ref* lst ix)))
+		(if (atom? tv)
+			 ;; indices fully resolve an element
+			 (let* ((short-ix (reverse (cdr (reverse ix))))
+					  (tv (matrix-list-ref* lst short-ix)))
+				(list-set! tv (car (reverse ix)) vv))
+			 (if (= (length tv) (length vv))
+				  ;; it's ok, do it
+				  (matrix-list-set* (map (lambda (x) (matrix-list-ref* x (car ix)) lst) (cdr ix)) vv)
+				  (abort "The value list does not have the indicated number of elements"))))
+	 )))
+
+
 
 
 ;; This is a matrix wrapped in a function.  if one does a (define A (make-matrix ...))
@@ -351,12 +410,12 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  ;; dereference a value in the matrix returning either a submatrix or an element
 
 						  (if (and car-is-n cadr-is-n)
-								(list-ref* M (map 1- x))
+								(matrix-list-ref* M (map 1- x))
 								(cond 
 								 (car-is-n
 								  (make-matrix (list-ref-cols (list (list-ref M (1- (car x)))) (map 1- (cadr x)))))
 								 (cadr-is-n
-								  (make-matrix (list-ref-rows (list-nth* M (1- (cadr x))) (map 1- (car x)))))
+								  (make-matrix (list-ref-rows (*list-nth* M (1- (cadr x))) (map 1- (car x)))))
 								 (else
 								  (make-matrix (list-ref-cols (list-ref-rows M (map 1- (car x))) (map 1- (cadr x)))))
 								 )
@@ -369,7 +428,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  )
 						 ((and (member (car x) '(c col column)) (= 2 N) cadr-is-n)
 						  ;; return the indicated column vector ** adjust for the 0-1 indexing difference **
-						  (make-matrix (list (list-nth* M (1- (cadr x)))))
+						  (make-matrix (list (*list-nth* M (1- (cadr x)))))
 						  )
 
 						 ((and (member (car x) '(det determinant)))

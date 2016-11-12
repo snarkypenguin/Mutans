@@ -26,11 +26,7 @@
 
 ;(load "utils.scm")
 
-(define pi (acos -1.))
-(define 2pi (* 2.0 pi))
-(define e (exp 1))
-(define sqrt2pi (sqrt 2pi))
-
+;(load "constants.scm")
 
 ;;# sigmoid: x is in [0,1], l governs how sharp the transition is and off shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and off = 0.0
@@ -50,7 +46,7 @@
 ;;
 ;;invsigmoid(x) =  (log(x) - log(1-x))/(4 * pi) + 0.5
 
-
+(define-macro (pi) `,(* 4 (atan 1)))
 
 ;;# general-sigmoid: x is in [0,1], lmb governs how sharp the transition is and phi shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and phi = 0.0
@@ -66,7 +62,7 @@
 
 ;; This is the generating function
 (define (general-sigmoid-f x lmb phi)
-  (exp (* 4 pi lmb (- x phi))))
+  (exp (* 4 (pi) lmb (- x phi))))
 
 ;; This is exp( 4*pi*lmb * (x -phi))
 
@@ -95,7 +91,7 @@
   (cond 
 	((>= X 1) 1)
 	((<= X 0) 0)
-	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 4 pi)) 0.5)))))
+	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 4 (pi))) 0.5)))))
   )
 )
 
@@ -109,7 +105,7 @@
 (define (inverse-sigmoid P lmb phi)
   (cond
 	((<= P 0) 0)
-	((<= P 1) (+ (/ (log P) (* 4 pi lmb)) phi))
+	((<= P 1) (+ (/ (log P) (* 4 (pi) lmb)) phi))
 	(else 1)))
 
 
@@ -118,7 +114,7 @@
   (cond
 	((<= P_0 0) 0)
 	((>= P_0 1) 1)
-	(else (/ (log (- (/ 1 P_0) 1)) (* 4 pi lmb)))))
+	(else (/ (log (- (/ 1 P_0) 1)) (* 4 (pi) lmb)))))
 
 (define (power b e)
   (cond
@@ -210,18 +206,20 @@
 	  )
 	 )
 
-
 (define (point? p)
-  (and (list? p) (apply andf (map number? p))))
+  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+	 (and (list? p) (apply andf (map number? p)))))
 
 (define (point-list? p)
-  (apply andf (map point? p)))
+  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+	 (apply andf (map point? p))))
 
 (define (n-point? n p)
   (and (= n (length p)) (point? p)))
 
 (define (n-point-list? n p)
-  (apply andf (map (lambda (x) (n-point? n x)) p)))
+  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+	 (apply andf (map (lambda (x) (n-point? n x)) p))))
 
 
 
@@ -303,7 +301,7 @@
 
 
 (define (random-angle)
-  (* pi (- (* (random-real) 2.0) 1)))
+  (* (pi) (- (* (random-real) 2.0) 1)))
 
 (define (rotated-velocity v theta)
   (rotated-vector v theta))
@@ -334,11 +332,15 @@
   ))
     
 
-;; Composition operator
-(define (o . funlist)  ;; general
-  (if (= (length funlist) 1)
-      (lambda x (apply (car funlist) x))
-      (lambda x ((car funlist) (apply (apply o (cdr funlist)) x)))))
+;;; ;; Composition operator ***
+;;; (define (o . funlist)  ;; general ***
+;;;   (if (= (length funlist) 1) ***
+;;;       (lambda x (apply (car funlist) x)) ***
+;;;       (lambda x ((car funlist) (apply (apply o (cdr funlist)) x))))) ***
+
+;; This is the function composition operator
+(define (o f . g) (lambda (x) (if (null? g) (f x) (f ((apply o g) x)))))
+
 
 
 (define (change-basis vect basis origin)
@@ -358,13 +360,13 @@
 
 
 ; a and b are vectors ... usually used as (projection (list-op - s r) (list-op - t r))
-(define (projection a b) ;; general
+(define (project a b) ;; general
   (/ (dot a b) (v-length b)))
 
 
  ;; general
 (define (abeam a b scale) ; scale might be the distance covered  in a timestep
-  (let* ((v (projection a b))
+  (let* ((v (project a b))
 			(w (/ v scale))
 			)
 	 v))
@@ -482,11 +484,12 @@
   (exp (* x (log e))))
 
 (define (extend-arith-op-to-funcs op) 
-  (lambda args
-	 (if (apply andf (map number? args)) ;; This way numbers work as they usually do
-		  (apply op args)
-		  (lambda (x)
-			 (apply op (map (lambda (f) (if (procedure? f) (f x) f)) args))))))
+  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+	 (lambda args
+		(if (apply andf (map number? args)) ;; This way numbers work as they usually do
+			 (apply op args)
+			 (lambda (x)
+				(apply op (map (lambda (f) (if (procedure? f) (f x) f)) args)))))))
 
 ;; Doubled so we don't get them accidentally
 (define ++ (extend-arith-op-to-funcs +))

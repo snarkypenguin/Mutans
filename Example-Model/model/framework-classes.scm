@@ -48,29 +48,29 @@
 
 
 ;; sclos classes
-(register-class <pair>)
-(register-class <list>)
-(register-class <null>)
-(register-class <boolean>)
-(register-class <integer>)
-(register-class <rational>)
-(register-class <real>)
-(register-class <complex>)
-(register-class <symbol>)
-(register-class <procedure>)
-(register-class <number>)
-(register-class <vector>)
-(register-class <char>)
-(register-class <string>)
-(register-class <input-port>)
-(register-class <output-port>)
-(register-class <class>)
-(register-class <top>)
-(register-class <primitive-object>)
-(register-class <procedure-class>)
-(register-class <entity-class>)
-(register-class <generic>)
-(register-class <method>)
+(register-unique class <pair>)
+(register-unique class <list>)
+(register-unique class <null>)
+(register-unique class <boolean>)
+(register-unique class <integer>)
+(register-unique class <rational>)
+(register-unique class <real>)
+(register-unique class <complex>)
+(register-unique class <symbol>)
+(register-unique class <procedure>)
+(register-unique class <number>)
+(register-unique class <vector>)
+(register-unique class <char>)
+(register-unique class <string>)
+(register-unique class <input-port>)
+(register-unique class <output-port>)
+(register-unique class <class>)
+(register-unique class <top>)
+(register-unique class <primitive-object>)
+(register-unique class <procedure-class>)
+(register-unique class <entity-class>)
+(register-unique class <generic>)
+(register-unique class <method>)
 
 
 ;--- objects 
@@ -89,8 +89,6 @@ communication (without cheating)."
   ;; 'map-projection exists to assist projecting data in and out of the attributes data-space
   ;; 'sup-model is the parent entity so the two can communicate
   )
-
-
 
 ;--- attributes -- data associated with an agent which needs more complex support than <object> provides
 "An instances of a <attribute> act as encapsulated components of a

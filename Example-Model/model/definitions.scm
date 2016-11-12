@@ -9,13 +9,6 @@
 ;	History:
 ;
 
-;-  Copyright 
-
-;
-;   (C) 2013 CSIRO Australia
-;   All rights reserved
-;
-
 ;-  Discussion 
 
 ;-  Configuration stuff 

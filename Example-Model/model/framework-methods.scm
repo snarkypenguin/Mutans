@@ -79,7 +79,7 @@
 
 (model-body <model-maintenance>
 				(let ((status-list (map (lambda (kernel t dt maint-routine)
-												  (maint-routine kernelt t dt))
+												  (maint-routine kernel t dt))
 												(slot-ref self 'maintenance-list)
 												)))
 				  ;; Now do something with  the status-list!
@@ -119,7 +119,7 @@
 								  'maintenance-list '() ;; this is a list of funcs
 								  'jiggle 0.0
 								  'priority DefaultPriority
-								  'migration-test uninitialised
+								  'migration-test (lambda args #f)  ;; Don't migrate by default
  								  'counter 0 'map-projection (lambda (x) x)
 								  'agent-schedule '() 'agent-epsilon 1e-6
 								  'agent-state 'ready-for-prep 
@@ -133,11 +133,6 @@
 										  (slot-ref self 'name)))))
 
 
-(model-method (<agent>) (Westley self)
-				  (dnl* "The Dread Pirate Roberts."))
-
-
-
 
 (model-method <agent> (initialize self args)
 				  (kdnl* '(track-init) "<agent> initialise---")(pp args)
@@ -149,7 +144,7 @@
 								  'maintenance-list '() ;; this is a list of funcs
 								  'jiggle LastJiggle
 								  'priority DefaultPriority
-								  'migration-test uninitialised
+								  'migration-test  (lambda args #f) ;; Don't migrate by default
 								  'counter 0 'map-projection (lambda (x) x)
 								  'agent-schedule '() 'agent-epsilon 1e-6
 								  'agent-state 'ready-for-prep 
@@ -512,29 +507,29 @@
 				  (let ((tq (cons x (my 'timestep-schedule))))
 					 (set-my! 'timestep-schedule (sort tq <=))))
 
-(definition-comment 'interval
-  "returns an interval (tick-length) based on the current time, the"
-  "desired tick length, the nominated end of the run and a list of"
-  "target times")
+;;; (definition-comment 'interval
+;;;   "returns an interval (tick-length) based on the current time, the"
+;;;   "desired tick length, the nominated end of the run and a list of"
+;;;   "target times")
 
-(define (interval t ddt stopat tlist)
-  ;; tlist is a sorted queue of times to run
-  (if (< (- stopat t) ddt)
-		(set! ddt (- stopat t)))
+;;; (define (interval t ddt stopat tlist)
+;;;   ;; tlist is a sorted queue of times to run
+;;;   (if (< (- stopat t) ddt)
+;;; 		(set! ddt (- stopat t)))
 
-  (cond
-	((null? tlist)	
-	 ddt)
-	((and (list? tlist) 
-			(number? (car tlist))
-			(= (car tlist) t)
-			)
-	 ddt)
-	((and (list? tlist) 
-			(number? (car tlist))
-			)
-	 (- (car tlist) t))
-	(else 'bad-time-to-run)))
+;;;   (cond
+;;; 	((null? tlist)	
+;;; 	 ddt)
+;;; 	((and (list? tlist) 
+;;; 			(number? (car tlist))
+;;; 			(= (car tlist) t)
+;;; 			)
+;;; 	 ddt)
+;;; 	((and (list? tlist) 
+;;; 			(number? (car tlist))
+;;; 			)
+;;; 	 (- (car tlist) t))
+;;; 	(else 'bad-time-to-run)))
 
 (definition-comment 'prune-local-time-queue
   "remove stale times in the time-to-run queue")

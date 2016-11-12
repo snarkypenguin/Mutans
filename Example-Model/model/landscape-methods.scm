@@ -580,7 +580,7 @@ ecoservices is half (or less) of the timestep of the patch.
 									 ) (append (seq n) '(0)))
 						 ))
 
-(define (make-circle centre radius . n)
+(define (make-crop-circle centre radius . n) ;; (-: make-patch-circle might be more appropriate, but not as much fun :-)
   (make-object <circle> 'type 'area 'locus centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
   )
 

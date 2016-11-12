@@ -18,7 +18,8 @@
 	(state-variables
 	 )
 	))
-						
+
+(register class <config-control>)						
 
 
 

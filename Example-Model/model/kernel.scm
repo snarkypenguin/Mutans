@@ -17,8 +17,6 @@
 ;;(load "stats-bins.scm")
 
 
-(include "kdnl.scm") ;; treat it as a part of this file 
-
 ;  
 ;  ***                                  *                      *     
 ;   *                                   *                      *     
@@ -50,6 +48,7 @@
 ;; sorting records with "reccmp"
 ;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
 
+(include "framework")
 
 (definition-comment 'lookit-running-names
   "This is a flag used when debugging; if true the name of the running agent is"
@@ -58,7 +57,7 @@
 (define lookit-running-names #f) ;; emits the name of the running
 											;; agent if true
 
-(load "postscript.scm")
+;(load "postscript.scm")
 ;;; This is loaded here since it may be used to produce all sorts of
 ;;; snapshot data spanning agents
 
@@ -75,6 +74,22 @@
 ;---------------------------------------------------
 ;               Kernel support
 ;---------------------------------------------------
+
+;; remove an object from a list
+(define (excise obj lst)
+  (letrec ((head (list '*head*)))
+	 (letrec ((inner-remove
+				  (lambda (lst tail)
+					 (cond ((null? lst)
+							  lst)
+							 ((not (pair? lst))
+							  #f)
+							 ((eqv? obj (car lst)) (inner-remove (cdr lst) tail))
+							 (#t
+							  (set-cdr! tail (list (car lst)))
+							  (inner-remove (cdr lst) (cdr tail)))))))
+		(inner-remove lst head))
+	 (cdr head)))
 
 (definition-comment 'Qcmp "Compares the subjective time of two agents")
 (define (Qcmp r1 r2)
@@ -159,7 +174,7 @@
 ;		  (call-starts (cpu-time))
 				)
 		  (dnl "About to remove rec from Q")
-		  (set! Q (remove rec Q))
+		  (set! Q (excise rec Q))
 		  
 		  (dnl* "Maybe adjust jiggle: " j)
 		  (if (and (positive? j) (< j 1.0))
@@ -332,13 +347,13 @@
    ((symbol? query)
     (case query
 		((runqueue)
-		 (if (or (eqv? client 'KERNEL) (isa? client <monitor))
-			  rq
+		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
+			  Q
 			  #f))
 		((time) (model-time Q +inf.0))
 		((agent-count) (length Q))
 		((next-agent)
-		 (if (or (eqv? client 'KERNEL) (isa? client <monitor))
+		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
 			  (if (null? Q) Q (car Q))
 			  #f))
 		((min-time)
@@ -408,7 +423,7 @@
 
 (define boink 'undone)
 
-(define (prep-activate q-entry)
+(define (prep-activate rq q-entry)
   (kdnl* 'prep "Prepping, in lambda")
   (set! boink q-entry)
   (if (isa? q-entry <agent>)
@@ -432,14 +447,14 @@
   (dnl (map name Q))
   (dnl* "Dumped")
 
-  (map prep-activate Q)
+  (map (lambda (x) (prep-activate Q x)) Q)
   )
 
 (definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
 (define (shutdown-agents Q . args)
   (for-each
 	(lambda (A)
-	  (let* ((kernel (lambda x (apply kernel-call (append (list rq process) x))))
+	  (let* ((kernel (lambda x (apply kernel-call (append (list rq A) x))))
 				)
 		 (apply agent-shutdown (append (list A kernel) args))
 		 )
@@ -483,7 +498,7 @@
 
 		  (test-queue-size rq N)
 		  ;; remove the agent's run request from the top of the queue
-		  (set! rq (remove process rq))
+		  (set! rq (excise process rq))
 		  (test-queue-size rq N)
 		  
 		  (kdnl* 'run-agent "In run-agent")
