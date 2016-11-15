@@ -20,8 +20,22 @@
 ;; This is a list of data added by a (definition-comment ...) clause associated with a
 ;; (define...)
 
+(define adjust-grey #t)
+
 (define definition-comments '())
 
+(define slot-ref
+  (letrec ((osr slot-ref))
+	 (if #t
+		  osr
+		  (lambda (ob slot)
+			 (begin
+				(display "slot-ref: ")
+				(display ob)
+				(display " ")
+				(display slot)
+				(newline))
+			 (osr ob slot)))))
 
 
 (definition-comment 'load-model
@@ -37,6 +51,22 @@
 ;; represented in its sub-agents.
 
 
+;; This routine calls all applicable methods appropriate for parent classes, in contrast to the
+;; "method"-parent hook that is passed in as the first arg in a method.
+
+(define (call-all-parents methd self #!rest args)
+  (let* ((ml (map method-procedure ((compute-methods methd) (cons self args)))))
+	 (map (lambda (m)
+			  (apply m (cons (lambda x x) (cons self args))))
+			ml)))
+
+
+;; The following routine is very similar to the "meth"-parent
+(define (call-first-parent methd self #!rest args)
+  (let* ((ml (map method-procedure ((compute-methods methd) (cons self args)))))
+	 (map (lambda (m)
+			  (apply m (cons (lambda x x) (cons self args))))
+			(car ml)))) 
 
 
 (define (load-model)
@@ -103,9 +133,11 @@
   (map (lambda (x) (cons x (slot-ref a x))) (class-slots-of a)))
 
 
-
-(define (uninitialised? x)
-  (eqv? x '<uninitialised>))
+(define (uninitialised? x #!rest y)
+  (if (null? y)
+		(eqv? x '<uninitialised>)
+		(uninitialised? (slot-ref x (car y)))))
+		
 
 ;; Queries all the registers for the object passed
 
@@ -117,21 +149,6 @@
   (dnl* "object-register:" (object-register 'rec? thing))
   )
 
-(define (make-object class . initargs)
-  (let ((instance (allocate-instance class)))
-	 (for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
-	 (initialize instance initargs)
-	 (object-register 'add instance class)
-	 instance))
-
-(define (make-agent class . initargs)
-  (let ((instance (allocate-instance class)))
-	 (for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
-	 (initialize instance initargs)
-	 (agent-register 'add instance class)
-	 (object-register 'add instance class)
-	 instance))
-
 (define (set-state-variables self arguments)
   (let ((snames (class-slots-of  self))
 		  (args (if (and (pair? arguments) (pair? (car arguments)) (= 1 (length arguments))) (car arguments) arguments)))
@@ -141,10 +158,30 @@
 	  ((>= (length args) 2)
 		(if (member (car args) snames)
 			 (slot-set! self (car args) (cadr args))
-			 (dnl* "Ignoring parameter" (car args) (cadr args) "for" (class-name-of self)))
+			 (kdnl* '(init parameters) "Ignoring parameter" (car args) (cadr args) "for" (class-name-of self)))
 		)
 	  )
 	 (if (> (length args) 2) (set-state-variables self (cddr args)))))
+
+(define (make-object class #!rest initargs)
+  (let ((instance (allocate-instance class)))
+	 ;;(for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
+	 ;;(if (pair? initargs)
+	 ;;	  (set-state-variables instance initargs))
+	 (initialize instance initargs)
+	 (object-register 'add instance class)
+	 instance))
+
+(define (make-agent class . initargs)
+  (let ((instance (allocate-instance class)))
+	 (for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
+	 ;;(if (pair? initargs)
+	 ;;	  (set-state-variables instance initargs))
+	 (initialize instance initargs)
+	 (agent-register 'add instance class)
+	 (object-register 'add instance class)
+	 instance))
+
 
 
 
