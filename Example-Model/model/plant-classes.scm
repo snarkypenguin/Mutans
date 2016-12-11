@@ -1,5 +1,5 @@
-(include "framework")
 ; -*- mode: scheme; -*-
+(include "framework")
 ;-  Identification and Changes
 
 ;--
@@ -13,29 +13,50 @@
 
 ;-  Code 
 
-(define <simple-plant>
-  (make-class (inherits-from <model-maintenance> <thing>)
-				  (state-variables
-					max-age ;; dies beyond this
-					max-mass ;; unlikely to reach this
-					age ;; age of plant in [0,4)
-					lai ;; leaf area index in (0,10)
-					water-stress  ;; [0,1]
-					water-use ;; amount of water required for a square metre
-					water-stress-effect ;; True if we factor water stress
-					;; into fruiting
-					reproduction-mass ;; how big it must be...
-					reproduction-period ;; how long between reproductions
-					reproduction-offset ;; 
-					reproduction-mechanism ;; <fruit> or (list <agent> method val)
-					fruiting-rate      ;; relative to mass, influenced by
-											 ;; level of water stress
-					seeds-per-fruit
-					habitat            ;; #f or a landscape thing
-					;; <thing> mass is our mass
-					)))
+(define-class <simple-plant>
+  (inherits-from <model-maintenance> <thing>)
+  (state-variables
+	max-age ;; dies beyond this
+	max-mass ;; unlikely to reach this
+	age ;; age of plant in [0,4)
+	lai ;; leaf area index in (0,10)
+	water-stress  ;; [0,1]
+	water-use ;; amount of water required for a square metre
+	water-stress-effect ;; True if we factor water stress
+	;; into fruiting
+	reproduction-mass ;; how big it must be...
+	reproduction-period ;; how long between reproductions
+	reproduction-offset ;; 
+	reproduction-mechanism ;; <fruit> or (list <agent> method val)
+	fruiting-rate      ;; relative to mass, influenced by
+	;; level of water stress
+	seeds-per-fruit
+	habitat            ;; #f or a landscape thing
+	;; <thing> mass is our mass
+	))
 
-(register-unique class <simple-plant>)
+
+(define-class <example-plant>
+  (inherits-from <model-maintenance> <thing>)
+  (state-variables
+	;;location from <thing> too...
+	cell
+	peak-mass
+	mass
+	fruiting-mass
+	fruiting-prob
+	fruiting-rate
+	seeds-per-fruit
+	seed-queue ;; an array that gets bumped every day...
+	mort-mass
+	mort-prob
+
+
+	;; level of water stress
+	seeds-per-fruit
+	habitat            ;; #f or a landscape thing
+	;; <thing> mass is our mass
+	))
 
 
 

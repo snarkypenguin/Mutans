@@ -11,29 +11,42 @@
 ;
 
 ;-  Code
+(include "framework")
+
 
 "First just get it polling the correct set of agents each pass, then we worry about aggregating and such"
 
 
-(model-method <monitor> (initialize self args)
+(agent-initialisation-method (<monitor> args) (no-default-args)
 				  (set-state-variables self (list 'specific-targets '() 'class-targets '() 'predicate-targets '()
-												 'predicate (lambda x #f) accessor #f))
-				  (initialize-parent)
+												 'predicate (lambda x #f) 'accessor #f))
+				  (initialise-parent)
 				  ;; call "parents" last to make the initialisation list work
 				  )
 
-(model-method (pass-preparation self subject-list args)
-				  (kdnl* "Preparing to process list" (slot-ref subject 'name) "at" t "+" dt)
+
+(model-method (<monitor> <list>) (pass-preparation self subject-list args)
+				  (for-each
+					(lambda (subject)
+					  (kdnl* "Preparing to process list" (slot-ref subject 'name) "at" t "+" dt))
+					  subject-list)
 				  #t
 				  )
 
-(model-method (process-agent self subject args)
-				 (kdnl* "Processing" (slot-ref subject 'name) "at" t "+" dt))
+(model-method (<monitor> <agent>) (process-agent self subject args)
+				  (for-each
+					(lambda (subject)
+					  (kdnl* "Processing" (slot-ref subject 'name) "at" t "+" dt))
+					  subject-list)
 				 #t)
 
-(mode-method (pass-resolution self subject-list args)
-				 (kdnl* "Tidying up" (slot-ref subject 'name) "at" t "+" dt)
-				 #t)
+(model-method (<monitor> <list>) (pass-resolution self subject-list args)
+				  (for-each
+					(lambda (subject)
+					  (kdnl* "Tidying up" (slot-ref subject 'name) "at" t "+" dt))
+					  subject-list)
+					#t)
+
 
 
 (model-body <monitor>
@@ -41,7 +54,7 @@
 				(for-each
 				 (lambda (x)
 					(process-agent self x))
-				 agent-list)
+				 (kernel 'runqueue)) ;; gets the runqueue.  Does not consider agents which are not in the runqueue.
 				(parent-body)
 				dt)
 				

@@ -23,7 +23,7 @@
 ;;---------------------------------------------------
 
 
-
+;(include "heritability")
 
 ;- Utility functions
 
@@ -32,6 +32,7 @@
 (define FirstJiggle 1.0)
 (define LastJiggle 0.0)
 (define DefaultPriority 0)
+
 
 
 ;; the list representation of a vector from s to d, but smart about <agent>s
@@ -71,11 +72,20 @@
 ;; doesn't happen, though I prefer to keep a class all in one place.
 ;; Ditto for the "make-class" calls.
 
+;; This is the only "initialize"-with-a-zed that ought to be present ... adding another
+;; may do bad things to the initialisation processing.
+
+(add-method initialize (make-method (list <object>)
+												(lambda (call-next-method object initargs)
+												  ;;(dnl* "calling initialize for <object>")
+												  (call-next-method)
+												  (initialise object initargs)
+												  object) ))
+
 
 ;--- maintenance code (for submodels maintaining data for another representation)
 
-(default-initialization <model-maintenance>)
-
+(default-agent-initialisation <model-maintenance>)
 
 (model-body <model-maintenance>
 				(let ((status-list (map (lambda (kernel t dt maint-routine)
@@ -93,68 +103,138 @@
 
 ;---- <agent>
 
+
+;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
+;; recognise the query it returns (void)
+(model-method <agent> (query self tag #!rest args)
+				  (case tag
+					 ((value) (if (pair? args) (slot-ref self (car args))))
+					 (else (kquery self kernel tag args))
+				  ))
+
+
 ;--- Helper classes (wart classes)
 
+(object-initialisation-method
+ (<object> initargs) ;; <object> is the most primitive of the framework classes,  there are no default intitialisation args
+ '() 				      ;; and the "make" initialisation args are called initargs
+ ;; Body:
+ (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
+ )
 
 
-(attribute-method <attribute> (initialize self args)
-						(initialize-parent)
-						(set-state-variables ;; We set some reasonable default values for
-						 ;; some of the slots
-						 self '()
-						 )
-						;; call "parents" last to make the initialisation list work
-						(set-state-variables self args) ;; we now set-state-variables the slot values passed in args
-						)
-
-;--- Agent classes
-;---- <agent> methods
-
-;----- (initialize) 
-
-
-(default-initialization <agent> 'state-flags '()
-								  'subjective-time 0.0
-								  'dt 1.0
-								  'maintenance-list '() ;; this is a list of funcs
-								  'jiggle 0.0
-								  'priority DefaultPriority
-								  'migration-test (lambda args #f)  ;; Don't migrate by default
- 								  'counter 0 'map-projection (lambda (x) x)
-								  'agent-schedule '() 'agent-epsilon 1e-6
-								  'agent-state 'ready-for-prep 
-								  'agent-body-ran #f)
-
+;--- Fundamental "run" routine -- accepts anything, but fails if it's inappropriate
 
 (model-method (<class>) (run self pt pstop pkernel)
 				  (if (not (isa? self <agent>))
 						(begin (display "Attempt to (run ...) a non-agent\n")
-								 (error "+++Curcurbit Error+++"
+								 (error "+++Curcurbit Error+++"  
 										  (slot-ref self 'name)))))
 
+;--- Agent classes
+;---- <agent> methods
+;----- (initialise) 
 
 
-(model-method <agent> (initialize self args)
-				  (kdnl* '(track-init) "<agent> initialise---")(pp args)
+(agent-initialisation-method (<agent> initargs) '()
+				  (kdnl* '(track-init) "<agent> initialise---")
+				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialised))
+
+				  ;;(pp args)
+				  ;;(dnl "agent")
+				  (slot-set! self '<agent>-initialised #t)
+
+				  (initialise-parent)
+
 				  (set-state-variables ;; We set some reasonable default values for
 					;; some of the slots
-					self (list 'state-flags '()
-								  'subjective-time 0.0
-								  'dt 1.0
-								  'maintenance-list '() ;; this is a list of funcs
-								  'jiggle LastJiggle
-								  'priority DefaultPriority
-								  'migration-test  (lambda args #f) ;; Don't migrate by default
-								  'counter 0 'map-projection (lambda (x) x)
-								  'agent-schedule '() 'agent-epsilon 1e-6
-								  'agent-state 'ready-for-prep 
-								  'agent-body-ran #f
-								  ))
-				  (initialize-parent)
+					self (list
+							'active-subsidiary-agents '()
+							'agent-body-ran #f
+							'agent-epsilon 1e-6
+							'agent-schedule '()
+							'agent-state 'ready-for-prep 
+							'counter 0
+							'dt 1.0
+							'jiggle LastJiggle
+							'maintenance-list '() ;; this is a list of funcs
+							'map-projection (lambda (x) x)
+							'migration-test  (lambda args #f) ;; Don't migrate by default
+							'name '<nameless>
+							'need-all-parent-model-bodies #f
+							'note ""
+							'priority DefaultPriority
+							'state-flags '()
+							'subjective-time 0.0
+							'subsidiary-agents '()
+							))
 				  ;; call "parents" last to make the initialisation list work
-				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
+				  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
+				  
+				  (let ((initslots (evens initargs)))
+					 (if (member 'type initslots)
+						  (load-parameters self (slot-ref self 'type))))
 				  )
 
+(model-method (<agent>) (load-parameters self type-name)
+				  (set! type-name (if (string? type-name) type-name (object->string type-name)))
+				  (let* ((type (string->symbol type-name))
+							(fname (string-append "parameters/" type-name))
+							(param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
+						  )
+					 (slot-set! self 'type type)
+					 (for-each
+					  (lambda (setting)
+						 (if (has-slot? self (car setting))
+							  (let ((len (length setting))
+									  (slot (car setting))
+									  (implicit-lists #f)
+									  )
+								 (cond
+								  ((= 1 len) (slot-set! self slot #t))
+								  ((= 2 len) (slot-set! self slot (cadr setting)))
+								  (implicit-lists (slot-set! self slot (cdr setting)))
+								  (#t (error "parameter has more than one value!" type-name settings))))))
+					  param-list)))
+
+
+(model-method <agent> (change-type self newtype)
+				 (load-parameters self (slot-ref self 'type)))
+
+
+
+(model-method <agent> (kernel-check self #!rest args)
+				  ((slot-ref self 'kernel) 'check self args))
+
+
+
+(model-method <agent> (provides self)
+				  (copy-list (slot-ref self 'provides)))
+
+(model-method <agent> (requires self)
+				  (copy-list (slot-ref self 'requires)))
+
+(model-method <agent> (provides? self args)
+				  (if (not (pair? args)) (set! args (list args)))
+				  (intersection args (slot-ref self 'provides)))
+
+(model-method <agent> (requires? self args)
+				  (if (not (pair? args)) (set! args (list args)))
+				  (intersection args (slot-ref self 'requires)))
+
+
+(model-method <agent> (provides! self service)
+				  (if (not (pair? args)) (set! args (list args)))
+				  (let ((pl (slot-ref self 'provides)))
+					 (if (not (member service pl))
+						  (slot-set! self 'provides (cons service pl)))))
+						  
+(model-method <agent> (requires! self service)
+				  (if (not (pair? args)) (set! args (list args)))
+				  (let ((pl (slot-ref self 'requires)))
+					 (if (not (member service pl))
+						  (slot-set! self 'requires (cons service pl)))))
+						  
 
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
@@ -172,7 +252,7 @@
 
 
 ;; Termination can happen from any state
-(model-method <agent> (agent-shutdown self) 
+(model-method <agent> (agent-shutdown self #!rest args) 
 				  (slot-set! self 'agent-state 'terminated))
 
 
@@ -279,47 +359,16 @@
 
 
 
-(definition-comment 'run-agents
-  "is called by run-nested-agents and is used as a proxy for the call to queue;"
-  "this may occur when a habitat takes over patches, for example")
-(model-method (<agent>) (run-agents self t dt agentlist run)
-				  (let ((monitor-list (filter (lambda (x) (isa? x <monitor>)) agentlist))
-						  )
-					 (for-each (lambda (x)
-									 (pass-preparation x agentlist))
-								  monitor-list)
-					 (for-each (lambda (x) ;; Note! The agentlist here may be 
-									 (pass-resolution x agentlist))
-								  monitor-list)
-					 )
-				  
-				  ;; This is wonky if the agent list changes ...
-				  (for-each (lambda (x) 
-								  (if (< (subjective-time x) (+ t dt))
-										(run x t (+ t dt) (my 'kernel))
-										(kdnl* 'info "run-agents: skipping" (name x)))
-								  )
-								agentlist
-								)
-				  ;; Do I need a dead-agent class and "clean dead agents" ?
-				  )
-
-(definition-comment 'run-nested-agents
-  "is used to run agents in a nested queue, such as when a habitat takes over patches")
-(model-method (<agent>) (run-nested-agents self t dt run)
-				  (let ((al (my 'subsidiary-agents)))
-					 (if (not (null? al))
-						  (run-agents self t dt al run))
-					 ))
-
-
-
 ;----- (name) 
 
 (model-method (<agent>) (name self)
-				  (if (not (or (string? (my 'name)) (eqv? (my 'name) #f)))
-						(error "agent:name -- not a string")
-						(my 'name)))
+				  (let ((n (my 'name)))
+					 (cond
+					  ((eqv? n '<nameless>)
+						"--nameless--")
+					  ((string? n)
+						n)
+					  (#t	(error "agent:name -- not a string")))))
 
 ;(model-method <agent> (name self)
 ;				  (my 'name))
@@ -497,9 +546,6 @@
 (model-method (<agent> <symbol>) (extra-variable-list self) '())
 
 
-(define (query self . args)
-  (kquery self args))
-  
 (model-method <agent> (kquery self kernel args)
 				  (apply (my 'kernel) (append (list 'query) args)))
 
@@ -534,7 +580,7 @@
 (definition-comment 'prune-local-time-queue
   "remove stale times in the time-to-run queue")
 (define (prune-local-time-queue tm ttr)
-  (dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
+  ;;(dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
   (let ((r '())
 		  )
 	 (if (uninitialised? ttr) (set! ttr (list 0)))
@@ -547,6 +593,102 @@
 ;	 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
 	 r )
   )
+
+(define ACTIVE #t)
+(define INACTIVE #f)
+
+(definition-comment 'acquire-agents
+  "incorporate a nominated agent or list of agents into an agents internal 
+subsidiary-agent list.  Use ACTIVE or INACTIVE ")
+(model-method (<agent>) (acquire-agents self is-active agent*)
+				  (if (agent? agent*) (set! agent* (list agent*)))  ;; simplify processing below
+				  (if (not (list? (slot-ref self 'active-subsidiary-agents)))
+						(begin
+						  (slot-set! self 'active-subsidiary-agents '())
+						  (slot-set! self 'subsidiary-agents '())))
+				  
+				  (if (apply andf (map agent? agent*))
+						(let ((p (slot-ref self 'subsidiary-agents))
+								(q (slot-ref self 'active-subsidiary-agents))
+								)
+						  (for-each
+							(lambda (a)
+							  (set! p (q-insert p a Qcmp))
+							  (if (member is-active '(#t active Active ACTIVE)) (set! q (q-insert q a Qcmp))))
+							agent*)
+						  
+						  (slot-set! self 'subsidiary-agents p)
+						  (slot-set! self 'active-subsidiary-agents q)
+						  )
+						(error "Bad agent passed to acquire-agents" agent*)))
+
+
+(model-method (<agent>) (transfer-agent self is-active agent* kernel)
+				  (if (agent? agent*) (set! agent* (list agent*))) ;; simplify processing below
+
+				  (if (apply andf (map agent? agent*))
+						(let ((p (slot-ref self 'subsidiary-agents))
+								(q (slot-ref self 'active-subsidiary-agents))
+								)
+						  
+						  (for-each
+							(lambda (a)
+							  (if (list? p) (set! p (q-insert p a Qcmp)))
+							  (if (and (member is-active '(#t active Active ACTIVE)) (list? q))
+									(set! q (q-insert q a Qcmp))))
+							agent*)
+						  (slot-set! self 'active-subsidiary-agents p)
+						  (kernel 'remove agent*)
+						  )
+						(error "Transferring an agent from nowhere")
+						)
+
+				  (error "Bad agent passed to transfer-agent" agent*)
+				  )
+				  
+(model-method <agent> (adjust-state self mutator #!rest args)
+				  (if mutator
+						(mutator self args)
+						(if (pair? args) (set-state-variables self args))
+						)
+				  )
+					  
+(model-method (<agent>) (activate self selector)
+				  (let* ((subs (slot-ref self 'subsidiary-agents))
+							(asubs (slot-ref self 'active-subsidiary-agents))
+							(candidates (filter selector subs))
+							(targets (filter (lambda (x) (not (memq x asubs))) candidates))
+							)
+					 (for-each
+					  (lambda (a)
+						 (slot-set! self 'active-subsidiary-agents
+										(q-insert (slot-ref self 'active-subsidiary-agents) a Qcmp)))
+					  targets)))
+
+(model-method (<agent>) (deactivate self selector)
+				  (let* ((subs (slot-ref self 'subsidiary-agents))
+							(asubs (slot-ref self 'active-subsidiary-agents))
+							(targets (filter selector subs))
+							)
+					 (for-each
+					  (lambda (x)
+						 (slot-set! x 'suspended-at (slot-ref x 'subjective-time))
+						 (excise x asubs))
+					  targets)))
+
+
+
+(definition-comment 'run
+"This is the routine which gives the agents a chance to do their thing. It is 
+also present as an illustration of the low-level way of implementing a method.
+The arguments are 
+	self    -- the agent to be run
+	T       -- the starting time of the interval to be simulated
+	pstop   -- the end of the simulation interval
+	pkernel -- a function which allows queries to the kernel (and hence other 
+              agents
+")
+
 
 (add-method
  run
@@ -757,9 +899,10 @@
 ;; condition
 
 
-
-;; model-body knows "self" "t" "dt" and all its state variables.  
-;; This particular version of the routine should not call parent-body.
+;; Generally, model-body methods know about "self" "t" "dt" "kernel" and all an agents state variables.
+;; The variable all-parent-bodies is a list of the "model-body" methods for all of
+;; its parents, rather than just the ones that appear first in the inheritance lists.
+;; This *particular* version of the routine should not call parent-body. 
 (model-body <agent>
 				(if #t
 					 (begin
@@ -767,6 +910,9 @@
 								 "[" (my 'name) ":" (class-name-of self) "]"
 								 " running at " (my 'subjective-time) ":" t)
 						
+						(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
+							 (run-subsidiary-agents self t dt run kernel))
+
 						(if (pair? (my 'maintenance-list))
 							 (let ((ml (my 'maintenance-list)))
 								;; Now run any agent representations which
@@ -778,15 +924,110 @@
 								 ml)
 								))
 						(skip-parent-body)
-						))
+						;; calling skip-parent-body  (or a steady chain of parent-bodies through the classes)
+						;; ensures that the counter gets updated and the "agent-body-ran" flag is set
+						
+						)
+					 dt
+					 )
 				dt)
 
+				
+
+(definition-comment 'run-agents
+  "is called by run-subsidiary-agents and is used as a proxy for the call to queue;"
+  "this may occur when a habitat takes over patches, for example")
+(model-method (<agent>) (run-agents self t dt agentlist run kernel)
+				  (let ((monitor-list (filter (lambda (x) (isa? x <monitor>)) agentlist))
+						  )
+					 (for-each (lambda (x)
+									 (pass-preparation x agentlist))
+								  monitor-list)
+					 (for-each (lambda (x) ;; Note! The agentlist here may be 
+									 (pass-resolution x agentlist))
+								  monitor-list)
+					 )
+				  
+				  ;; This is wonky if the agent list changes ...
+				  (for-each (lambda (x) 
+								  (if (< (subjective-time x) (+ t dt))
+										(run x t (+ t dt) kernel)
+										(kdnl* 'info "run-agents: skipping" (name x)))
+								  )
+								agentlist
+								)
+				  ;; Do I need a dead-agent class and "clean dead agents" ?
+				  )
+
+(definition-comment 'run-subsidiary-agents
+  "run-subsidiary-agents is used to run agents in a nested queue, such as when a habitat takes over patches.
+the nested agents will typically always run either before or after the nesting agent (as determined in the
+containing agent's model-body), and they ALWAYS IN THE SAME ORDER.
+This consistent order means that, should they interact, there may be processing artifacts
+that 'look alright' but are not.  On the other side of the coin, it means that they can be
+loaded to optimise some sorts of processes, and tooled to avoid those artifacts.  YMMV")
+
+(model-method (<agent>) (run-subsidiary-agents self t dt run kernel )
+				  (let ((al (my 'active-subsidiary-agents)))
+					 (if (not (null? al))
+						  (run-agents self t dt al run kernel))
+					 ))
+
+
+;---- <blackboard> methods
+
+(agent-initialisation-method (<blackboard> args)
+				  (kdnl* '(track-init) "<blackboard> initialise---")
+				  ;;(pp args)
+				  ;;(dnl "variable")
+				  (set-state-variables ;; We set some reasonable default values for
+					;; some of the slots
+					self (list 'message-list '()
+								  'label ""
+								  ))
+				  (initialise-parent)
+				  ;; call "parents" last to make the initialisation list work
+				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
+				  )
+
+				
+(model-method (<blackboard> <symbol>) (query self tag #!rest args)
+				  ;; args should either be a list of tags (for 'erase and 'read)
+				  ;; or a list of pairs (for 'write)
+						
+
+				  (let* ((messages (my 'message-list))
+							(result
+							 (map (lambda (x)
+									  (case tag
+										 (('erase)
+										  (set-my! self 'message-list (assq-delete messages x))
+										  )
+										 (('read)
+										  (assq (my 'message-list) x)
+										  )
+										 (('write)
+										  (if (not (pair? x))
+												(error "Missing value specified for <blackboard> 'write" args))
+										  (set-my! 'message-list (assq-set! (my 'message-list) (car x) (cadr x)))
+										  )
+										 ))
+									args)))
+					 (case tag
+						((read) result)
+						((erase write) (my 'message-list))
+						(else (kquery self tag args)))))
+
+
+(model-body <blackboard>
+				(parent-body)
+				dt
+				)
 
 
 ;---- <tracked-agent> methods
 
-(default-initialization <tracked-agent> 'track #f 'tracked-paths #f 'track-schedule '() 'track-epsilon 1e-6)
-
+(default-agent-initialisation <tracked-agent> 'track #f 'tracked-paths #f 'track-schedule '() 'track-epsilon 1e-6)
 
 
 (model-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
@@ -835,7 +1076,7 @@
 
 ;---- <thing> methods
 
-(default-initialization 'dim #f 'location #f
+(default-agent-initialisation <thing> 'dim #f 'location #f
   'direction #f
   'speed #f 'mass #f
   'track #f
@@ -903,6 +1144,16 @@
 	  (slot-set! self 'location vec)))
 
 
+;----- (distance loc) 
+(model-method 
+ (<thing>)
+ (distance self loc)
+ (let* ((d (map - (slot-ref self 'location) loc))
+		  (d2 (map * d d)))
+	(sqrt (apply + d2))))
+		  
+
+
 ;----- (direction) 
 (model-method 
  (<pair>)
@@ -924,11 +1175,31 @@
 
 ;---- environment methods
 
+(default-agent-initialisation <environment>
+  'minv '(-inf.0 -inf.0 -inf.0)
+  'maxv '(+inf.0 +inf.0 +inf.0)
+  'split-flexibly #f
+  'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
+  'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
+  )
+
+;; A node in a location tree is either a list of four lists, of the form
+;;    (mincorner maxcorner list-of-entities)
+;; or
+;;    (mincorner maxcorner node node node node)
+;;
+;; The length of the list indicates whether it is a "bottom" node (three elements)
+;; or an intermediate node (six elements)
+
 (model-method <environment> (min-bound self)
 				  (copy-list (my 'minv)))
 
 (model-method <environment> (max-bound self)
 				  (copy-list (my 'maxv)))
+
+(UNFINISHED-BUSINESS "This spatial sorting is not finished yet.  At the moment it seems a little touch and go
+as to whether the long term benefit of maintaining the structure outweighs the cost of ad hoc queries.")
+
 
 (model-method (<environment> <pair>) (contains? self loc)
 				  (let ((mbounds (min-bound self))

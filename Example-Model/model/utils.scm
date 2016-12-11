@@ -415,17 +415,54 @@
 		  (list-tail lst (- n (length m)))
 		  #f)))
 
+;; Like list-set! but for a-lists
+;; This is a mutator -- the list needs to exist first for it to work, though.
+(define (assq-set! alist key val)
+  (let loop ((l alist))
+	 (if (null? l) 
+		  (append alist (cons (cons key val) '()))
+		  (if (eqv? (caar l) key)
+				(set-cdr! (car l) val)
+				(loop (cdr l))))))
+
+;; This should be called like (set! lst (assq-append lst ...))
+(define (assq-append alist key value)
+  (if (or (null? alist) (not (assq key alist)))
+		(acons key (list value) alist)
+		(map (lambda (x)
+				 (if (and (pair? x) (eqv? (car x) key))
+					  (append x (list value))
+					  x))
+			  alist)
+		))
+
+;; This should be called like (set! lst (assq-delete lst ...))
+(define (assq-delete alist key)
+  (reverse (let loop ((a alist)(r '()))
+				 (if (null? a)
+					  r
+					  (if (and (pair? a) (pair? (car a)) (eqv? (caar a) key))
+							(loop (cdr a) r)
+							(loop (cdr a) (cons (car a) r)))))))
+
+(define (member-assq k lst)
+  (let ((n (length lst))
+		  (m (member k (map car lst))))
+	 (if m
+		  (list-tail lst (- n (length m)))
+		  #f)))
+
 ;; Commented out only to avoid multiple definitions
-;;; (define (list2-assoc-set! k v k2 v2) 
+;;; (define (list2-assq-set! k v k2 v2) 
 ;;;   (let loop ((kl k) (vl v))
 ;;; 	 (cond ((or (null? kl) (null? vl)) #f)
-;;; 			 ((equal? (car kl) k2) (set-car! vl v2))
+;;; 			 ((eqv? (car kl) k2) (set-car! vl v2))
 ;;; 			 (else (loop (cdr kl) (cdr vl))))))
 
-;;; (define (list2-assoc k v k2) 
+;;; (define (list2-assq k v k2) 
 ;;;   (let loop ((kl k) (vl v))
 ;;; 	 (cond ((or (null? kl) (null? vl)) #f)
-;;; 			 ((equal? (car kl) k2) vl)
+;;; 			 ((eqv? (car kl) k2) vl)
 ;;; 			 (else (loop (cdr kl) (cdr vl))))))
 
 ;;(define-macro (++ i) `(let ((j ,i)) (set! ,i (+ 1 j))))
@@ -661,7 +698,7 @@
 
 ;; list-ref that accepts a list of indices
 ;; (list-ref '(1 2 3 4 5) '(0 3)) => (1 4)
-(define list-ref
+(define list-ref%
   (let ((olr list-ref))
 	 (lambda (lst ix)
 		(if (number? ix) (olr lst ix) (map (lambda (y) (olr lst y)) ix)))))

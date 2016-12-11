@@ -11,6 +11,9 @@
 ;	History:
 ;
 ;-  Code
+
+(define ignore-water #t)
+
 "
 Oak tree from https://sylvia.org.uk/oneoak/treefacts.php
 
@@ -78,30 +81,33 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 
 (define (lai-area p)
-  (* (slot-ref p 'lai) pi (sqr (plant-radius p))))
+  (let ((pi (acos -1.0)))
+	 (* (slot-ref p 'lai) pi (sqr (plant-radius p)))))
 
-(define (plant-height m) ;; given mass
+(define (plant-mass->height m) ;; given mass
   (power m 1/3))
  ;; h = m^{1/3}
 
-(define (plant-mass h) ;; given height
+(define (plant-height->mass h) ;; given height
   (power h 3))
  ;; h = m^{1/3}
 
-(define (plant-radius m) ;; given mass
+(define (plant-mass->radius m) ;; given mass
   (* 3/8 (power m 1/3)))
 ;; r = 3/8 * m^{1/3}
 
 
-(define (half-sphere-area m) ;; given mass
-  (* 9/32 pi (power m 2/3)))
+(define (mass->half-sphere-area m) ;; given mass
+  (let ((pi (acos -1.0)))
+  (* 9/32 pi (power m 2/3))))
 ;; half the area of a sphere
 ;; A = 1/2 * 4 pi r^2
 ;;   = 2 pi (3/8 m^{1/3})^2
 ;;   = 9/32 pi m^{2/3}
 
-(define (half-sphere-vol m) ;; given mass
-  (* 9/256 pi m))
+(define (mass->half-sphere-vol m) ;; given mass
+  (let ((pi (acos -1.0)))
+  (* 9/256 pi m)))
 ;; half the volume of a sphere (since leaves aren't just at the
 ;; margins, L is a const
 
@@ -125,7 +131,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 
 (model-method <simple-plant> (fruit-count self)
-				  (* (slot-ref self fruiting-rate
+				  (* (slot-ref self 'fruiting-rate
 									(slot-ref self 'mass)
 									(if (slot-ref self 'water-stress-effect)
 										 (- 1 (sqr (slot-ref self 'water-stress)))
@@ -135,32 +141,32 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 
 
-(model-method 
- <simple-plant> (initialize self args)
- (set-state-variables self (list 'max-age +inf.0
-								'max-mass +inf.0
-								'lai 1.7
-								'water-stress 0
-								'water-stress-effect #t 
-								'water-use  4/5 ;; l/m^2 default is similar to oneoak
-								'reproduction-period 
-								(if #f
-									 (random-real) ;; a probability, or
-									 (+ 30 (random-integer 30)); an interval
-									 )
-								
-								'reproduction-offset (random-integer 20)
-								'reproduction-mechanism #f ;; <fruit> or a
-								;; procedure which performs an update on
-								;; some undefined thing. 
-								
-								;; (mass (truncate rr)) > 0
-								'fruiting-rate  0.01   ;; relative to mass
-								;; influenced by ...
-								'seeds-per-fruit 50
-								;; gives about 15 fruiting trees per 100
-								))
- (initialize-parent)
+(agent-initialisation-method  (<simple-plant> args) (no-default-args)
+ (set-state-variables self (list 'max-age 37.0
+											'max-mass 300.0
+											'age 12
+											'lai 1.7
+											'water-stress 0
+											'water-stress-effect #t 
+											'water-use  4/5 ;; l/m^2 default is similar to oneoak
+											'reproduction-period 
+											(if #f
+												 (random-real) ;; a probability, or
+												 (+ 30 (random-integer 30)); an interval
+												 )
+											
+											'reproduction-offset (random-integer 20)
+											'reproduction-mechanism #f ;; <fruit> or a
+											;; procedure which performs an update on
+											;; some undefined thing. 
+											
+											;; (mass (truncate rr)) > 0
+											'fruiting-rate  0.01   ;; relative to mass
+											;; influenced by ...
+											'seeds-per-fruit 50
+											;; gives about 15 fruiting trees per 100
+											))
+ (initialise-parent)
  (set-state-variables self args) ;; set specifics passed in here...
 
  (slot-set! self 'mass (* (random-real) (random-real)
@@ -171,9 +177,11 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
  )
  
 												 
+(model-method <simple-plant> (plant-radius self)
+				  (plant-mass->radius (slot-ref self 'mass)))
+
 (model-body <simple-plant>
 	(kdnl* '(model-bodies plant-running)  (class-name-of self) (name self) "@" t "/" dt)
-	(parent-body)
 
 	;; Calculate water requirements
 	;;-- This is somewhat inaccurate in that each individual draws
@@ -185,13 +193,18 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	;;-- plant.  This micro-reservoir then gets replenished according
 	;;-- to the groundwater available.
 
-	(let* ((available-water (my-waterhole self))
+	(UNFINISHED-BUSINESS "Need to update the water ecoservice")
+
+
+	(let* ((available-water (if ignore-water +inf.0 (value (slot-ref self 'water-service) 'value)))
+			 (pi (acos -1.0))
 			 (waterstress (my 'water-stress))
 			 (lai (my 'lai))
 			 (r (plant-radius self))
-			 (waterneeds (* (my 'wateruse) lai pi r r)) ;; lai buy
+			 (waterneeds (* (my 'water-use) lai pi r r)) ;; lai buy
 			 (stressed (my 'water-stress-effect))
-			 (reproduction-point (modulo (- t offset)))
+			 (offset (my 'reproduction-offset))
+			 (reproduction-point (modulo (- t offset) (my 'reproduction-period)))
 			 (fruiting? #f)
 			 (age (my 'age))
 			 (mass (my 'mass))
@@ -202,7 +215,8 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	  (set! waterstress (water-stress-level available-water waterneeds))
 
 	  (cond	;; determine if the plant dies this step
-		((or (>=  age (years 4)) (> mass 400))
+		((or (>=  age (years 4)) (> mass 40000000))
+		 (if halting-problem (error "Nothing to see here. Move along"))
 		 'remove) ;; it's a stick, plant dies here.
 
 		;; determine if the plant fruits or grows this step (not both)
@@ -270,7 +284,10 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   (let ((sp (apply make-agent (cons <simple-plant>
 										(append (list 'habitat env
 														  'location loc
+														  'age (+ 8 (random 24))
 														  'mass mass) otherargs)))))
+	 (UNFINISHED-BUSINESS "The age here is totally bogus")
+
 	 (if (contains? env loc)
 		  sp
 		  (error "location for simple-plant is not in indicated environment" loc env))))
@@ -292,11 +309,11 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   (if (and (pair? more) (number? (car more)))
 		(set! more (arg-pairings simple-plant-arg-order more)))
 
-  (dnl* "env:" env  "args:"  more)
+  (kdnl* '(init plants) "env:" env  "args:"  more)
   (set! more (append (list 'habitat env
 									;'location (random-point env)
 									'mass mass) more))
-  (dnl* "->args:"  more)
+  (kdnl* '(init plants) "->args:"  more)
   (let ((sp (make-agent <simple-plant> )	))
 	 sp
 	 ))
@@ -441,6 +458,46 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 		(newline file)
 		)
 	 )
+
+(UNFINISHED-BUSINESS "Need to flesh this out a bit")
+
+(agent-initialisation-method (<example-plant> args) (no-default-args)
+									  (set-state-variables self '())
+									  (initialise-parent)
+									  (set-state-variables self args) ;; set specifics passed in here...
+									  )
+ 									  									  									  
+
+(model-body <example-plant>
+				(let ((mass (my 'mass))
+						(pkmass (my 'peak-mass)))
+
+				  ;; This comes before death, since plants will often seed/fruit in one last burst
+				  (if (and (>= mass (my' fruiting-mass)) (> fruiting-prob (random-real)))
+						(add-fruit self (my 'cell) (power mass 2/3)))
+				  
+				  (if (< mass (* (my 'mort-mass) pkmass))
+						(die self)
+						(begin
+						  (set! mass (grow dt mass))
+						  (set-my! 'mass mass)
+						  (if (> mass pkmass)
+								(set-my! 'peak-kmass mass))
+						  ))))
+
+(model-method <example-plant> (add-fruit self surface)
+				  (let ((cell (my 'cell))
+						  (spot (my 'location))
+						  )
+					 (kernel 'add-fruit cell (* (my 'fruiting-rate) surface))
+				  ))
+				
+(model-method <example-plant> (die self)
+				  (set-my! 'agent-state 'dead)
+				  (kernel 'shutdown self))
+
+;; Plants are done.
+
 
 ;-  The End 
 

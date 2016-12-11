@@ -4,12 +4,14 @@ The top-level auxiliary file: thesis.aux
 A level-1 auxiliary file: tree-ring-formulation.aux
 The style file: plainnat.bst
 Database file #1: thesis.bib
+Warning--I didn't find a database entry for "kiczales1993xerox"
+Warning--I didn't find a database entry for "scheffer1995super"
 Warning--empty journal in bhatanacharoentipping
 Warning--empty year in bhatanacharoentipping
 Warning--empty year in bhatanacharoentipping
 You've used 57 entries,
             2773 wiz_defined-function locations,
-            958 strings with 16037 characters,
+            960 strings with 16071 characters,
 and the built_in function-call counts, 31113 in all, are:
 = -- 2726
 > -- 2233
@@ -48,4 +50,4 @@ warning$ -- 3
 while$ -- 245
 width$ -- 0
 write$ -- 800
-(There were 3 warnings)
+(There were 5 warnings)

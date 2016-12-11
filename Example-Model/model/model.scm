@@ -6,6 +6,8 @@
 
 (include "framework")
 
+
+
 ;;; (compile-file "support-lib.scm")
 ;;; (load "support-lib.o1")
 ;;; (compile-file "sclos.scm")
@@ -41,27 +43,33 @@
 
 ;;; (load "model-configuration.scm")
 
-(define load-list '("sclos.o1" "support.o1" "classdecs.o1" "kernel.o1" "chassis.o1" "log.o1" "landscape.o1" " plant.o1" "animal.o1"))
+(define load-list-1 '("sclos.o1" "support.o1" "classdecs.o1" "kernel.o1"))
+(define load-list-2 '("chassisa.o1" "chassisb.o1" "chassisc.o1" "chassisd.o1"))
+(define load-list-3 '("log.o1"))
+(define load-list-4 '("landscape.o1"))
+(define load-list-5 '("plant.o1" "animal.o1"))
 
-
-(for-each
- (lambda (x)
-	(display "Loading ")
-	(display x)
-	(load x)
-	(newline))
- load-list)
+(define (load-em lst)
+  (for-each
+	(lambda (x)
+	  (display "Loading ")
+	  (display x)
+	  (load x)
+	  (newline))
+	lst))
  
 
-
+(define (load-em-all)
+  (load-em (append load-list-1 load-list-2 load-list-3 load-list-4 load-list-5)))
 
 (define (model T)
   (doit Q T)
   (shutdown-agents Q))
 
 
-(display "Run the model for how long? ")
-(model (read))
+(define (go)
+  (display "Run the model for how long? ")
+  (model (read)))
 
 ;; (run-simulation Q 0 20)
 

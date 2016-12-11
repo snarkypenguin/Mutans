@@ -19,7 +19,7 @@
 
 (define animal-notes "
 Animals will usually be initialised like so:
-   (make <animal> 'name (new-animal-label) 'type velociraptor 'representation 'individual
+   (make-agent <animal> 'name (new-animal-label) 'type velociraptor 'representation 'individual
          'subjective-time 0.0 'dt 0.1 'priority RunLast 'jiggle (random-real) 
          'mass velocimass
          'location '(100 200 40) 'direction '(1 0 0) 'dim 3 

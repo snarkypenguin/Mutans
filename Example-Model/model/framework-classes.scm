@@ -8,140 +8,45 @@
 
 ;--- substrate
 
-;; we will add a "list" primitive ... different from "pair"
-;(define <pair>        (make-primitive-class))
-(define <list>         (make-primitive-class)) 
-(define <integer>      (make-primitive-class))
-(define <rational>     (make-primitive-class))
-(define <real>         (make-primitive-class))
-(define <complex>      (make-primitive-class))
 
-(define general-class-of
-  (let* ((primitive-class-of class-of)
-			(co (lambda (x)
-					(cond ;; these are carefully ordered!
-					 ((list? x)        <list>)
-					 ((integer? x)     <integer>) 
-					 ((rational? x)    <rational>)
-					 ((real? x)        <real>)
-					 ((complex? x)     <complex>)
-					 (#t (primitive-class-of x))))))
-	 (set! class-of co)))
-			
+;;; ;--- agent based classes
 
+;;; (define-class <agent>
+;;;   (inherits-from <object>)
+;;;   (state-variables name type representation agent-state
+;;; 						 note
+;;; 						 kernel
+;;; 						 need-all-parent-bodies
+;;; 						 subjective-time priority jiggle 
+;;; 						 dt
+;;; 						 schedule
+;;; 						 migration-test timestep-schedule counter
+;;; 						 map-projection
+;;; 						 state-flags
+;;; 						 agent-epsilon
+;;; 						 agent-schedule
+;;; 						 dont-log
+;;; 						 agent-body-ran
 
+;;; 						 ;; acting as a kernel for others
+;;; 						 suspended-at
+;;; 						 subsidiary-agents active-subsidiary-agents
 
-;(define <null>        (make-primitive-class))
-;(define <symbol>      (make-primitive-class))
-;(define <boolean>     (make-primitive-class))
-;(define <procedure>   (make-primitive-class <procedure-class>))
-;(define <number>      (make-primitive-class))
-;(define <vector>      (make-primitive-class))
-;(define <char>        (make-primitive-class))
-;(define <string>      (make-primitive-class))
-;(define  <input-port> (make-primitive-class))
-;(define <output-port> (make-primitive-class))
+;;; 						 ;;
+;;; 						 maintenance-list
+;;; 						 )
+;;; 	)
 
 
-;--- helpers/warts
-
-
-
-;; sclos classes
-(register-unique class <pair>)
-(register-unique class <list>)
-(register-unique class <null>)
-(register-unique class <boolean>)
-(register-unique class <integer>)
-(register-unique class <rational>)
-(register-unique class <real>)
-(register-unique class <complex>)
-(register-unique class <symbol>)
-(register-unique class <procedure>)
-(register-unique class <number>)
-(register-unique class <vector>)
-(register-unique class <char>)
-(register-unique class <string>)
-(register-unique class <input-port>)
-(register-unique class <output-port>)
-(register-unique class <class>)
-(register-unique class <top>)
-(register-unique class <primitive-object>)
-(register-unique class <procedure-class>)
-(register-unique class <entity-class>)
-(register-unique class <generic>)
-(register-unique class <method>)
-
-
-;--- objects 
-
-"<primitive-object> is a (the?) basic class for SCLOS -- the name was
-changed so we could use <object> as the basic entity in the framework.
-An <object> knows very little about the modelling framework, and has no
-implicit connections to any of the other model classes; thus, it has
-no inherent representation of time or space, nor of inter-entity
-communication (without cheating)."
-
-(define-class <object>
-  (inherits-from <primitive-object>)
-  (state-variables note map-projection)
-  ;; 'note is just explanatory data
-  ;; 'map-projection exists to assist projecting data in and out of the attributes data-space
-  ;; 'sup-model is the parent entity so the two can communicate
-  )
-
-;--- attributes -- data associated with an agent which needs more complex support than <object> provides
-"An instances of a <attribute> act as encapsulated components of a
-submodel, they (usually) cannot interact with other submodels directly
-without cheating."
-
-(define-class <attribute>
-  (inherits-from <object>)
-  (state-variables note map-projection sup-model)
-  ;; 'note is just explanatory data
-  ;; 'map-projection exists to assist projecting data in and out of the attributes data-space
-  ;; 'sup-model is the parent entity so the two can communicate
-  )
-
-;--- agent based classes
-
-(define-class <agent>
-  (inherits-from <object>)
-  (state-variables name type representation agent-state
-						 note
-						 kernel 
-						 subjective-time priority jiggle 
-						 dt
-						 schedule
-						 migration-test timestep-schedule counter
-						 map-projection
-						 state-flags
-						 agent-epsilon
-						 agent-schedule
-						 dont-log
-						 agent-body-ran
-
-						 ;; as a parent of other agents
-						 subsidiary-agents active-subsidiary-agents
-						 parent-nesting-state
-
-						 ;; as a child of other agents
-						 nest-parent child-nesting-state
-
-						 ;;
-						 maintenance-list
-						 )
-	)
-
-
-;; subsidiary-agents are agents which may be embedded in a larger
-;; dynamic agent. Agents know what their parent agent is (if they have
-;; one) and may indicate to the parent that they should be added to
-;; the active list. The parent agent is the one that actually decides
-;; if a agent is to move into the active queue or out of the active
-;; queue.  Whe things get moved, "value" from the parent is moved into
-;; the relevant sub-agents.  The set of ecoservices of the parent
-;; contains all of the types represented in its sub-agents.
+;; subsidiary-agents are run within the time-step and auspices of
+;; another (presumably related) agent. Agents may know what their
+;; parent agent is (if they have one) and may indicate to the parent
+;; that they should be added to the active list. The parent agent is
+;; the one that actually decides if a agent is to move into the active
+;; queue or out of the active queue.  Whe things get moved, "value"
+;; from the parent is moved into the relevant sub-agents.  The set of
+;; ecoservices of the parent contains all of the types represented in
+;; its sub-agents.
 ;;
 ;; priority is an integer, the higher the integer the greater the
 ;; priority.  The default value is zero jiggle is a real number in (0,
@@ -167,7 +72,12 @@ an agent. In many ways, monitors are similar to introspection agents."
 
 (define-class <monitor>
   (inherits-from <agent>)
-  (state-variables am-i-interested-in? accessor))
+  (state-variables
+	specific-targets
+	class-targets
+	predicate-targets
+	predicate
+	accessor))
 ;; am-i-interested-in is a predicate that takes an agent
 ;; accessor is a function which takes an agent and returns a data vector
 
@@ -179,10 +89,8 @@ predicate targets test each agent in the runqueue with the predicate
 to see if they are of interest (slooow)
 "
 
-(load "monitor-classes.scm")
-
-(load "log-classes.scm") ;; These are used to generate output.
-
+;;;(load "monitor-classes.scm")
+;;;(load "log-classes.scm") ;; These are used to generate output.
 
 (define-class <tracked-agent>
   (inherits-from <agent>)
@@ -199,6 +107,11 @@ to see if they are of interest (slooow)
   (inherits-from <agent>)
   (state-variables default-value minv maxv)) ;; bounding volume
 
+
+(define-class <blackboard>
+  (inherits-from <agent>)
+  (state-variables label message-list))
+  
 
 (define-class <model-maintenance>
   (inherits-from <object>)

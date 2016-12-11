@@ -40,11 +40,11 @@
 ;;(define food-attenuation (/ 2.0 (exp 1.0))) ;; ~1.3
 
 
-;----- initialize
+;----- initialise
 
-(model-method <simple-metabolism> (initialize self args)
+(model-method <simple-metabolism> (initialise self args)
 				  (set-state-variables self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
-				  (initialize-parent)
+				  (initialise-parent)
 				  ;; call "parents" last to make the initialisation list work
 				  (set-state-variables self args)
 				  )
@@ -271,8 +271,9 @@
 
 ;---- animal methods
 
-;----- (initialize) 
-(model-method <animal> (initialize self args)
+;----- (initialise) 
+(model-method <animal> (initialise self args)
+				  (call-all-initialisers baseclass->class self)
 				  (slot-set! self 'current-interest 
 								 (lambda args 
 									(aborts
@@ -283,7 +284,6 @@
 									 (slot-ref self 'type) ":"
 									 (slot-ref self 'representation))))
 				  (set-state-variables self (list 'age #f 'sex #f))
-				  (initialize-parent)
 				  ;; call "parents" last to make the initialisation list work
 				  (set-state-variables self args)
 				  )
@@ -444,181 +444,266 @@
 
 (model-body <animal>
 				(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
-	(let ((dt/2 (/ dt 2.0))
-			(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
-										 (if #t
-											  (begin 
-												 (kdnl* 'math-error "SQRT got a value of " x)
-												 0)
-											  (abort "I see ... a rhinoceros ...")
-											  )) ) )
-			;;(kdnl* dnl*)
-			;;(kdnl* dnl)
-			)
-	  (kdnl* 'animal-running "[" (my 'name)
-				":" (class-name-of self) "]"
-				" at " t "+" dt)
-	  (kdnl* "******" 'running (my 'name)
-				" the " (my 'representation)
-				" is running" "******")
-	  (set-my! 'age (+ (my 'age) dt/2))
-	  (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
+				(let ((dt/2 (/ dt 2.0))
+						(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
+													 (if #t
+														  (begin 
+															 (kdnl* 'math-error "SQRT got a value of " x)
+															 0)
+														  (abort "I see ... a rhinoceros ...")
+														  )) ) )
+						)
+				  (kdnl* 'animal-running "[" (my 'name)
+							":" (class-name-of self) "]"
+							" at " t "+" dt)
+				  (kdnl* "******" 'running (my 'name)
+							" the " (my 'representation)
+							" is running" "******")
+				  (set-my! 'age (+ (my 'age) dt/2))
+				  (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
 
-	  (parent-body)
-	  ;; should execute body code for <metabolism> and <thing>
+				  (parent-body)
+				  ;; should execute body code for <metabolism> and <thing>
 
-	  (let* ((foodlist (my 'foodlist))
-				(homelist (my 'homelist))
-				(breedlist (my 'breedlist))
-				(H (my 'habitat))
-				(here (my 'location))
-				(food 0.0) ;; nothing unless we find some
-				(struct-mass (my 'structural-mass))
-				(mass (my 'mass))
-				(starve-level (my 'starvation-level))
-				(stomach-cont (my 'stomach-contents))
-				(guts (* struct-mass (my 'gut-size)))
-				(condition (my 'condition))
-				(ate 0.0)
-				(objective (let ((o (my 'objective))) (if (null? o) #f o)))
+				  (let* ((domain (kquery 'containing-agents (my 'location)))
+							(foodlist (my 'foodlist))
+							(homelist (my 'homelist))
+							(breedlist (my 'breedlist))
+							(H (my 'habitat))
+							(here (my 'location))
+							(food 0.0) ;; nothing unless we find some
+							(struct-mass (my 'structural-mass))
+							(mass (my 'mass))
+							(starve-level (my 'starvation-level))
+							(stomach-cont (my 'stomach-contents))
+							(guts (* struct-mass (my 'gut-size)))
+							(condition (my 'condition))
+							(ate 0.0)
+							(objective (let ((o (my 'objective))) (if (null? o) #f o)))
+							(initial-age (my 'age))
+							(initial-subjective-time (my 'subjective-time))
+							)
+
+					 (kdnl* 'stomach "[" (my 'name) ":" (class-name-of self)
+							  "]" "===> stomach =" stomach-cont "| condition ="
+							  condition "| mass =" mass)
+
+					 (if (number? mass) 
+						  (begin
+							 (let ((focus ((my 'current-interest) self
+												(my 'age) t dt condition stomach-cont guts))
+									 )
+								(kdnl* 'focus "[" (my 'name) ":"
+										 (class-name-of self) "]" " in now focussed on " focus)
+
+								(cond
+								 ((not focus)
+								  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
+													  (* 2.0 (my 'domain-attraction)) 'wanderspeed)
+								  #t)
+								 ;;(aborts "Dinna y' ken?"))
+								 ((eqv? focus 'wander)
+								  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
+													  (my 'domain-attraction) 'wanderspeed)
+								  )
+
+								 ((eqv? focus 'hungry)
+								  (kdnl* 'debugging-eating "[" (my 'name)
+											":" (class-name-of self) "]" "hungry")
+
+								  (let* ((foodsites
+											 (patch-list H (lambda (x)
+																  (let ((s (services x foodlist)))
+																	 (and s (not (null? s)))))))
+											(foodvalue
+											 (map 
+											  (lambda (x) 
+												 (if (= food-attenuation 0.5)
+													  (/ (SQRT (value x foodlist))
+														  (+ (spatial-scale H)
+															  (distance here (location x))))
+													  (/ (pow (value x foodlist) food-attenuation)
+														  (+ (spatial-scale H)
+															  (distance here (location x)))))
+												 ) foodsites))
+
+											(fooddata (sort (map cons foodvalue foodsites)
+																 (lambda (x y) (> (car x) (car y)))))
+											)
+									 (kdnl* "Food ranks" "[" (my 'name) ":"
+											  (class-name-of self) "]"
+											  (map (lambda (x)
+														(cons (car x)
+																(distance here
+																			 (location (cdr x)))))
+													 fooddata))
+
+
+									 (if (zero? (length fooddata))
+										  (begin ;; No food possible ... 
+											 (kdnl* 'debugging-eating "[" (my 'name)
+													  ":" (class-name-of self) "]" "Hunting")
+											 (wander-around self dt
+																 (map (lambda (x) (/ x 2.0)) domain)
+																 (my 'domain-attraction) 'foragespeed)
+											 )
+										  (let ((target (cdar fooddata)))
+											 (if (contains? target (location self))
+												  (begin
+													 (kdnl* 'debugging-eating "[" (my 'name) ":"
+															  (class-name-of self) "]"
+															  "Reading the menu")
+													 (let* ((TV (value target foodlist))
+															  (ate #f))
+														(kdnl* 'debugging-eating "[" (my 'name) ":"
+																 (class-name-of self) "]"
+																 "ordering the lot ("
+																 (value target foodlist) "/"
+																 (value target (services target))
+																 ")and eating it")
+														(let* ((total-food (value target foodlist))
+																 (prop (/ total-food
+																			 (capacity target foodlist)))
+																 (available-food
+																  (* 2.0 total-food
+																	  (/ (SQRT prop) (1+ prop)))))
+														  (set! ate (eat self available-food dt))
+														  )
+														(kdnl* 'debugging-eating "[" (my 'name) ":"
+																 (class-name-of self) "]" "removing "
+																 ate " from the patch ...")
+														(scale! target foodlist (- 1.0 (/ ate TV)))
+														(kdnl* 'debugging-eating "[" (my 'name) ":"
+																 (class-name-of self) "]" "done.")
+														)
+													 (wander-around self dt (location target)
+																		 (my 'near-food-attraction)
+																		 'foragespeed)
+													 )
+												  (begin
+													 (kdnl* 'debugging-eating "[" (my 'name) ":"
+															  (class-name-of self) "]"
+															  "move toward the food source")
+													 (wander-around self dt (location target)
+																		 (my 'food-attraction)
+																		 'movementspeed)
+													 )))
+										  )
+									 )
+								  )
+								 ((eqv? focus 'flee)
+								  ;; Not implemented yet
+								  #f
+								  )
+								 ((eqv? focus 'breed)
+								  ;; Not implemented yet
+								  #f
+								  )
+								 )
+								)
+
+							 (set-my! 'objective (if (null? objective) #f objective))
+							 (set-my! 'age (+ (my 'age) dt/2))
+							 (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
+							 
+							 ;;(track-locus self t (my 'location)) ;;
+							 ;;even if they aren't moving ::
+							 ;;automatically done in <thing>
+							 )
+						  )
+
+					 ;; We do it this way to avoid (as much as possible) adding extra error in the times
+					 (set-my! 'age (+ initial-age dt))
+					 (set-my! 'subjective-time (+ initial-subjective-time dt))
+
+					 
+					 ;; Ok now test condition and return
+					 (if (or (not mass) (< (my 'mass) (* 1.3 (my 'structural-mass))))
+						  (list 'remove self)
+						  dt)
+					 )
+				  )
 				)
 
-		 (kdnl* 'stomach "[" (my 'name) ":" (class-name-of self)
-				  "]" "===> stomach =" stomach-cont "| condition ="
-				  condition "| mass =" mass)
-		 (if (number? mass) 
-			  (begin
-				 (let ((focus ((my 'current-interest) self
-									(my 'age) t dt condition stomach-cont guts))
-						 )
-					(kdnl* 'focus "[" (my 'name) ":"
-							 (class-name-of self) "]" " in now focussed on " focus)
+(definition-comment " So we have essentially three types of animal:
+adult herbivores that eat the the plants, juveniles that eat the
+fruit (and deposit viable seeds), and the carnivores that eat only
+juvenile herbivores.
 
-					(cond
-					 ((not focus)
-					  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
-										  (* 2.0 (my 'domain-attraction)) 'wanderspeed)
-					  #t)
-					 ;;(aborts "Dinna y' ken?"))
-					 ((eqv? focus 'wander)
-					  (wander-around self dt (map (lambda (x) (/ x 2.0)) domain)
-										  (my 'domain-attraction) 'wanderspeed)
-					  )
+Animals work in the following way:
 
-					 ((eqv? focus 'hungry)
-					  (kdnl* 'debugging-eating "[" (my 'name)
-								":" (class-name-of self) "]" "hungry")
-
-					  (let* ((foodsites
-								 (patch-list H (lambda (x)
-													  (let ((s (services x foodlist)))
-														 (and s (not (null? s)))))))
-								(foodvalue
-								 (map 
-								  (lambda (x) 
-									 (if (= food-attenuation 0.5)
-										  (/ (SQRT (value x foodlist))
-											  (+ (spatial-scale H)
-												  (distance here (location x))))
-										  (/ (pow (value x foodlist) food-attenuation)
-											  (+ (spatial-scale H)
-												  (distance here (location x)))))
-									 ) foodsites))
-
-								(fooddata (sort (map cons foodvalue foodsites)
-													 (lambda (x y) (> (car x) (car y)))))
-								)
-						 (kdnl* "Food ranks" "[" (my 'name) ":"
-								  (class-name-of self) "]"
-								  (map (lambda (x)
-											(cons (car x)
-													(distance here
-																 (location (cdr x)))))
-										 fooddata))
+They have an amount of time before they need to eat (Sated)
+They will forage as soon as that time has elapsed, and will forage
+	until they have eaten a particular proportion of their mass, then 
+	they become sated again
+They record the amount of time they have been hungry, and maintain 
+	a moving window average of lengths of hunger.
+They will avoid changing cells unless there is either crowding or
+	they have been hungry too often.
+Animals grow while they are sated, and cease to grow when hungry. If
+	they are hungry for too long, they die.
 
 
-						 (if (zero? (length fooddata))
-							  (begin ;; No food possible ... 
-								 (kdnl* 'debugging-eating "[" (my 'name)
-										  ":" (class-name-of self) "]" "Hunting")
-								 (wander-around self dt
-													 (map (lambda (x) (/ x 2.0)) domain)
-													 (my 'domain-attraction) 'foragespeed)
-								 )
-							  (let ((target (cdar fooddata)))
-								 (if (contains? target (location self))
-									  (begin
-										 (kdnl* 'debugging-eating "[" (my 'name) ":"
-												  (class-name-of self) "]"
-												  "Reading the menu")
-										 (let* ((TV (value target foodlist))
-												  (ate #f))
-											(kdnl* 'debugging-eating "[" (my 'name) ":"
-													 (class-name-of self) "]"
-													 "ordering the lot ("
-													 (value target foodlist) "/"
-													 (value target (services target))
-													 ")and eating it")
-											(let* ((total-food (value target foodlist))
-													 (prop (/ total-food
-																 (capacity target foodlist)))
-													 (available-food
-													  (* 2.0 total-food
-														  (/ (SQRT prop) (1+ prop)))))
-											  (set! ate (eat self available-food dt))
-											  )
-											(kdnl* 'debugging-eating "[" (my 'name) ":"
-													 (class-name-of self) "]" "removing "
-													 ate " from the patch ...")
-											(scale! target foodlist (- 1.0 (/ ate TV)))
-											(kdnl* 'debugging-eating "[" (my 'name) ":"
-													 (class-name-of self) "]" "done.")
-											)
-										 (wander-around self dt (location target)
-															 (my 'near-food-attraction)
-															 'foragespeed)
-										 )
-									  (begin
-										 (kdnl* 'debugging-eating "[" (my 'name) ":"
-												  (class-name-of self) "]"
-												  "move toward the food source")
-										 (wander-around self dt (location target)
-															 (my 'food-attraction)
-															 'movementspeed)
-										 )))
-							  )
-						 )
-					  )
-					 ((eqv? focus 'flee)
-					  ;; Not implemented yet
-					  #f
-					  )
-					 ((eqv? focus 'breed)
-					  ;; Not implemented yet
-					  #f
-					  )
-					 )
-					)
-
-				 (set-my! 'objective (if (null? objective) #f objective))
-				 (set-my! 'age (+ (my 'age) dt/2))
-				 (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
-				 
-				 ;;(track-locus self t (my 'location)) ;;
-				 ;;even if they aren't moving ::
-				 ;;automatically done in <thing>
-				 )
-			  )
-		 
-		 ;; Ok now test condition and return
-		 (if (or (not mass) (< (my 'mass) (* 1.3 (my 'structural-mass))))
-			  (list 'remove self)
-			  dt)
-		 )
-	  )
-	)
+Herbivores and carnivores are essentially the same beasts, code wise, 
+with the following differences:
+	Juvenile carnivores have a very long period when they are sated
+		(they eat something that is abundant, bugs?)
+   Adult carnivores hunt juvenile herbivores
+   Juvenile herbivores hunt fruit
+   Adult herbivores hunt plants.
 
 
+****************************************************************
+**********         Oversight in journal paper         **********
+****************************************************************
+
+*** NOTE: Juvenile herbivores need to have a lag between eating 
+*** fruit and leaving seeds, otherwise we cannot have 
+*** recolonisation by plants in a cell that has become denuded.
+")
+
+
+
+
+
+(model-method <example-animal> (die self)
+				  ;;"routine corresponding to the death of an animal (calls shutdown)")
+				  #t
+				  )
+(model-method <example-animal> (prey-present self)
+				  ;;"returns a list of the animal's prey in a suitable locality")
+				  #t
+				  )
+(model-method <example-animal> (growth self dt)
+				  ;;"does the business of growing")
+				  #t
+				  )
+(model-method <example-animal> (eat self prey domain) ;; we specify both the prey agent and the domain which contains the agent
+				  ;;"ingestion....")
+				  (if (isa? prey <example-plant>)
+						(begin
+						  'ok)
+						(begin
+						  'also-ok
+						  ))
+				  )
+(model-method <example-animal> (forage self )
+				  ;;"move about looking for a region with food")o
+				  #t
+				  )
+;(model-method (<example-animal>) (crowded? self )
+;				  ;;"determine if the region is too crowded for the animal")
+;				  (let ((N (kernel 'members 
+;				  )
+(model-method <example-animal> (migrate self )
+				  ;;"move to another region (change cells)")
+				  #t
+				  )
+(model-method <example-animal> (reproduce self )
+				  ;;"create offspring")
+				  #t
+				  )
+				  
 
 ;-  The End 
 
@@ -626,6 +711,7 @@
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; outline-regexp: ";-+"
+
 ;;; comment-column:0
 ;;; comment-start: ";;; "
 ;;; comment-end:"" 

@@ -24,23 +24,16 @@
 
 (define definition-comments '())
 
-(define slot-ref
-  (letrec ((osr slot-ref))
-	 (if #t
-		  osr
-		  (lambda (ob slot)
-			 (begin
-				(display "slot-ref: ")
-				(display ob)
-				(display " ")
-				(display slot)
-				(newline))
-			 (osr ob slot)))))
 
+;-- (load-model) loads the file "model.config"
+(definition-comment 'load-model "load the configuration file")
+(define (load-model)
+  (let ((l load)) ;; gets us past the make-bolus filtering
+	 (l "model.config")
+	 )
+  )
 
-(definition-comment 'load-model
-  "load the configuration file")
-
+(define (no-default-variables) '())
 
 
 ;; subsidiary-agents are agents which may be embedded in a larger dynamic agent. Agents know 
@@ -50,139 +43,12 @@
 ;; moved into the relevant sub-agents.  The set of ecoservices of the parent contains all of the types 
 ;; represented in its sub-agents.
 
-
-;; This routine calls all applicable methods appropriate for parent classes, in contrast to the
-;; "method"-parent hook that is passed in as the first arg in a method.
-
-(define (call-all-parents methd self #!rest args)
-  (let* ((ml (map method-procedure ((compute-methods methd) (cons self args)))))
-	 (map (lambda (m)
-			  (apply m (cons (lambda x x) (cons self args))))
-			ml)))
-
-
-;; The following routine is very similar to the "meth"-parent
-(define (call-first-parent methd self #!rest args)
-  (let* ((ml (map method-procedure ((compute-methods methd) (cons self args)))))
-	 (map (lambda (m)
-			  (apply m (cons (lambda x x) (cons self args))))
-			(car ml)))) 
-
-
-(define (load-model)
-  (let ((l load)) ;; gets us past the make-bolus filtering
-	 (l "model.config")
-	 )
-  )
-;; These need to preceed framework-classes.
-
-(define (class-slots-of x)
-  (cond
-	((isa? x <object>) (map (lambda (x) (if (pair? x) (car x) x)) (class-slots (class-of x))))
-	((isa? x <generic>) (map (lambda (x) (if (pair? x) (car x) x)) (append (class-slots (class-of x)) (class-slots x))))
-	((isa? x <class>) (map (lambda (x) (if (pair? x) (car x) x)) (append (class-slots (class-of x)) (class-slots x))))
-	(#t '())
-	)
-  )  
-
-
-(define (dumpslots ent)
-  (let ((s (class-slots-of ent)))
-	 (map (lambda (x)
-			  (list x (slot-ref ent x)))
-			s)))
-
-(define (class-name-of x)
-  (cond
-	((isa? x <agent>) 
-	 (let ((n (class-register 'name? (class-of x))))
-		(and n
-			  ;;(string->symbol (string-append "instance-of-"
-			  ;;   (symbol->string n)))
-			  n
-			  )
-		))
-	((and (primitive-object? x) (assoc x (class-register))) 
-	 (let ((n (class-register 'name? x)))
-		(and n
-			  (string->symbol (string-append "class:" (object->string n)))
-			  )))
-	(else
-	 (let ((p (class-name-of (class-of x))))
-		(if p
-			 (string->symbol (string-append "instance:" (object->string p)))
-			 #f)))))
-
-
-(define (class-names-of-supers x)
-  (map class-name-of (class-cpl (class-of x))))
-
-(define (primitive-object? a)
-  (and (%instance? a) #t))
-
-(define (instance? a)
-  (and (%instance? a) #t))
-
-(define (agent? a)
-  (and (%instance? a) (isa? a <agent>) #t))
-
-(define (has-slot? a k) 
-  (member k (class-slots-of a)))
-
-(define (slot-values a)
-  (map (lambda (x) (cons x (slot-ref a x))) (class-slots-of a)))
-
-
-(define (uninitialised? x #!rest y)
-  (if (null? y)
-		(eqv? x '<uninitialised>)
-		(uninitialised? (slot-ref x (car y)))))
-		
-
-;; Queries all the registers for the object passed
-
-(define (look-for thing)
-  (dnl* "class-register:" (class-register 'rec? thing))
-  (dnl* "generic-method-register:" (generic-method-register 'rec? thing))
-  (dnl* "method-register:" (method-register 'rec? thing))
-  (dnl* "agent-register:" (agent-register 'rec? thing))
-  (dnl* "object-register:" (object-register 'rec? thing))
-  )
-
-(define (set-state-variables self arguments)
-  (let ((snames (class-slots-of  self))
-		  (args (if (and (pair? arguments) (pair? (car arguments)) (= 1 (length arguments))) (car arguments) arguments)))
-	 (cond
-	  ((or (equal? args '(())) (null? args)) #f)
-	  ((odd? (length args)) (abort "Bad set of initialising arguments: " args))
-	  ((>= (length args) 2)
-		(if (member (car args) snames)
-			 (slot-set! self (car args) (cadr args))
-			 (kdnl* '(init parameters) "Ignoring parameter" (car args) (cadr args) "for" (class-name-of self)))
-		)
-	  )
-	 (if (> (length args) 2) (set-state-variables self (cddr args)))))
-
-(define (make-object class #!rest initargs)
-  (let ((instance (allocate-instance class)))
-	 ;;(for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
-	 ;;(if (pair? initargs)
-	 ;;	  (set-state-variables instance initargs))
-	 (initialize instance initargs)
-	 (object-register 'add instance class)
-	 instance))
-
-(define (make-agent class . initargs)
-  (let ((instance (allocate-instance class)))
-	 (for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
-	 ;;(if (pair? initargs)
-	 ;;	  (set-state-variables instance initargs))
-	 (initialize instance initargs)
-	 (agent-register 'add instance class)
-	 (object-register 'add instance class)
-	 instance))
-
-
+;(letrec ((m make))
+;  (set! make
+;		  (lambda (class . initargs)
+;			 (let ((instance (apply m (cons class initargs))))
+;					 (apply initialise (cons instance initargs))
+;				instance))))
 
 
 ;-- Loggers ****

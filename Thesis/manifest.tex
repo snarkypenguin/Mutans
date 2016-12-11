@@ -108,6 +108,9 @@
 
 \newcommand{\eqc}[1]{\left[#1\right]}
 
+\newcommand{\TT}[1]{\texttt{{#1}}}
+\newcommand{\TTC}[1]{\texttt{{<#1>}}}
+
 %\newcommand{\capplus}{%
 %    \setbox0\hbox{\cap}%
 %    \rlap{\hbox to \wd0{\hss+\hss}}\box0
@@ -162,8 +165,8 @@
 \newcommand{\mstSum}[1]{\sum_{\mathclap{\substack{#1}}}}
 
 \newcommand{\bdot}{%
-    \setbox0\hbox{\box}
-    \rlap{\hbox to \wd0{\hss\cdot\hss}}\box0
+\setbox0\hbox{\box}
+\rlap{\hbox to \wd0{\hss\cdot\hss}}\box0
 }
 
 \newcommand{\bplus}{\boxplus}
@@ -579,8 +582,8 @@
 %-- Commands for fonts
 
 \DeclareRobustCommand\chancery{% \fontfamily{pzc}% \fontencoding{T1}%
-  \selectfont} \newcommand\textpzc[1]{\begingroup \fontfamily{pzc}%
-  \fontencoding{T1}}% \selectfont #1\endgroup}
+\selectfont} \newcommand\textpzc[1]{\begingroup \fontfamily{pzc}%
+\fontencoding{T1}}% \selectfont #1\endgroup}
 
 \def\calli#1{{\calligra #1}} \def\chanc#1{{\chancery #1}}
 
@@ -677,7 +680,11 @@
 \newcommand{\polytype}[0]{\polystruct\ of \polyrat\ \polyform}
 \newcommand{\polytypes}[0]{\polystruct\ of \polyrat\ \polyforms}
 
+
 %\newcommand{\polystruct}{rng\ }
 %\newcommand{\polyrat}{\ }
 %\newcommand{\polytype}{commutative rng of\ }
 \typeout{manifest.tex finished ******* }
+
+
+

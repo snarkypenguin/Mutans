@@ -105,6 +105,24 @@
 	near-food-attraction
 	))
 
+
+(define-class <example-animal>
+  (inherits-from <animal>)
+  (state-variables
+	mass peak-mass sated-quantity-prop mort-prob age cell
+	crowded-level
+	reproduction-mass
+	reproduction-prob
+	reproduction-delay
+	reproduction-ct
+	prey-list
+	eat-limit forage-ct
+	migrate-param
+	sated-time hunger-time hunger-moving-average
+	seed-lag-list* ;; time triggered, first el in each element is time to deposit seeds
+	))
+
+
 ;-  The End 
 
 

@@ -150,11 +150,11 @@
 
 (define (ps-list-matrix? m)
   (and (pair? m) 
-		 (apply ps-andf (map simple-list? m)) 
+		 (apply ps-andf (map ps-simple-list? m)) 
 		 (apply = (map length m))))
 
 (define (transpose-list-matrix A)
-  (if (list-matrix? A) 
+  (if (ps-list-matrix? A) 
 		(let* ((dima (list (length A) (length (car A))))
 				 (B (ps-make-list* (list (cadr dima) (car dima)) 0)))
 		  (for-each
@@ -170,8 +170,8 @@
 (define (*-matrix a b)
   (cond
 	((and (number? a) (number? b)) (* a b))
-	((and (number? b) (list-matrix? a)) (map (lambda (x) (map (lambda (y) (* b y)) x)) a))
-	((and (number? a) (list-matrix? b)) (map (lambda (x) (map (lambda (y) (* a y)) x)) b))
+	((and (number? b) (ps-list-matrix? a)) (map (lambda (x) (map (lambda (y) (* b y)) x)) a))
+	((and (number? a) (ps-list-matrix? b)) (map (lambda (x) (map (lambda (y) (* a y)) x)) b))
 	(else 
 	 (let* ((dima (list (length a) (length (car a))))
 			  (dimb (list (length b) (length (car b))))

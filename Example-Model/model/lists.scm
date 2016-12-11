@@ -214,11 +214,6 @@
 
 ;; guarded
 (define list-ref
-  (letrec ((%list-ref list-ref))
-    (lambda (l i)
-      (if (or (< i 0) (>= i (length l)))
-          (abort 'list-ref-index-out-of-bounds)
-          (%list-ref l i)))))
 
 ; Takes sets an element in a list
 (define (list-set! l i v)
@@ -230,7 +225,12 @@
 ;; the index can be a list of indices
 ;; list-ref that accepts a list of indices
 (define list-ref
-	 (let ((olr list-ref))
+  (letrec ((%list-ref list-ref)
+			  (LL (lambda (l i)
+					  (if (or (< i 0) (>= i (length l)))
+							(abort 'list-ref-index-out-of-bounds)
+							(%list-ref l i)))))
+	 (let ((olr LL))
 		(lambda (lst ix)
 		  (if (number? ix) (olr lst ix) (map (lambda (y) (olr lst y)) ix)))))
 

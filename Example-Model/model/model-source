@@ -1,5 +1,5 @@
 (define prompt "Now run: (load-model)\n")
-(define margs '()) ;; this makes things not quite so broken w.r.t. sclos and compute-apply-method
+
 ;--
 (load "preamble.scm")
 (load "sort.scm")
@@ -15,18 +15,17 @@
 (load "postscript.scm")
 (load "basic-population.scm")
 
-(load "framework.scm") ;; must include framework
-
 (display "Did my maths.\n") ;; must include framework
 (load "framework-classes.scm") ;; must include framework
+(load "framework.scm") ;; must include framework
 (display "... classes over,\n")
 (load "framework-declarations.scm") ;;must include framework, loaded early so the generics are there
  (load "declarations.scm") ;; must include framework
  (display "Judged the covers\n")
  (load "log-classes.scm") ;; must include framework
  (load "landscape-classes.scm") ;; must include framework
- (load "animal-classes.scm") ;; must include framework
  (load "plant-classes.scm") ;; must include framework
+ (load "animal-classes.scm") ;; must include framework
 (load "kernel.scm") ;; must include framework
 (display "Bought the books\n")
 (display "Read them\n")
@@ -38,8 +37,8 @@
  (load "plant-methods.scm") ;; must include framework
  (load "animal-methods.scm") ;; must include framework
 ;--
-;(display prompt)
-(load-model)
+(display prompt)
+;(load-model)
 
 
 
@@ -52,3 +51,10 @@
 
 
 
+;;; Local Variables: 
+;;; comment-end: "-;" ;;;
+;;; comment-start: ";;; " ;;;
+;;; mode: scheme ;;;
+;;; outline-regexp: ";-+" ;;;
+;;; comment-column: 0 ;;;
+;;; End:

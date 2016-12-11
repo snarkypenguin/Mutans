@@ -995,7 +995,7 @@
 																  (cdr args))
 														  (more-specific? c1 c2 arg))))))))))
 
-;; This has problems with args being undefined in line 1009?
+
 (add-method compute-apply-methods
 				(make-method (list <generic>)
 								 (lambda (call-next-method generic)

@@ -11,18 +11,19 @@
 (define-class <ecoservice>
   (inherits-from <agent>)
   (state-variables
+	running-externally ;; #t/#f
+	external-rep-list ;; used to point to external represetations (usually IBM/ABM)
+	;; The external representation list
+	ext-get  ;; the method or function to use to get data from a member of the external-rep-list
+	ext-set! ;; analogous to ext-get, but for setting the value of the member
 	name ;; Used in output
 	sym ;; symbol (possibly used in updates by other agents
 	patch ;; spatial agent associated with the ecoservice
 	value ;; current value of the ecoservice
 	capacity ;; maximum value of the ecoservice
-	
-	r        ;; recovery rate parameter
-	;; -- sharpness of
-	;; transition in growth
-	;; curve(sigmoid) ,
-	;; increase per unit of
-	;; time (linear)
+	r        ;; recovery rate parameter -- sharpness of  
+	         ;; transition in growth curve(sigmoid),
+	         ;; increase per unit of time (linear)
 	
 	delta-T-max ;; largest stepsize the ecoservice can accept
 	do-growth   ;; #t/#f 
@@ -40,7 +41,7 @@ closure. The special growth functions 'sigmoidal and 'linear  can
 be specified by passing the appropriate symbol.
 
 A typical construction of an ecoservice might look like
-(make <ecoservice> 
+(make-agent <ecoservice> 
   'patch P 
   'value 42000 
   'capacity +inf.0 
@@ -99,16 +100,8 @@ services.  The representation (rep) is a spatial thingie.")
 
 ;;
 (define-class <dynamic-patch>
-  (inherits-from <patch>)
+  (inherits-from <patch> <dynamic-system>)
   (state-variables
-	population-names ;; list of strings associated with
-	;; each population
-
-	population-symbols ;; unique symbols for each of the
-	;; pops
-
-	population-definitions  ;; list of the form ((nameA
-	;; dA/dt) ...)
 	do-dynamics       ;; #t/#f whether to do the dynamics
 	;; or not if this is false, state
 	;; values are modified externally
@@ -117,13 +110,7 @@ services.  The representation (rep) is a spatial thingie.")
 	do-growth   ;; #t/#f whether to do growth using the
 	;; ecoservice growth-model or not
 
-	dP    ;; This is generated using rk4* and d/dt-list
-
-	d/dt-list   ;; differential equations which describe
-	;; the dynamics
-
-	subdivisions))  ;; the definitions are kept for
-;; debugging
+	subdivisions))  ;; the definitions are kept for debugging
 
 
 (Comment "<dynamic-patches> are patches that have a system of
@@ -131,14 +118,14 @@ differential equations which stand in the place of the simpler
 representation of patches with ecoservices.
 
 A straightforward instantiation of a <dynamic-patch> might look like
-  (define P (make <dynamic-patch> 'location loc 'radius radius 'type 
+  (define P (make-agent <dynamic-patch> 'location loc 'radius radius 'type 
                   'patch 'representation 'patch 
                   'do-growth #f 'do-dynamics #t
                   'population-definitions 
 						  (list (list \"plants\" 'plant dplant/dt) 
                          ... (list \"spiders\" spider dspider/dt)) ))
 or 
-  (define P (make <dynamic-patch> 'location loc 'radius radius 'type 
+  (define P (make-agent <dynamic-patch> 'location loc 'radius radius 'type 
           'patch 'representation 'patch 
           'do-growth #f 'do-dynamics #t
           'population-names 
@@ -178,9 +165,16 @@ services must be there or Bad Things Happen.
 ;; terrain-function is a function in x and y that returns a DEM
 
 (define-class <habitat> (inherits-from <landscape>)
-  (state-variables patch-list dump-times scale))
-;; sites is a list of patches -- the patches can be either patches,
-;; dynamic-patches or a mix -- the list is passed in at initialisation.
+  (state-variables patch-list dump-times scale internal-runqueue))
+;; patch-list is a list of patches -- the patches can be either patches,
+;;   dynamic-patches or a mix -- the list is passed in at initialisation.
+
+(define-class <habitat*> (inherits-from <habitat>)
+  (state-variables global-patch global-update))
+;; global-patch is a patch/dynamic-patch which maintains "variables" 
+;;   pertinent to the whole domain (and it ought to contain the patch-list)
+;; patch-list is a list of patches -- the patches can be either patches,
+;;   dynamic-patches or a mix -- the list is passed in at initialisation.
 
 
 

@@ -6,63 +6,384 @@
 
 Chapter \ref{modelefficiency} argued that switching models were worth
 considering on the basis of fidelity and efficiency. The results in
-the chapter clearly demonstrate advantages, and while the example used
-is quite simple compared to other models of marine or aquatic
-contaminant interaction, the results are credible.  The contaminant
-models I am most familiar with, \cite{Gray2006nws, Gray2014}, would
-have benefited greatly from the approach. Both models flirted with the
-idea without fully implementing it -- the latter came close, but
-required an extra,  separate modelling kernel to maintain the whales
-which left the system, rather than truly switching representations.
-The source code for the model is available at \linebreak
-\texttt{https://github.com/snarkypenguin/Explicit-Model.git}.
+the chapter demonstrate the potential advantages in these regards, and
+while the example used is quite simple compared to other models of
+marine or aquatic contaminant interaction, the results are credible.
+The contaminant interaction models in \cite{Gray2006nws,
+  Gray2014}, would have benefited greatly from the approach. Both
+models foreshadow this more explicit approach to tailoring
+representations according to the interactions and states model: the
+first explored multiple representations for biotic components which
+might change according to their life stage, and the second built on
+this and included an explicit change of representation for whales
+which had left the model domain but would likely return as a part of
+their migratory behaviour, butneither actually approached the 
+issue in general way.\footnote{The model discussed in this chapter is available on the publicly
+accessible repository
+{\texttt{https://github.com/snarkypenguin/Explicit-Model.git}.}}
 
-\section{Software environment for the model}
-The model written to the template provided by
-Chapter \ref{adaptiveselection} seeks to redress this absence.  While
-arguably a model with very little real world application, the model
-seeks to provide a framework and a template for constructing useful
-models. The framework provided is based on Tiny-CLOS by Gregor
-Kiczales while he was working at Xeros PARC in 1992 and 1993.
-Tiny-CLOS is the basis from which many of the object systems used in modern
-implementations of Scheme were derived or designed.  I have used
-Gambit-C, a well regarded implementation of Scheme which is both
-compilable and readily links (even uncompiled) to external code and
-libraries. The choice was heavily influenced by the fact that it
-compiled to acceptibly fast code, and that adding hand-crafted C or
-C++ code for particularly intensive routines was not difficult.  
-A lesser consideration was that Gambit-C runs on all of the major
-platforms (Linux, Unix, MacOS, and Android, for example).
-Porting the model to other versions of Scheme should be relatively
-simple; the only potentially awkward issue would be the use
-of \texttt{define-macro} which is used to make the process of defining
-and using objects simpler and less error prone.
+The role of the example model is not to provide a complete, efficient
+implementation of an adaptive hybrid model, rather the starting point
+for further exploration and development.  It follows the pattern
+described by Chapter \ref{adaptiveselection}, but includes minor
+improvements and enough extensions to provide a useful platforn for
+further work.  
 
-\section{Model overview}
-How the model is organised
-\begin{itemize}
-\item The framework file and framework.scm
-\item local overloading of (load)
-\item overview of the classes
-\item how the files are connected (need to make it \textbf{not}
-dependent on the local initialisation.
-\end{itemize}
+Scheme was chosen as the implementation language primarily because it
+supports first class functions with closures.  The implementation
+framework which has been developed is based on the Scheme
+implementation of tiny-CLOS (SCLOS), written by Gregor Kiczales
+\cite{kiczales1993xerox} while he was working at Xeros PARC in 1992
+and 1993.  Kiczales has been an instrumental researcher and proponent
+for the use of metaobject protocols (MOPs) as a tool for making
+computer programs clearer, more efficient, and more robust.  The basic
+tenet is that generic methods or functions are used to manipulate
+objects, and that these generic objects inspect the nature of the data
+being passed to them and pass the processing to a specialised function
+which deals with the task most appropriately.  While this is not an
+exact analogue to the problems we seek to address in this work, there
+is enough commonality that using tiny-CLOS and its implicit MOP seemed
+a natural fit.  Moreover, tiny-CLOS is the base that many of the
+object systems used in modern implementations of Scheme are derived
+from.
 
-\section{The Kernel}
-how the kernel works, call-backs into the kernel
+I have used Gambit-C (Gambit), a well regarded implementation of
+Scheme which runs on all of the major platforms (Linux, Unix, OSX, and
+Android, for example). Gambit incorporates both a fully developed
+Scheme interpreter and a compiler, and both can readily link programs
+with external code and libraries which exist either as compiled or as
+interpreted scheme code. The choice to use Gambit was heavily
+influenced by the fact that it was the implementation used for the
+model in Chapter \ref{modelefficiency}, its compiled code was
+significantly faster than the interpreted code, and that adding
+hand-crafted C or C++ code for particularly intensive routines was not
+difficult.  Porting the model to other versions of Scheme should be
+relatively simple; the only potentially awkward issue in using a
+different scheme implementation would be the use of
+\texttt{define-macro} which is used to provide syntactic structures
+which are able to detect and respond to inconsistencies and
+makes using objects simpler and less error prone\footnote{At least for
+  \emph{some} types of error!}.
 
-\section{Agents}
-what makes an agent an agent, and why it is different from other object
-derived things
+\section{Classes and structure}
 
-\subsection{Environment classes}
-Describe the basic environment classes and why they are there
+The example model follows a traditional agent-based approach using a
+class hierarchy which reflects the entities we wish to model. Most of
+the agent classes are organised more by their niche than by their
+structural form, so we may have several ``animal-like classes'' which
+may range from individual-based representations to purely
+equation-based representations.  (equation-based versus
+individual-based, for example) since it is the
 
-\subsection{Plant classes}
-Plants: pertinent eh?
+The framework is structured like an older multitasking,
+multiprocessing operating system which supports an arbitrary number of
+interleaved processes which may each have a different (varying)
+priority and which may run for steps of an aribitrary length. There is
+only one processing queue in the framework, so we can be certain that
+only one agent will be executing at any given moment.  In principle,
+the relatively small kernel could be replaced by a multithreaded
+kernel without requiring major changes to the rest of the system. True
+concurrent processing would require additional facilities for
+inter-agent communication and ways to ensure that sets of agents could
+become synchronous when necessary. Similarly, a number of processes
+(such as numeric integration) might be readily parallelised.  In both
+these instances, it was felt that these changes would come at a cost
+in terms of the clarity of the code, and an increase in the difficulty
+of debugging and exploration.
 
-\subsection{Animal classes}
-Difference between herbivores and carnivores
+All of the agents and objects in the model are derived
+from the \texttt{<primitive-object>} class in a slightly modified
+tiny-CLOS\footnote{This class is actually the \texttt{<object>} class in
+  the canonical tiny-CLOS (version 1.7), but I really wanted
+  \texttt{<object>} to provide an entity which was like an agent, but
+  without the ability to run as an independent dynamic element in the
+  system -- hence the name change}, this provides a clean distinction
+between the classes which are associated only with the tiny-CLOS
+architecture and the classes associated with the model.  The basic
+classes used to build the entities of the model are the
+\TTC{object} class and the slightly more complex \TTC{agent}
+class. \TTC{agent} is a subclass of \TTC{object} and has the ability to
+run as a process in the run-queue, and to interact directly with the
+kernel and with other agents in the system.  \TTC{object}s lack that
+connection to the kernel, and are only able to operate on their own
+data, unless assistance is provided by some external agency.  An
+example of the distinction between these classes is that a \TTC{patch}
+is a spatially explicit \TTC{agent} element which is primarily used to
+give context to ecoservices, and its geographic footprint, a polygon
+or circle, is represented by an \TTC{object} which can answer queries
+such as ``How far is $p$ from your perimeter?'' or ``How much area do
+you contain?'' 
 
-\subsection{Data Loggers}
-How the loggers work with their call-backs
+A brief summary describing the role of the classes and their taxonomic
+relationships 
+
+\begin{description}
+\item[\TTC{object}] -- This class sits at the top of the taxonomic tree
+  for all the significant classes in the modelling framework.
+
+  \begin{description}
+  \item[\TTC{model-maintenance}] -- These objects (not agents) contain
+    functions with closures which may be used to maintain the data an
+    agent needs to preserve across transitions.  An example of this is
+    the contaminant vector preserved across representations in the model
+    of Chapter \ref{modelefficiency}.  The function will respond to a
+    number of ``flags'', namely \texttt{'needs?}, \texttt{'state},
+    \texttt{'dump} and \texttt{'update}.
+
+  \item[\TTC{polygon}, \TTC{circle}] -- These classes are used to
+    delineate regions within the simulation.  
+
+  \item[\TTC{simple-metabolism}, \TTC{metabolism}] -- These classes
+    provide the metabolic component of the animal models.
+    
+    
+  \item[\TTC{agent}] -- Most submodels or components of submodels
+    will be derived from the agent class.  \TTC{agent} provides the
+    basic structure for interacting with the system and with other
+    agents.
+
+    \begin{description}
+    \item[\TTC{introspection}] -- This class provides the basic machinery
+      used for logging agents.  Logging agents will periodically poll
+      lists of agents and generate output files consisting of things
+      like numeric data or maps.
+
+      \begin{description}
+      \item[\TTC{logfile}] -- The logfile class is the basis for the
+        time-series output. Logfiles would typically be used to
+        extract data from a modelled data logger, for example.
+        
+        \begin{description}
+        \item[\TTC{log-data}] -- Instances of the log-data class
+          generate datafiles such as might be loaded into matlab or
+          octave.
+        \end{description}
+        
+      \item[\TTC{snapshot}] -- This class produces sequential files
+        which contain snapshots of the state of components of the
+        system.  A snapshot approach is somewhat analogous to an
+        aerial survey of rangeland species.
+        
+        \begin{description}
+        \item[\TTC{log-map}] -- This class generates (sequential)
+          postscript or PNG maps as the model runs
+        \end{description}
+      \end{description}
+    \end{description}
+
+  \item[\TTC{monitor}] -- Monitors are the components of the
+    model that assess the configuration of the system and
+    triggers changes
+
+  \item[blackboard] -- Blackboards are used to indicate
+    conditions which may influence other agents in the system.
+    If an agent enters a part of its state space where it
+    performs poorly, it may post a notice on a blackboard
+    indicating the condition.
+
+  \item[\TTC{tracked-agent}] -- Agents which have their
+    \emph{path} tracked through time.  The path in question may
+    be geographic, but it could also be some other state
+    value, such as salinity, voter-sentiment, or location
+
+    \begin{description}
+    \item[\TTC{thing}] -- This class is the basis for agents with
+      specific locations. Individual members of a group, such as
+      whales in a pod, health centres, or seismographs.
+      
+      \begin{description}
+      \item[\TTC{simple-plant}] -- This class is geared to
+        represent simple tree-like plants.
+
+      \item[\TTC{animal}, \TTC{simple-animal}] -- These classes
+        provide the basic animal models.  The animal classes
+        inherit from \TTC{metabolism} or \TTC{simple-metabolism},
+        respectively. 
+      \end{description}
+
+
+    \item[\TTC{population}] -- Implementations of populations
+      could range from ``super-individuals'' in the sense of
+      \citet{scheffer1995super} through age structured matrix
+      models and systems of differential equations. The major 
+      identifying characteristic is that populations cover an
+      area, rather than a distinct location, and the inherent time
+      steps associated with populations are typically longer
+      than those used for subclasses of \TTC{thing}.
+    \end{description}
+
+  \item[\TTC{ecoservice}] -- Ecoservices correspond to resources
+    which may be used or generated by other agents.  They might
+    represent anything from local groundwater to numbers of visitors
+    in a museum.  Though they are included with the
+    ``landscape'' classes, ecoservices are not inherently tied to
+    locations.
+
+    \begin{description}
+    \item[\TTC{population-system}] -- Population-systems are a
+      subclass of ecoservices, and is tailored to representing
+      simple equation based population dynamics within a spatial
+      domain (a dynamic-patch).
+    \end{description}
+
+  \item[\TTC{patch}, \TTC{dynamic-patch}] -- These classes associate a
+    geographic region (a circle or polygon) with a set of
+    ecoservices or a dynamic system of equations.
+
+  \item[\TTC{environment}] -- environments provide the spatial context
+    for a model.  Classes which actually reflect environmental
+    features (biotic or abiotics, according to the inclination of
+    the modeller) would be derived from the environment class.
+
+    \begin{description}
+    \item[\TTC{landscape}] -- A landscape associates a terrain
+      (either a function or some sort of digital elevation model)
+      with an environment.
+      
+      \begin{description}
+      \item[\TTC{habitat}] -- Habitats are collections of patches
+        which can be viewed as comprising the landscape.
+        \begin{description}
+        \item[\TTC{habitat*}] -- This class adds a ``global patch''
+          which encompasses the patches inherited from \TTC{habitat},
+          and the global patch acts as an aggregated proxy for the
+          more finely resolved elements.
+        \end{description}
+      \end{description}
+    \end{description}
+  \end{description}
+\end{description}
+
+
+\section{Model implementation}
+
+The model is largely similar to the example used in Chapter
+\ref{adaptiveselection}; in a restricted domain, there are nine cells
+containing tree-like plants which a population of herbivores use as a
+food source.  The trees rely on the young herbivores to eat the ripe
+fruit in order for their seeds to be viable (perhaps they have a
+particularly tough seedcoat). Into a stable system a carnivore which
+preys solely on juvenile herbivores appears.  In Chapter
+\ref{adaptiveselection}, the introduction of the carnivore (and a
+subsequent rangeland fire) initiated a hypothetical sequence of events
+which, in turn, engendered changes in the configuration of the model
+as a whole.  The implementation described here is not identical to the
+system described in the paper --- some inadequacies of the model
+presented in the paper have been addressed (such as the inability of
+the plants to recolonise a cell after they have become extinct in
+it).
+
+There are essentially five sorts of routines defined in the model
+code: scheme functions, scheme functions with closures, initialisation
+methods, other methods and ``model-bodies''.  Each of these groupings
+plays a largely different role in the code of the model. Most
+straighforward are the The scheme functions, which do most of the
+menial labour associated with the simulation.
+
+Functions with closures are used, most importantly, to implement the
+code run with the \TTC{model-maintenance} class. Here, an agent will
+create a closure containing a function which is able to access the
+variables within the closure, and maintain their values; it may
+ultimately pass these values back to another agent which will take
+over the role played by the model maintenance function.  Indeed,
+scheme was chosen specifically because these functions are a natural
+representation for a fragment of a model which needs to be
+maintained. \footnote{In principle, each class could be comprised of such
+fragments from the outset, but it seemed that the purpose of the
+work would be better served by a more traditional architecture.}
+
+Initialisation methods are run when instances of classes are created
+using the \texttt{make} function.  Two types of these functions occur
+in the code --- \texttt{initialize} with a \emph{z} and
+\texttt{initialise} with an \emph{s} --- and the distiction is that
+the \emph{z} versions are associated with the tiny-CLOS initialisation
+chain, and the \emph{s} version is associated with the modelling
+classes. When an instance is created the \TTC{object}
+\texttt{initialize} is called, and this chains to the framework's
+intitialisers.  When \TTC{object} derived class is instanciated, all of
+its parent initialisers (with an \emph{s}) are called.  The
+initialisers are
+\begin{description}
+  \item[\texttt{default-object-initialisation} and
+    \texttt{default-agent-initialisation}] which just initialise the
+    state-variables for the object or agent (see \TTC{polygon} in the
+    file ``landscape-methods.scm''). There is no scope for additional
+    processing using the default initialisation.
+  \item[\texttt{object-initialisation-method} and
+    \texttt{agent-initialisation-method}] which defines a method which
+    will be executed when the object is created.
+\end{description}
+In fact, the only significant differences between the \texttt{object-}
+and \texttt{agent-} versions are the error messages and the textual
+difference in the model code, but the different labels reinforce the
+different roles of the entities they refer to.
+    
+Model methods are rather like simple functions, except that they are
+explicitly associated with classes -- there are several versions of
+the model method \texttt{dump}, and each is tied to particular a class
+and its descendants.  This ability to have several functions with the same
+name is made possible by the use of ``generic-methods'' which
+maintain a list of actual functions and information about the
+arguments they expect.  The generic function is able to 
+recognise the types of the arguments it is passed and to forward the
+call on to the appropriate actual implementation.  There are two
+consequences to this approach which ought to be mentioned
+\begin{description}
+  \item[Only define one generic method for each set of similar
+    functions] Redeclaring a generic-method ``(define hunt
+    (generic-method))'' cuts any previously declared ``hunt'' methods
+    (generic or otherwise!) out of the model's code path. To this end,
+    all declarations of generic methods are either in the
+    ``declarations.scm'' file, which contains the declarations for
+    most of the model-methods or in the ``framework-declarations.scm''
+    file which declares the generic-methods for methods required by
+    the lower levels of the framework.  Related to this is the problem
+    of defining a method before you have a generic-method declared --
+    the macros in ``framework'' should catch this.
+  \item[Don't try and construct methods that match the same argument
+    lists] Generally, tiny-CLOS is very good at getting the right
+    method for the job, but there are situations where it can be
+    confusing for it.  If you have a situation where there are several
+    possible desired code paths for essentially similar arguments, it
+    is clearer to have an explicit selection made within the body of a
+    single method.
+\end{description}
+ 
+Each agent's \texttt{model-body} is run by the kernel at each of the
+agent's time steps. While there is an
+\texttt{object-initialisation-method} corresponding to an agent's
+\texttt{agent-initialisation-method}, there is no \texttt{object-body}
+since objects are not able to be run by the kernel.
+
+\section{Maintaining state across representations}
+
+Unfinished business
+
+\section{Using trees to assess model configurations}
+
+The model periodically generates a ``map'' of the current
+configuration as an element in the space of the tree-ring elements of
+Chapter \ref{treerings}.  We use this mapping to calculate the
+closest candidate configuration from a set of configurations we
+believe (or know) to represent the system well in a given part of its
+state space. Because the trees are elements of a ring, we can, in some cases,
+interpolate between configurations, arriving at possibly advantageous
+configurations which have not been explicitly specified.
+
+\subsection{Candidate configurations}
+
+Unfinished business
+
+\subsection{Generating current-state trees}
+
+Unfinished business
+
+\subsection{Mapping from interpolated configurations to actual
+  configurations}
+
+Unfinished business
+
+
+
+
+

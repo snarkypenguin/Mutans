@@ -12,14 +12,11 @@
 ;-  Code 
 (include "framework")
 
-(define <config-control>
-  (make-class
-	(inherits-from <monitor>)
+(define-class <monitotr>
+	(inherits-from <agent>)
 	(state-variables
 	 )
-	))
-
-(register class <config-control>)						
+	)
 
 
 

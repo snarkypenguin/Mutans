@@ -55,7 +55,9 @@
   "printed when it starts to run.")
 
 (define lookit-running-names #f) ;; emits the name of the running
-											;; agent if true
+;; agent if true
+
+(define monitors-monitor-themselves #t) ;; If false, monitors will ignore any other monitor
 
 ;(load "postscript.scm")
 ;;; This is loaded here since it may be used to produce all sorts of
@@ -66,9 +68,12 @@
 (define current-page #f)
 (define current-page-number 0)
 
+(define ACQ '()) ;; queue of things to insert before the next agent runs
 
-(define terminating-condition-test 
-			(lambda rq #f))
+
+(define (terminating-condition-test . args)
+  #f)
+
 
 
 ;---------------------------------------------------
@@ -91,20 +96,31 @@
 		(inner-remove lst head))
 	 (cdr head)))
 
-(definition-comment 'Qcmp "Compares the subjective time of two agents")
+(definition-comment 'Qcmp "Compares the subjective time of two agents -- this is a < style comparison")
 (define (Qcmp r1 r2)
   (let ((st1 (subjective-time r1))
 		  (st2 (subjective-time r2)))
+	 
 	 (cond
+	  ((not (and (number? st1) (number? st2)))
+		(error "bad subjective times in Qcmp"))
 	  ((< st1 st2) #t)
 	  ((> st1 st2) #f)
 	  (#t (let ((p1 (priority r1))
-					(p2 (priority r2)))
+					(p2 (priority r2))
+					(j1 (jiggle r1))
+					(j2 (jiggle r2)))
 			  (cond
+				((not (and (number? p1) (number? p2)))
+				 (error "bad priorities in Qcmp"))
 				((> p1 p2) #t)
 				((< p1 p2) #f)
-				(#t (< (jiggle r1) (jiggle r2)))
-				))))))
+				((and (number? j1) (number? j2)) (< (jiggle r1) (jiggle r2)))
+				(#t (error "Bad jiggle in Qcmp"))
+				)
+			  )))
+	 ))
+
 
 (definition-comment 'map-q "applies a query function (like 'subjective-time') to members of a runqueue, q")
 (define (map-q arg q)
@@ -113,26 +129,26 @@
 
 (definition-comment 'q-filter
   "uses 'filter' and the passed in predicate to return a subset" "of the list of agents, rq")
-(define (q-filter rq predicate)
-  (filter (lambda (process) (predicate process)) rq))
+(define (q-filter qf-rq predicate)
+  (filter (lambda (process) (predicate process)) qf-rq))
 
 (definition-comment 'running-queue
   "This returns a boolean which indicates if 'rq' is a valid runqueue" "which has not finished running")
-(define (running-queue rq stop)
+(define (running-queue rq-rq stop)
   (cond
-	((null? rq) #f)
-	((not (pair? rq)) #f)
-	((not (list? rq)) #f)
-	((not (agent? (car rq))) #f)
-	(#t (let ((f (car rq)))
+	((null? rq-rq) #f)
+	((not (pair? rq-rq)) #f)
+	((not (list? rq-rq)) #f)
+	((not (agent? (car rq-rq))) #f)
+	(#t (let ((f (car rq-rq)))
 			(< (subjective-time f) stop)))))
 
 (definition-comment 'model-time "returns the current 'now'  of the agent at the head of the queue (unused)")
-(define (model-time rq stop)
-  (if (running-queue rq stop)
-		(if (or (null? rq) (not (list? rq)))
-			 rq
-			 (let ((f (car rq)))
+(define (model-time mt-rq stop)
+  (if (running-queue mt-rq stop)
+		(if (or (null? mt-rq) (not (list? mt-rq)))
+			 mt-rq
+			 (let ((f (car mt-rq)))
 				(subjective-time f))
 			 )
 		'end-of-run
@@ -164,34 +180,78 @@
 	(else 'bad-time-to-run)))
 
 
+(definition-comment 'insert@ "Returns the index AT which to insert")
+
+(define (insert@ lst ob cmp)
+  (cond
+	((null? lst) 0)
+	((null? (cdr lst)) 1)	 ;; Singleton.
+	(#t
+	 (let loop  ((m 0)
+					 (M (- (length lst) 1)))
+		(let* ((m! (list-ref lst m))
+				 (M! (list-ref lst M))
+				 (H (truncate (/ (+ m M) 2)))
+				 (H! (list-ref lst H))
+				 (o<m (cmp ob m!))
+				 (m<o (cmp m! ob))
+				 (o<M (cmp ob M!))
+				 (M<o (cmp M! ob))
+				 (H<o (cmp H! ob))
+				 (o<H (cmp ob H!))
+				 )
+		  (break)
+		  (cond
+			((= m M) m) ;; Must be so
+			(o<m m) ;; off the edge
+			(M<o (+ 1 M)) ;; off the other edge
+			((not (or o<m m<o)) m) ;; must be equal
+			((not (or o<H H<o)) H) ;; must be equal
+			((not (or o<M M<o)) M) ;; must be equal
+			(o<H (loop m H))
+			(H<o (loop H M))
+			(#t (abort))))))
+	)
+  )
+
 (definition-comment 'q-insert
   "inserts a run record in the right place in the queue Q")
-
+(define kernel-time 0)
 (define (q-insert Q rec reccmp)
-  (dnl "In q-insert")
-  (if (isa? rec <agent>)
-		(let ((j (jiggle rec))
-;		  (call-starts (cpu-time))
-				)
-		  (dnl "About to remove rec from Q")
-		  (set! Q (excise rec Q))
-		  
-		  (dnl* "Maybe adjust jiggle: " j)
-		  (if (and (positive? j) (< j 1.0))
-				(set-jiggle! rec (abs (random-real))))
-		  
-		  (dnl "About to append and sort")
-		  (let* ((f (append Q (list rec)))
-					(sf (sort f reccmp))
-					)
-;		(set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-			 sf)
-		  )
-		(begin
-		  (dnl* "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
-		  (kdnl* 'error "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
-		  Q)
-  ))
+  (let ((lQ (length Q)))
+	 (if (isa? rec <agent>)
+		  (let ((j (slot-ref rec 'jiggle))
+				  (call-starts (cpu-time))
+				  )
+			 (if (pair? Q) (set! Q (excise rec Q)))
+			 
+			 (if (number? j)
+				  (if (and (positive? j) (< j 1.0))
+						(set-jiggle! rec (abs (random-real)))
+						)
+				  (begin
+					 (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
+			 (if (or (< lQ 2) (sorted? Q reccmp))
+				  (let ((ix (insert@ Q rec reccmp)))
+					 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
+					 (if (> ix lQ)
+						  (append Q (list rec))
+						  (append (list-head Q ix) (list rec) (list-tail Q ix)))
+					 )
+				  (begin
+					 (let* ((f (append Q (list rec)))
+							  (sf (sort f reccmp))
+							  )
+						(set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
+						sf))
+				  )
+			 )
+		  (begin
+			 (dnl* "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+			 (kdnl* 'error "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+			 Q)
+		  )))
+
 
 
 ;---------------------------------------------------
@@ -200,32 +260,32 @@
 
 (definition-comment 'test-queue-size
   "this is so we catch runaway growth")
-(define (test-queue-size rq N)
-  (if (and (number? N) (> (length rq) N))
+(define (test-queue-size tqs-rq N)
+  (if (and (number? N) (> (length tqs-rq) N))
 		(begin
-		  (dnl "There are " (length rq)
+		  (dnl "There are " (length tqs-rq)
 				 " entries in the runqueue when we expect at most " N);
 		  (dnl "These entities total "
-				 (apply + (map (lambda (x) (members x)) rq)) " members");
+				 (apply + (map (lambda (x) (members x)) tqs-rq)) " members");
 		  
 		  (map (lambda (me) 
 					(dnl " " (representation me) ":" (name me) " (" me ")	@ "
-						  (subjective-time me) " with " (members me))) rq)
+						  (subjective-time me) " with " (members me))) tqs-rq)
 		  (abort "Failed queue size test")
 		  ))
   )
 
 
 (definition-comment 'queue
-"This is the main loop which runs agents and reinserts them after"
-"they've executed. Typically one would begin the simulation by "
-"calling (queue start stop run-queue)."
-""
-"(queue) dispatches control to an agent by a call to (run-agent ...)"
-""
-"There is extra support for inter-agent communication and migration."
-"The queue doesn't (and *shouldn't*) care at all about how much"
-"time the agents used.")
+  "This is the main loop which runs agents and reinserts them after"
+  "they've executed. Typically one would begin the simulation by "
+  "calling (queue start stop run-queue)."
+  ""
+  "(queue) dispatches control to an agent by a call to (run-agent ...)"
+  ""
+  "There is extra support for inter-agent communication and migration."
+  "The queue doesn't (and *shouldn't*) care at all about how much"
+  "time the agents used.")
 
 (define heartbeat 7) ;; heart beat each week
 (define pulse 0) ;; the pulse follows the beat
@@ -233,7 +293,12 @@
 (define (queue t stop runqueue . N)
   (set! N (if (null? N) #f (car N)))
 
-  (let loop ((rq runqueue))
+  (let loop ((q-rq runqueue))
+	 (if (pair? ACQ)
+		  (begin
+			 (set! q-rq (sort (append q-rq ACQ) Qcmp))
+			 (set! ACQ '())
+		  ))
 
 	 (if (and heartbeat (<= pulse t))
 		  (begin
@@ -243,22 +308,22 @@
 			 (display "\r")))
 
 	 (cond
-	  ((terminating-condition-test rq)
-		(list 'terminated rq))
-	  ((null? rq)
+	  ((terminating-condition-test q-rq)
+		(list 'terminated q-rq))
+	  ((null? q-rq)
 		'empty-queue)
-	  ((and (list? rq) (symbol? (car rq)))
-		rq)
+	  ((and (list? q-rq) (symbol? (car q-rq)))
+		q-rq)
 	  ((file-exists? "halt")
 		(delete-file "halt")
-		(shutdown-agents rq)
-		rq)
-	  ((and (< t stop) (running-queue rq stop))
-		(set! t (apply min (map-q subjective-time rq)))
-		(test-queue-size rq N)
-		(set! rq (run-agent t stop rq))
-		(test-queue-size rq N)
-			 (loop rq))
+		(shutdown-agents q-rq)
+		q-rq)
+	  ((and (< t stop) (running-queue q-rq stop))
+		(set! t (apply min (map-q subjective-time q-rq)))
+		(test-queue-size q-rq N)
+		(set! q-rq (run-agent t stop q-rq))
+		(test-queue-size q-rq N)
+		(loop q-rq))
 	  )
 	 )
   )
@@ -336,21 +401,109 @@
 	)
   )
 
-(definition-comment 'kernel-call "This is the call into the kernel, can query for agent lists, agent count, times....")
+
+
+
+
+
+
+(define (agent-kcall me #!rest args)
+  (if (null? args)
+		(error "No query made to kernel through" me)
+		(apply (slot-ref me 'kernel) args)))
+
+
+
+(definition-comment 'kernel-call
+  "This is the call into the kernel, agents can query for agent lists, agent count, times....
+If the tag is a string it is silently converted to a symbol, *and* the argument is 
+to the query is *NOT* unwrapped --- if args end up of the form ((....)), it stays that way!
+
+Calling it directly from the repl might look like: 
+
+> ((slot-ref (car Q) 'kernel) 'check)
+
+since the function saved in the kernel slot captures the agent's closure.
+")
+
 (define (kernel-call Q client query #!optional args)
+  (if (string? query)
+		(set! query (string->symbol query))
+		(if (and (pair? args) (null? (cdr args)) (pair? (car args)) (= 1 (length args)))
+			 (set! args (car args))) ;;
+		)
   (cond
    ((and (or (eqv? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
 	 (if monitors-monitor-themselves
-	 (filter query Q) ;; *can* return itself ... monitors can monitor monitors
-	 ))
-	 
+		  (filter query Q) ;; *can* return itself ... monitors can monitor monitors
+		  ))
+	
    ((symbol? query)
     (case query
 		((runqueue)
 		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
 			  Q
 			  #f))
-		((time) (model-time Q +inf.0))
+		((time) (model-time Q +inf.0)) ;; current time in the model (the subjective-time of the head of the queue)
+		
+		((acquire) ;; expects a list of agents to introduce into an agent's subsidiary list
+		 ;; (kernel-call Q caller 'acquire host-agent active? agent-list)
+		 (let ((okQ (filter (lambda (x) (isa? x <agent>)) (caddr args))))
+			(apply acquire-agents args)
+		 ))
+
+		((check)
+		 (list client 'mate))
+
+		((check!)
+		 (list client 'mate!))
+		
+		((find-agent)
+		 (let ((type (car args)))
+			(filter (lambda (x)
+						 (let ((xtype (slot-ref x 'type)))
+							(or (eqv? xtype type)
+								 (and (string? type)
+										(string? xtype)
+										(string=? type xtype)))))
+					  Q)))
+
+		((locate)
+		 (let ((location (car args))
+				 (type (if (pair? (cdr args)) (cadr args) #f))
+				 (radius (if (pair? (cddr args)) (caddr args) #t)))
+			(locate Q type location radius))
+
+		 )
+
+		((shutdown)
+		 (shutdown-agents args)
+		 (for-each (lambda (a) (set! Q (excise a Q)) args)) )
+
+		((remove) ;; expects a list of agents to be removed from the runqueue
+		 (for-each (lambda (a) (set! Q (excise a Q)) args)) 
+		 )
+		((containing-agents) ;; returns a list of agents which report as containing any of the list of arguments
+		 (filter (lambda (x) (i-contain x args)) Q))
+
+		((providers?) ;; returns a list of agents which provide indicated things
+		 (cond
+		  ((and (pair? args) (pair? (car args)) (null? (cdr args))) (filter (lambda (x) (provides? x (car args))) Q))
+		  ((and (pair? args) (pair? (car args)) (not (null? (cdr args))))
+			(error "bad options passed in kernel call to providers?" args))
+		  (#t (filter (lambda (x) (provides? x args)) Q)))
+		 )	
+
+		((resource-value) ;; returns the value of a resource from a nominated agent -- (kernel 'resource-value other 'seeds)
+		 (if (apply provides? args)
+			  (apply value args)
+			  #f))
+
+		((set-resource-value!) ;; sets the value of a resource from a nominated agent
+		 (if (apply provides? args)
+			  (or (apply set-value! args) #t)
+			  #f))
+
 		((agent-count) (length Q))
 		((next-agent)
 		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
@@ -369,49 +522,49 @@
    (#t (abort 'kernel-call:bad-argument))
    )
   )	
-  
-
-
-  ;; The agent function, "process",  must respond to the following things
-  ;;    (snapshot agent)
-
-  ;;    (i-am agent)
-  ;;    (is-a agent)
-  ;;    (representation agent)
-  ;;    (name agent)
-  ;;    (subjective-time agent)
-  ;;    (dt agent)
-  ;;    (parameters agent)
-
-  ;;    (run-at agent t2)
-  ;;    (run agent currenttime stoptime kernel)
 
 
 
-  ;; The return values from agents fall into the following categories:
+;; The agent function, "process",  must respond to the following things
+;;    (snapshot agent)
 
-  ;; 	a symbol
-  ;; 		is automatically inserted at the head of the queue and
-  ;; 		execution is terminated (for debugging)
+;;    (i-am agent)
+;;    (is-a agent)
+;;    (representation agent)
+;;    (name agent)
+;;    (subjective-time agent)
+;;    (dt agent)
+;;    (parameters agent)
 
-  ;; 	dt 
-  ;; 		normal execution
+;;    (run-at agent t2)
+;;    (run agent currenttime stoptime kernel)
 
-  ;; 	(list 'introduce-new-agents dt list-of-new-agents)
-  ;; 	   indicates that the agents in list-of-new-agents should be
-  ;; 	   added to the simulation
 
-  ;; 	(list 'remove-me dt)
-  ;; 	   indicates that an agent should be removed from the simulation
 
-  ;; 	(list 'migrate dt list-of-suggestions)
-  ;; 	   the list-of-suggestions is so that an external assessment routine 
+;; The return values from agents fall into the following categories:
 
-  ;; 	(list 'domain dt message-concering-domain-problem)
-  ;; 		usually something like requests for greater resolution...
+;; 	a symbol
+;; 		is automatically inserted at the head of the queue and
+;; 		execution is terminated (for debugging)
 
-  ;; 	(list 'migrated dt)
-  ;;      indicates that a model has changed its representation for some reason
+;; 	dt 
+;; 		normal execution
+
+;; 	(list 'introduce-new-agents dt list-of-new-agents)
+;; 	   indicates that the agents in list-of-new-agents should be
+;; 	   added to the simulation
+
+;; 	(list 'remove-me dt)
+;; 	   indicates that an agent should be removed from the simulation
+
+;; 	(list 'migrate dt list-of-suggestions)
+;; 	   the list-of-suggestions is so that an external assessment routine 
+
+;; 	(list 'domain dt message-concering-domain-problem)
+;; 		usually something like requests for greater resolution...
+
+;; 	(list 'migrated dt)
+;;      indicates that a model has changed its representation for some reason
 
 
 (definition-comment 'prep-agents
@@ -423,11 +576,11 @@
 
 (define boink 'undone)
 
-(define (prep-activate rq q-entry)
+(define (prep-activate pa-rq q-entry)
   (kdnl* 'prep "Prepping, in lambda")
   (set! boink q-entry)
   (if (isa? q-entry <agent>)
-		(let ((kernel (lambda x (apply kernel-call (append (list rq q-entry) x ))))
+		(let ((kernel (lambda x (apply kernel-call (cons pq-rq (cons q-entry x )))))
 				)
 		  (kdnl* 'prep "Prepping in apply" (name q-entry))
 		  (slot-set! q-entry 'agent-state 'ready-to-run)
@@ -439,14 +592,9 @@
 
 (define (prep-agents Q start end)
   (kdnl* 'prep "Prepping from" start "to" end "    with" Q)
-  (dnl* "Prepping from" start "to" end)
+  ;;  (dnl* "Prepping from" start "to" end)
 ;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
   
-  
-  (dnl* "Dumping")
-  (dnl (map name Q))
-  (dnl* "Dumped")
-
   (map (lambda (x) (prep-activate Q x)) Q)
   )
 
@@ -454,13 +602,61 @@
 (define (shutdown-agents Q . args)
   (for-each
 	(lambda (A)
-	  (let* ((kernel (lambda x (apply kernel-call (append (list rq A) x))))
+	  (let* ((kernel (lambda x (apply kernel-call (cons Q (cons A x)))))
 				)
-		 (apply agent-shutdown (append (list A kernel) args))
+		 (apply agent-shutdown (cons A (cons kernel args)))
 		 )
 	  )
 	Q)
-	)
+  )
+
+(define location-tree  '())
+(define split-at 16) ;; bisects cell when there are 16 entities or more
+(define split-flexibly #f) ;; Not implemented yet -- will allow each subdivision to be unequal in area
+(define use-list-for-locate #t)
+
+(define (locate Q type location #!rest radius)
+  (if use-list-for-locate
+		(filter (lambda (x)
+					 (if (isa? x <thing>)
+						  (or (eq? radius #t) (<= (distance x location) radius))
+						  #f)
+					 )
+				  Q)
+		(letrec ((traverse
+					 (lambda (node)
+						(cond
+						 ((null? node)
+						  '())
+						 ((= (length node) 3) ;; bottom
+						  (if (point-in-polygon location (bbox (car node) (cadr node)))
+								node
+								#f))
+						 ((= (length node) 6) ;; bottom
+						  (if (not (point-in-polygon location (bbox (car node) (cadr node))))
+								#f
+								(let* ((q (map traverse (cddr node)))
+										 (qr (filter (lambda (x) x) q)))
+								  (if (null? qr)
+										'()
+										(car qr)))))
+						 (#t (error "bad traversal in environment locate call" node location))))))
+		  (traverse location-tree))
+		))
+
+
+(define (add-thing-to-location self entity location)
+  (UNFINISHED-BUSINESS "Need to flesh this out")
+  #t
+  )
+
+(define (remove-thing-from-location  entity location)
+  (UNFINISHED-BUSINESS "Need to flesh this out")
+  )
+(define (split-location-tree)
+  (UNFINISHED-BUSINESS "Need to flesh this out")
+  #t)
+			
 
 
 (definition-comment 'run-agent
@@ -469,15 +665,15 @@
   "subjective time is set in  (run ...)")
 (define run-agent
   (let ((populist '())) ;; Remember the population list across
-								;; invocations ... (equiv to a "static" in C,
-								;; folks.)
+	 ;; invocations ... (equiv to a "static" in C,
+	 ;; folks.)
 
 
-	 (lambda (t stop rq . N) ;; This is the function "run-agent"
+	 (lambda (t stop ra-rq . N) ;; This is the function "run-agent"
 		(set! N (if (null? N) #f (car N)))
 
-		(let* ((rq rq)
-				 (process (if (and (not (null? rq)) (list? rq)) (car rq) #f)) 
+		(let* ((lra-rq ra-rq)
+				 (process (if (and (not (null? lra-rq)) (list? lra-rq)) (car lra-rq) #f)) 
 				 ;; ... either false or the lambda to run
 				 (agent-state (slot-ref process 'agent-state))
 				 )
@@ -496,10 +692,10 @@
 
 		  (if process (kdnl* 'running "running" (name process) "at" t))
 
-		  (test-queue-size rq N)
+		  (test-queue-size lra-rq N)
 		  ;; remove the agent's run request from the top of the queue
-		  (set! rq (excise process rq))
-		  (test-queue-size rq N)
+		  (set! lra-rq (excise process lra-rq))
+		  (test-queue-size lra-rq N)
 		  
 		  (kdnl* 'run-agent "In run-agent")
 
@@ -510,7 +706,8 @@
 		  ;; Here result should be a complex return value, not the
 		  ;; number of ticks used.
 		  (let* ((kernel
-					 (lambda x (apply kernel-call (append (list rq process) x ))))
+					 (lambda x (apply kernel-call (cons lra-rq (cons process x))))
+					 )
 					
 					(result (if (symbol? process) 
 									'bad-runqueue
@@ -557,79 +754,78 @@
 						"either call (parent-body) or (skip-parent-body).")
 					  )
 					 'missed-model-body))
+			 (let ()
+				(cond
+				 ((eqv? result 'ok)
+				  (set! lra-rq (q-insert lra-rq process Qcmp))
+				  lra-rq)
+
+				 ((number? result) 
+				  ;; The result (in this case) is the amount of time used
+				  ;; measured from the subjective-time of the agent.
+				  ;; q-insert knows how to find out "when" the agent is,
+				  ;; and will re-insert it correctly.  subjective-time is
+				  ;; updated
+				  (abort "(run ...) returned a number rather than a state")
+				  (set! lra-rq (q-insert lra-rq process Qcmp)))
+
+				 ((symbol? result) ;;----------------------------------------------
 				  (let ()
+					 (dnl "Got " result)
+
 					 (cond
-					  ((eqv? result 'ok)
-						(set! rq (q-insert rq process Qcmp))
-						rq)
+					  ((eqv? result 'remove)
+						lra-rq)
+					  (else 
+						(cons result lra-rq)))
+					 ))
+				 ((eqv? result #!void)
+				  (let ((s
+							(string-append "A " (symbol->string
+														(class-name-of process))
+												" tried to return a void from its "
+												"model-body.  This is an error")))
+					 ;;(Abort s)
+					 (abort s)
+					 ))
+				 (#t
+				  (set! lra-rq (q-insert lra-rq process Qcmp)))
+				 ((list? result)
+				  (case (car result)
+					 
+					 ;; Remove ===============================================================
+					 ('remove
+					  lra-rq
+					  ) ;; end of the migration clause
 
-					  ((number? result) 
-						;; The result (in this case) is the amount of time used
-						;; measured from the subjective-time of the agent.
-						;; q-insert knows how to find out "when" the agent is,
-						;; and will re-insert it correctly.  subjective-time is
-						;; updated
-						(abort "(run ...) returned a number rather than a state")
-						(set! rq (q-insert rq process Qcmp)))
+					 ;; Migrate to a different model representation ==========================
+					 ('migrate
+					  #f
+					  ) ;; end of the migration clause
 
-					  ((symbol? result) ;;----------------------------------------------
-						(let ()
-						  (dnl "Got " result)
-
-						  (cond
-							((eqv? result 'remove)
-							 rq)
-							(else 
-							 (cons result rq)))
-						  ))
-					  ((eqv? result #!void)
-						(let ((s
-								 (string-append "A " (symbol->string
-															 (class-name-of process))
-													 " tried to return a void from its "
-													 "model-body.  This is an error")))
-						  ;;(Abort s)
-						  (abort s)
-						  ))
-					  (#t
-						(set! rq (q-insert rq process Qcmp)))
-					  ((list? result)
-						(case (car result)
-						  
-						  ;; Remove ===============================================================
-						  ('remove
-							rq
-							) ;; end of the migration clause
-
-						  ;; Migrate to a different model representation ==========================
-						  ('migrate
-							#f
-							) ;; end of the migration clause
-
-						  ;; insert spawned offspring into the
-						  ;;system ** not implemented in make-entity
-						  ('spawnlist ;;-----------------------------------------------------------
-							#f
-							)
-						  (else 'boink)
-						  ) ; case
-						) ; cond clause
+					 ;; insert spawned offspring into the
+					 ;;system ** not implemented in make-entity
+					 ('spawnlist ;;-----------------------------------------------------------
+					  #f
 					  )
-					 )
-				  (test-queue-size rq N)
-				  (kdnl* 'run-agent "Finished with run-agent" (name process)
-							"@" (subjective-time process))
-				  ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
-				  ;; One might need to have a method that will take a kernelcall procedure from
-				  ;; another agent if there is out-of-band activity that requires a kernelcall.
-				  ;; This is the conservative option.
-				  rq)
-			 )
+					 (else 'boink)
+					 ) ; case
+				  ) ; cond clause
+				 )
+				)
+			 (test-queue-size lra-rq N)
+			 (kdnl* 'run-agent "Finished with run-agent" (name process)
+					  "@" (subjective-time process))
+			 ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
+			 ;; One might need to have a method that will take a kernelcall procedure from
+			 ;; another agent if there is out-of-band activity that requires a kernelcall.
+			 ;; This is the conservative option.
+			 lra-rq)
 		  )
 		)
 	 )
+  )
 
-(define nested-agents '())
 
 (definition-comment 'run-simulation
   "Q is the preloaded run-queue"

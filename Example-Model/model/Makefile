@@ -4,17 +4,18 @@
 # $Log$
 
 #DEBUGGING = -track-scheme -debug-location -debug-source -debug-environments
-DEBUGGING = -track-scheme -debug
-GSC = gambitc -f  $(DEBUGGING)
+#DEBUGGING = -track-scheme -debug
+DEBUGGING = 
+GSC = gambitc -f  $(DEBUGGING) 
 
 
-CC = gcc
+CC = gcc 
 CXX = g++
 
 
 #CPPFLAGS =
 FLAGS = 
-CFLAGS = -g
+CFLAGS = -g 
 CXXFLAGS = -g
 
 #LDFLAGS =
@@ -23,29 +24,64 @@ CXXFLAGS = -g
 
 
 # These *must not* be put into the rewrite group else they get overwritten.  YOU HAVE BEEN WARNED!
-SCLOS = preamble.scm sort.scm sclos.scm 
-KERNEL = utils.scm kdnl.scm kernel.scm
+
+SCLOS = preamble.scm sort.scm sclos.scm utils.scm sclos-extn.scm framework-declarations.scm framework.scm 
+KERNEL = kdnl.scm kernel.scm
+
+DECLARATIONS = landscape-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm
+
+DECS = declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
 SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm postscript.scm basic-population.scm
-CLASSDECS = framework.scm framework-classes.scm framework-declarations.scm declarations.scm
-CHASSIS = log-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm framework-wrappers.scm framework-methods.scm 
-LOG = log-methods.scm
+CLASSDECS = framework-classes.scm monitor-classes.scm log-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
+CHASSIS = framework-wrappers.scm framework-methods.scm declarations.scm
+LOG =  monitor-methods.scm log-methods.scm
 LANDSCAPE =  landscape-methods.scm
 PLANT = plant-methods.scm
 ANIMAL = animal-methods.scm
+RING = tree-ring.scm
 # END REWRITE GROUP
 
-ALLFILES = $(SCLOS) $(KERNEL) $(SUPPORT) $(CLASSDECS) $(CHASSIS) $(LOG) $(LANDSCAPE) $(PLANT) $(ANIMAL)
+ALLFILES = $(SCLOS) $(KERNEL) $(SUPPORT) $(CLASSDECS) $(DECS) $(CHASSIS) $(LOG) $(LANDSCAPE) $(PLANT) $(ANIMAL) $(RING)
 
 all: checks model
+	say Done
 
-model:	sclos.o1 support.o1 classdecs.o1 chassis.o1 log.o1 landscape.o1 plant.o1 animal.o1 kernel.o1
+model:	sclos.o1 support.o1 kernel.o1 classdecs.o1 chassis.o1 log.o1 landscape.o1 plant.o1 animal.o1
 	sed -ne '/# BEGIN REWRITE GROUP/,/# END REWRITE GROUP/p' -e '/# END REWRITE GROUP/q' < Makefile | egrep -v '^#' | tr '[A-Z]' '[a-z]' > rewrite
 	rm rewrite
 
-checks:
-	./run-checks
+check: checks linecount-nc
+
+# This is to minimise the risk of multiple generics
+.PHONY: declarations.scm
+declarations.scm: $(DECLARATIONS) 
+	touch declarations.scm 
+	mv declarations.scm .declarations.scm;
+	touch declarations.scm 
+	cat $(DECS) .declarations.scm | sort -k2 | uniq | egrep -v -e '^;'  > declarations.scm
+	@echo ';;; Local Variables:' >> declarations.scm 
+	@echo ';;; mode: scheme' >> declarations.scm
+	@echo ';;; outline-regexp: ";-+"' >> declarations.scm
+	@echo ';;; comment-column:0' >> declarations.scm
+	@echo ';;; comment-start: ";;; "' >> declarations.scm
+	@echo ';;; comment-end:"" ' >> declarations.scm
+	@echo ';;; End:' >> declarations.scm
+
+
+
+checks: linecount-nc
+	@./run-checks
+
+linecount:
+	@echo -n 'The number of lines of code is approximately: '
+	@cat $(ALLFILES) | wc -l
+
+linecount-nc:
+	@echo -n 'The number of lines of code is approximately: '
+	@grep '' $(ALLFILES) | fgrep -v ':;' | wc -l
+
 
 #make-load-wrappers:
 #	gsi rebuild-load-sequence.scm
@@ -68,6 +104,13 @@ support.o1.o: $(SUPPORT)
 support.o1: support.o1.o
 	$(CC) -shared support.o1.o $(SUPPORT:.scm=.o) -o support.o1
 
+kernel.o1.o: $(KERNEL)
+	$(GSC) -link -flat -o kernel.o1.c $(KERNEL)
+	$(GSC) -cc-options -D___DYNAMIC -obj $(KERNEL:.scm=.c) kernel.o1.c
+
+kernel.o1: kernel.o1.o
+	$(CC) -shared $(KERNEL:.scm=.o) kernel.o1.o -o kernel.o1
+
 classdecs.o1.o: $(CLASSDECS)
 	$(GSC) -link -flat -o classdecs.o1.c $(CLASSDECS)
 	$(GSC) -cc-options -D___DYNAMIC -obj $(CLASSDECS:.scm=.c) classdecs.o1.c
@@ -89,15 +132,12 @@ log.o1.o: $(LOG)
 log.o1: log.o1.o
 	$(CC) -shared $(LOG:.scm=.o) log.o1.o -o log.o1
 
-
 landscape.o1.o: $(LANDSCAPE)
 	$(GSC) -link -flat -o landscape.o1.c $(LANDSCAPE)
 	$(GSC) -cc-options -D___DYNAMIC -obj $(LANDSCAPE:.scm=.c) landscape.o1.c
 
 landscape.o1: landscape.o1.o 
 	$(CC) -shared $(LANDSCAPE:.scm=.o) landscape.o1.o -o landscape.o1
-
-
 
 plant.o1.o: $(PLANT)
 	$(GSC) -link -flat -o plant.o1.c $(PLANT)
@@ -115,19 +155,11 @@ animal.o1: animal.o1.o
 	$(CC) -shared $(ANIMAL:.scm=.o) animal.o1.o -o animal.o1
 
 
-kernel.o1.o: $(KERNEL)
-	$(GSC) -link -flat -o kernel.o1.c $(KERNEL)
-	$(GSC) -cc-options -D___DYNAMIC -obj $(KERNEL:.scm=.c) kernel.o1.c
-
-kernel.o1: kernel.o1.o
-	$(CC) -shared $(KERNEL:.scm=.o) kernel.o1.o -o kernel.o1
-
-
 framework.o1: sclos.o1.o support.o1.o chassis.o1.o classdecs.o1.o log.o1.o landscap1.o1.o plant.o1.o animal.o1.o kernel.o1.o
 	$(CC) -shared $(KERNEL:.scm=.o) 
 
 clean:
-	rm -fv *.o $(SCLOS:.scm=.c) model-bolus.scm
+	rm -fv *.o $(SCLOS:.scm=.c) *.c model-bolus.scm
 
 
 veryclean: clean

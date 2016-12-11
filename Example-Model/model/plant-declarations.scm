@@ -13,7 +13,9 @@
 ;-  Code 
 
 ;; Individual-based plants
+(declare-method plant-radius "returns the radius of the plant")
 (declare-method fruit-count "returns the number of fruit produced by an agent")
+(declare-method add-fruit "adjusts the number of fruit in a cell")
 
 		
 ;-  The End 

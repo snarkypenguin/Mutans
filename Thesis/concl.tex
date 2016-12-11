@@ -1,12 +1,132 @@
-% chap4.tex (Chapter 4 of the thesis)
 
 \chapter[CONCLUSION]{Conclusion} \label{concl}
-If you laid all the modellers in the world end to end, you have too
-much time on your hands.
-\section{New Section}
+%If you laid all the modellers in the world end to end, you'd have had
+%too much time on your hands.
+
+\subsection{Modelling over the past few decades}
+
+The domain models are expected to cover is increasing in breadth and
+complexity --- ecosystems models, for example, may now be called on to
+represent large areas, and significant numbers of species.  This is
+not inherently intractable; equation-based modelling is well suited to
+the modelling of such systems, but we are also often required to
+include subsystems where equation-based models are a poor fit. Hybrid
+models, which incorporate both equation-based representations and
+agent- or individual-based models for those components they are best
+suited, offer a way to deal with many of these situations.  This
+solution isn't adequate where the nature of the interactions changes
+the dynamics of the system -- classic examples being the effects of
+parasites or contaminants which alter behaviour or reproductive
+success. Chapters \ref{modelefficiency} and \ref{adaptiveselection}
+showed that changing the representation of a system using a selection
+strategy based on its state may have benefits both in terms of
+representational fidelity and in computational cost.  
+
+\subsection{Possible, but not implemented}
+
+Record of transitions---indicative of the sensitivities of the
+system, 
+
+
+
+
+\subsection{Deterministic strategies}
+% Like Chapter \ref{modelefficiency}
+benefits -- fast
+
+copes with imperatives
+
+rigidity
+
+\subsection{Adaptive strategies}
+% Like Chapter \ref{adaptiveselection}
+not without overhead
+
+can handle imperatives, but still overheads (associated with
+assessment and mapping to and from assessment space)
+
+flexible
+
+
+\subsection{Combinations of the two}
+
+\subsection{Parallelism and Distributed models}
+
+
+
+
+\subsection{Into the future}
+
+Use of region partitioning in the state space
+
+nearest neighbours
+
+interpolation
 
 
 
 
 
+
+The likelihood is that models will continue to increase in the scope
+of the domains they model as well as the level of detail they are
+required to simulate.  There are issues that arise from both of these
+eventualities: as the scope of a  model's domain increases, the computational
+requirements of the model typically increase much more rapidly -- adding new
+species or doubling the area may increase the number of interactions
+by orders of magnitude. While quantum processors may help with some
+aspects of simulation (such as path resolution or prey selection) to 
+ameliorate this, it seems unlikely that they will provide a magic
+bullet; in modelling, past experience suggests that the problem any new model
+addresses will grow to point that it is just barely tractable. If this is
+true, no real technological advance or methodological insight (such as
+changing representations!) is really going to do much more that shift
+the boundary: modellers will still sit impatiently waiting for the
+model run to finish, wishing they had more memory or a faster CPU.
+
+Perhaps more significant is the effect of increasing demand for
+process resolution (``realism'').  Clearly faster hardware or more
+efficient algorithms will help address this in a more sustainable way,
+but it isn't always the case that a more resolved model will improve
+the correspondence between the model results with the trajectory of a
+real system.  Equation based systems, for example, are usually
+constructed with parameterisations that incorporate the naturally
+occuring aggregation of data that time and space provide.
+Constructing an individual-based model from parameters obtained by
+observing the activity of individuals may not produce, the sort of
+large scale dynamics observed in the analytic model or in vivo, and an
+individual-based model using population-scale parameterisations may
+fail to exhibit the dynamics observed in individuals.
+
+Models with embedded submodels which have naturally different scales
+(temporally or spatially) need to be able to ensure that the
+interactions between elements of the models are well founded: it may
+be perfectly sound to simulate juvenile cicadas in a forest stand
+using timesteps of seven or thirteen years for most of their life
+cycle, but such a timestep will fail to capture the dynamics of the
+population once they emerge.  There is clearly a need for approaches
+which can adapt to dramatic changes in behaviour, time scales, and
+spatial range.
+
+%% A number of predators (sharks, birds, cetaceans) may
+%% travel quite significant distances to take advantage of infrequent
+%% (though often annual) events, such as the hatching of turtles or the
+%% departure of penguins from rookeries). These cases may not require a
+%% complete change in representation, but there is a significant change
+%% in their foraging strategy. These examples are readily dealt with by
+%% incorporating alternate code paths when special conditions pertain,
+%% but a more general approach allows for models which can 
+
+
+
+
+
+
+The  ???? in this work addresses the problems which arise when dealing
+with complex systems with components with dynamics which are sensitive
+to the state of the system.  Models can be constructed so that their
+components can adapt to the most appropriate form for the state of the
+model through the whole simulation. In practice, it is possible to
+choose a strategy which optimises for any appropriate measure ---
+speed, fidelity, or the cost of real-world management, for example.
 
