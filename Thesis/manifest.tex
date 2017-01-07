@@ -5,8 +5,10 @@
 %\DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
 %\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
-\newcommand{\msdec}[1]{\ddot{#1}}
+%\newcommand{\msdec}[1]{\ddot{#1}}
+%\newcommand{\msdec}[1]{\dot{#1}}
 \newcommand{\set}[1] {\mb{#1}}
+\newcommand{\msdec}[1]{\bar{#1}}
 \newcommand{\multiset}[1]{\mb{\msdec{#1}}}
 %\newcommand{\multiset}[1] {\mc{{#1}}}
 %\newcommand{\multiset}[1]{\contour{gray}{\protect\mb{#1}}}
@@ -27,6 +29,7 @@
 \newcommand{\BBN}[0]{\mathbb{N}}
 \newcommand{\BBNO}[0]{\mathbb{N}^0}
 \newcommand{\BBNI}[0]{\mathbb{N}^+}
+
 
 \DeclareMathOperator{\agg}{agg}
 \DeclareMathOperator{\scalar}{scalar}
@@ -90,8 +93,13 @@
 
 \newcommand{\LS}{\Lambda^{{}^{\Sigma}}}
 
-%{\mbox{\mathsurround=0pt \makebox[0pt][l]{\(\cap\)}\(\centerdot\)})
 
+\newcommand{\istate}{\emph{i}-state}
+\newcommand{\istateC}{\emph{i}-state configuration}
+\newcommand{\istateD}{\emph{i}-state distribution}
+\newcommand{\pstate}{\emph{p}-state}
+
+%{\mbox{\mathsurround=0pt \makebox[0pt][l]{\(\cap\)}\(\centerdot\)})
 
 %\def\capcross{\mathrel{\mathchoice{\CAPCROSS}{\CAPCROSS}{\scriptsize\CAPCROSS}{\tiny\CAPCROSS}}}
 %\def\CAPCROSS{{\setbox0\hbox{\cap}\rlap{\hbox to \wd0{\centerdot}}\box0}}
@@ -100,8 +108,14 @@
 %\newcommand{\marginnote}[1]{\marginpar{\footnotesize{#1}}}
 %\newcommand{\marginnote}[1]{\marginpar{\small{#1}}}}
 %\newcommand{\marginnote}[1]{\marginpar{#1}}
+
 \newcommand{\marginnote}[1]{}
 
+%\def\MSCUP{{\setbox0\hbox{\cup}\rlap{\hbox to \wd0{\dagger}}\box0}}
+%\def\mscup{\mathrel{\mathchoice{\MSCUP}{\MSCUP}{\scriptsize\MSCUP}{\tiny\CUPPLUS}}}
+
+\newcommand{\msetminus}{\bbslash}
+\newcommand{\mscup}{\uplus}
 \newcommand{\cupdot}{\udot}
 \newcommand{\cupplus}{\uplus}
 \newcommand{\bigcupplus}{\biguplus}
@@ -143,7 +157,7 @@
 \newcommand{\NotHere}[1]{\textsf{#1}}
 
 \newcommand{\HERE}{{\Huge{**** HERE ****}}}
-\newcommand{\NB}[1]{\Large{\emph #1}}
+\newcommand{\NB}[1]{\Large{\emph{#1}}}
 
 \newcommand{\etal}[0]{\emph{et al.}}
 %\newcommand{\etal}[0]{et al.}
@@ -166,7 +180,7 @@
 
 \newcommand{\bdot}{%
 \setbox0\hbox{\box}
-\rlap{\hbox to \wd0{\hss\cdot\hss}}\box0
+\rlap{\hbox{ to \wd0{\hss\cdot\hss}}}\box0
 }
 
 \newcommand{\bplus}{\boxplus}
@@ -224,20 +238,16 @@
 \newcommand{\xtree}[0]{$\eta$-tree}
 \newcommand{\xtrees}[0]{$\eta$-trees}
 
-\newcommand{\Node}[3]{\left({#1},{#2}, {#3}\right)}
-\newcommand{\NNode}[3]{\bigl({#1},{#2}, {#3}\bigr)}
-\newcommand{\NNNode}[3]{\Bigl({#1},{#2}, {#3}\Bigr)}
-\newcommand{\NNNNode}[3]{\BIGL({#1},{#2}, {#3}\BIGR)}
 
-\newcommand{\SNode}[1]{\Node{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
-\newcommand{\SNNode}[1]{\NNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
-\newcommand{\SNNNode}[1]{\NNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
-\newcommand{\SNNNNode}[1]{\NNNNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\poly}[1]{\mathsf{#1}}
 
-\newcommand{\NodeF}[2]{\left(\rv{#1},\rlabel{#2}\right)}
-\newcommand{\NNodeF}[2]{\bigl(\rv{#1},\rlabel{#2}\bigr)}
-\newcommand{\NNNodeF}[2]{\Bigl(\rv{#1},\rlabel{#2}\Bigr)}
-\newcommand{\NNNNodeF}[2]{\BIGL(\rv{#1},\rlabel{#2}\BIGR)}
+
+
+\newcommand{\polynomialfactor}[3]{\Pi_{i=1}^{#3} {#1}_{i\/j}^{{#2}_{i\/j}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   a                 k    a                             x   e   n
+\newcommand{\explicitpoly}[5]{{#1}_0 + \sum_{j=1}^{#4} {#1}_j \bigl(\polynomialfactor{#2}{#3}{#5}\bigr)}
+
 
 \newcommand{\node}[1]{\,\mb{#1}}
 \newcommand{\onetree}{\node{\I}}
@@ -281,39 +291,36 @@
 \newcommand{\restrictedto}[2]{\node{#1}\vert_{\nlabels{#2}}}
 \newcommand{\nrestrictedto}[2]{\node{#1}\vert_{\notnlabels{#2}}}
 
-\newcommand{\childO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\childOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
-& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\childOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\\
+&\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\childObR}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
-& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\childObL}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1} & \\
-\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childObR}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\\
+&\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\childObL}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}&\\
+\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\extnO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\extnOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
-& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\extnO}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{#3}=\nlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\extnOb}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1} \\
+&\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\extnObR}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}  \\
-& \qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\extnObL}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1} & \\
-\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}}
-
-%-- 
-
+\newcommand{\extnObR}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1} \\
+&\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\extnObL}[5]{\bigl(\nrestrictedto{#1}{#2}\cup\nrestrictedto{#2}{#1}&\\
+\qquad\cup\{\node{#3}{#5}\node{#4}:\node{#3}\in\restrictedto{#1}{#2}\mand\node{#4}\in\restrictedto{#2}{#1}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
 \newcommand{\sv}[1]{\ensuremath{\scalar(\nlabel{#1})}}
 
-\newcommand{\ring}{ring}
+\newcommand{\cring}{ring}
 \newcommand{\rng}{rng}
 
 \newcommand{\RNGI}[1]{\breve{#1}}
 \newcommand{\RNG}[1]{\check{#1}}
 
 \UseSecondVersion{
-\newcommand{\RING}[1]{\RNGI{\mb{T}}}
+\newcommand{\CRING}[1]{\RNGI{\mb{T}}}
 }{
-\newcommand{\RING}[1]{\RNG{\mb{T}}}
+\newcommand{\CRING}[1]{\RNG{\mb{T}}}
 }
 
 \newcommand{\STRUCT}{field}
@@ -362,13 +369,13 @@
 \newcommand{\restrictedtoq}[2]{\qnode{#1}\vert_{\qlabels{#2}}}
 \newcommand{\nrestrictedtoq}[2]{\qnode{#1}\vert_{\notqlabels{#2}}}
 
-\newcommand{\extnOq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\extnObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}  \\
-& \qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\extnOq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\extnObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1} \\
+&\qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\childOq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\childObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}  \\
-& \qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childOq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1}\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\childObq}[5]{\bigl(\nrestrictedtoq{#1}{#2}\cup\nrestrictedtoq{#2}{#1} \\
+&\qquad\cup\{\qnode{#3}{#5}\qnode{#4}:\qnode{#3}\in\restrictedtoq{#1}{#2}\mand\qnode{#4}\in\restrictedtoq{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
 %-- 
 
@@ -417,17 +424,17 @@
 \newcommand{\restrictedtor}[2]{\rnode{#1}\vert_{\rlabels{#2}}}
 \newcommand{\nrestrictedtor}[2]{\rnode{#1}\vert_{\notrlabels{#2}}}
 
-\newcommand{\childOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\childObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1} \\
-& \qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\childOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}\sim\qlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\childObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\\
+&\qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}\sim\qlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\childIr}[5]{\{\rnode{#3}\,{#5}\,\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\setminus \nullspace}
+\newcommand{\childIr}[5]{\{\rnode{#3}\,{#5}\,\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\setminus\nullspace}
 
-\newcommand{\extnOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\bigr)\setminus \{\zerotree\}}
-\newcommand{\extnObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1} \\
-& \qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus \{\zerotree\}}
+\newcommand{\extnOr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\bigr)\setminus\{\zerotree\}}
+\newcommand{\extnObr}[5]{\bigl(\nrestrictedtor{#1}{#2}\cup\nrestrictedtor{#2}{#1}\\
+&\qquad\cup\{\rnode{#3}{#5}\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{r}=\qlabel{s}\}\bigr)\setminus\{\zerotree\}}
 
-\newcommand{\extnIr}[5]{\{\rnode{#3}\,{#5}\,\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\setminus \nullspace}
+\newcommand{\extnIr}[5]{\{\rnode{#3}\,{#5}\,\rnode{#4}:\rnode{#3}\in\restrictedtor{#1}{#2}\mand\rnode{#4}\in\restrictedtor{#2}{#1}\mand\qlabel{#3}=\qlabel{#4}\}\setminus\nullspace}
 
 \newcommand{\expandednorm}[5]{\frac{#1}{\card{#2}^#3}\sum_{\node{#4}\in{#5}}\nabs{\node{#4}}}
 \newcommand{\quadexpandednorm}[5]{\frac{#1}{\card{#2}^#3}\quad\sum_{\node{#4}\in{#5}}\nabs{\node{#4}}}
@@ -437,16 +444,6 @@
 \newcommand{\qquadstexpandednorm}[5]{\frac{#1}{\card{#2}^#3}\qquad\stsum{\qquad\node{#4}\in{#5}}\qquad\nabs{\node{#4}}}
 
 \newcommand{\mstexpandednorm}[5]{\frac{#1}{\card{#2}^#3}\quad\mstsum{\node{#4}\in{#5}}\nabs{\node{#4}}}
-
-%\newcommand{\SNode}[3]{({#1}, {#2}, {#3})}
-%\newcommand{\SNNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
-%\newcommand{\SNNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
-%\newcommand{\SNNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
-
-%\newcommand{\NNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
-%\newcommand{\NNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
-%\newcommand{\NNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
-
 
 %--
 
@@ -481,35 +478,60 @@
 \newcommand{\Tcard}[1]{\card{#1}_{\intercal}}
 \newcommand{\content}[1]{\llbracket{#1}\rrbracket}
 
+\newcommand{\Node}[3]{\left({#1},{#2}, {#3}\right)}
+\newcommand{\NNode}[3]{\bigl({#1},{#2}, {#3}\bigr)}
+\newcommand{\NNNode}[3]{\Bigl({#1},{#2}, {#3}\Bigr)}
+\newcommand{\NNNNode}[3]{\BIGL({#1},{#2}, {#3}\BIGR)}
+
+\newcommand{\SNode}[1]{\Node{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNode}[1]{\NNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNode}[1]{\NNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNNode}[1]{\NNNNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+
+\newcommand{\NodeR}[2]{\left({#1},{#2}\right)}
+\newcommand{\NNodeR}[2]{\bigl({#1},{#2}\bigr)}
+\newcommand{\NNNodeR}[2]{\Bigl({#1},{#2}\Bigr)}
+\newcommand{\NNNNodeR}[2]{\BIGL({#1},{#2}\BIGR)}
+
+%\newcommand{\SNode}[3]{({#1}, {#2}, {#3})}
+%\newcommand{\SNNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\SNNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\SNNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+%\newcommand{\NNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\NNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\NNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+
 %\newcommand{\Tcard}[1]{\norm{#1}}
 %\newcommand{\Tcard}[1]{\lHash #1 \rHash}
 
-%% \newcommand{\capcross}{\mbox{\ooalign{\(\cap\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
-%% \newcommand{\cupcross}{\mbox{\ooalign{\(\cup\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
+%%\newcommand{\capcross}{\mbox{\ooalign{\(\cap\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
+%%\newcommand{\cupcross}{\mbox{\ooalign{\(\cup\)\cr\hidewidth\(\times\)\hidewidth\cr}}}
 
-%% \newcommand{\capplus}{\mbox{\ooalign{{\large\(\cap\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
-%% \newcommand{\cupplus}{\mbox{\ooalign{{\large\(\cup\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
+%%\newcommand{\capplus}{\mbox{\ooalign{{\large\(\cap\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
+%%\newcommand{\cupplus}{\mbox{\ooalign{{\large\(\cup\)}\cr\hidewidth\({\text{\tiny{+}}}\)\hidewidth\cr}}}
 
-%% \newcommand{\capdot}{\dot{\cap}}
-%% \newcommand{\cupdot}{\dot{\cup}}
+%%\newcommand{\capdot}{\dot{\cap}}
+%%\newcommand{\cupdot}{\dot{\cup}}
 
-%% \newcommand{\symint}{\capcross}
-%% \newcommand{\symunion}{\cupcross}
+%%\newcommand{\symint}{\capcross}
+%%\newcommand{\symunion}{\cupcross}
 
 % \makeatletter
-% \def\moverlay{\mathpalette\mov@rlay}
-% \def\mov@rlay#1#2{\leavevmode\vtop{%
+%\def\moverlay{\mathpalette\mov@rlay}
+%\def\mov@rlay#1#2{\leavevmode\vtop{%
 %    \baselineskip\z@skip \lineskiplimit-\maxdimen
 %    \ialign{\hfil$\m@th#1##$\hfil\cr#2\crcr}}}
-% \newcommand{\charfusion}[3][\mathord]{
+%\newcommand{\charfusion}[3][\mathord]{
 %     #1{\ifx#1\mathop\vphantom{#2}\fi
 %         \mathpalette\mov@rlay{#2\cr#3}
 %       }
 %     \ifx#1\mathop\expandafter\displaylimits\fi}
 % \makeatother
 
-% \newcommand{\cupplus}{\charfusion[\mathbin]{\cup}{+}}
-% \newcommand{\bigcupplus}{\charfusion[\mathop]{\bigcup}{+}}
+%\newcommand{\cupplus}{\charfusion[\mathbin]{\cup}{+}}
+%\newcommand{\bigcupplus}{\charfusion[\mathop]{\bigcup}{+}}
 
 \newcommand{\lbl}[1]{\mathsf{#1}}
 \newcommand{\Tlbl}[1]{$\mathsf{#1}$}
@@ -582,10 +604,10 @@
 %-- Commands for fonts
 
 \DeclareRobustCommand\chancery{% \fontfamily{pzc}% \fontencoding{T1}%
-\selectfont} \newcommand\textpzc[1]{\begingroup \fontfamily{pzc}%
+\selectfont}\newcommand\textpzc[1]{\begingroup \fontfamily{pzc}%
 \fontencoding{T1}}% \selectfont #1\endgroup}
 
-\def\calli#1{{\calligra #1}} \def\chanc#1{{\chancery #1}}
+\def\calli#1{{\calligra #1}}\def\chanc#1{{\chancery #1}}
 
 
 %-- Newcommands
@@ -595,14 +617,14 @@
 
 \newcommand{\resetfonts}[0]{\fontencoding{\encodingdefault}\fontfamily{\familydefault}\fontseries{\seriesdefault}\fontshape{\shapedefault}\selectfont}
 
-%%\newcommand{\SupData} \newcommand{\appB}
+%%\newcommand{\SupData}\newcommand{\appB}
 
-\newcommand{\Mtt}[1]{\mathtt{#1}} \newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\Mtt}[1]{\mathtt{#1}}\newcommand{\ttt}[1]{\texttt{#1}}
 
 %\newcommand{\SD}[0]{\textsf{\emph{SD}}}
 %\newcommand{\IB}[0]{\textsf{\emph{IB}}}
 
-\newcommand{\SD}[0]{\emph{SD}} \newcommand{\IB}[0]{\emph{IB}}
+\newcommand{\SD}[0]{\emph{SD}}\newcommand{\IB}[0]{\emph{IB}}
 
 \newcommand{\location}[0]{\mathit{Locus}}
 \newcommand{\mass}[0]{\mathit{Mass}}
@@ -643,26 +665,26 @@
 %\newcommand{\stree}[3]{\ensuremath{(\!({\mc{#1}}, #2, \{#3\})\!)}}
 %\newcommand{\stree}[3]{\ensuremath{(\!:\mc{#1}, #2, \{#3\}:\!)}}
 %\newcommand{\stree}[3]{\ensuremath{(\!\vert\mc{#1}, #2,
-%\{#3\}\vert\!)}}  \newcommand{\stree}[3]{\ensuremath{(\!\vert\mc{#1},
-%#2, \{#3\}\vert\!)}}  \newcommand{\etree}[3]{\ensuremath{(\mc{#1},
+%\{#3\}\vert\!)}} \newcommand{\stree}[3]{\ensuremath{(\!\vert\mc{#1},
+%#2, \{#3\}\vert\!)}} \newcommand{\etree}[3]{\ensuremath{(\mc{#1},
 %#2, \{#3\})}}
 
 %\newcommand{\stree}[3]{\ensuremath{(\!\vert\mc{#1}, #2,
-%\{#3\}\vert\!)}}  \newcommand{\etree}[3]{\ensuremath{(\mc{#1}, #2,
+%\{#3\}\vert\!)}} \newcommand{\etree}[3]{\ensuremath{(\mc{#1}, #2,
 %\{#3\})}}
 
 %\newcommand{\sxtree}[1]{\chanc{root}, #1, }
 %\newcommand{\nxtree}[2]{\chanc{#1}, #2, }
 
-%% \newcommand{\tree}[0]{\textsf{tree}}
-%% \newcommand{\trees}[0]{\textsf{trees}}
-%% \newcommand{\Tree}[0]{\textsf{Tree}}
-%% \newcommand{\Trees}[0]{\textsf{Trees}}
+%%\newcommand{\tree}[0]{\textsf{tree}}
+%%\newcommand{\trees}[0]{\textsf{trees}}
+%%\newcommand{\Tree}[0]{\textsf{Tree}}
+%%\newcommand{\Trees}[0]{\textsf{Trees}}
 
-%% \newcommand{\stree}[0]{\textsf{status tree}}
-%% \newcommand{\strees}[0]{\textsf{status trees}}
-%% \newcommand{\Stree}[0]{\textsf{Status tree}}
-%% \newcommand{\Strees}[0]{\textsf{Status trees}}
+%%\newcommand{\stree}[0]{\textsf{status tree}}
+%%\newcommand{\strees}[0]{\textsf{status trees}}
+%%\newcommand{\Stree}[0]{\textsf{Status tree}}
+%%\newcommand{\Strees}[0]{\textsf{Status trees}}
 
 \DeclareMathOperator{\statevector}{state}
 \DeclareMathOperator{\score}{score}
@@ -671,8 +693,6 @@
 \DeclareMathOperator{\Rassess}{rep\_assess}
 \DeclareMathOperator{\needs}{needs}
 
-
-
 \newcommand{\polystruct}[0]{ring}
 \newcommand{\polyrat}[0]{}
 \newcommand{\polyform}[0]{multinomial}
@@ -680,11 +700,7 @@
 \newcommand{\polytype}[0]{\polystruct\ of \polyrat\ \polyform}
 \newcommand{\polytypes}[0]{\polystruct\ of \polyrat\ \polyforms}
 
-
 %\newcommand{\polystruct}{rng\ }
 %\newcommand{\polyrat}{\ }
 %\newcommand{\polytype}{commutative rng of\ }
 \typeout{manifest.tex finished ******* }
-
-
-

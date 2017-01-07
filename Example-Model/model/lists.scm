@@ -213,7 +213,7 @@
 
 
 ;; guarded
-(define list-ref
+
 
 ; Takes sets an element in a list
 (define (list-set! l i v)
@@ -233,6 +233,7 @@
 	 (let ((olr LL))
 		(lambda (lst ix)
 		  (if (number? ix) (olr lst ix) (map (lambda (y) (olr lst y)) ix)))))
+  )
 
 
 ;; the index can be a list of indices (and if it is the value must be a corresponding list)

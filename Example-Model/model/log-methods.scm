@@ -34,12 +34,12 @@ close pages and emit 'showpage' for postscript stuff.
 ;; a high priority; as a consequence they get sorted to the front of a
 ;; timestep
 (agent-initialisation-method
- (<introspection> args) (no-default-variables)
+ (<log-introspection> args) (no-default-variables)
  (set-state-variables
-  self (list 'type 'introspection
-				 'priority introspection-priority
-				 'jiggle 0 'introspection-list '() 
-				 'timestep-epsilon 1e-6 'file #f
+  self (list 'type 'logger
+				 'priority introspection-priority ;; also set in <introspection>
+				 'jiggle 0 'introspection-list '()  ;; also set in <introspection>
+				 'timestep-epsilon 1e-6 'file #f ;; also set in <introspection>
 				 'filename #f 'filetype #f
 				 'format 'text 'missing-val "NoData"
 				 'show-field-name #f 'preamble-state '()
@@ -79,15 +79,15 @@ close pages and emit 'showpage' for postscript stuff.
 				 'variables-may-be-set #t
 				 ))
  (initialise-parent) ;; call "parents" last to make the
- ;; initialisation xxxxxxxxxxxxxxxxxxxblist work
+ ;; initialisation list work
  (set-state-variables self args)
  )
 
-(model-method (<introspection> <number> <number>) (agent-prep self start end)
+(model-method (<log-introspection> <number> <number>) (agent-prep self start end)
 				  (agent-prep-parent self start end) ;; parents should prep first
 				  )
 
-(model-method <introspection> (agent-shutdown self #!rest args)
+(model-method <log-introspection> (agent-shutdown self #!rest args)
 				  (let ((file (my 'file)))
 					 (if (and (my 'file)
 								 (output-port? (my 'file))
@@ -123,40 +123,17 @@ close pages and emit 'showpage' for postscript stuff.
 				  (emit-page self)
 
 				  ;;(skip-parent-body)
-				  (parent-body)
-				  ;;(max dt (* 2.0 dt))
-				  dt
+				  (parent-body) ;; parent body sets the time step used
 				  ))
 
-(define (exclude-voids lst)
-  (filter (lambda (x) (not (equal? #!void x))) lst))
 
-(model-method (<introspection> <agent>) (insert-agent! self target)
-				  (set-my! 'introspection-list (exclude-voids  (cons target
-																 (my 'introspection-list)))))
-
-(model-method (<introspection> <agent>) (append-agent! self target)
-				  (if (not (equal? target #!void))
-						(set-my! 'introspection-list (exclude-voids (append (my 'introspection-list)
-																		 (list target))))))
-
-(model-method <introspection> (introspection-list self)
-				  (my 'introspection-list))
-(model-method <introspection> (introspection-times self)
-				  (my 'timestep-schedule))
-
-(model-method (<introspection> <list>) (set-introspection-list! self lst)
-				  (set-my! 'introspection-list (exclude-voids lst)))
-(model-method (<introspection> <list>) (set-introspection-times! self lst)
-				  (set-my! 'timestep-schedule (exclude-voids lst)))
-
-(model-method (<introspection> <list>) (set-variables! self lst)
+(model-method (<log-introspection> <list>) (set-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables lst)
 						(abort "cannot extend variables after it starts running")
 						))
 
-(model-method (<introspection> <list>) (extend-variables! self lst)
+(model-method (<log-introspection> <list>) (extend-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables (unique* (append (my 'variables) lst)))
 						(abort "cannot extend variables after it starts running")

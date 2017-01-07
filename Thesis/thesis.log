@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.8.20)  1 DEC 2016 21:13
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2016.12.15)  7 JAN 2017 12:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -79,6 +79,7 @@ Package: sectsty 2002/02/25 v2.0.2 Commands to change all sectional heading sty
 les
 )
 (/usr/share/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2016/09/06 3.8 Extensive control of page headers and footers
 \fancy@headwidth=\skip45
 \f@ncyO@elh=\skip46
 \f@ncyO@erh=\skip47
@@ -400,6 +401,25 @@ File: listings.cfg 2015/06/04 1.6 listings configuration
 ))
 Package: listings 2015/06/04 1.6 (Carsten Heinz)
 
+(/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+
+(/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Package option `usenames' ignored on input line 216.
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+LaTeX Info: Redefining \color on input line 709.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+)
 (/usr/share/texmf-dist/tex/latex/base/textcomp.sty
 Package: textcomp 2016/06/19 v1.99m Standard LaTeX package
 Package textcomp Info: Sub-encoding information:
@@ -481,13 +501,21 @@ Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
 Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
 Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
 Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
+)
+(/usr/share/texmf-dist/tex/latex/bezos/accents.sty
+Package: accents 2006/05/12 v1.3 Math Accent Tools
+\cc@skew=\dimen133
+\cc@wd=\dimen134
+\cc@code=\count138
+\cc@group=\count139
+\cc@skewchar=\count140
 ) (./lstlang0.sty)
 (/usr/share/texmf-dist/tex/latex/natbib/natbib.sty
 Package: natbib 2010/09/13 8.31b (PWD, AO)
 \bibhang=\skip71
 \bibsep=\skip72
 LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count138
+\c@NAT@ctr=\count141
 )
 (/usr/share/texmf-dist/tex/latex/fundus-calligra/calligra.sty
 Package: calligra 2012/04/10 v1.9 LaTeX package calligra
@@ -496,57 +524,57 @@ Got packages
 Starting document
 (./prelude.tex (./manifest.tex
 ******* in manifest.tex
-\c@definition=\count139
-\c@corollary=\count140
-\c@proposition=\count141
-\c@lemma=\count142
-\c@theorem=\count143
-\c@remark=\count144
-\c@example=\count145
+\c@definition=\count142
+\c@corollary=\count143
+\c@proposition=\count144
+\c@lemma=\count145
+\c@theorem=\count146
+\c@remark=\count147
+\c@example=\count148
 manifest.tex finished ******* 
-)) (./newcom.tex) (./thesis.aux (./tree-ring-formulation.aux))
+)) (./newcom.tex) (./thesis.aux)
 \openout1 = `thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 129.
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 129.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 129.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 131.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 131.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 131.
 
 
 (/usr/share/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 129.
-LaTeX Font Info:    Try loading font information for OT1+ocm on input line 129.
+LaTeX Font Info:    ... okay on input line 131.
+LaTeX Font Info:    Try loading font information for OT1+ocm on input line 131.
 
-LaTeX Font Info:    No file OT1ocm.fd. on input line 129.
+LaTeX Font Info:    No file OT1ocm.fd. on input line 131.
 
 
 LaTeX Font Warning: Font shape `OT1/ocm/m/n' undefined
-(Font)              using `OT1/cmr/m/n' instead on input line 129.
+(Font)              using `OT1/cmr/m/n' instead on input line 131.
 
 (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count146
-\scratchdimen=\dimen133
+\scratchcounter=\count149
+\scratchdimen=\dimen135
 \scratchbox=\box34
-\nofMPsegments=\count147
-\nofMParguments=\count148
+\nofMPsegments=\count150
+\nofMParguments=\count151
 \everyMPshowfont=\toks32
-\MPscratchCnt=\count149
-\MPscratchDim=\dimen134
-\MPnumerator=\count150
-\makeMPintoPDFobject=\count151
+\MPscratchCnt=\count152
+\MPscratchDim=\dimen136
+\MPnumerator=\count153
+\makeMPintoPDFobject=\count154
 \everyMPtoPDFconversion=\toks33
 ) (/usr/share/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
 Package: pdftexcmds 2016/05/21 v0.22 Utility functions of pdfTeX for LuaTeX (HO
@@ -593,7 +621,7 @@ Package grfext Info: Graphics extension search list:
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\c@lstlisting=\count152
+\c@lstlisting=\count155
  (./chap1.tex
 LaTeX Font Info:    Try loading font information for OT1+lmr on input line 2.
 
@@ -617,147 +645,167 @@ LaTeX Font Warning: Font shape `OT1/ocm/m/sl' undefined
 LaTeX Font Warning: Font shape `OT1/ocm/m/it' undefined
 (Font)              using `OT1/ocm/m/n' instead on input line 5.
 
-[4] [1]
+LaTeX Font Info:    Try loading font information for OT1+lmtt on input line 5.
+(/usr/share/texmf-dist/tex/latex/lm/ot1lmtt.fd
+File: ot1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+) [4] [1]
 Chapter 1.
-Chapter 1: Overview and introduction
+Chapter 1: Introduction
 
 LaTeX Font Warning: Font shape `OT1/ocm/bx/n' undefined
-(Font)              using `OT1/ocm/m/n' instead on input line 21.
+(Font)              using `OT1/ocm/m/n' instead on input line 18.
 
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 47.
-(/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
+LaTeX Font Info:    Try loading font information for TS1+ocm on input line 26.
+LaTeX Font Info:    No file TS1ocm.fd. on input line 26.
+
+LaTeX Font Warning: Font shape `TS1/ocm/m/n' undefined
+(Font)              using `TS1/cmr/m/n' instead
+(Font)              for symbol `textbullet' on input line 26.
+
+
+Overfull \hbox (14.33606pt too wide) in paragraph at lines 26--30
+[]\OT1/ocm/m/it/10.95 we can make many sim-ple rep-re-sen-ta-tions, sub-mod-els
+, for a niche (sensu Gray
+ []
+
+[2
+
+] [3]
+
+Package natbib Warning: Citation `bhatanacharoentipping' on page 4 undefined on
+ input line 119.
+
+[4]
+
+Package natbib Warning: Citation `beady2000fatal' on page 5 undefined on input 
+line 183.
+
+
+Package natbib Warning: Citation `Dobbin1952food' on page 5 undefined on input 
+line 194.
+
+[5]
+Chapter 1: Historical work
+[6] [7]
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 361.
+
+ (/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 47.
-
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 361
+.
 
 (/usr/share/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 47.
-
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 361
+.
 
 (/usr/share/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 47.
+(Font)              <10.95> on input line 361.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 47.
+(Font)              <8> on input line 361.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 47.
-LaTeX Font Info:    Try loading font information for U+esvect on input line 47.
-
+(Font)              <6> on input line 361.
+LaTeX Font Info:    Try loading font information for U+esvect on input line 361
+.
 
 (/usr/share/texmf-dist/tex/latex/esvect/uesvect.fd
 File: uesvect.fd 
 )
-LaTeX Font Info:    Try loading font information for U+stmry on input line 47.
+LaTeX Font Info:    Try loading font information for U+stmry on input line 361.
+
 
 (/usr/share/texmf-dist/tex/latex/stmaryrd/Ustmry.fd)
-LaTeX Font Info:    Try loading font information for U+msa on input line 47.
+LaTeX Font Info:    Try loading font information for U+msa on input line 361.
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 47.
+LaTeX Font Info:    Try loading font information for U+msb on input line 361.
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 51.
+(Font)              <9> on input line 364.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 51.
-LaTeX Font Info:    Try loading font information for OT1+lmtt on input line 51.
+(Font)              <5> on input line 364.
+ [8] [9]
 
+LaTeX Warning: Reference `adaptiveselection ' on page 10 undefined on input lin
+e 492.
 
-(/usr/share/texmf-dist/tex/latex/lm/ot1lmtt.fd
-File: ot1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [2
-
-] [3] [4]
-LaTeX Font Info:    Try loading font information for TS1+ocm on input line 197.
-
-LaTeX Font Info:    No file TS1ocm.fd. on input line 197.
-
-
-LaTeX Font Warning: Font shape `TS1/ocm/m/n' undefined
-(Font)              using `TS1/cmr/m/n' instead
-(Font)              for symbol `textbullet' on input line 197.
-
-[5] [6]
-Chapter 1: Historical work
-[7]
-Chapter 1: Structure and function
-
-Overfull \hbox (1.51552pt too wide) in paragraph at lines 444--446
-[]\OT1/ocm/m/it/10.95 Both vari-able speed split-ting and dy-namic time-step se
--lec-tion are flex-i-ble enough
- []
-
-) (./chap2.tex [8]
+) (./chap2.tex [10]
 Chapter 2.
 Chapter 2: Prologue to the paper
-[9
 
-] [10]
+Underfull \hbox (badness 10000) in paragraph at lines 9--19
+\OT1/ocm/bx/n/10.95 be ob-tained from
+ []
+
+[11
+
+] [12]
 Chapter 2: Increasing model efficiency by dynamically changing model representa
 tions
 Chapter 2: Introduction
 
 LaTeX Font Warning: Font shape `OT1/ocm/bx/it' undefined
-(Font)              using `OT1/ocm/bx/n' instead on input line 123.
+(Font)              using `OT1/ocm/bx/n' instead on input line 126.
 
-[11] [12] [13]
-Chapter 2: Overview: an {\em {ODD}} model description
-[14] [15]
+[13] [14] [15]
+Chapter 2: Overview: an {\em {ODD}\/} model description
+[16] [17]
 Chapter 2: Design concepts
-[16]
+[18]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[17] [18]
-Overfull \hbox (4.7728pt too wide) in paragraph at lines 504--509
+[19] [20]
+Overfull \hbox (4.7728pt too wide) in paragraph at lines 507--512
 \OT1/ocm/bx/n/10.95 where $\OML/lmm/m/it/10.95 u \OT1/lmr/m/n/10.95 = 0\OML/lmm
 /m/it/10.95 :\OT1/lmr/m/n/10.95 02$ \OT1/ocm/bx/n/10.95 is the up-take rate, a 
 de-cay rate which is ap-prox-i-mately $\OML/lmm/m/it/10.95 ^^U \OT1/lmr/m/n/10.
 95 =$\OT1/ocm/bx/n/10.95 0.0059.
  []
 
-[19]
-Chapter 3: Results
-[20]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
 [21]
+Chapter 3: Results
+[22]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[22]
+[23]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[24]
 Chapter 3: Discussion
-[23] [24] [25]
+[25] [26] [27]
 Chapter 3: Conclusion
-[26] [27]
+[28] [29]
 Chapter 3: Epilogue to the paper
-) (./chap3.tex [28]
+
+LaTeX Warning: Reference `' on page 30 undefined on input line 955.
+
+
+LaTeX Warning: Reference `treerings' on page 30 undefined on input line 956.
+
+) (./chap3.tex [30]
 Chapter 3.
 Chapter 3: Prologue to the paper
-
-LaTeX Warning: Reference `treering' on page 29 undefined on input line 29.
-
-
-LaTeX Warning: Reference `treering' on page 29 undefined on input line 34.
-
-[29
+[31
 
 ]
 Chapter 3: Adaptive submodel selection in hybrid models
 Chapter 3: Introduction
-[30] [31]
-Chapter 3: Model organization
 [32] [33]
+Chapter 3: Model organization
+[34] [35]
 Package epstopdf Info: Source file: <Figure1.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 96987 bytes
@@ -766,16 +814,16 @@ Package epstopdf Info: Source file: <Figure1.eps>
 (epstopdf)                    size: 10547 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure1-eps-converted-to.p
 df Figure1.eps>
-(epstopdf)             \includegraphics on input line 293.
+(epstopdf)             \includegraphics on input line 294.
 Package epstopdf Info: Output file is already uptodate.
- <Figure1-eps-converted-to.pdf, id=148, 221.82875pt x 194.7275pt>
+ <Figure1-eps-converted-to.pdf, id=154, 221.82875pt x 194.7275pt>
 File: Figure1-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure1-eps-converted-to.pdf>
-Package pdftex.def Info: Figure1-eps-converted-to.pdf used on input line 293.
+Package pdftex.def Info: Figure1-eps-converted-to.pdf used on input line 294.
 (pdftex.def)             Requested size: 221.82819pt x 194.727pt.
- [34 <./Figure1-eps-converted-to.pdf>]
-[35] [36]
+ [36 <./Figure1-eps-converted-to.pdf>]
+[37] [38]
 Chapter 3: The example model
 Package epstopdf Info: Source file: <Figure2.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
@@ -785,44 +833,44 @@ Package epstopdf Info: Source file: <Figure2.eps>
 (epstopdf)                    size: 4855 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure2-eps-converted-to.p
 df Figure2.eps>
-(epstopdf)             \includegraphics on input line 460.
+(epstopdf)             \includegraphics on input line 461.
 Package epstopdf Info: Output file is already uptodate.
-<Figure2-eps-converted-to.pdf, id=166, 193.72375pt x 193.72375pt>
+<Figure2-eps-converted-to.pdf, id=172, 193.72375pt x 193.72375pt>
 File: Figure2-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure2-eps-converted-to.pdf>
-Package pdftex.def Info: Figure2-eps-converted-to.pdf used on input line 460.
+Package pdftex.def Info: Figure2-eps-converted-to.pdf used on input line 461.
 (pdftex.def)             Requested size: 193.72327pt x 193.72327pt.
- [37 <./Figure2-eps-converted-to.pdf>]
-[38] [39]
+ [39 <./Figure2-eps-converted-to.pdf>]
+[40] [41]
 
 LaTeX Font Warning: Font shape `OT1/ocm/m/sc' undefined
-(Font)              using `OT1/ocm/m/n' instead on input line 646.
+(Font)              using `OT1/ocm/m/n' instead on input line 647.
 
-[40] [41] [42]
+[42] [43] [44]
 
 LaTeX Font Warning: Font shape `U/stmry/b/n' undefined
-(Font)              using `U/stmry/m/n' instead on input line 881.
+(Font)              using `U/stmry/m/n' instead on input line 882.
 
-LaTeX Font Info:    Try loading font information for OT1+lmss on input line 889
+LaTeX Font Info:    Try loading font information for OT1+lmss on input line 890
 .
 (/usr/share/texmf-dist/tex/latex/lm/ot1lmss.fd
 File: ot1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [43]
-LaTeX Font Info:    Try loading font information for OT1+pzc on input line 922.
+) [45]
+LaTeX Font Info:    Try loading font information for OT1+pzc on input line 923.
 
 
 (/usr/share/texmf-dist/tex/latex/psnfss/ot1pzc.fd
 File: ot1pzc.fd 2001/06/04 font definitions for OT1/pzc.
 )
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 923.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <8> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 923.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <6> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 922.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 923.
 
 Package epstopdf Info: Source file: <Figure3.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
@@ -832,16 +880,16 @@ Package epstopdf Info: Source file: <Figure3.eps>
 (epstopdf)                    size: 12059 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure3-eps-converted-to.p
 df Figure3.eps>
-(epstopdf)             \includegraphics on input line 931.
+(epstopdf)             \includegraphics on input line 932.
 Package epstopdf Info: Output file is already uptodate.
 
-<Figure3-eps-converted-to.pdf, id=200, 248.93pt x 470.75874pt>
+<Figure3-eps-converted-to.pdf, id=207, 248.93pt x 470.75874pt>
 File: Figure3-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure3-eps-converted-to.pdf>
-Package pdftex.def Info: Figure3-eps-converted-to.pdf used on input line 931.
+Package pdftex.def Info: Figure3-eps-converted-to.pdf used on input line 932.
 (pdftex.def)             Requested size: 248.92938pt x 470.7576pt.
- [44] [45 <./Figure3-eps-converted-to.pdf>]
+ [46] [47 <./Figure3-eps-converted-to.pdf>]
 Package epstopdf Info: Source file: <Figure4.eps>
 (epstopdf)                    date: 2015-12-22 07:48:59
 (epstopdf)                    size: 9455 bytes
@@ -850,201 +898,222 @@ Package epstopdf Info: Source file: <Figure4.eps>
 (epstopdf)                    size: 6525 bytes
 (epstopdf)             Command: <repstopdf --outfile=Figure4-eps-converted-to.p
 df Figure4.eps>
-(epstopdf)             \includegraphics on input line 1002.
+(epstopdf)             \includegraphics on input line 1003.
 Package epstopdf Info: Output file is already uptodate.
 
-<Figure4-eps-converted-to.pdf, id=224, 219.82124pt x 126.4725pt>
+<Figure4-eps-converted-to.pdf, id=230, 219.82124pt x 126.4725pt>
 File: Figure4-eps-converted-to.pdf Graphic file (type pdf)
 
 <use Figure4-eps-converted-to.pdf>
-Package pdftex.def Info: Figure4-eps-converted-to.pdf used on input line 1002.
+Package pdftex.def Info: Figure4-eps-converted-to.pdf used on input line 1003.
 (pdftex.def)             Requested size: 219.8207pt x 126.47218pt.
- [46 <./Figure4-eps-converted-to.pdf>]
+ [48 <./Figure4-eps-converted-to.pdf>]
 Chapter 3: Discussion
-[47] [48]
-Overfull \hbox (1.18086pt too wide) in paragraph at lines 1197--1201
+[49] [50]
+Overfull \hbox (1.18086pt too wide) in paragraph at lines 1198--1202
 []\OT1/ocm/m/sc/10.95 The do-main knowl-edge is en-cap-su-lated in the sets of 
 tar-gets the mon-i-tor matches
  []
 
 Chapter 3: Conclusion
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <9> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1251
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1252
 .
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <5> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1251
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 1252
 .
-[49]
-Underfull \hbox (badness 10000) in paragraph at lines 1268--1276
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 1269--1277
 \OT1/ocm/m/sc/10.95 Acknowledgments
  []
 
-[50]
+[52]
 Chapter 3: Appendix
-[51
+[53
 
 ]
-Overfull \hbox (76.98438pt too wide) in paragraph at lines 1438--1438
+Overfull \hbox (76.98438pt too wide) in paragraph at lines 1439--1439
 [] 
  []
 
-[52]
-LaTeX Font Info:    Try loading font information for U+euf on input line 1473.
+[54]
+LaTeX Font Info:    Try loading font information for U+euf on input line 1474.
  (/usr/share/texmf-dist/tex/latex/amsfonts/ueuf.fd
 File: ueuf.fd 2013/01/14 v3.01 Euler Fraktur
 )
-Overfull \hbox (85.4974pt too wide) detected at line 1514
+Overfull \hbox (85.4974pt too wide) detected at line 1515
 []\OT1/lmr/m/n/10.95 ( []\OML/lmm/m/it/10.95 ;  []\OT1/lmr/m/n/10.95 ) = []
  []
 
-[53]
-Overfull \hbox (18.8497pt too wide) detected at line 1553
+[55]
+Overfull \hbox (18.8497pt too wide) detected at line 1554
 \OT1/lmr/m/n/10.95 ^^A( []\OML/lmm/m/it/10.95 ;  []\OT1/lmr/m/n/10.95 ) = []
  []
 
 Chapter 3: Epilogue to the paper
-) (./chap4.tex [54]
-\openout2 = `tree-ring-formulation.aux'.
-
- (./tree-ring-formulation.tex
+) (./chap4.tex [56]
 Chapter 4.
-[55
+Chapter 4: Introduction
+[57
 
-
-] [56] [57] [58]
-Overfull \hbox (37.91193pt too wide) in paragraph at lines 315--315
-[] 
- []
-
-
-Overfull \hbox (55.8018pt too wide) in paragraph at lines 356--356
-[] 
- []
-
-[59] [60]
-Overfull \hbox (37.5855pt too wide) in paragraph at lines 493--496
-[]\OT1/ocm/m/sc/10.95 Now sup-pose that there is some num-ber $\OML/lmm/m/it/10
-.95 n$ \OT1/ocm/m/sc/10.95 for which $[]\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/
-10.95 ^^T \OML/lmm/m/it/10.95 n [] []\OT1/lmr/m/n/10.95 ( []) \OMS/lmsy/m/n/10.
-95 ^^T
- []
-
-
-Overfull \hbox (85.70796pt too wide) in paragraph at lines 505--505
-[] 
- []
-
-
-Overfull \hbox (36.27896pt too wide) in paragraph at lines 511--511
-[] 
- []
-
+]
+Chapter 4: Conventions and preliminary definitions
+[58]
+...absolute-mag
+[59]
+Chapter 4: Addition and polynomial multiplication
+...polynomialmultiplication
+...collecting terms
+[60]
+...Lambda
+...sumsimilars
 [61]
-Overfull \hbox (67.19751pt too wide) in paragraph at lines 572--572
+...aLambdaU
+...treeaddition
+Chapter 4: Vector space
+...vspace
+[62]
+...additive identity
+...zero
+...one
+
+Overfull \hbox (0.53593pt too wide) in paragraph at lines 493--494
+[]\OT1/ocm/m/sc/10.95 This prop-erty is in-her-ited from $\U/msb/m/n/10.95 K$ \
+OT1/ocm/m/sc/10.95 and $\U/msb/m/n/10.95 K\OT1/lmr/m/n/10.95 [[]]$\OT1/ocm/m/sc
+/10.95 . 
+ []
+
+...commutativity
+
+Overfull \hbox (0.84016pt too wide) in paragraph at lines 497--499
+[]\OT1/ocm/m/sc/10.95 This prop-erty is in-her-ited from poly-no-mial ad-di-tio
+n in $\U/msb/m/n/10.95 K\OT1/lmr/m/n/10.95 [[]]$
+ []
+
+...associativity
+...compatibility of scalar mult
+
+Overfull \hbox (4.37462pt too wide) in paragraph at lines 562--564
+[]\OT1/ocm/m/sc/10.95 Observe first
+ []
+
+[63]
+...distribution
+
+Overfull \hbox (13.43881pt too wide) in paragraph at lines 587--588
+[]\OT1/ocm/m/sc/10.95 Let
+ []
+
+
+LaTeX Warning: Reference `sLambda' on page 64 undefined on input line 621.
+
+
+LaTeX Warning: Reference `sLambda' on page 64 undefined on input line 621.
+
+...distrib +
+
+Overfull \hbox (8.38963pt too wide) in paragraph at lines 625--627
+[]\OT1/ocm/m/sc/10.95 The
+ []
+
+[64]
+Chapter 4: Seminorms, norms and metrics
+[65]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <12> on input line 685.
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 685.
+
+
+...absolutehomogeneity
+...triangle1
+[66]
+Overfull \hbox (0.39244pt too wide) in paragraph at lines 757--757
 [] 
  []
 
-[62] [63] [64]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 754.
-LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 754.
-
- [65] [66] [67]
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 885.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 885.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 885.
-LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <14.4> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
-
-LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
-
-LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <7> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 885.
-
- [68] [69] [70]) [71]) (./chap5.tex
+...gseminorm
+...Ring
+[67]
+...Multiplication
+...treemultiplication
+...TMcommutativity
+[68]
+...TMassociativity
+...TMdistrib
+[69]
+...ItsARingHarry
+Chapter 4: Discussion
+...Discussion
+[70]) (./chap5.tex [71]
 Chapter 5.
 
 Package natbib Warning: Citation `kiczales1993xerox' on page 72 undefined on in
-put line 36.
+put line 63.
 
 [72
 
-
 ]
-Overfull \hbox (19.27837pt too wide) in paragraph at lines 94--116
-[]\OT1/ocm/m/sc/10.95 All of the agents and ob-jects in the model are de-rived 
-from the \OT1/lmtt/m/n/10.95 <primitive-object>
- []
+
+LaTeX Warning: Reference `treerings' on page 73 undefined on input line 102.
 
 [73]
-LaTeX Font Info:    Font shape `OT1/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `OT1/lmtt/b/n' tried instead on input line 121.
 
-Overfull \hbox (15.90181pt too wide) in paragraph at lines 136--138
-[]\OT1/ocm/m/sc/10.95 -- These classes pro-vide the metabolic
- []
+LaTeX Warning: Reference `interactions' on page 74 undefined on input line 245.
 
-
-Overfull \hbox (9.21666pt too wide) in paragraph at lines 157--160
-[]\OT1/ocm/m/sc/10.95 -- In-stances of the log-data class gen-er-ate datafiles
- []
 
 [74]
-Overfull \hbox (7.50316pt too wide) in paragraph at lines 198--202
-\OT1/ocm/m/sc/10.95 an-i-mal mod-els. The an-i-mal classes in-herit from \OT1/l
-mtt/m/n/10.95 <metabolism>
- []
+LaTeX Font Info:    Font shape `OT1/lmtt/bx/n' in size <8> not available
+(Font)              Font shape `OT1/lmtt/b/n' tried instead on input line 291.
 
 
 Package natbib Warning: Citation `scheffer1995super' on page 75 undefined on in
-put line 207.
+put line 377.
 
-
-Overfull \hbox (3.30956pt too wide) in paragraph at lines 223--227
-[]\OT1/ocm/m/sc/10.95 -- Population-systems are a sub-class of ecoser-
- []
-
-[75]
-Overfull \hbox (9.96991pt too wide) in paragraph at lines 308--313
-[]\OT1/ocm/m/sc/10.95 which
+[75] [76]
+Overfull \hbox (23.51195pt too wide) in paragraph at lines 488--499
+[]\OT1/ocm/bx/n/8 Functions with clo-sures are used, most im-por-tantly, to im-
+ple-ment the code run with the \OT1/lmtt/m/n/8 <model-maintenance>
  []
 
 
-Overfull \hbox (15.50578pt too wide) in paragraph at lines 313--315
-[]\OT1/ocm/m/sc/10.95 which de-
+Overfull \hbox (3.09534pt too wide) in paragraph at lines 518--520
+[]\OT1/ocm/bx/n/8 which de-fines a method which will
  []
 
-[76]
-Overfull \hbox (11.44647pt too wide) in paragraph at lines 344--350
-[]\OT1/ocm/m/sc/10.95 Generally,
+
+LaTeX Warning: Reference `interactions' on page 77 undefined on input line 563.
+
+
+[77]
+
+LaTeX Warning: Reference `treerings' on page 78 undefined on input line 608.
+
+
+Overfull \hbox (73.2631pt too wide) in paragraph at lines 649--657
+ [] 
  []
 
-[77]) (./concl.tex [78]
+[78] [79] [80]) (./concl.tex [81]
 Chapter 6.
-) (./biby.tex (./thesis.bbl [79
+[82
 
-] [80]
-Missing character: There is no â in font cmr10!
-Missing character: There is no € in font cmr10!
-Missing character: There is no ˜ in font cmr10!
-Missing character: There is no â in font cmr10!
-Missing character: There is no € in font cmr10!
-Missing character: There is no ™ in font cmr10!
- [81
+]) (./biby.tex (./thesis.bbl [83] [84
 
 ]
 Missing character: There is no â in font cmr10!
 Missing character: There is no € in font cmr10!
 Missing character: There is no ™ in font cmr10!
-Missing character: There is no â in font cmr10!
-Missing character: There is no € in font cmr10!
-Missing character: There is no ™ in font cmr10!
- [82]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 147.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 147.
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 147.
+
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <7> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 147.
+
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no ¸ in font cmr10!
 Missing character: There is no Ã in font cmr10!
@@ -1054,40 +1123,40 @@ Missing character: There is no ¼ in font cmr10!
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no ¸ in font cmr10!
 
-Underfull \hbox (badness 1859) in paragraph at lines 245--259
+Underfull \hbox (badness 1859) in paragraph at lines 201--215
 \OT1/ocm/m/it/10 elling, 198(1-2):115 -- 126, 2006.  ISSN 0304-3800.  doi: $\OT
 1/lmr/m/n/10 DOI : 10 . 1016 / j .
  []
 
-[83]
+[85]
 Missing character: There is no Ã in font cmr10!
 Missing character: There is no § in font cmr10!
-
-Underfull \hbox (badness 1014) in paragraph at lines 355--365
+ [86]
+Underfull \hbox (badness 1014) in paragraph at lines 317--327
 \OT1/ocm/m/it/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions o
 n the com-bined use of
  []
 
 
-Underfull \hbox (badness 2189) in paragraph at lines 355--365
+Underfull \hbox (badness 2189) in paragraph at lines 317--327
 \OT1/ocm/m/it/10 elling, 222(1):210 -- 218, 2011a.  ISSN 0304-3800.  doi: $\OT1
 /lmr/m/n/10 DOI : 10 . 1016 / j .
  []
 
 
-Underfull \hbox (badness 1014) in paragraph at lines 368--378
+Underfull \hbox (badness 1014) in paragraph at lines 330--340
 \OT1/ocm/m/it/10 and Ste-fano Maz-zoleni.  The-o-ret-i-cal con-sid-er-a-tions o
 n the com-bined use of
  []
 
 
-Underfull \hbox (badness 2134) in paragraph at lines 368--378
+Underfull \hbox (badness 2134) in paragraph at lines 330--340
 \OT1/ocm/m/it/10 elling, 222(1):210 -- 218, 2011b.  ISSN 0304-3800.  doi: $\OT1
 /lmr/m/n/10 DOI : 10 . 1016 / j .
  []
 
-[84]
-Underfull \hbox (badness 10000) in paragraph at lines 398--401
+
+Underfull \hbox (badness 10000) in paragraph at lines 360--363
 []\OT1/ocm/m/it/10 webpage, Au-gust 2009.  URL $\OT1/lmtt/m/n/10 http : / / www
  . ningaloo . org . au / www / en /
  []
@@ -1098,64 +1167,67 @@ No file thesis.ind.
 
 Package natbib Warning: There were undefined citations.
 
-[85] (./thesis.aux (./tree-ring-formulation.aux))
+[87] (./thesis.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 
 LaTeX Warning: There were undefined references.
 
+ )
+(\end occurred inside a group at level 2)
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+### simple group (level 2) entered at line 1111 ({)
+### simple group (level 1) entered at line 1111 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
- 8385 strings out of 493013
- 114921 string characters out of 6139317
- 195979 words of memory out of 5000000
- 11609 multiletter control sequences out of 15000+600000
- 188275 words of font info for 174 fonts, out of 8000000 for 9000
+ 8829 strings out of 493013
+ 119670 string characters out of 6139316
+ 204189 words of memory out of 5000000
+ 12050 multiletter control sequences out of 15000+600000
+ 162464 words of font info for 150 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,26n,43p,980b,472s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf-dist/
-fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathi
-t.enc}{/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texmf-dist
-/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-
-mathex.enc}{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/u
-sr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmsc.enc}</usr/share/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6
-.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texmf-dist/font
-s/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texmf-dist/fonts/type1/pub
-lic/lm/lmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr
-/share/texmf-dist/fonts/type1/public/lm/lmbx6.pfb></usr/share/texmf-dist/fonts/
-type1/public/lm/lmbx8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbxi10.
-pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf-
-dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf-dist/fonts/type1/public
-/lm/lmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/sha
-re/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf-dist/fonts/type
-1/public/lm/lmmib10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmib7.pfb
-></usr/share/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf-dist/
-fonts/type1/public/lm/lmr12.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
-r17.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf
--dist/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf-dist/fonts/type1/public/
-lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/share
-/texmf-dist/fonts/type1/public/lm/lmri8.pfb></usr/share/texmf-dist/fonts/type1/
-public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmss8.pfb></u
-sr/share/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/f
-onts/type1/public/lm/lmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
-sy8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtk10.pfb></usr/share/tex
-mf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/pub
-lic/lm/lmtt8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></usr/s
-hare/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texm
-f-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texmf-dist/fo
-nts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf-dist/fonts/type1/urw/z
+ 40i,26n,43p,980b,586s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/s
+hare/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf-dist/fonts/enc
+/dvips/lm/lm-rm.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/u
+sr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/share/texmf-dist/fonts/en
+c/dvips/lm/lm-mathex.enc}{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-sup
+er-ts1.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rmsc.enc}</usr/share/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/
+type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmr6.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.p
+fb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/t
+exmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></usr/share/texmf-dist/f
+onts/type1/public/lm/lmbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
+bx12.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmbx6.pfb></usr/share/tex
+mf-dist/fonts/type1/public/lm/lmbx8.pfb></usr/share/texmf-dist/fonts/type1/publ
+ic/lm/lmbxi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb></us
+r/share/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf-dist/font
+s/type1/public/lm/lmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi6
+.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf-d
+ist/fonts/type1/public/lm/lmmib10.pfb></usr/share/texmf-dist/fonts/type1/public
+/lm/lmmib7.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/sha
+re/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf-dist/fonts/type
+1/public/lm/lmr17.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></u
+sr/share/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf-dist/fonts
+/type1/public/lm/lmri10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri8.
+pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf-d
+ist/fonts/type1/public/lm/lmss8.pfb></usr/share/texmf-dist/fonts/type1/public/l
+m/lmssbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/sh
+are/texmf-dist/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf-dist/fonts/typ
+e1/public/lm/lmsy8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtk10.pfb>
+</usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/
+fonts/type1/public/lm/lmtt8.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lm
+tt9.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb><
+/usr/share/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/shar
+e/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texmf-dist/fo
+nts/type1/public/stmaryrd/stmary10.pfb></usr/share/texmf-dist/fonts/type1/urw/z
 apfchan/uzcmi8a.pfb>
-Output written on thesis.pdf (89 pages, 865115 bytes).
+Output written on thesis.pdf (91 pages, 902143 bytes).
 PDF statistics:
- 496 PDF objects out of 1000 (max. 8388607)
- 349 compressed objects within 4 object streams
+ 507 PDF objects out of 1000 (max. 8388607)
+ 357 compressed objects within 4 object streams
  0 named destinations out of 1000 (max. 500000)
  26 words of extra memory for PDF output out of 10000 (max. 10000000)
 

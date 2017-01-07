@@ -13,13 +13,28 @@
 ;-  Code
 (include "framework")
 
-
 "First just get it polling the correct set of agents each pass, then we worry about aggregating and such"
+"The monitor collects a list of agents for polling, polls them for the important state information, then 
+looks to see if there are any rules for aggregating, then it acts appropriately.
 
+Clearly, there may be some deep knowledge required in terms of how representations work to effect some 
+changes, we hope not too many.
+"
 
 (agent-initialisation-method (<monitor> args) (no-default-args)
-				  (set-state-variables self (list 'specific-targets '() 'class-targets '() 'predicate-targets '()
-												 'predicate (lambda x #f) 'accessor #f))
+				  (initialise-parent)
+				  ;; call "parents" last to make the initialisation list work
+				  )
+
+(agent-initialisation-method (<simple-monitor> args)
+									  (specific-targets '() selector #f group-selector #f test #f group-test #f)
+									  (set-state-variables self (list 'specific-targets '() ;; specific agents to be polled
+																				 'selector #f       ;;; eg (lambda x #f) -- a predicate which
+                                                                                ;;; indicates if an agent ought to be polled
+																				 'group-selector #f ;;; 
+																				 'test #f           ;;; tests the list of individuals
+																				 'group-test #f     ;;; tests the broader configuration.
+																				 ))
 				  (initialise-parent)
 				  ;; call "parents" last to make the initialisation list work
 				  )
@@ -46,7 +61,6 @@
 					  (kdnl* "Tidying up" (slot-ref subject 'name) "at" t "+" dt))
 					  subject-list)
 					#t)
-
 
 
 (model-body <monitor>

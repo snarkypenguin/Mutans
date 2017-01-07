@@ -49,9 +49,9 @@
 
 (define booboo 'all-good)
 (define ERROR error)
-(define (error str arg)
-  (set! booboo arg)
-  (bad str arg))
+;(define (error str arg)
+;  (set! booboo arg)
+;  (err str arg))
 
 (define time-register '())
 (define collecting-times #f)
@@ -123,7 +123,7 @@
 	 (map (lambda (x) (cons (car x) (cadr x))) (cross2 (car args) (apply cross** (cdr args)))))
 	))
 
-(define (map* mapping . args)
+(define (map* mapping . args) ;; map all possible combinations
   (map (lambda (args) (apply mapping args)) (apply cross** args)))
 			  
 
@@ -2424,8 +2424,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 					  (normalise-tree (list L (sort
 														(cond
 														 ((and (null? B) (null? C)) '())
-														 ((null? B) C)
-														 ((null? C) B)
+														 ((null? B) C) ;; empty children sets essentially act as an identity
+														 ((null? C) B) ;; since the tree degenerates to a polynomial
 														 (else 
 														  (case (if (symbol? multiplier) multiplier (car multiplier))
 															 ((intersection+)
@@ -2522,7 +2522,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 														 ((null? B) C)
 														 ((null? C) B)
 														 (else 
-														  (case multiplier2												  
+														  (case (if (symbol? multiplier) multiplier (car multiplier))
 															 ((intersection)
 															  (intersection?* sim? label CB CC))
 															 ((pairwise-multiplication)

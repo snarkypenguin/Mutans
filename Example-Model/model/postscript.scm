@@ -330,6 +330,35 @@
   (lambda (x) (translate-pointlist loc (scale-pointlist (/ co-range range) x))))
 
 
+(define (set-font ps . args)
+  (case (length args)
+	 ((1) (if (eq? (car args) 'reset)
+				 (times-roman 12)
+				 (error "argument to set-font should either be 'reset or a font and size" args)))
+	 ((2)  (apply ps (cons  'font  args)))
+	 (else (error "Too many arguments to set-font" args))))
+
+(define (set-color ps . args)
+  (case (length args)
+	 ((1 3) (if (eq? (car args) 'reset)
+					(ps 'set-grey 0.0)
+					(if (= 1 (length args))
+						 (ps  'setgrey (car args))
+						 (apply ps (cons 'setrgb args)))))
+
+	 (else (error "argument to set-color should either be 'reset or a single number or a triplet" args))))
+(define set-colour set-color)
+
+(define (set-linewidth ps . args)
+  (case (length args)
+	 ((1) (if (eq? (car args) 'reset)
+				 (times-roman 12)
+				 (ps 'linewidth 0.2)))
+	 ((2)  (apply ps (cons  'font  args))
+	  				 (apply ps (cons 'linewidth args)))
+	 (else (error "Too many arguments to set-linewidth" args))))
+
+
 (define (make-ps port/filename fontlist)
   (let ((file (cond
 					((output-port? port/filename) port/filename)
@@ -535,6 +564,12 @@
     (define (setgray weight)
       (ps-1-arg "setgray" weight))
     
+    (define (setrgb r g b)
+      (ps-3-arg "setrgbcolor" r g b))
+
+    (define (sethsv h s v)
+      (ps-3-arg "sethsvcolor" h s v))
+	     
     (define (stroke)
       (ps-display "stroke"))
     
@@ -714,6 +749,7 @@
 								(apply ps-display (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n")))
 								)
 
+							  ((eq? cmd 'set-font) (apply font args))
 							  ((eq? cmd 'font) (apply font args))
 							  ((eq? cmd 'Times-Roman) (apply font "Times-Roman" args))
 							  ((eq? cmd 'Times-Italic) (apply font "Times-Italic" args))
@@ -749,6 +785,10 @@
 
 							  ((eq? cmd 'lineweight) (apply setlinewidth args))
 							  ((eq? cmd 'setgrey) (apply setgray args))
+							  ((eq? cmd 'setrgbcolor) (apply setrgb args))
+							  ((eq? cmd 'setrgbcolour) (apply setrgb args))
+							  ((eq? cmd 'sethsvcolor) (apply sethsv args))
+							  ((eq? cmd 'sethsvcolour) (apply sethsv args))
 							  ((eq? cmd 'setlinewidth) (apply setlinewidth args))
 							  ((eq? cmd 'setgray) (apply setgray args))
 							  ((eq? cmd 'stroke) (stroke))

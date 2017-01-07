@@ -16,8 +16,7 @@
 
 (define logger-tags '())
 
-
-(define-class <introspection> (inherits-from <agent>)
+(define-class <log-introspection> (inherits-from <introspection>)
 				  (state-variables file filename filetype format variables
 										 variables-may-be-set missing-val show-field-name
 										 preamble-state introspection-list

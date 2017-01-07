@@ -31,6 +31,7 @@
 
 ;-  Code 
 
+;(load "tree-ring.scm")
 ;(load  "ptrees.scm")
 (load  "pt.scm")
 
@@ -78,7 +79,10 @@
 	 (normalise-polynomial (cons s pt))))
 
 (define (rndpoly . args)
-  (random-polynomial '(w x y z) 5 6 3))
+  (random-polynomial '(w x y z) 3 6 3))
+
+
+
 
 
 ;; the polynomial (5 (7 ((x 2) (y 2))) (1 ((x 1) (y 1))) (1 ((x 1) (y 1))))
@@ -137,6 +141,8 @@
 						"1 + 2 * x + 2 * x^2 + 3 * x^3"
 						"2 + * x^2 + 3 * x^3")))
 	 (cond
+	  ((and (pair? lst) (eq? (car lst) 'repopulate))
+		(set! plylst (cadr lst)))
 	  ((null? lst) (list-ref plylst (random-integer (length plylst))))
 	  ((equal? lst '(*)) plylst)
 	  (#t (map (lambda (x) (list-ref plylst x)) lst))))
@@ -388,7 +394,7 @@
 					(test-associativity-* p q r)
 					(test-commutativity-* p q)
 					(test-distribution p q r)))
-			  (F (filter (lambda (x) (not (member x S))) R)))
+ (filter (lambda (x) (not (member x S))) R)))
 
 	 (if (null? F)
 		  'all-good
@@ -420,6 +426,7 @@
 
   	
 (define (test-properties! n d)
+  (repopulate-test-corpus 200)
   (if (positive? n)
 		(let ((p (random-test-tree d))
 				(q (random-test-tree d))
@@ -460,9 +467,12 @@
 (define e3 (string->tree "(x^2 + 2 x - 3 {(a - b - c {}) (a + b - c {})})"))
 (define e4 (string->tree "(x^2 - 2 x - 3 {(a + b - c {}) (a + b + f {})})"))
 
+(define (repopulate-test-corpus n)
+  (polys 'repopulate (map rndpoly (seq n))))
 
 (define (rndtree)
-  (make-random-tree '(x y z) 24 3 5 4))
+  ;; Syms constmag exp #terms depth
+  (make-random-tree '(u v x y z) 24 4 4 5))
 
 (define rtrees (map (lambda x (rndtree)) (seq 15)))
 (define (run-trial) (apply test-properties (list-ref rtrees (map (lambda x (random-integer (length rtrees))) (seq 3)))))

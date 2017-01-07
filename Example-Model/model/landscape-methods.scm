@@ -1242,10 +1242,8 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;-- dynamic-patch methods and body
 
 (definition-comment 'dynamic-patch
-"A dynamic patch expects either population definitions of the form
+  "A dynamic patch expects definitions similar to those in diffeq-systems")
 
-
-"
 ;--- <dynamic-patch> (initialise  (self args)
 (agent-initialisation-method (<dynamic-patch> args) (no-default-variables)
 				  (set-state-variables self (list 'population-names '()

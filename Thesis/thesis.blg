@@ -1,53 +1,52 @@
 This is BibTeX, Version 0.99d (TeX Live 2016/Arch Linux)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: thesis.aux
-A level-1 auxiliary file: tree-ring-formulation.aux
 The style file: plainnat.bst
 Database file #1: thesis.bib
+Warning--I didn't find a database entry for "bhatanacharoentipping"
+Warning--I didn't find a database entry for "beady2000fatal"
+Warning--I didn't find a database entry for "Dobbin1952food"
 Warning--I didn't find a database entry for "kiczales1993xerox"
 Warning--I didn't find a database entry for "scheffer1995super"
-Warning--empty journal in bhatanacharoentipping
-Warning--empty year in bhatanacharoentipping
-Warning--empty year in bhatanacharoentipping
-You've used 57 entries,
+You've used 51 entries,
             2773 wiz_defined-function locations,
-            960 strings with 16071 characters,
-and the built_in function-call counts, 31113 in all, are:
-= -- 2726
-> -- 2233
-< -- 34
-+ -- 759
-- -- 694
-* -- 2767
-:= -- 4882
-add.period$ -- 201
-call.type$ -- 57
-change.case$ -- 399
-chr.to.int$ -- 49
-cite$ -- 117
-duplicate$ -- 1215
-empty$ -- 2198
-format.name$ -- 772
-if$ -- 6413
-int.to.chr$ -- 9
+            932 strings with 15339 characters,
+and the built_in function-call counts, 28413 in all, are:
+= -- 2482
+> -- 2099
+< -- 30
++ -- 713
+- -- 655
+* -- 2548
+:= -- 4486
+add.period$ -- 181
+call.type$ -- 51
+change.case$ -- 367
+chr.to.int$ -- 44
+cite$ -- 102
+duplicate$ -- 1082
+empty$ -- 1961
+format.name$ -- 725
+if$ -- 5834
+int.to.chr$ -- 8
 int.to.str$ -- 1
-missing$ -- 54
-newline$ -- 317
-num.names$ -- 229
-pop$ -- 745
+missing$ -- 48
+newline$ -- 286
+num.names$ -- 205
+pop$ -- 670
 preamble$ -- 1
-purify$ -- 345
+purify$ -- 319
 quote$ -- 0
-skip$ -- 980
+skip$ -- 886
 stack$ -- 0
-substring$ -- 1124
-swap$ -- 140
-text.length$ -- 12
+substring$ -- 1023
+swap$ -- 121
+text.length$ -- 10
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 592
-warning$ -- 3
-while$ -- 245
+type$ -- 531
+warning$ -- 0
+while$ -- 221
 width$ -- 0
-write$ -- 800
+write$ -- 723
 (There were 5 warnings)

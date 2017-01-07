@@ -44,7 +44,7 @@
 (declare-method service-list-index "returns the index of a species in the species list")
 (declare-method service-matrix-index "returns the index of a species in the species matrix")
 (declare-method set-population-dynamics! "Sets things up for population dynamics using differential equations and rk4*")
-(declare-method define-population-dynamics!"Sets things up for population dynamics using definitions, alternative to set-population-dynamics!")
+(declare-method define-population-dynamics! "Sets things up for population dynamics using definitions, alternative to set-population-dynamics!")
 (declare-method enable-service-growth! "enables the service level growth model for a service in the dynamic-patch")
 (declare-method disable-service-growth! "disables the service level growth model for for a service in the dynamic-patch")
 (declare-method enable-all-service-growth! "enables the service level growth model for the dynamic-patch")

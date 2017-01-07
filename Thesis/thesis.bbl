@@ -1,4 +1,4 @@
-\begin{thebibliography}{57}
+\begin{thebibliography}{51}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -10,18 +10,6 @@ Michael~P Bailey and William~G Kemple.
 \newblock The scientific method of choosing model fidelity.
 \newblock In \emph{Proceedings of the 24th conference on Winter simulation},
   pages 791--797. ACM, 1992.
-
-\bibitem[Berdoy et~al.(2000)Berdoy, Webster, and Macdonald]{berdoy2000fatal}
-Manuel Berdoy, Joanne~P Webster, and DW~Macdonald.
-\newblock Fatal attraction in rats infected with toxoplasma gondii.
-\newblock \emph{Proceedings of the Royal Society of London B: Biological
-  Sciences}, 267\penalty0 (1452):\penalty0 1591--1594, 2000.
-
-\bibitem[Bhatanacharoen et~al.()Bhatanacharoen, Greatbatch, and
-  Clark]{bhatanacharoentipping}
-Pojanath Bhatanacharoen, David Greatbatch, and Timothy Clark.
-\newblock The tipping point of the ‘tipping point’metaphor: Agency amd
-  process for waves of change.
 
 \bibitem[Bobashev et~al.(2007)Bobashev, Goedecke, Yu, and
   Epstein]{bobashev2007hybrid}
@@ -70,14 +58,6 @@ William~John Chivers.
   ecological systems}.
 \newblock University of Newcastle, 2009.
 
-\bibitem[Collier and North(2013)]{repast}
-Nicholson Collier and Michael North.
-\newblock Parallel agent-based simulation with repast for high performance
-  computing.
-\newblock \emph{SIMULATION}, 89\penalty0 (10):\penalty0 1215--1235, 2013.
-\newblock \doi{10.1177/0037549712462620}.
-\newblock URL \url{http://sim.sagepub.com/content/89/10/1215.abstract}.
-
 \bibitem[de~Almeida et~al.(2010)de~Almeida, Ferreira, Eiras, Obermayr, and
   Geier]{Almeida2010}
 Sandro~Jer{\^o}nimo de~Almeida, Ricardo Poley~Martins Ferreira, {\'A}lvaro~E
@@ -86,13 +66,6 @@ Sandro~Jer{\^o}nimo de~Almeida, Ricardo Poley~Martins Ferreira, {\'A}lvaro~E
   population.
 \newblock \emph{Environmental Modelling \& Software}, 25\penalty0
   (12):\penalty0 1490--1507, 2010.
-
-\bibitem[De~la Haye et~al.(2011)De~la Haye, Spicer, Widdicombe, and
-  Briffa]{de2011reduced}
-KL~De~la Haye, JI~Spicer, S~Widdicombe, and M~Briffa.
-\newblock Reduced sea water ph disrupts resource assessment and decision making
-  in the hermit crab pagurus bernhardus.
-\newblock \emph{Animal Behaviour}, 82\penalty0 (3):\penalty0 495--501, 2011.
 
 \bibitem[DeAngelis and Gross(1992)]{DeAngelis92:1}
 D.L. DeAngelis and L.J. Gross, editors.
@@ -117,11 +90,6 @@ Timothy DelSole and Jagadish Shukla.
 \newblock Model fidelity versus skill in seasonal forecasting.
 \newblock \emph{Journal of Climate}, 23\penalty0 (18):\penalty0 4794--4806,
   2010.
-
-\bibitem[Dobben(1952)]{dobben1952food}
-WH~van Dobben.
-\newblock The food of the cormorant in the netherlands.
-\newblock \emph{Ardea}, 40\penalty0 (1-2):\penalty0 1--63, 1952.
 
 \bibitem[Dobson(1988)]{dobson1988population}
 AP~Dobson.
@@ -148,27 +116,23 @@ E.A. Fulton.
 \newblock \emph{Journal of Marine Systems}, 81\penalty0 (1):\penalty0 171--183,
   2010.
 
+\bibitem[Fulton(2011)]{Fulton2011pcomm}
+E.A. Fulton, 2011.
+\newblock Personal communication.
+
 \bibitem[Fulton et~al.(2004)Fulton, Smith, and Punt]{Fulton04:1}
 E.A. Fulton, A.D.M. Smith, and A.E. Punt.
 \newblock Which ecological indicators can robustly detect effects of fishing.
 \newblock \emph{ICES Journal of Marine Science}, 62\penalty0 (3):\penalty0
   540--551, 2004.
 
-\bibitem[Fulton et~al.(2009{\natexlab{a}})Fulton, Gray, Sporcic, Scott, and
+\bibitem[Fulton et~al.(2009)Fulton, Gray, Sporcic, Scott, and
   Hepburn]{Fulton2009crossingscales}
 EA~Fulton, R~Gray, M~Sporcic, R~Scott, and M~Hepburn.
 \newblock Challenges of crossing scales and drivers in modelling marine
   systems.
 \newblock \emph{18th World IMACS Congress and MODSIM09 International Congress
-  on Modelling and Simulation’, July}, pages 2108--2114, 2009{\natexlab{a}}.
-
-\bibitem[Fulton et~al.(2009{\natexlab{b}})Fulton, Gray, Sporcic, Scott, and
-  Hepburn]{ningaloo}
-EA~Fulton, R~Gray, M~Sporcic, R~Scott, and M~Hepburn.
-\newblock Challenges of crossing scales and drivers in modelling marine
-  systems.
-\newblock \emph{18th World IMACS Congress and MODSIM09 International Congress
-  on Modelling and Simulation’, July}, pages 2108--2114, 2009{\natexlab{b}}.
+  on Modelling and Simulation’, July}, pages 2108--2114, 2009.
 
 \bibitem[Fulton et~al.(2011)Fulton, Gray, Sporcic, Scott, Little, Hepburn,
   Gorton, Hatfield, Fuller, Jones, la~Mare, Boschetti, Chapman, Dzidic, Syme,
@@ -197,14 +161,6 @@ R~Gray, EA~Fulton, LR~Little, and R~Scott.
   North West Shelf Joint Environmental Management Study Technical Report}.
 \newblock Number~16 in CSIRO-CMAR NWSJEMS Technical Reports. CSIRO, Hobart,
   Tasmania, Hobart, Tasmania, 2006{\natexlab{b}}.
-\newblock ISBN 1 921061 80 4 (pbk), ISBN 1 921061 82 0 (pdf).
-
-\bibitem[Gray et~al.(2006{\natexlab{c}})Gray, Fulton, Little, and Scott]{nws}
-R~Gray, EA~Fulton, LR~Little, and R~Scott.
-\newblock \emph{Operating model specification within an agent based framework.
-  North West Shelf Joint Environmental Management Study Technical Report}.
-\newblock Number~16 in CSIRO-CMAR NWSJEMS Technical Reports. CSIRO, Hobart,
-  Tasmania, Hobart, Tasmania, 2006{\natexlab{c}}.
 \newblock ISBN 1 921061 80 4 (pbk), ISBN 1 921061 82 0 (pdf).
 
 \bibitem[Gray and Wotherspoon(2012)]{Gray2012adaptive}
@@ -264,10 +220,18 @@ C.J. Harvey, S.P. Cox, T.E. Essington, S.~Hansson, and J.F. Kitchell.
   baltic sea.
 \newblock \emph{ICES Journal of Marine Science}, 60:\penalty0 939--950, 2003.
 
-\bibitem[Huston et~al.(1988)Huston, DeAngelis, and Post]{Huston88:1}
+\bibitem[Huston et~al.(1988{\natexlab{a}})Huston, DeAngelis, and
+  Post]{Huston88:1}
 M.~Huston, D.L. DeAngelis, and W.~Post.
 \newblock New computer models unify ecological theory.
-\newblock \emph{BioScience}, 38:\penalty0 682--691, 1988.
+\newblock \emph{BioScience}, 38:\penalty0 682--691, 1988{\natexlab{a}}.
+
+\bibitem[Huston et~al.(1988{\natexlab{b}})Huston, DeAngelis, and
+  Post]{huston1988new}
+Michael Huston, Donald DeAngelis, and Wilfred Post.
+\newblock New computer models unify ecological theory.
+\newblock \emph{BioScience}, 38\penalty0 (10):\penalty0 682--691,
+  1988{\natexlab{b}}.
 
 \bibitem[Little et~al.(2006)Little, Fulton, Gray, Hayes, Scott, McDonald, and
   Sainsbury]{Little2006nws}
@@ -277,11 +241,6 @@ L.R. Little, E.A. Fulton, R.~Gray, D.~Hayes, R.~Scott, A.D. McDonald, and
   west shelf.
 \newblock Final Report~14, CSIRO Australia, Hobart, Tasmania, 2006.
 \newblock ISBN 1 921061 74 X (pbk), ISBN 1 921061 76 6 (pdf).
-
-\bibitem[Luke et~al.(2004)Luke, Cioffi-Revilla, Panait, and Sullivan]{mason}
-S.~Luke, C.~Cioffi-Revilla, L.~Panait, and K.~Sullivan.
-\newblock Mason: A new multi-agent simulation toolkit.
-\newblock In \emph{Proceedings of the 2004 SwarmFest Workshop}, 2004.
 
 \bibitem[Lyne et~al.(1994{\natexlab{a}})Lyne, Gray, Sainsbury, and
   Scott]{Lyne1994pmez5}
@@ -304,11 +263,6 @@ Thomas~Robert Malthus.
   1798.
 \newblock URL \url{http://www.econlib.org/library/Malthus/malPop.html}.
 \newblock First edition, originally published by J. Johnson, London.
-
-\bibitem[Minar et~al.(1996)Minar, Burkhart, Langton, and Askenazi]{swarm}
-N.~Minar, R.~Burkhart, C.~Langton, and M.~Askenazi.
-\newblock The swarm simulation system: A toolkit for building multi-agent
-  simulations, 1996.
 
 \bibitem[Monte(2009)]{Monte09:1}
 L.~Monte.
@@ -342,6 +296,14 @@ M.~Scheffer, J.M. Baveco, D.L. DeAngelis, and K.A. Rose.
 \newblock Super-individuals: a simple solution for modelling large populations
   on an individual basis.
 \newblock \emph{Ecological Modelling}, 80:\penalty0 161--170, 1995.
+
+\bibitem[Swan et~al.(2006)Swan, Cuthbert, Quevedo, Green, Pain, Bartels,
+  Cunningham, Duncan, Meharg, Oaks, et~al.]{swan2006toxicity}
+Gerry~E Swan, Richard Cuthbert, Miguel Quevedo, Rhys~E Green, Deborah~J Pain,
+  Paul Bartels, Andrew~A Cunningham, Neil Duncan, Andrew~A Meharg, J~Lindsay
+  Oaks, et~al.
+\newblock Toxicity of diclofenac to gyps vultures.
+\newblock \emph{Biology letters}, 2\penalty0 (2):\penalty0 279--282, 2006.
 
 \bibitem[Thiele and Grimm(2010)]{Thiele2010}
 Jan~C Thiele and Volker Grimm.
@@ -399,11 +361,6 @@ webpage, August 2009.
 \newblock URL
   \url{http://www.ningaloo.org.au/www/en/NingalooResearchProgram/Background.htm}.
 
-\bibitem[Wilensky(1999)]{netlogo}
-U.~Wilensky.
-\newblock Netlogo, 1999.
-\newblock URL \url{http://ccl.northwestern.edu/netlogo/}.
-
 \bibitem[Wolff(1994)]{Wolff94:1}
 W.~F. Wolff.
 \newblock An individual-oriented model of a wading bird nesting colony.
@@ -425,5 +382,12 @@ Sarah~M Zala and Dustin~J Penn.
 \newblock Abnormal behaviours induced by chemical pollution: a review of the
   evidence and new challenges.
 \newblock \emph{Animal Behaviour}, 68\penalty0 (4):\penalty0 649--664, 2004.
+
+\bibitem[Zhang et~al.(2016)Zhang, Zhu, and Roy{-}Chowdhury]{DBLP:ZhangZR16}
+Shu Zhang, Qi~Zhu, and Amit~K. Roy{-}Chowdhury.
+\newblock Adaptive algorithm and platform selection for visual detection and
+  tracking.
+\newblock \emph{CoRR}, abs/1605.06597, 2016.
+\newblock URL \url{http://arxiv.org/abs/1605.06597}.
 
 \end{thebibliography}

@@ -384,7 +384,7 @@ of of variability are presented in Table \ref{LoadVarTbl}.
 \begin{table}[h]
 \begin{center}
   \caption{Deviations amongst the model runs with respect to a given mean\label{LoadVarTbl}}
-  \begin{tabularb}{cccc}
+  \begin{tabular}{cccc}
 \hline  &  &  &   \cr
     r.m.s.e. & $r = i$ & $r = m$ & $r = p$ \cr
 \hline  &  &  &   \cr

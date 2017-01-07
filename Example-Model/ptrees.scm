@@ -2173,7 +2173,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 
 ;----- (U_v u v) the set of elements in the extension set of u which have a label in (L v) [Definitions 7 * 8]
-              (the labels in the extn set of v)
+;              (the labels in the extn set of v)
 (define  (U_v u v)
   (U_v_op filter u v))
 

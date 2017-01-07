@@ -28,27 +28,28 @@ CXXFLAGS = -g
 SCLOS = preamble.scm sort.scm sclos.scm utils.scm sclos-extn.scm framework-declarations.scm framework.scm 
 KERNEL = kdnl.scm kernel.scm
 
-DECLARATIONS = landscape-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm
+DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm
 
 DECS = declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
-SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm postscript.scm basic-population.scm
-CLASSDECS = framework-classes.scm monitor-classes.scm log-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
+SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm postscript.scm 
+CLASSDECS = framework-classes.scm introspection-classes.scm monitor-classes.scm log-classes.scm diffeq-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
 CHASSIS = framework-wrappers.scm framework-methods.scm declarations.scm
-LOG =  monitor-methods.scm log-methods.scm
+INTROSPECTION =  introspection-methods.scm monitor-methods.scm log-methods.scm
+DIFFEQ = basic-population.scm diffeq-methods.scm
 LANDSCAPE =  landscape-methods.scm
 PLANT = plant-methods.scm
 ANIMAL = animal-methods.scm
 RING = tree-ring.scm
 # END REWRITE GROUP
 
-ALLFILES = $(SCLOS) $(KERNEL) $(SUPPORT) $(CLASSDECS) $(DECS) $(CHASSIS) $(LOG) $(LANDSCAPE) $(PLANT) $(ANIMAL) $(RING)
+ALLFILES = $(SCLOS) $(KERNEL) $(SUPPORT) $(CLASSDECS) $(DECS) $(CHASSIS) $(INTROSPECTION) $(DIFFEQ) $(LANDSCAPE) $(PLANT) $(ANIMAL) $(RING)
 
 all: checks model
 	say Done
 
-model:	sclos.o1 support.o1 kernel.o1 classdecs.o1 chassis.o1 log.o1 landscape.o1 plant.o1 animal.o1
+model:	sclos.o1 support.o1 kernel.o1 classdecs.o1 chassis.o1 mon-log.o1 diffeq.o1 landscape.o1 plant.o1 animal.o1
 	sed -ne '/# BEGIN REWRITE GROUP/,/# END REWRITE GROUP/p' -e '/# END REWRITE GROUP/q' < Makefile | egrep -v '^#' | tr '[A-Z]' '[a-z]' > rewrite
 	rm rewrite
 
@@ -73,6 +74,9 @@ declarations.scm: $(DECLARATIONS)
 
 checks: linecount-nc
 	@./run-checks
+
+verbose-checks: linecount-nc
+	@./run-verbose-checks 
 
 linecount:
 	@echo -n 'The number of lines of code is approximately: '
@@ -125,12 +129,19 @@ chassis.o1.o: $(CHASSIS)
 chassis.o1: chassis.o1.o
 	$(CC) -shared $(CHASSIS:.scm=.o) chassis.o1.o -o chassis.o1
 
-log.o1.o: $(LOG)
-	$(GSC) -link -flat -o log.o1.c $(LOG)
-	$(GSC) -cc-options -D___DYNAMIC -obj $(LOG:.scm=.c) log.o1.c
+mon-log.o1.o: $(INTROSPECTION)
+	$(GSC) -link -flat -o mon-log.o1.c $(INTROSPECTION)
+	$(GSC) -cc-options -D___DYNAMIC -obj $(INTROSPECTION:.scm=.c) mon-log.o1.c
 
-log.o1: log.o1.o
-	$(CC) -shared $(LOG:.scm=.o) log.o1.o -o log.o1
+mon-log.o1: mon-log.o1.o
+	$(CC) -shared $(INTROSPECTION:.scm=.o) mon-log.o1.o -o mon-log.o1
+
+diffeq.o1.o: $(DIFFEQ)
+	$(GSC) -link -flat -o diffeq.o1.c $(DIFFEQ)
+	$(GSC) -cc-options -D___DYNAMIC -obj $(DIFFEQ:.scm=.c) diffeq.o1.c
+
+diffeq.o1: diffeq.o1.o 
+	$(CC) -shared $(DIFFEQ:.scm=.o) diffeq.o1.o -o diffeq.o1
 
 landscape.o1.o: $(LANDSCAPE)
 	$(GSC) -link -flat -o landscape.o1.c $(LANDSCAPE)
@@ -155,7 +166,7 @@ animal.o1: animal.o1.o
 	$(CC) -shared $(ANIMAL:.scm=.o) animal.o1.o -o animal.o1
 
 
-framework.o1: sclos.o1.o support.o1.o chassis.o1.o classdecs.o1.o log.o1.o landscap1.o1.o plant.o1.o animal.o1.o kernel.o1.o
+framework.o1: sclos.o1.o support.o1.o chassis.o1.o classdecs.o1.o mon-log.o1.o diffeq.o1.o landscape.o1.o plant.o1.o animal.o1.o kernel.o1.o
 	$(CC) -shared $(KERNEL:.scm=.o) 
 
 clean:

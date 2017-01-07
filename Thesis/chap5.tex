@@ -1,37 +1,64 @@
 % chap5.tex (Chapter 5 of the thesis)
 
 
-\chapter[An Explicit Implementation]{An Explicit Implementation}
+\chapter[AN EXPLICIT IMPLEMENTATION]{An explicit implementation}
 \WeAreOn{\cfive}\label{explicitmodel}
 
-Chapter \ref{modelefficiency} argued that switching models were worth
-considering on the basis of fidelity and efficiency. The results in
-the chapter demonstrate the potential advantages in these regards, and
-while the example used is quite simple compared to other models of
-marine or aquatic contaminant interaction, the results are credible.
-The contaminant interaction models in \cite{Gray2006nws,
-  Gray2014}, would have benefited greatly from the approach. Both
-models foreshadow this more explicit approach to tailoring
-representations according to the interactions and states model: the
-first explored multiple representations for biotic components which
-might change according to their life stage, and the second built on
-this and included an explicit change of representation for whales
-which had left the model domain but would likely return as a part of
-their migratory behaviour, butneither actually approached the 
-issue in general way.\footnote{The model discussed in this chapter is available on the publicly
-accessible repository
-{\texttt{https://github.com/snarkypenguin/Explicit-Model.git}.}}
+Chapter \ref{modelefficiency} argued that switching models are worth
+considering because they may provide benefits in fidelity and
+efficiency. The results in the chapter demonstrate the potential
+advantages in these regards, and while the example used is quite
+simple compared to other models of marine or aquatic contaminant
+interaction, such as in ~\cite{Gray2006nws, Gray2014}, the results are
+credible.  The role of the example model discussed in this chapter is
+not to provide a complete, efficient implementation of an adaptive
+hybrid model.  Rather, it is the starting point for further
+exploration and development.  It follows the pattern described by
+Chapter \ref{adaptiveselection}, but includes minor improvements and
+enough extensions to provide a useful platforn for further work.
 
-The role of the example model is not to provide a complete, efficient
-implementation of an adaptive hybrid model, rather the starting point
-for further exploration and development.  It follows the pattern
-described by Chapter \ref{adaptiveselection}, but includes minor
-improvements and enough extensions to provide a useful platforn for
-further work.  
+The focus in the development of this chapter is to illuminate the most
+important parts of the framework. This must obviously include brief
+discussions of the basic design decisions, the overall uses and
+relationships of the classes in the framework, a description of how
+control passes from kernel to agents and back, how representational
+change and maintenance occurs, and how one might go about adding new
+classes. 
 
-Scheme was chosen as the implementation language primarily because it
-supports first class functions with closures.  The implementation
-framework which has been developed is based on the Scheme
+\section{Design and implementation}
+\subsection{Design}
+The design of the example framework is quite conventional for an
+agent-based model with arbitrary time steps, and the basic structure
+was influenced by previous work on ecosystem models. The mechanisms
+for changes in representation and the maintenance of state for
+superceded representations evolved from the basic strategy developed
+in Chapter \ref{modelefficiency}.  Since the only interactions in
+Chapter \ref{modelefficiency} were between the simulated organisms and
+the environmental plume, there was no need to include mechanisms for
+agents to interact in a more general sense. Much of the code in the
+example model is devoted to providing the basic mechanisms with which
+models of various entities, environmental domains may interact, and to
+ensure that the operation of the systems is temporally coherent,
+consistent and readily extended. Additionally, experience in computer
+operating systems also played a role in the design of the framework,
+and the queue of agents which is central to the process of shepherding
+them in an orderly way through time is directly analogous to the
+simpler UNIX kernels of decades past.
+
+The choice of implementation language was more difficult.  An obvious
+candidate would have been \texttt{C++}, since I had extensive
+experience in modelling in the language, and a significant corpus of
+code from which I might draw, but the considerations which prompted me
+to use Scheme in the paper of Chapter \ref{modelefficiency} still
+pertained --- Implementing the clean closures for general state
+maintenance would be awkward. While Scheme is not a particularly
+commonly used language, it is a language under active development and
+refinement, there are a number of very good interpreters and compilers
+for it, and many of the implementations are amenable to integration
+with other languages, either through the linking binary objects or by
+interacting through a virtual machine (such as a JVM). 
+
+The class structure in the example is based on the Scheme
 implementation of tiny-CLOS (SCLOS), written by Gregor Kiczales
 \cite{kiczales1993xerox} while he was working at Xeros PARC in 1992
 and 1993.  Kiczales has been an instrumental researcher and proponent
@@ -52,28 +79,171 @@ Scheme which runs on all of the major platforms (Linux, Unix, OSX, and
 Android, for example). Gambit incorporates both a fully developed
 Scheme interpreter and a compiler, and both can readily link programs
 with external code and libraries which exist either as compiled or as
-interpreted scheme code. The choice to use Gambit was heavily
-influenced by the fact that it was the implementation used for the
-model in Chapter \ref{modelefficiency}, its compiled code was
-significantly faster than the interpreted code, and that adding
-hand-crafted C or C++ code for particularly intensive routines was not
-difficult.  Porting the model to other versions of Scheme should be
-relatively simple; the only potentially awkward issue in using a
-different scheme implementation would be the use of
+interpreted scheme code. The choice to use Gambit, rather than another
+version of Scheme, was heavily influenced by the fact that it was the
+implementation used for the model in Chapter \ref{modelefficiency},
+its compiled code was significantly faster than the interpreted code,
+and that adding hand-crafted C or C++ code for particularly intensive
+routines is not difficult.  Porting the model to other versions of
+Scheme should be relatively simple; the only potentially awkward issue
+in using a different scheme implementation would be the use of
 \texttt{define-macro} which is used to provide syntactic structures
-which are able to detect and respond to inconsistencies and
-makes using objects simpler and less error prone\footnote{At least for
-  \emph{some} types of error!}.
+which are able to detect and respond to inconsistencies and makes
+using objects simpler and less error prone\footnote{At least for
+  \emph{some} types of error!}.  In principle, \texttt{define-syntax}
+and other tools for syntactic extension or modification might be
+substituted for the macros defined in the \texttt{framework} file. 
 
-\section{Classes and structure}
+\subsection{Encoding strategy}
+The first step in being able to quantitativly compare configurations
+of models is to construct a means for encoding the state in some
+metric space.  The trees described briefly in Chapter
+\ref{adaptiveselection} and more comprehensively in Chapter
+\ref{treerings} are elements of a metric space, and since their set of
+indeterminate variables is quite arbitrary, we can identify cells and
+groups of cells explicitly with indeterminates, and we can also extend
+this to the classes which may be used within a run.  So, building our
+set of appropriate configurations, we might start looking at a tree
+(or set of trees) which are associated with the aggregate global
+condition:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Model implementation}
+
+The model is largely similar to the example used in Chapter
+\ref{adaptiveselection}. In the hypothetical example, the domain
+consists of nine cells containing tree-like plants. These trees are a
+critical food source for a population of herbivores, and the trees
+rely on the young herbivores to eat the ripe fruit in order to make
+their seeds viable (perhaps they have a particularly tough
+seedcoat). A carnivore which preys solely on juvenile herbivores is
+introduced into a stable system.  In Chapter \ref{adaptiveselection},
+the introduction of the carnivore (and a subsequent rangeland fire)
+initiated a sequence of events which, in turn, engendered
+changes in the configuration of the model as a whole.  The
+implementation described here is not identical to the system described
+in the paper --- some inadequacies of the model presented in the paper
+have been addressed (such as the inability of the plants to recolonise
+a cell after they have become extinct in it).
+
+\subsubsection{Initialisation}
+
+Models in the framework are initialised by constructing a set of
+agents (instances of submodels) and introducing them into the
+runqueue. The framework provides for the ability to make an agent
+``subsidiary'' to another agent in one of two ways: the subsidiary
+agent may remain a member of the global runqueue---only notionally
+``contained'' by its supervisor, or it may be wholly subsidiary and
+control only passes to it during the time step executed by its
+supervisor. This second mechanism is targetted at situations where a
+modelled entity may be comprised of several submodels, such as an
+animal with different possible representations for its metabolism. 
+
+In the case of the example of Chapter \ref{adaptiveselection}, we
+explicitly associate the agents representing trees with particular
+cells --- trees populate the cells, notionally contained, but
+introduced in their own right into the runqueue.  Background
+quantities of fruit and seeds are introduced into the model as numeric
+values associated with the cells, and a number of herbivores, adult
+and juvenile, are also generated and placed at locations within the
+domain. An initial population of carnivores is also generated, but
+they are given an initial time substantially after the start of the
+run, so they will not have control passed to them till the rest of the
+agents have caught up.
+
+Additional agents within the system, the monitors and loggers, are
+also instanciated and added to the queue. The monitors will
+periodically assess the configurations of agents, ensembles of agents
+and the model as a whole and make changes in the configuration, if
+required.  The loggers will periodically poll the other agents and
+produce some sort of output or record of data derived from the state
+of the model.
+
+After the initial cohort of agents have been instanciated and
+introduced into the runqueue (or in the subsidiary-runqueues of other
+agents), control is passed to the kernel which then begins to run each
+agent in turn for an appropriate time step.
+
+\subsubsection{Control flow}
+
+The most important mechanism controlling the flow of control in the
+system is the execution loop which plays the role of the kernel. A
+sorted list of agents is maintained by the system; the head of this
+list is removed from the list and execution is passed to
+\texttt{model-body} of the agent with an indicated maximum amount of
+time over which it might run.  Agents need not run their whole time
+step --- events may occur which cause them to truncate their turn,
+returning control to the kernel with an indication of the amount of
+time they actually used.  When the kernel receives control from an
+agent, it examines the data passed to it by the agent and act
+accordingly: dead agents may be silently dropped from the queue, for
+example, and other agents may be reinserted in an appropriate place in
+the queue for the their next time step.
+
+Control also passes from agents to the kernel when the agent makes
+queries about or of other agents: a sabre-toothed tiger might want to
+know whether there are any prey animals within a certain radius.  A
+request goes to the kernel for a list of nearby prey (transferring
+control back to the kernel).  The kernel will examine the list of
+agents meeting the requirements (spatial location, temporal
+contiguity) and pass the list --- and control --- back to the tiger.
+These control issues are conventional, both in terms of operating
+system dynamics, and in agent-based modelling.
+
+The maintenance of state data from a superceded representation is
+rather different. When an agent has entries of maintenance data, it
+processes each of them in turn by asking it for the data it needs,
+obtaining the data and passing control and the data to the closure
+When the closure has finished its update, control returns to the
+agent, and it either continues in its time step or passes control back
+to the kernel.
+
+\subsubsection{Communication}
+
+Where closures are \emph{supposed} to be bound to communicate with
+only the agent maintaining them, other entities may have other,more
+direct, channels. Chief amongst these are the connections between
+subsidiary agents and their containing supervisor.  These agents can
+use class methods to query each other directly. The constraint imposed
+on maintenance closures exists primarily because they really only
+exist \emph{in potentia}, and the data they request may actually be
+synthesised by the agent responsible for their maintenance, rather
+than the agents which existed at the time the closure was created.
+
+This is an uncomplicated system, more significant issues would arise
+in a parallelised system.  
+
+
+\subsubsection{Classes and structure}
 
 The example model follows a traditional agent-based approach using a
-class hierarchy which reflects the entities we wish to model. Most of
+class hierarchy that reflects the entities we wish to model. Most of
 the agent classes are organised more by their niche than by their
-structural form, so we may have several ``animal-like classes'' which
+structural form---we may have several ``animal-like classes'' which
 may range from individual-based representations to purely
-equation-based representations.  (equation-based versus
-individual-based, for example) since it is the
+equation-based representations. This is motivated by the observation
+that the kinds of interactions an animal may engage in are
+substantially different from the interactions associated with a plant,
+for example.  In some cases an equation-based representation of an
+animal may need to participate in what seems to be an
+individual-to-individual interaction or visa-versa.  These situations
+need to be examined in more detail and will be addressed in Section
+\ref{interactions}
+
 
 The framework is structured like an older multitasking,
 multiprocessing operating system which supports an arbitrary number of
@@ -204,7 +374,7 @@ relationships
 
     \item[\TTC{population}] -- Implementations of populations
       could range from ``super-individuals'' in the sense of
-      \citet{scheffer1995super} through age structured matrix
+      ~\citet{scheffer1995super} through age structured matrix
       models and systems of differential equations. The major 
       identifying characteristic is that populations cover an
       area, rather than a distinct location, and the inherent time
@@ -255,30 +425,65 @@ relationships
 \end{description}
 
 
-\section{Model implementation}
+\subsection{Methods, model bodies and closures}
 
-The model is largely similar to the example used in Chapter
-\ref{adaptiveselection}; in a restricted domain, there are nine cells
-containing tree-like plants which a population of herbivores use as a
-food source.  The trees rely on the young herbivores to eat the ripe
-fruit in order for their seeds to be viable (perhaps they have a
-particularly tough seedcoat). Into a stable system a carnivore which
-preys solely on juvenile herbivores appears.  In Chapter
-\ref{adaptiveselection}, the introduction of the carnivore (and a
-subsequent rangeland fire) initiated a hypothetical sequence of events
-which, in turn, engendered changes in the configuration of the model
-as a whole.  The implementation described here is not identical to the
-system described in the paper --- some inadequacies of the model
-presented in the paper have been addressed (such as the inability of
-the plants to recolonise a cell after they have become extinct in
-it).
+Methods are functions which are specifically associated with instances
+of a class.  Tiny-CLOS supports having a number of distinct methods
+with the same name, but different arguments, as determined by their
+type.  This means that \texttt{Seal} and \texttt{Shark} may both have an
+\texttt{Eat} method --- moreover, sharks may have two \texttt{Eat}
+methods: one which recognises when the item being eaten is an
+\texttt{Animal}, and one where it is merely an \texttt{Object}, which
+would usually be inedible.  This multiple-dispatch means that no
+explicit test is required in the model code (beyond writing an
+``object'' version which spits out the offending item).  If there is
+only an \texttt{Fish} verion of the \texttt{Eat} method for seals,
+they can only eat fish.  This makes the extension of classes much less
+vulnerable to mishandling interactions with instances of other
+classes.  These class methods are the primary mechanism for
+implementing behaviour in submodels in the system.
 
-There are essentially five sorts of routines defined in the model
-code: scheme functions, scheme functions with closures, initialisation
-methods, other methods and ``model-bodies''.  Each of these groupings
-plays a largely different role in the code of the model. Most
-straighforward are the The scheme functions, which do most of the
-menial labour associated with the simulation.
+Model bodies are methods which are only called by either the kernel
+or by the subsidiary execution lists embedded in agents. There is no
+provision for an agent to directly call model bodies.
+
+Closures have been discussed before as mechanisms for implementing
+``update function'' which preserve the essential state variables for
+particular representations.  A typical closure definition might look like 
+\begin{verbatim}
+(define-update-closure fish-population
+                       <FishPop>
+                       '(age mass contaminant) ;; state variables 
+                       '(temp contlevel) ;; required external values
+                       (begin
+                         (set! mass (fishgrowth dt age mass temp))
+                         (set! age (+ age dt))
+                         (set! contaminant (fishcont dt mass contaminant contlevel))
+                         ))
+\end{verbatim}
+In this example the state-variables age, mass and the contaminant
+level are all updated in the body; the update closure requires a
+temperature, \texttt{temp}, and a contaminant level, \texttt{contaminant}.
+The macro definition for \texttt{define-update-closure} isn't
+necessarily simple to follow, a simple example of a closure might look
+like so:
+\begin{verbatim}
+(define counter 
+   (let ((n 0))
+      (lambda x 
+         (cond
+           ((null? x) (set! x (+ 1 x))
+           ((eqv? x '(reset)) (set! x 0))
+           (#t counter))))
+           )
+)
+\end{verbatim}
+The symbol \texttt{counter} is set to point to the function the
+\texttt{lambda} defines, and the state variable \texttt{counter} is
+``global'' to this function, rather like a static variable defined
+outside a function in a C source file. 
+             
+
 
 Functions with closures are used, most importantly, to implement the
 code run with the \TTC{model-maintenance} class. Here, an agent will
@@ -355,6 +560,43 @@ agent's time steps. While there is an
 \texttt{agent-initialisation-method}, there is no \texttt{object-body}
 since objects are not able to be run by the kernel.
 
+\section{Interactions}\ref{interactions}
+
+The time taken to simulate interactions between individuals in an
+individual-based model is often a significant proportion of the total
+run-time, particularly when there are explicit searches for partners
+to interact with.  Population models suffer less from this particular
+source of overhead since, at least in ecological modelling,
+populations are often represented as arrays or function whose elements
+or values are an aggregation of individuals with respect to particular
+characteristics.
+
+Interactions between individuals are typically implemented or resolved
+by simulating (at least to some degree) the events which occur in the
+system being modelled. In contrast, interactions between the
+components of populations is necessarily less well resolved --- the
+focus becomes the aggregate effects of the interaction, and these are
+often modelled either using integral transforms (in the case of
+functional representations) or repeated evaluations over the
+histograms representing the populations.
+
+We can map population histograms onto piecewise linear functions with
+the property that the partial integrals of the the linear functions
+correspond exactly to the partial sums of histograms at each boundary
+in the histogram.  If populations are functions, then we can evaluate
+the consequences on the population.
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Maintaining state across representations}
 
 Unfinished business
@@ -386,4 +628,138 @@ Unfinished business
 
 
 
+\section{Further work: cross-representation predation}
+
+This discussion has not been implemented in the example model
+discussed in this section, but is included since the disparity between
+individual-based predation and population-level predation may be a
+frequent cause for representation changes.  It is possible for us to
+model predation between individual-based and population-based
+representations, but to do so requires an approach quite unlike the
+approaches of conventional individual-based models, where the pursuit,
+capture and consumption may be explicitly simulated, or the approaches
+of conventional age-class structured population models which can often
+be thought of as
+
+\subsection{An individual-based and analytic approach}
+
+Let us consider the folowing ``known'' attributes in a system
+\begin{table}{ht}
+  \begin{center}
+    \begin{tabular}{ll}
+      $m_a (l)$ & the member distribution with respect to size of each agent of interest\cr
+      $G_{i,j} (l, w)$ & the gape filter for predator $i$ with respect to prey \(j\)\cr
+      $T (a)$ & returns the taxon or type number of agent $a$\cr
+      $M_a$ & the total number of members for agent $a$\cr
+      $M^{\ast}_i (w)$ & the sum of all the distributions of agents with a type $i$\cr
+      $\bar{M}_i = \int_0^{\infty} M^{\ast}_i (w) d w$ & the total number of beasties of type $i$\cr
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\subsection{Calculating mortality}
+
+Let
+\[ I_{i,j} (l, w) = M^{\ast}_i (l) G_{i,j} (l, w) \]
+and
+\[ J_{i,j} (l, w) = M^{\ast}_j (w) G_{i,j} (l, w) . \]
+$I_{i,j}$ is the raw distribution of pressure of predator $i$ onto prey $j$,
+and $J_{i,j}$ is the raw distribution of the vulnerability of prey $j$ to the
+predator $i$.
+
+If the constants
+\[ k_{i,j} = \int_0^{\infty} \int_0^{\infty} I_{i,j} (l, w) dl dw \]
+and
+\[ h_{i,j} = \int_0^{\infty} \int_0^{\infty} J_{i,j} (l, w) dl dw \]
+are non-zero, they can be used to scale $I_{i,j}$ and $J_{i,j}$ so that they
+form kernel functions, and we get
+\[ K_{i,j} (w) = \frac{1}{k_{i,j}} \int_0^{\infty} I_{i,j} (l, w) dl \]
+which is the normalised predatory pressure with respect to size, and the
+normalised vulnerability
+\[ H_{i,j} (w) = \frac{1}{h_{i,j}} \int_0^{\infty} J_{i,j} (l, w) dl . \]
+Values of zero in $k_{i,j}$ and $h_{i,j}$ indicate that no predation is
+possible -- usually because $M^{\ast}$ has collapsed. \ In this case we take
+either (or both) $K_{i,j} (w)$ and $H_{i,j} (w)$ to be zero.
+
+We calculate
+\[ v_{i,j} = \int_0^{\infty} K_{i,j} (w) H_{i,j} (w) dw \]
+which has a value in the range $[0, 1]$. \ If $v_{i,j}$ is non-zero we can
+construct the normalised interaction
+\[ V_{i,j} (w) = \frac{1}{v_{i,j}} K_{i,j} (w) H_{i,j} (w) \]
+which indicates the proportion by size of type $j$ subjected to predation from
+type $i$ at the given length $w$. \ Again a zero value for $v_{i,j}$ indicates
+that no interaction (``diner'' or ``dinner'') are possible.
+
+\
+
+The function
+\[ e_{i,j} (w) = M^{\ast}_j (w) V_{i,j} (w)  \]
+can be used to give us the the number
+\[ E_{i,j} = \int_0^{\infty} M^{\ast}_j (w) V_{i,j} (w) d w \]
+which is the exposure of prey population $j$ to the predators in
+population $i$. \ The converse,
+\[ C_{i,j} = \int_0^{\infty} M_i^{\ast} (w) V_{i,j} (w) d w, \]
+is the potential for predation of the predator type $i$ on an ``average'' prey
+of type $j$.
+
+We can then use a predation relationship of some sort to get the raw
+number of ``kills'' based on the exposure averaged over the potential
+volume (or area) of contact per unit of time, which we call $\Omega_{i,j}$, where $\Omega_{i,j} = \bar{M}_i \mathfrak{F} (E_{i,j} / A_j,
+p_{i,j}) \Delta t$ where $\mathfrak{F}$ is the predation relationship,
+and $p_{i,j}$ is the parameterisation for the species, and $\Delta t$
+is the timestep, and $A_j$ is the area/volume we divide by to get a
+density. \
+
+We can sum over a predator type
+\[ \Omega_j^{\ast} = \sum_i \Omega_{i,j} \]
+to give us the total possible consumption of prey type $j$. \
+
+Alternatively, we can calculate a consumption-by-size distribution and define
+the function $\omega_{i,j} (w)$, the raw number of kills for a length $w$ on a
+consumption-by-size basis, by
+\[ \omega_{i,j} (w) = \bar{M}_i \mathfrak{F} (e_{i,j} (w) / A_j, p_{i,j})
+   \Delta t. \]
+Thus the impact on the prey population (at least those of length $w$) is
+\[ \omega_j^{\ast} (w) = \sum_i \omega_{i,j} (w) \]
+and for the whole population it is
+\[ \int_0^{\infty} \omega^{\ast}_j (w) d w \]
+(or something like that).
+
+Alternatively, we can express things more in the way that it is
+calculated in the Atlantis model (\cite{Fulton2011pcomm}) with
+\[ Z_i (w) = \frac{g_i M^{\ast}_i (w)}{g_i / c_i + \sum_j a_{i,j} e_{i,j} (w)}
+\]
+where $Z_i (w)$ reflects the aggregate clearance rate of a predator of type
+$i$ if we take $c_i$ to be the ``clearance rate'' which incorporates the
+volume it sweeps and a proportion of prey captured and we take $g_i$ to be the
+predator's growth rate.
+
+So $\int_0^{\infty} Z_i (w) e_{i,j} (w) \Delta t d w$ is the amount of prey of
+type $j$ consumed by the predators of type $i$ over the interval $\Delta t$.
+
+\
+
+It should be pointed out that the number of types is fairly small compared to
+the number of agents, and this shouldn't be too onerous a calculation (at
+least compared to playing it all out individually).
+
+\section{Apportioning mortality}
+
+Mortality can be calculated either by apportioning it to each agent according
+to the proportion of the global population it represents (and within it,
+apportioning the mortality to ages in an analogous fashion), or we can
+apportion mortality to each age in each agent according to how much of the
+population it represents.
+
+For the agent-by-agent update we have
+\[ \delta m_a (w) = \Omega^{\ast}_{T (a)}  \frac{m_a (w)}{M^{\ast}_{T (a)}
+   (w)} \]
+and for the age-by-age update we have
+\[ \delta m_a (w) = \omega^{\ast}_{T (a)} (w)  \frac{m_a (w)}{M^{\ast}_{T (a)}
+   (w)} . \]
+The new distribution
+\[ n_a (w) = m_a (w) - \delta m_a (w) . \]
+In these steps, places where there are no members of size $w$ should be dealt
+with carefully in the division, and at all points $M^{\ast}_{T (a)} (w)
+\geqslant m_a (w)$.
 

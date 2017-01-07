@@ -6,18 +6,19 @@
 \WeAreOn{\cthree}
 \typeout{Chapter 3: Prologue to the paper}
 \section{Prologue to the paper}  
-This chapter is a (verbatim) paper that I was invited to submit for a special topic
-issue of the refereed journal \emph{Frontiers in Environmental Science}. The
-issue's intent was to focus attention on hybrid models which couple
-component-models (submodels) from across the range of modelling
-paradigms, and to encourage the development of this sort of model in
-the context of ecological research.  The paper develops a thought
-model which demonstrates a high level mechanism for governing the mix
-of representations used in the model based on the state of the system
-and the states of its components.
+This chapter is a (verbatim) inclusion of a paper that I was invited
+to submit for a special topic issue of the refereed journal
+\emph{Frontiers in Environmental Science}. The issue's intent was to
+focus attention on hybrid models which couple component-models
+(submodels) from across the range of modelling paradigms, and to
+encourage the development of this sort of model in the context of
+ecological research.  The paper develops a thought model which
+demonstrates a high level mechanism for governing the mix of
+representations used in the model based on the state of the system and
+the states of its components.
 
 Simple rules can be used to govern transitions from one representation
-to another (Chapter \ref{modelefficiency}), but these local
+to another (Chapter~\ref{modelefficiency}), but these local
 transitions may degrade the quality of the simulation as a whole. The
 biomass of grass a farm's paddocks is probably quite
 adequately represented by a single number if there is little or no
@@ -26,12 +27,12 @@ paddock's biomass individually, \ldots and possibly each paddock as a
 finely resolved field showing where the animals graze most intensely.
 
 The appendix to the paper is an early version of the mathematical
-machinery developed in Chapter \ref{treering}. Since publication, the
+machinery developed in Chapter~\ref{treering}. Since publication, the
 basic mathematical structure has changed significantly --- this early
 version is much harder to manipulate, and generally less powerful.
 The propositions and assertions in this chapter are presented largely
-without proof, though the corresponding propositions are proved for
-the material in Chapter \ref{treering}.
+without proof, though the corresponding propositions for the work in
+Chapter~\ref{treering} are proved in the material in Chapter~\ref{treering}.
 
 \pagebreak
 \typeout{Chapter 3: Adaptive submodel selection in hybrid  models}
@@ -101,8 +102,8 @@ change their rep\-re\-sen\-ta\-tion according to their state.
 \citet{vincenot2011theoretical} identify reference cases describing the
 major ways system dynamics models (\SD) and in\-di\-vidu\-al-based models
 (\IB) can be coupled. Their final case, \SD-\IB\ model swapping, is
-exemplified in the models described by both \cite{bobashev2007hybrid}
-and \cite{Gray2012adaptive}. These papers argue that we can improve on
+exemplified in the models described by both~\cite{bobashev2007hybrid}
+and~\cite{Gray2012adaptive}. These papers argue that we can improve on
 conventional hybrid models, in terms of efficiency, fidelity, model
 clarity or execution speed by using an approach that allows the
 sub\-models themselves to change during a simulation. The last two
@@ -117,9 +118,9 @@ Some authors argue that the explicit coupling of \SD\ models and
 most clearly the result of aggregate processes are likely to be better
 suited to modeling with a \SD\ approach. In contrast, the
 parts of a system where in\-di\-vidu\-als have a significant influence on
-their neighbors \citep{botkin1972some} are better suited to an
+their neighbors~\citep{botkin1972some} are better suited to an
 \IB\ approach. This argument is closely tied to the notion of model
-fidelity. Following \cite{delsole2010model}, we take
+fidelity. Following~\cite{delsole2010model}, we take
 \emph{fidelity} to be the degree to which a model's trajectory is
 compatible with real trajectories.  If our immediate goal is to
 maximize the utility of the set of sub\-models within a model
@@ -133,7 +134,7 @@ Models with a high degree of fidelity should produce results which are
 consistent with observed data from real instances of the system they
 model across both a wide range of starting conditions and under the
 influence of ad hoc perturbations, such as fires through a forested
-domain. Model fidelity is addressed by \cite{delsole2010model} in the
+domain. Model fidelity is addressed by~\cite{delsole2010model} in the
 context of seasonal forecasting models. They explore the relationship
 between fidelity and skill using an information-theoretic approach.
 They describe \emph{skill} loosely as the ability to reproduce actual
@@ -146,7 +147,7 @@ climate modeling, the necessary probability distributions are unknown.
 
 %----> fidelity w.r.t. cost & benefit <----
 The issues of fidelity and the attendant cost/benefit balance are
-central to the dis\-cus\-sion in \cite{bailey1992scientific}.  This paper
+central to the dis\-cus\-sion in~\cite{bailey1992scientific}.  This paper
 assesses the costs and benefits of three dif\-fer\-ent upgrades to an
 existing model designed to help de\-ter\-mine the best mix of types of
 radios used in a mil\-i\-tary con\-text; their ob\-jec\-tive is to prioritize
@@ -155,7 +156,7 @@ issues they address are substantially the same as issues that
 in\-flu\-ence dynamic model selection.
 
 %----> Boiler optimization, win for fidelity <----
-The paper by \cite{yip2004effect} compares three models used for
+The paper by~\cite{yip2004effect} compares three models used for
 real-time optimization of a boiler network: simple linear
 extrapolation from the system's current state, quadratic prediction
 with the coefficients based on historical data and updated at every
@@ -169,12 +170,12 @@ that increasing fidelity in the model enabled the system to adapt to
 changing fuel more efficiently, and that when there were frequent
 changes in fuel characteristics the simpler models performed poorly.
 
-The projects described in \cite{Little2006nws} and \cite{Fulton2011ningaloo}
+The projects described in~\cite{Little2006nws} and~\cite{Fulton2011ningaloo}
 both used hybrid models as a means of decreasing the run-time, and
 increasing the fidelity of the modeled contaminant uptake in 
 simulated organisms. This was accomplished by mixing in\-di\-vidu\-al-based
 sub\-models and regional population-based systems
-models. \cite{Gray2012adaptive} explicitly used changes in the rep\-re\-sentation
+models.~\cite{Gray2012adaptive} explicitly used changes in the rep\-re\-sentation
 of agents to improve the execution speed of a contamination tracking
 model, without losing the fidelity of the in\-di\-vidu\-al based uptake
 model. In this paper we will develop a more general strategy which may
@@ -193,7 +194,7 @@ This is essentially the same as the term \emph{component} in
 convention arose from confusion resulting from inadvertently using
 \emph{component} both in a technical and non-technical sense.  The
 close analogy between the nature of a niche in an ecosystem and the
-nature of a component as discussed in \cite{vincenot2011theoretical}
+nature of a component as discussed in~\cite{vincenot2011theoretical}
 suggested the choice of \emph{niche}. 
 
 Each of the alternative ways of representing a niche can be viewed as
@@ -297,11 +298,11 @@ model.
     members of a uniform or variable speed splitting
     sub\-models and require uniform time steps, and ``Dyn:'' sub\-models
     have adaptive time steps.}
-  \label{times}
+\label{times}
 \end{center}
 \end{figure}
 A better approach is the technique of variable speed splitting, such
-as in \cite{walters2004fisheries} and many others. (Figure \ref{times}) This approach allows models to step through time in
+as in~\cite{walters2004fisheries} and many others. (Figure~\ref{times}) This approach allows models to step through time in
 different intervals by dividing the largest interval required into
 smaller steps that are more appropriate for the sub\-models with
 naturally shorter time scales. While models with uniform time steps are
@@ -312,7 +313,7 @@ stepping changes would still seem to be awkward or difficult.
 
 Both of these strategies may be subject to artifacts arising from the
 sequence in which agents are given their time step.  The general class
-of model errors of the sort described in \cite{chivers2009generalised}
+of model errors of the sort described in~\cite{chivers2009generalised}
 arise as a consequence of structure of the processing across the set
 of agents in a simulation. \IB\ models which process agents
 species-by-species will be particularly vulnerable to these sorts of
@@ -323,7 +324,7 @@ arise when there is a change in rep\-re\-sen\-ta\-tion, perhaps from an
 situation may introduce a great many small time steps which agents may
 exploit.  This kind of problem can be overcome by introducing a
 randomizing process within each time step. Early versions of the
-variable speed splitting model in \cite{Lyne1994pmez5} suffered from
+variable speed splitting model in~\cite{Lyne1994pmez5} suffered from
 predator-prey artifacts arising from a na\"ive introduction of
 predators and prey into the list of agents, and such randomizing was
 introduced to minimize the effects. In situations where the time steps
@@ -332,7 +333,7 @@ strategy may require a significant increase in the complexity of the
 system to accommodate irregular stepping through the lists of
 agents, or a significant change in the basic structure of the model.
 
-\cite{Gray2006nws} and \cite{Fulton2009crossingscales} describe models that have a well
+\cite{Gray2006nws} and~\cite{Fulton2009crossingscales} describe models that have a well
 developed approach to coordinating agents using adaptive time
 steps. In these models agents may set their own time steps to
 intervals that are suitable for their current activity or role. This
@@ -341,13 +342,13 @@ collections that employ a variable speed splitting strategy. When
 agents interact, they either explicitly become synchronous before
 interaction occurs by setting their time steps appropriately and
 waiting, or they implicitly acknowledge that there is a temporal
-mismatch. (Figure \ref{times})
+mismatch. (Figure~\ref{times})
 
 While some agents should be given execution priority (such as an agent
 which models ocean currents), most agents will have their execution
 order within a time step randomized, effectively preventing a large
 class of execution order dependent artifacts.  The associated overhead
-in the most recent work, \cite{Gray2006nws,Gray2012adaptive}, is marginally higher
+in the most recent work,~\cite{Gray2006nws,Gray2012adaptive}, is marginally higher
 than one would expect from single-stepping or variable speed stepping
 systems, but the advantages arising from the ability to ensure
 synchrony and change time steps in response to en\-vi\-ron\-men\-tal stimulus
@@ -381,7 +382,7 @@ from other niches.
 %---- Algorithm MonAlg
 \begin{algorithm}
   \caption{Basic processing pass for the monitor}
-  \label{MonAlg}
+\label{MonAlg}
   \begin{algorithmic}
     \ForAll{niches}
     \ForAll{sub\-models in the niche}
@@ -405,9 +406,9 @@ from other niches.
     \State
     \State Select best indicated con\-fig\-ur\-a\-tion
   \end{algorithmic}
-\end{algorithm} The last step in Algorithm \ref{MonAlg} is deliberately vague. 
+\end{algorithm} The last step in Algorithm~\ref{MonAlg} is deliberately vague. 
 
-Algorithm \ref{MonAlg} illustrates a possible
+Algorithm~\ref{MonAlg} illustrates a possible
 assessment pass for a monitor, though how appropriate it may be is an
 open question. Configuration ranking for the example model will be
 cast in terms of evaluating an objective function based on elements of
@@ -420,7 +421,7 @@ rep\-re\-sen\-ta\-tion, along with local domains (subregions of the global
 domain) which are associated with finer scale rep\-re\-sen\-ta\-tions of the
 modeled entities. The set of potential candidate trees could be quite
 large; in practice we reduce the number by casting the candidate trees
-in a more general way -- including trees representing particularly
+in a more general way---including trees representing particularly
 good rep\-re\-sen\-ta\-tions and particularly poor rep\-re\-sen\-ta\-tions: the first
 to steer the con\-fig\-ur\-a\-tion toward good choices, and the second to
 drive it away from poor choices. We can use the hierarchical
@@ -462,14 +463,14 @@ swamped by detail.
     is associated with each of these cells and with the domain as a
     whole. Any \IB\ agents which are created during the simulation
     will be associated with one cell at any given time.}
-  \label{domain}
+\label{domain}
 \end{center}
 \end{figure}
 
 
 %----> Describes phys domain, niches, food chain <----
 The model consists of a spatially explicit environment that is
-partitioned into nine cells (Figure \ref{domain}). The biotic elements
+partitioned into nine cells (Figure~\ref{domain}). The biotic elements
 consist of plants, fruit, seeds, herbivores, and carnivores.  The
 herbivores feed on the plants and their fruit; and carnivores prey
 upon juvenile herbivores.  The plants and herbivores are
@@ -515,7 +516,7 @@ cell-based).
 %------ fruitalg
 \begin{algorithm}
   \caption{Basic processing pass for fruit}
-  \label{fruitalg}
+\label{fruitalg}
   \begin{algorithmic}
     \State $\N{F} \gets \N{F} - (\mathit{Spoilage}_{\mt{F}} \cdot \N{F})$
   \end{algorithmic}
@@ -524,11 +525,11 @@ cell-based).
 The processing for fruit is quite simple and consists only of
 applying ``spoilage''; no reference to other agents in
 the system is required, and only the number of fruit is adjusted as a
-result (Algorithm \ref{fruitalg}).
+result (Algorithm~\ref{fruitalg}).
 %------ seedalg
 \begin{algorithm}
   \caption{Basic processing pass for seeds}
-  \label{seedalg}
+\label{seedalg}
   \begin{algorithmic}
     \State $\mathit{NewTreeCount} \gets \mathit{Germination} \cdot  \mathit{SeedCount}$
     \State $\mathit{SeedCount} \gets \mathit{SeedCount} -  (\mathit{NewTreeCount} $
@@ -541,7 +542,7 @@ Seed models will adjust their ``seed count'' as well as the biomass
 distribution for plants in their time step, according to the level of
 germination. Germination is probabilistic as is the size of the plant
 a germinated seed becomes in its pass, though the distribution of
-possibly sizes is quite restrained (Algorithm \ref{seedalg}).
+possibly sizes is quite restrained (Algorithm~\ref{seedalg}).
 
 %---- SD rep\-re\-sen\-ta\-tions
 \subsection*{\SD\ rep\-re\-sen\-ta\-tions}
@@ -584,7 +585,7 @@ raw numbers of fruit and viable seeds.
   %% if we swap the order of the caption and label, we get the section number
   %% rather than the algorithm number!
   \caption{Basic processing pass for the \SD\ models}
-  \label{sdalg}
+\label{sdalg}
 \begin{algorithmic}
   \ForAll{agents in this domain}
     \State{Incorporate quantities that are }
@@ -618,7 +619,7 @@ particular conception or parameterization of the system.
 \subsection*{\IB\ rep\-re\-sen\-ta\-tions}
 %------> introduction of the IB rep, follows Gray2012adaptive <------
 Individual-based rep\-re\-sen\-ta\-tions for plants, herbivores and carnivores
-follow the pattern in \cite{Little2006nws}; fruit and seeds are only
+follow the pattern in~\cite{Little2006nws}; fruit and seeds are only
 modeled in the \SD\ rep\-re\-sen\-ta\-tion, though their numbers are modified
 by the activities of the herbivores irrespective of how those
 herbivores are represented. 
@@ -640,7 +641,7 @@ occurs probabilistically as in the \SD\ represen\-tation.
 %------ plantalg
 \begin{algorithm}
   \caption{Basic processing pass for plants}
-  \label{plantalg}
+\label{plantalg}
   \begin{algorithmic}
     \If {$(\mass \ge \Mtt{P}_{\mature}) \land (\ttt{P}_{\fruits} \ge \Urnd)$}
     \State $\AddFruit{\ttt{P}_\rho}{\mass^{\frac{2}{3}}}$
@@ -709,7 +710,7 @@ particular value, $H_\Omega$ or $C_\Omega$, the in\-di\-vidu\-al dies.
 %------ animalalg
 \begin{algorithm}
   \caption{Basic processing pass for herbivores and carnivores}
-  \label{animalalg}
+\label{animalalg}
   \begin{algorithmic}
   \If {$(\imort{A} > \Urnd) \lor (\hungertime \ge \ttt{A}_\Omega)$}
   \State \Die
@@ -738,7 +739,7 @@ particular value, $H_\Omega$ or $C_\Omega$, the in\-di\-vidu\-al dies.
 %------> effect of different parameters i.t.o. behavior <------
 So, if we take \ttt{A} to represent either carnivores (\ttt{C}) or
 herbivores (\ttt{H}) below, then the processing pass for an animal is
-shown in Algorithm \ref{animalalg}, where $\ttt{A}_{moveT}$ is the
+shown in Algorithm~\ref{animalalg}, where $\ttt{A}_{moveT}$ is the
 amount of time an animal can be hungry before it migrates,
 $\ttt{A}_\Omega$ is the amount of time it takes for the animal to
 starve, $\ttt{A}_{EatLimit}$ is the most the animal can eat as a
@@ -864,7 +865,7 @@ A starvation trigger may usually arise as a natural consequence of the
 population dynamics, but it may also occur when there is a mismatch in
 rep\-re\-sen\-ta\-tions which has not been adequately addressed in the design
 stage.  The final condition based on the relative biomasses is one
-which properly lies in the realm of the monitor -- it would be quite
+which properly lies in the realm of the monitor---it would be quite
 inefficient for each of the candidate animals to be querying their
 prey for available biomass, summing the result, and then noting the
 need for change.
@@ -911,7 +912,7 @@ domain in question.
 
 The monitor assesses the trees by calculating aggregate values of
 particular attributes, comparing the trees' divergences from allegedly
-ideal con\-fig\-ur\-a\-tions, and by looking how uniform groups are -- groups
+ideal con\-fig\-ur\-a\-tions, and by looking how uniform groups are---groups
 of in\-di\-vidu\-als that are all very similar are good candidates for
 simpler rep\-re\-sen\-ta\-tions. 
 
@@ -939,7 +940,7 @@ in the \appendixname.
     used. Symbols composed of two colors indicate that more than one
     rep\-re\-sen\-ta\-tion is currently controlling portions of the
     relevant biomass.}
-  \label{timeline}
+\label{timeline}
 \end{center}
 \end{figure}
 
@@ -1001,8 +1002,8 @@ where $\delta$ stands for our chosen measure of similarity.
 \begin{center}
   \includegraphics{Figure4}
   \caption{Normalized indexes of execution speed (black) and fidelity (red) the 
-    against configuration changes through time associated with Figure \ref{timeline}}
-  \label{indices}
+    against configuration changes through time associated with Figure~\ref{timeline}}
+\label{indices}
 \end{center}
 \end{figure}
 
@@ -1041,39 +1042,39 @@ in\-di\-vidu\-al based model for carnivores and a local \SD\ submodel for the
 other entities in the cell.   The monitor makes this change in con\-fig\-ur\-a\-tion,
 and informs the global \SD\ agent that it is no longer controlling the
 biomasses in cell 9. Figure
-\ref{timeline} (\textbf{B}) \label{firstconv}
+\ref{timeline} (\textbf{B})\label{firstconv}
 
 \item %C
 \label{cv1}
 %-------> Run for a while and convert C to SD <--------
 The model may run for some time without any change in con\-fig\-ur\-a\-tion.
 Both the herbivores and carnivores breed. The increased execution speed
-between \textbf{C} and \textbf{D} in Figure \ref{indices} is a result
+between \textbf{C} and \textbf{D} in Figure~\ref{indices} is a result
 of a change in representation: the number of
 carnivores, recorded in $\stsdA{C}{t_4}$, reaches a point that prompts
 the monitor to convert them to an \SD\ form.
-Figure \ref{timeline} (\textbf{C})
+Figure~\ref{timeline} (\textbf{C})
 
 \item %D
 %-------> Run for a while, herbivore population drops  <--------
 The biomass of carnivores has increased significantly by the time the
-model reaches \textbf{D} in Figure \ref{indices},
+model reaches \textbf{D} in Figure~\ref{indices},
 and they are now eating all the young herbivores; as a result the
 carnivore population is now prey-limited, and the \emph{Relative
   biomass} condition is triggered.  Both the carnivore and herbivore
 populations are converted to \IB\ rep\-resentations. Notice that
-dynamics in the fidelity in Figure \ref{indices} around \textbf{D}
+dynamics in the fidelity in Figure~\ref{indices} around \textbf{D}
 arise from the collapse of the carnivore's prey, followed by the
 increase in fidelity after the representation change at \textbf{D}.
-Figure \ref{timeline} (\textbf{D})
+Figure~\ref{timeline} (\textbf{D})
 
 \item %E
 %-------> + monitor converts cell 5 in fashion analogous to start  <--------
 A carnivore, agent 43, has been hungry ($(\hungertime \ge
 \ttt{A}_{moveT}$) and has migrated to the cell 5
-(noted in $\sta{\IB}{43}{t_5}$). As occurred in cell 9 at step \ref{firstconv}, the monitor
+(noted in $\sta{\IB}{43}{t_5}$). As occurred in cell 9 at step~\ref{firstconv}, the monitor
 converts plants and herbivores in cell 5 to a local
-\SD\ rep\-re\-sen\-ta\-tion, with \IB\ carnivores. Figure \ref{timeline}
+\SD\ rep\-re\-sen\-ta\-tion, with \IB\ carnivores. Figure~\ref{timeline}
 (\textbf{E})
 
 \item %F
@@ -1087,7 +1088,7 @@ cells 5,6 and 8 from cell 9 (more of the $\sta{\IB}{n}{t_7}$ trees
 indicate residence in new cells), and a chance migration has introduced a
 carnivore into cell 3 from cell 5. Cells 3,6 and 8 are converted to
 local \SD\ and \IB\ rep\-re\-sen\-ta\-tions as happened in step
-\ref{cv1}. Figure \ref{timeline} (\textbf{F})
+\ref{cv1}. Figure~\ref{timeline} (\textbf{F})
 
 \item %G
 %-------> cell 9: C pop crashes <--------
@@ -1100,7 +1101,7 @@ starvation. The monitor cleans up the dead agents.  There are chance
 migrations from cell 5 into cells 4 and 7 (in $\stsdA{4}{0}$ and
 $\stsdA{7}{0}$). A fire begins in cell 8, moving through cell 5:
 biomass loss in all niches causes all niches to shift to
-\IB\ rep\-re\-sen\-ta\-tions. Figure \ref{timeline} (\textbf{G})
+\IB\ rep\-re\-sen\-ta\-tions. Figure~\ref{timeline} (\textbf{G})
 
 \item %H
 %-------> cell 9: Hj begins to appear, but P biomass converts (\#3) <--------
@@ -1113,10 +1114,10 @@ fire in cell 8 has killed all animal biomass in the cell; they
 status trees diverge by too much.  Instead, they convert to local
 \SD\ rep\-re\-sen\-ta\-tions (which represent zero biomass quite
 efficiently). Plants remain as \IB\ agents The fire spreads to cell
-5. Figure \ref{indices} shows a modest increase in execution speed
+5. Figure~\ref{indices} shows a modest increase in execution speed
 between \textbf{G} and \textbf{H} due to the population losses
 associate with the fire. 
-Figure \ref{timeline} (\textbf{H})
+Figure~\ref{timeline} (\textbf{H})
 
 \item[$\bullet$] \ldots the simulation continues
 \end{enumerate}
@@ -1129,7 +1130,7 @@ Figure \ref{timeline} (\textbf{H})
 
 Adaptive hybrid models \emph{can} be constructed so that each
 submodel is aware of its other rep\-re\-sen\-ta\-tions and is able to change
-form as appropriate \citep{Gray2012adaptive}. This approach requires each
+form as appropriate~\citep{Gray2012adaptive}. This approach requires each
 model to have a reasonably close coupling with its alternative
 rep\-re\-sen\-ta\-tions, and the burden of instrumenting (and maintaining) the
 necessary code quickly becomes untenable in complex models.  Worse, it
@@ -1157,7 +1158,7 @@ sets of candidate con\-fig\-ur\-a\-tions.  The transition dynamics such a
 model will exhibit depend on the sets of candidate con\-fig\-ur\-a\-tions, and
 it seems likely that a combination of analysis and experimentation may
 be the most effective way to develop a set of useful con\-fig\-ur\-a\-tions.
-The hybrid models associated with \cite{Lyne1994pmez5, Little2006nws,
+The hybrid models associated with~\cite{Lyne1994pmez5, Little2006nws,
   Fulton2009crossingscales} were built by extending the repertoire of ways of
 representing elements of the ecosystem or the anthropic components
 rather than wholescale redesign and replacement.
@@ -1305,7 +1306,7 @@ entered another.
 
 %---- Domain 
 \begin{definition}
-  \label{defdomain}
+\label{defdomain}
   Let $\mc{S}$ be a set of labels, and let \TFIELD\ be a field like
   the real or complex numbers. Then we define a node $\node{n}$ as a
   triplet of the form $(\mc{s}, v, \set{E})$, with $v \in \FIELD$,
@@ -1393,7 +1394,7 @@ The \emph{overlap} between two trees is defined
     \end{cases}
   \end{align*}
 
-  Clearly two trees, \tnode{u} and \tnode{v}, are compatible if and only if \(\overlap(\node{u},\node{v}) \neq 0 \) ; they will
+  Clearly two trees, \tnode{u} and \tnode{v}, are compatible if and only if \(\overlap(\node{u},\node{v}) \neq 0 \); they will
   be said to \emph{completely overlap} if \(\Tcard{\node{u}} = \Tcard{\node{v}} =
   \overlap(\node{u},\node{v})\).
 
@@ -1402,7 +1403,7 @@ The \emph{overlap} between two trees is defined
 
 We can now define scalar multiplication, and tree addition.
 \begin{definition}
-  \label{defscalar*}
+\label{defscalar*}
   Take $a \in \FIELD$ and $\node{u} \in \DOM$, then
   \begin{equation}
     a\node{u} = \begin{cases}
@@ -1418,8 +1419,8 @@ We can now define scalar multiplication, and tree addition.
 %--- Tree addition
 
 \begin{definition}
-  \label{deftree+}
-  Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM. Then taking the
+\label{deftree+}
+  Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM.\@Then taking the
   symbol $+$ to be addition in the field \TFIELD, we extend  it to addition in
   \TDOM\ so that for nodes \tnode{u} and \tnode{v},
 
@@ -1441,8 +1442,8 @@ We can now define scalar multiplication, and tree addition.
 %--- Tree inner-multiplication
 
 \begin{definition}
-  \label{deftree*}
-  Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM. Then 
+\label{deftree*}
+  Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM.\@Then 
   we define inner-multiplication between the two nodes
   \begin{equation}
     \node{u}\cdot\node{v} = \bigl(\nlabel{u}, \nv{u} \nv{v}, \{\node{f}\cdot\node{g}: \node{f} \in \extn{u},\node{g} \in \extn{v} \mand \nlabel{f} = \nlabel{g}\}\setminus\{\nulltree\}\bigr)
@@ -1456,8 +1457,8 @@ We can now define scalar multiplication, and tree addition.
 It can be shown that \TDOM\ with scalar multiplication and tree addition forms a vector space. This
 isn't quite enough to give us distances between trees, however, so we define a semi-norm
 \begin{definition}
-  \label{defnabs}
-  Let \tnode{u} be an element of \TDOM. Then we can define a semi-norm over \TDOM
+\label{defnabs}
+  Let \tnode{u} be an element of \TDOM.\@Then we can define a semi-norm over \TDOM
   \begin{align*}
     \nabs{\node{u}} = \begin{cases}
       0 & \text{ if } \node{u} = \nulltree \\
@@ -1482,7 +1483,7 @@ that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} 
 %----- Define mask and nmask
 
 \begin{definition}
-  \label{mask}
+\label{mask}
   We define the functions $\mask$ and $\nmask$ that set the values
   associated with particular nodes in a tree to $v\in\FIELD$.  Specifically,
   if $\mc{L} \subset \SDOM$, then
@@ -1543,7 +1544,7 @@ that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} 
 We now finish with a definition of a function, $\devi{}{}$, that gives us a
 measure of the degree of divergence between two trees.
 \begin{definition}
-  \label{defdeviation}
+\label{defdeviation}
   The degree of deviation between two trees, \tnode{u} and \tnode{v} is given  by the expression
   \begin{equation}
     \devi{\node{u}}{\node{v}} = \begin{cases}
@@ -1562,4 +1563,29 @@ measure of the degree of divergence between two trees.
 \section{Epilogue to the paper}
 
 The model described in this paper has been used as a template for the
-model discussed in Chapter \ref{explicitmodel}.
+model discussed in Chapter~\ref{explicitmodel}. The paper attempted to
+describe a credible ``toy'' model to provide a setting for the
+discussion. Unfortunately, when it came to implementation of the model
+the paper described, a few shortcomings came to light and some of the
+corresponding algorithms have been altered in the explicit
+model to correct them.  The most notable example, and one which
+characterises them well, is that the description didn't allow for a
+cell which had lost all its plant biomass to be recolonised.
+
+This paper extended and generalised the simple state maintenance of
+Chapter~\ref{modelefficiency} by passing closures rather than a vector
+of values and the confident knowledge that the closures embodied the
+correct process for update. By using closures, the actual machinery
+supporting the update of the state of a previous representation can be
+passed and both the mechanism and data made, in some sense, opaque to
+all but the representation it is associated with. Enforcing the notion
+that the code required for maintaining a state vector of a
+representation must be provided \emph{by} that representation means
+that all of the code which changes the state of an agent is embodied
+within the agent's representation.  This has practical appeal in that
+inappropriate modifications to that state data may cause errors that
+would be very difficult to isolate.
+
+The trees described in the next chapter are used to characterise the
+distribution of agents within the model's spatial domain, and encode
+the different representations and numbers of those agents. 

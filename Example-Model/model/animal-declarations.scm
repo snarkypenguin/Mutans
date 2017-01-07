@@ -17,7 +17,6 @@
 (declare-method die "routine corresponding to the death of an animal (calls shutdown)")
 (declare-method prey-present "returns a list of the animal's prey in a suitable locality")
 (declare-method growth "does the business of growing")
-(declare-method eat "ingestion....")
 (declare-method forage "move about looking for a region with food")
 (declare-method crowded? "determine if the region is too crowded for the animal")
 (declare-method change-territory "move to another region (change cells)")

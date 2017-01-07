@@ -31,6 +31,56 @@
 ;; 30, 1991). The Art of the Metaobject Protocol. The MIT . ISBN
 ;; 978-0262610742.
 
+
+;; Calls to a closure function are of the form (name t reqvar1 reqvar2 ....)
+;; Note: t is passed in, rather than dt, since we don't want accidental multiple updates
+(define-macro (define-update-closure name class-id svlist reqlist . body)
+  `(define ,name
+	  (let* ((id ,id)
+			  ,@(map (lambda (sv) (list (list sv #f))) ,svlist)
+			  (Reqlist ',reqlist) ;; all possible requirements
+			  (reqlist ',reqlist) ;; current reqlist
+			  (T #f)
+			  (this-continuation
+				(lambda x
+				  (cond
+					((null? x)  ;; the closure with no arguments returns its requirements (which may change through time)
+					 reqlist)
+					((and (= 1 (length x))
+							(symbol? (car x)))
+					 (case (car x)
+						((requirements) reqlist)
+						((all-requirements) Reqlist)
+						((values) #f) ;; cannot ask for values without the class-id
+						((
+						(else (error "bad call to update-closure function" x)))
+					 )
+					((and (= 1 (length x))
+							(symbol? (car x)))
+					 (case (car x)
+						((requirements) reqlist)
+						((all-requirements) Reqlist)
+						((values) #f) ;; cannot ask for values without the class-id
+						(else (error "bad call to update-closure function" x)))
+					 )
+					((number? (car x))
+					 (if (eq? (length (cdr x)) (+ 1 (length reqlist)))
+						  (let* ((dt (if (< T t) (- (car x) T) 0))
+								  )
+							 (let ((result (begin ,@body)))
+								(set! T t)
+								result)
+							 )
+						  (error "Failed to pass in the necessary number of arguments!" x)))
+					))
+					(#t (error "+++Incomprehensible Update+++" x)))))
+			  )
+		 this-continuation))
+  )
+					 
+							
+					 
+
 (define-macro (UNFINISHED-BUSINESS . body)
   `#!void)
 
@@ -65,6 +115,8 @@
 ;; This makes it clear when classes are defining NO state vars
 
 (define-macro (inherits-from . iflst) `(list ,@iflst))
+
+
 
 ;; Support for the "isa?" calls and for a mapping from the class
 ;; object to a name

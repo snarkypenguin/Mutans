@@ -351,12 +351,6 @@
 					 )
 				  )
 
-(model-method (<monitor> <list>) (pass-preparation self  agentlist)
-				  (kdnl* 'monitor "Default monitor prep pass" (name self)))
-
-(model-method (<monitor> <list>) (pass-resolution self  agentlist)
-				  (kdnl* 'monitor "Default monitor resolve pass" (name self)))
-
 
 
 ;----- (name) 

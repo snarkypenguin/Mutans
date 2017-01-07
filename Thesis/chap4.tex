@@ -1,2 +1,1119 @@
+\chapter[A METRIC SPACE WITH TREE ELEMENTS] {A metric space with tree elements}\label{treering}
+\typeout{Chapter 4: Introduction}\WeAreOn{\cfour}
+\section{Introduction}
+The project which triggered the development of the structure in this
+chapter was a project which considered modeling the social dynamics
+associated with climate change -- a significant change from previous
+representations of ``public'' participants, such as recreational
+fishers, tourists, accomodation and other small businesses, which were
+modelled in fairly simple ways (\cite{Fulton2011ningaloo,Gray2014}).
+The specific goal was to be able to incorporate a simulation of the
+way public opinion changes in response to policy actions and changes
+in the economy and environment.  The starting point for this was a
+corpus of responses to a survey on attitudes associated with the topic
+of climate change (\cite{boschetti2012}). The data consisted of
+(largely) numeric answers to individual questions which could
+represented as either distinct items, or as an aggregation of symbolic
+elements.  Questions like ``How much do trust the following
+individuals or organisations to tell you the truth about changing
+climate?'' might be encoded in a symbolic way by aggregating the
+symbols \textsf{climate\_change, trust, information\_source, AustPeng}
+for the trustworthiness of the \emph{Australian Penguins} as a source
+of information. The actual value marked could be encoded as a scalar,
+giving us an expression like ``\textsf{4/5 + climate\_change +
+  information\_source + trust + AustPeng}''---expressing it in this way
+suggested that working with more intricate relationships might be
+possible.
 
-\include{tree-ring-formulation}
+While my involvement in the project was shortlived, the problem the
+data posed was engaging, and slowly it became evident how the the
+mathematical structures I was trying to construct could represent
+configurations of models, and that it might be able to incorporate
+the interdependencies between models and other information in a very
+simple way.  My hope was to be able to construct example
+configurations which were reasonable for particular conditions and to
+assess how close to ``known-good'' configurations the system was
+at any given point.  It also seemed possible that it might allow
+strategies which were able to interpolate between ``good'' 
+configurations making intermediate transitions between configurations
+feasible.
+
+The first successful representation was the metric space of trees
+described in Chapter \ref{adaptiveselection}.  There were aspects of
+this representation which were unsatisfying -- while its notion of the
+``weight'' of a node had a direct analogue to the survey questions which
+inpired it, the separation of the weight from the label seemed
+artificial, and there seemed no clear way to generalise the
+structure. If at all possible, I wanted the structure to be less reliant
+on awkward operations when multiplying trees together.  The structure
+described in this chapter is a simpler construction with a more natural
+way of dealing with leaf nodes in the operations on trees. While it
+doesn't really go as far as I would like, it makes a number of
+operations more straightforward.
+
+In this discussion, each node now consists of a polynomial and a
+(possibly empty) set of leaf nodes; as before, the symbolic components
+of the labels are the indeterminants in the polynomial, but we now
+take the scalar part of the polynomial to be the ``weight'' of the
+node in the sense of Chapter \ref{adaptiveselection}.  We might be
+able to base our labels on the set of rational functions as an avenue
+to encreasing the utility of the structure, but this exploration is
+beyond the scope of this thesis. 
+
+\typeout{Chapter 4: Conventions and preliminary definitions}
+\section{Conventions and preliminary definitions}
+
+Generally, we will use lower case, boldfaced symbols to denote a node
+(or tree), and upper case, boldfaced symbols to denote sets and
+multisets.  Other symbols (such as $x$) will typically refer to
+numbers or \polyrat\ \polyforms. Elements of a node, \tnode{u} will be
+identified using an appropriate subscript, such as \tnlabel{u} for a
+node's label and \tchild{u}, for its children. Initially, the children
+of a node were thought of as refinements or extensions of an attitude,
+so the children of $\node{u}$ were its extensions (as in the paper of
+Chapter \ref{adaptiveselection}); now they are simply referred to as
+the children or its set of children.  Another change from Chapter
+\ref{adaptiveselection} is that a node's set of children has become a
+multiset.
+
+We will take $\PLY{A}$ to be the \polytypes\ over the elements of a finite set of
+symbols $\set{A}$.  Here $\FIELD$\ would usually be some numeric field such as $\mB{Q,
+  R}$ or $\mB{C}$, for example.
+
+First, we define $\DOM$, the set of finite acyclic trees where each
+tree in the set is of the form $\node{u} = (\nlabel{u}, \child{u})$
+where it's label, $\nlabel{u}$ is a member of $\PLY{A}$ and the
+multiset of its children, $\child{u}$, may contain only nodes that are
+also members of $\DOM$.  We will call the element $(0, \emptyset)$ the
+``zero tree'' and denote it with the symbol $\zerotree$.
+
+%% \begin{definition}\label{def-of-dom}\typeout{...def-of-dom}
+%%   Let $\DOM_Z$ be the subset of $DOM_*$ whose elements either have a
+%%   set of children which contains $\zerotree$ or have a dependent node
+%%   which contains $\zerotree$.  Then our domain of interest, \[\DOM =
+%%   \DOM_* \setminus \DOM_Z\].  The aim of this construction is to
+%%   specifically exclude the possibility for $\zerotree$ to be a member
+%%   of a child-set --- 
+%% \end{definition}
+
+%% The motivation for the restriction on the contents of the set of
+%% children is that ``empty'' children are in a sense like the 
+%% potentially length list of zero terms in a polynomial: they contribute
+%% nothing, and excluding them makes the situation much more tractable.  From
+%% this point we will consider elements of $\DOM$, rather than $\DOM_0$
+
+Nodes or trees with no children will be called \emph{simple nodes,
+  simple trees}, or \emph{leaf nodes}, and simple nodes which also
+have scalar polynomials as their labels may be referred to as
+\emph{scalar nodes} or \emph{scalar trees}. The domain of trees,
+$\DOM$, is the collection of only those trees with a finite number of
+nodes.  form.  For convenience, we will denote the special subsets of
+$\DOM$ which consists of trees with constant labels as $\DOM_c$, and
+take $\DOM_v$, to be $\DOM \setminus \DOM_c$.  %The subset of $\DOM_c$
+consisting of scalar trees is $\DOM_s$.
+
+Note that the choice to use elements of the \polytypes\  for labels is, in a
+sense, arbitrary: elements of any commutative ring will serve, though
+we will see that if we use a commutative ring, $\DOM$ and the derived
+domains are also commutative rings; here, the \polytypes\ provide a
+simple example which is easily manipulated and printed. Similarly,
+$\FIELD$ could be any scalar field.
+
+First, the definitions for some basic tools for manipulating these trees.
+
+\begin{definition}
+  The cardinality of a tree is the number of nodes it contains. We define it formally as
+  \begin{align*}
+    \Tcard{\node{u}} = \begin{cases}
+      0 & \text{ if } \node{u} = \zerotree\\
+      1 + \sum_{\node{e}\in\child{u}} \Tcard{\node{e}}.
+    \end{cases}
+  \end{align*}
+  %% and the content of a tree is the number of non-zerotree nodes,
+  %% \begin{align*}
+  %%   \content{u} = \begin{cases}
+  %%     0 & \text{ if } \node{u} = \zerotree\\
+  %%     \sum_{\node{e}\in\child{u}} \content{\node{e}}.
+  %%   \end{cases}
+  %% \end{align*}
+
+  Simple nodes are the only nodes which have a cardinality of one, and \tzerotree\ is the only node or tree with a
+  cardinality of zero.
+\end{definition}
+
+\begin{definition}
+  We will also define for $\node{u} \in \DOM$,
+  \begin{align*}
+    \trim(\node{u}) = \begin{cases}
+      \zerotree & \text{ if } \node{u} = \zerotree \\
+      \zerotree & \text{ if } \node{u} \text{ is simple} \\
+      (\nlabel{u}, \lbrace \trim(\node{e}): \forall\node{e}\in\child{u} \rbrace \msetminus \{\emptyset, \zerotree\}) & otherwise.
+    \end{cases}
+  \end{align*}
+\end{definition}
+
+Obviously the $\depth$ is an indication of how many levels of nodes
+the tree possesses.
+
+\begin{definition}
+  For $\node{u} \in \DOM$\ we define the function
+  \begin{align*}
+    \depth(\node{u}) = \begin{cases}
+      0 & \text{ if } \node{u}  = \zerotree \\
+      1 & \text{ if } \node{u} \text{ is a simple node} \\
+      1 + \max(\lbrace\depth(\node{v}):\forall \node{v} \in \child{u}\rbrace) & otherwise
+    \end{cases}
+  \end{align*}
+  which gives us the depth of the tree.
+\end{definition}
+
+Trimming essentially removes all simple nodes from the tree.
+of trimming will be denoted $\trim_{k}$, indicating that the tree
+\tnode{u} will be trimmed $k$\ times. Note that
+$\trim_{\depth(\node{u})}{\node{u}} = 0$\ and
+$\depth(\trim_{\depth{\node{u}}-1}{\node{u}}) = 1$.
+
+\begin{definition}
+  The \emph{overlap} between two trees is defined
+  \[
+  \overlap(\node{u},\node{v}) = \begin{cases}
+    0 & \text{ if } \node{u} = \zerotree \mor \node{v} = \zerotree \mor \node{u}\nsim\node{v} \\
+    1 + \displaystyle\sum_{\substack{\node{e}\in\child{u} \\ \node{f}\in\child{v}}} \overlap(\node{e},\node{f}) & \text{otherwise}
+  \end{cases}
+  \]
+
+  Two trees will be said to \emph{completely overlap} if
+  $\Tcard{\node{u}} = \Tcard{\node{v}} = \overlap(\node{u},\node{v})$.
+
+  %We may also make use of the relative overlap of two nodes,
+  %\tnode{u} and \tnode{v}, given by \[\overlap_{r}(\node{u},\node{v})
+  %= \frac{2
+  %\overlap(\node{u},\node{v})}{\Tcard{\node{u}}+\Tcard{\node{v}}}.\]
+  %The relative overlap of \tzerotree\ with itself is not defined.
+\end{definition}
+
+\begin{definition}\label{absolute-mag}\typeout{...absolute-mag}
+  Let the function $\scalar(\poly{p})$ be a function from $\PLY{A}$ which
+  maps a polynomial to its scalar term. Then the absolute magnitude of
+  a tree in $\DOM_0$ is given by
+  \begin{align*}
+    \nabs{\node{u}} = \begin{cases}
+      0 & \text{ if } \node{u} = \zerotree \\
+      \abs{\scalar(\nlabel{u})} & \text{ if }\child{u} = \emptyset \\
+      \abs{\scalar(\nlabel{u})} + \sum_{\node{e}\in\child{u}}\nabs{\node{e}} & \text{ otherwise.}
+    \end{cases}
+  \end{align*}
+\end{definition}
+
+%\begin{remark}
+The absolute magnitude is only based only on the values of the
+nodes of trees. % This corresponds to the $L^1$ norm on the tree space.
+Note that each node in a tree can only contribute a non-negative
+quantity to the absolute value of the tree. Because we can have
+polynomial labels with zero constant terms, the set of members of
+$\DOM$ contains more than just $\zerotree$; while these elements all
+have an absolute value of zero, they do carry symbolic information.
+%\end{remark}
+
+%% \begin{definition}
+%%   \label{delta-function}
+%%   The degree of deviation between two trees, \tnode{u} and \tnode{v} is given  by the expression
+
+%%    \begin{equation}
+%%      \delta{\node{u}}{\node{v}} = (1+\nabs{\node{u} - \node{v}})\frac{\Tcard{\node{u}}\Tcard{\node{v}}}{\overlap{\node{u},\node{v})^2} - 1 
+%%    \end{equation}
+
+%%   The rationale behind this definition is that if trees \tnode{u} and \tnode{v} are identical, then
+%%   $\delta{\node{u}}{\node{v}}$ will be zero. We also want nodes that aren't common to both trees to
+%%   count as differences.
+%% \end{definition}
+
+\typeout{Chapter 4: Addition and polynomial multiplication}
+\section{Addition and polynomial multiplication}
+
+My aim was to be able to compare trees in a robust way and to
+manipulate them as though they were vectors: trees which formed a
+vector space or, better, a metric space could be compared and
+clustered. 
+
+We will start by defining polynomial multiplication of the trees in
+$\DOM$, and then we will define a few useful mappings which will help
+keep the expressions simple. Our aim, in this section, is to define
+addition, and to show that the defined polynomial multiplication and
+addition make this a vector space. When there is no risk of ambiguity,
+we will use the same symbol to refer to both the set and a vector
+space based on that set.
+
+\begin{definition}\label{polynomialmultiplication}\typeout{...polynomialmultiplication}
+  Given $\poly{a} \in \PLY{A}$\ and $\node{u} \in \DOM$, we
+  define
+  \begin{align*}
+    a \node{u} = \begin{cases}
+      \zerotree  & \text{ if } a = 0 \mor \node{u} = \zerotree \\
+      (a \nlabel{u}, a\child{u}) & \text{ otherwise }
+    \end{cases}
+  \end{align*}
+  where \[a\child{u} = \{a \node{v}: \node{v}\in\child{u}\}\] is
+  element-wise multiplication; fortunately,  $-1 \node{u} \equiv
+  -\node{u}$\ turns out to be consistent with common use.
+\end{definition}
+
+\begin{definition}\label{equivclass}\typeout{...collecting terms}
+  In order to make this a vector space, we need to be able to add
+  trees together in a way that makes some sort of sense.  In the
+  original problem, that of representing complex attitude structures,
+  the idea of ``adding'' influences on attitudes seems very natural.
+  In both contexts, attitudes and the representation of models, we can
+  represent our data using the polynomial labels: adding \emph{trees}
+  suggests that something also must happen to the children of the root
+  node. In principle, there may be many strategies for constructing
+  additive operators on the tree elements, and there are undoubtedly
+  other operations out there that may be more easily extended than the
+  addition described in this section. The approach taken for handling
+  the addition amongst children is analogous to collecting terms in
+  polynomial addition. We treat children with the same set of
+  indeterminates as being ``alike''. So when we add trees, we want to
+  establish an equivalence relation on the set of all possible labels
+  that allows us to group the labels which encode the same sort of
+  information.
+
+  We want to define an equivalence class on the set of elements in
+  $\DOM$ so that we can define the effect addition on the sets of
+  children in a way which is analogous to the way we collect terms in
+  polynomial addition.  ``Like terms'' in polynomial addition are
+  terms which have the same indeterminate, we treat children which
+  have the same set of indeterminates (their individual terms sans
+  coefficients) as ``like'' children.  We will take the zero tree,
+  $\zerotree$, to be the unique element of its corresponding
+  equivalence class.  
+
+  We define $\lambda,$ over $\PLY{A}$:
+  For $\poly{p}\in\PLY{A}$, the \emph{set} $\lambda(\poly{p})$ is
+  \begin{equation*}
+    \lambda(\poly{p}) = \begin{cases}
+      \{0\} & \text{if } \poly{p} = \zerotree \\
+      \{1\} & \text{if }\poly{p}\in\FIELD\setminus\{0\} \\
+      \{\polynomialfactor{x}{e}{n}: \exists\, a_j\, \neq 0
+      \text{ where $a_j\,\polynomialfactor{x}{e}{n}$ is a term in }
+      \poly{p}\}&\text{otherwise}. \\
+    \end{cases}
+  \end{equation*}
+
+  Two polynomials, $\poly{p}$ and $\poly{q}$, are similar ($\poly{p}
+  \sim \poly{q}$) if $\lambda(\poly{p}) = \lambda(\poly{q})$ and,
+  analogously, we take two nodes to be equivalent if their labels are
+  equivalent, so $\node{r}\sim\node{s}$ if and only if
+  $\lambda(\nlabel{r}) \sim \lambda(\nlabel{s})$. We will refer to
+  $lambda{\poly{p}}$ as the characteristic of the polynomial, and by
+  extension, the characteristic of a tree $\node{u} = (\label{u},
+  \child{u})$ will be the characteristic of its polynomial $\poly{u}$.
+  
+  Note that addition does not always behave nicely with respect to our
+  equivalence relation: for polynomials,
+  $\poly{p} \sim \poly{q}$ does \emph{not} imply $\poly{r} + \poly{p}
+  \sim \poly{r} + \poly{q}$; $(x^2 + 2x + 1) + (x^2 - 2x) \nsim (x^2 +
+  2x + 1) + (x^2 + 2x)$, for example.
+\end{definition}
+
+\begin{definition}\label{setofequivclasses}
+  For a multiset of trees $\multiset{U}$ and a
+  tree $\node{s}$,
+  \begin{equation*}
+    \eqc{\node{s}}_{\multiset{U}} = \{\node{r}: \node{r}\in\multiset{U} \mand \node{r}\sim\node{s}\}
+  \end{equation*}
+  is the (multiset) class of members of $\multiset{U}$ which are similar to
+  $\node{s}$.  With a mild abuse of notation, we denote an
+  equivalence class associated with a particular polynomial label
+  analogously, $\eqc{\poly{p}}_{\multiset{U}}$.  The set of unique
+  equivalence classes which comprise $\multiset{U}$ is
+  \begin{equation*}\typeout{...Lambda}
+    \Lambda(\multiset{U}) = \{\eqc{\node{r}}_{\multiset{U}}: \node{r}\in\multiset{U}\}.
+  \end{equation*}
+\end{definition}
+
+\begin{definition}\label{sumsimilars}\typeout{...sumsimilars}
+  The tree \[
+  \eqc{\node{r}}_{\multiset{U}}^{\Sigma}=\sum_{\node{s}\in\eqc{\node{r}}_{\multiset{U}}}\node{s}
+  \] is the sum of all the members of $\multiset{U}$ which are similar to
+  $\node{r}$, and $\LS(\multiset{U})$ is the multiset of polynomials
+  formed by summing---class by class--- the members of each of the
+  equivalence classes in $\Lambda(\multiset{U})$
+  \begin{equation*}
+    \LS(\multiset{U}) = \{\stsum{\poly{p}\in\multiset{C}}\poly{p}: \text{for each }\multiset{C}\in\Lambda{U}
+  p\end{equation*}
+  is the \emph{set} which contains the sums of the elements of each of
+  the constituent equivalence classes of $\multiset{U}$.
+\end{definition}
+    
+\begin{lemma}
+  \begin{proof}
+  \end{proof} 
+\end{lemma}
+
+\begin{proposition}\label{aLambdaU}\typeout{...aLambdaU}
+  For $\poly{a} \in \PLY{A}$, $\poly{a} \Lambda(\multiset{U}) =
+  \Lambda(\poly{a}\multiset{U})$ where $\poly{a}\multiset{U}$ denotes
+  element-wise multiplication.
+
+  
+  
+  \begin{proof}
+    The proposition is trivially true for nodes with a depth of zero.
+    \begin{align*}
+      \Lambda ({\poly{a}\multisetU}) &= \{eqc{\poly{a}\node{r}}:\node{r}\in\multiset{U}\}\\
+      \intertext{
+
+
+      a\Lambda(\multiset{U}) &= a \{\eqc{\node{r}}_{\multiset{U}}: \node{r}\in\multiset{U}\}\\ 
+      &= \{\eqc{\Node{a \nv{r}, a\child{r}}}_{\multiset{U}}:
+      \node{r}\in\multiset{U}\}\\
+      
+      &= \{\eqc{a\node{r}}_{\multiset{U}}: \node{r}\in\multiset{U}\}\\
+      &= \{\eqc{\node{s}}_{a\multiset{U}}: \node{s}\in a \multiset{U}\}\\
+      &= \Lambda(a\set{U})
+    \end{align*}
+  \end{proof}   
+\end{proposition}
+
+%% \begin{definition}\label{domainUnion}
+%%   Taking the operator $\uplus_\emptyset$ to be the standard multiset union, we
+%%   define multiset operator
+%%   \begin{equation}
+%%     \multiset{A}\mscup\multiset{B} = (\multiset{A}\uplus_\emptyset\multiset{B})\mathbf{\msetminus}\{\emptyset\}
+%%   \end{equation}
+%%   where $\msetminus$ removes all instances of members of the
+%%   second (multi) set from the first.\footnote{If we take the multisets
+%%     as pairs, an element and its count, then the operator sets the
+%%     counts to zero in the result.}
+%%   All multiset unions in this work specifically exclude the
+%%   possibility of the empty set as a member of the result, though
+%%   obviously $\emptyset \mscup \emptyset = \emptyset$.
+%% \end{definition}
+
+Now we define the addition of two trees,
+\begin{definition}
+  \label{treeaddition}\typeout{...treeaddition}
+  When we add two trees, we add their labels and we add their children
+  to similar children (when there are similar children).  
+
+  For nodes \tnode{u} and $\node{v} \in \DOM$ we define their additive operation,
+  \begin{align*}
+    \node{u} + \node{v} &= \begin{cases}
+      %%      \node{u} &\text{ if } \node{v} = \zerotree \\
+      %%      \node{v} &\text{ if } \node{u} = \zerotree \\
+      \bigl(\nlabel{u} + \nlabel{v}, \LS(\child{u} \mscup \child{v})\bigr) & \text{ otherwise}
+    \end{cases}
+  \end{align*}
+  where we respect the condition on non-contributing children, and 
+  the operator $\mscup$ is the standard multiset summing union operator
+  which adds the multiplicities of elements in its argument multisets rather than taking
+  the maximum multiplicity.
+
+  This recursive evaluation is guaranteed to terminate, since we restrict
+  ourselves to acyclic, finite trees.  We also can see that $\DOM$ is
+  closed with respect to addition, since polynomial addition is
+  closed, every element of the set of children is comprised of a
+  finite number of elements which are members of $\DOM$.
+
+  Notice that if the absolute magitude of either (or both) of the addends
+  may be zero, and that the sum of the nodes is simply the absolute
+  magitude of the other.
+\end{definition}
+
+
+
+\typeout{Chapter 4: Vector space}
+\section{Vector space}
+In this section we prove that the defined elements and operations give
+us a vector space.  
+
+\begin{proposition}\label{vspace}\typeout{...vspace}
+  $\DOM,$ with polynomial multiplication and addition is a vector space.
+  \begin{proof}
+    We will assume that $\node{p}, \node{q},
+    \node{u},\node{v},\node{w} \in \DOM$\ and $\poly{a}, \poly{b} \in
+    \PLY{A},$ and that $\node{u} \sim \node{v} \sim \node{w}$ (they
+    are all similar).
+
+    \begin{description} 
+    \item[Additive identity element --- ]\typeout{...additive identity}
+
+      This is explicit in the definition of addition between elements
+      of $\DOM$.
+
+    \item[Inverse elements with respect to addition --- ]\typeout{...zero}
+
+      The additive inverse of a node $\node{u}$ is $-1\node{u}$. It is easy to see that
+      this must be the case for $\zerotree$ and simple nodes, this is a
+      straightforward result, so we'll just go to the inductive step.
+
+      So let's consider a tree, $\node{u}$, with a depth of $n+1$.
+      \begin{align*}
+        \NodeR{\nlabel{u}}{\child{u}} + -\NodeR{\nlabel{u}}{\child{u}}&=\NodeR{0}{\LS(\child{u}\mscup(-\child{u}))} \\
+        \intertext{since -1 is scalar, each element of $\child{u}$ has a corresponding element in $-\child{u}$, and both have depths of $n$ or less, so}
+        &= \NodeR{0}{\LS([\zerotree])}\\
+        &=\NodeR{0}{\emptyset} \\
+        &= \zerotree.
+      \end{align*}
+      Inductively, we can see that the inverse must exist for all $n\in\BBNO$.
+
+      %% The element $\zerotree$ is its own inverse, since $\zerotree
+      %% + \zerotree = \zerotree$ by definition.
+
+      %% So, we consider the case of $\node{u}$, where $\depth(\node{u})
+      %% = 1$, then
+      %% \begin{align*}
+      %%     \node{u} + -\node{u} &= \NodeR{\nlabel{u}}{\emptyset} + \NodeR{-1\nlabel{u}}{\emptyset} \\
+      %%     \intertext{but since the labels are polynomials}
+      %%     &= \NodeR{\nlabel{u} + -\nlabel{u}}{\emptyset} \\
+      %%     &= \Zerotree \\
+      %%     &= \zerotree
+      %% \end{align*}
+      %% so for any simple node, $\node{u}$, $-\node{u}$\ is its
+      %% inverse.
+
+      %% Let \tnode{v} be a non-null node which is not simple, but has
+      %% simple child  nodes, that is to say $\depth(\node{v}) = 2)$.  Then 
+      %% \begin{align*}
+      %%     \node{v} + -\node{v} &= \NodeR{\nlabel{v}-\nlabel{v}}{\LS(\lbrace \node{e} + -\node{e}: \forall \node{e} \in \child{v}\rbrace) \msetminus\{\zerotree\}} \\
+      %%     &= \NodeR{0}{\lbrace \zerotree\rbrace) \msetminus\{\zerotree\}} \\
+      %%     &= \Zerotree \\
+      %%     &= \zerotree
+      %% \end{align*}
+      %% since the simple leaf nodes are all added to their own additive
+      %% inverse.
+
+      %% Having established this, we can generalise to trees with a depth
+      %% greater than two. Assuming that the proposition holds for
+      %% elements of $\DOM$ with depth $n$ or less, we consider an
+      %% element, \tnode{u}, where $\depth(\node{u}) = n+1$ added to
+      %% the element $-\node{u}$.
+      %% \begin{align*}
+      %%     \node{u} + -\node{u} &= \NodeR{\nlabel{u}-\nlabel{u}}{\lbrace \node{e} + -\node{e}: \forall \node{e} \in \child{u}\rbrace}
+      %% \end{align*}
+
+    \item[Multiplicative identity element --- ]\typeout{...one}
+
+      This property is inherited from $\FIELD$ and $\PLY{A}$.
+
+    \item[Commutativity --- ]\typeout{...commutativity}
+
+      This property is inherited from polynomial addition in $\PLY{A}$
+      and the commutativity of the $\mscup$ operator. 
+
+      %% Let us consider similar nodes \tnode{u} and \tnode{v}.
+
+      %% The commutativity of addition involving \tzerotree\ is
+      %% guaranteed by the definition of addition. so we first address
+      %% the case where both addends are simple.
+
+      %% Take \tnode{u} and \tnode{v} to be simple nodes; then
+      %% \begin{align*}
+      %%   \node{u} + \node{v} &= \NodeR{\nlabel{u}}{\emptyset} + \NodeR{\nlabel{v}}{\emptyset} \notag\\
+      %%   &= \NodeR{\nlabel{u} + \nlabel{v}}{\emptyset} \notag\\
+      %%   &= \node{v} + \node{u}.
+      %% \end{align*}
+
+      %% Now suppose that there is some number $n$ for which
+      %% $\depth(\node{u}) \leq n \mand \depth(\node{v}) \leq n
+      %% \implies \node{u} + \node{v} = \node{v} + \node{u}$.
+
+      %% Then if we take \tnode{u} and \tnode{v} to be nodes with depths
+      %% of $n+1$ or less,
+      %% \begin{align*}
+      %%   \node{u} + \node{v} &= \NodeR{\nlabel{u}}{\child{u}} + \NodeR{\nlabel{v}}{\child{v}} \notag\\
+      %%   &= \NodeR{\nlabel{u} + \nlabel{v}}{\child{u} \mscup \child{v}} \notag\\
+      %%   &=
+      %% \end{align*}
+
+      %% %% &= \Bigl(\nlabel{u} + \nlabel{v}, \bigl(\{\node{r}+\node{s} : \node{r} \in \restrictedto{u}{v} \mand \node{s} \in \restrictedto{v}{u}\mand\node{r} \sim \node{s}\} \notag\\
+      %% %%       & \qquad \qquad \qquad \qquad \mscup \{\node{r} : \node{r} \in \child{u}\mand \nexists \node{g}\in\child{v} \mst \node{r} \sim\node{g}\}\\
+      %% %%       & \qquad \qquad \qquad \qquad \mscup \{\node{s} : \node{s} \in \child{v}\mand \nexists \node{g}\in\child{u} \mst \node{s} \sim\node{g}\}\bigr) \msetminus \{\zerotree\}\Bigr) \notag\\
+      %% %%       &= \Bigl(\nlabel{u} + \nlabel{v}, \bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+      %% %%       & \qquad \qquad \qquad \qquad         \mscup \nrestrictedto{\node{u}}{v} \mscup \nrestrictedto{v}{u}\bigr) \msetminus \{\zerotree\}
+
+      %% So,
+      %% %% \begin{align*}
+      %% %%     \node{u} + \node{v} &= \Bigl(\nlabel{v} + \nlabel{u}, \bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+      %% %%     & \qquad \qquad \qquad \qquad \mscup \nrestrictedto{\node{u}}{v} \mscup \nrestrictedto{v}{u}\bigr) \msetminus \{\zerotree\}
+      %% %% \end{align*}
+
+      %% since addition in $\DOM$ is commutative. If we can demonstrate
+      %% that the expression for the multiset of children is independent of
+      %% order, then it must be the case that sum of the addends,
+      %% \tnode{u}\ and \tnode{v}, must also be order independent.
+
+      %% The multiset
+      %% $\{\node{r}+\node{s}:\node{r}\in\child{u}\mand\nlabel{r}\in\nlabels{v}\mand\node{s}\in\child{v}\mand\nlabel{s}\in\nlabels{u}\}$
+      %% must be order independent since each of the candidate
+      %% \tnode{r}\ and \tnode{s}\ addends must have a depth of $n$ or
+      %% less.
+      %% %% Since set and multiset union is commutative, the order of
+      %% %% $\nrestrictedto{u}{v}$ and $\nrestrictedto{v}{u}$ doesn't
+      %% %% affect the result, thus, addition must be commutative for all
+      %% %% $\node{u} \text{ where } \depth({\node{u}}) \leq n+1$.  By
+      %% %% induction, this must be true for all $n \in \BBNO$.
+
+    \item[Associativity --- ]\typeout{...associativity}
+
+      This property follows directly from the associativity of
+      polynomial arithmetic and the associativity of $\mscup$.
+
+
+    \item[Compatibility of scalar multiplication and multiplication in
+      $\FIELD$ --- ]\typeout{...compatibility of scalar mult}
+
+      Observe first that $a \zerotree = \zerotree, \forall a \in
+      \FIELD$. We also dispose with the case of simple nodes:
+      \begin{align*}
+        a(b \node{u}) &= (a(b \nlabel{u}, \emptyset)) \\
+        &= (a b \nlabel{u}, \emptyset) \\
+        &= ((a b) \nlabel{u}, \emptyset) \\
+        &= (a b) \node{u};
+      \end{align*}
+
+      So assuming that multiplication is compatible with nodes with
+      depths of $n$ or less, we consider \tnode{u}, where $\depth(\node{u})
+      = n+1$,
+      \begin{align*}
+        a (b \node{u}) &= a (b  \nlabel{u}, b\child{u}) \\
+        \intertext{since $\depth(\node{e}) \leq n \forall \node{e}\in \child{u},$ multiplication of these elements is compatible, and }
+        &= (a b\/ \nlabel{u}, a(b\child{u})) \\
+        \intertext{becomes}
+        &= ((a b) \nlabel{u}, (a b)\child{u}) \\
+        &= (a b) \node{u}
+      \end{align*}
+
+      Thus the polynomial and field multiplication operators are compatible.
+
+    \item[Distribution of polynomial multiplication with respect to vector addition --- ]\typeout{...distribution}
+
+      Let us consider trees, \tnode{u}\ and \tnode{v}.
+
+      First, note that \[\forall \node{u} \in \DOM, a(\zerotree + \node{u}) = a \node{u} = a\zerotree + a \node{u},\]
+      and that \[\forall \node{u},\node{v}\in\DOM, 0 (\node{u} + \node{v}) = \zerotree = 0 \node{u} + 0 \node{v}.\]
+
+      The property holds for simple nodes, 
+      \begin{align*}
+        a(\node{u} + \node{v}) &= a (\NodeR{\nlabel{u}}{\emptyset} + \NodeR{\nlabel{v}}{\emptyset})\\ 
+        &= a \NodeR{\nlabel{u} + \nlabel{v}}{\emptyset} \\
+        &= \NodeR{a(\nlabel{u} + \nlabel{v})}{\emptyset} \\
+        &= \NodeR{a\nlabel{u} + a\nlabel{v}}{\emptyset} \\
+        &= \NodeR{a\nlabel{u}}{\emptyset} + \NodeR{a\nlabel{v}}{\emptyset} \\
+        &= a \node{u} + a \node{v}.
+      \end{align*}
+
+      So, suppose that the equation $a ( \node{p} + \node{q}) =
+      a \node{p} + a \node{q}$ holds for all nodes \tnode{p} and
+      \tnode{q} such that $depth(\node{p}) \leq k$, and
+      $\depth(\node{q}) \leq j$.
+
+      Take $n = \min(j, k)$, $a\in\FIELD$, and nodes \tnode{u} and \tnode{v} such that
+      $\depth(\node{u}) = n+1$, and $\depth(\node{v}) = n+1$.
+      Note that $n$ must be greater than zero since the property holds for simple
+      nodes.  Then
+      \begin{align*}
+        a \left(\node{u} + \node{v}\right) &= a \NodeR{\nlabel{u}}{\child{u}} + \NodeR{\nlabel{v}}{\child{v}}\\
+        &= a\NodeR{\nlabel{u}}{\child{u}} + a\NodeR{\nlabel{v}}{\child{v}}\\        
+        &= \NodeR{a \nlabel{u}}{a \child{u}} + \NodeR{a \nlabel{v}}{a \child{v}}\\
+        &= \NodeR{a \nlabel{u} + a \nlabel{v}}{\LS(a \child{u} \mscup a \child{v})}\\
+        \intertext{HERE Proposition \ref{sLambda} gives us}
+        &= \NodeR{a \nlabel{u} + a \nlabel{v}}{\LS(a(\child{u} \mscup \child{v}))}\\
+        \intertext{and }
+        &= \NodeR{a \nlabel{u} + a \nlabel{v}}{a \LS(\child{u} \mscup \child{v})}\\
+        &= a\node{u} + a\node{v}
+      \end{align*}
+
+    \item[Distribution of polynomial multiplication with respect to addition in $\FIELD$  --- ]\typeout{...distrib +}
+
+      The property is clearly true when $\node{u} = \zerotree$,
+      since $(a+b)\zerotree = \zerotree = a\zerotree+b\zerotree$.
+
+      We first consider simple nodes:
+      \begin{align*}
+        (a + b)\node{u} &= (a + b) ((a + b)\nlabel{u}, \emptyset) \\
+        &= ((a + b)\nlabel{u}, \emptyset) \\
+        &= (a\nlabel{u}, \emptyset) + (b\nlabel{u}, \emptyset) \\
+        &= a \node{u} + b \node{u}.
+      \end{align*}
+
+      Nodes with a depth of two are slightly more complicated, 
+      \begin{align*}
+        (a + b)\node{u} &= (a + b) ((a + b)\nlabel{u}, (a + b)\child{u}) \\
+        &= (a\nlabel{u} + b\nlabel{u}, \{(a + b)\node{e}:\node{e}\in\child{u}\}) \\
+        \intertext{but $\child{u}$ is composed of simple nodes, so,}
+        &= (a\nlabel{u} + b\nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
+        &= (a\nlabel{u} + b\nlabel{u}, a\child{u} + b\child{u}) \\
+        &= a \node{u} + b\node{u}.
+      \end{align*}
+
+      Now suppose the property holds for nodes with a depth of $n$.
+      Then we consider node $\node{u}$ with a depth of $n+1$:
+      \begin{align*}
+        (a + b)\node{u} &= (a + b) (\nlabel{u}, \child{u}) \\
+        &= ((a + b)\nlabel{u}, (a + b)\child{u}), \\
+        &= (a\nlabel{u} + b\nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
+        \intertext{since $\depth(\node{e}) = n$}
+        &= a \node{u} + b \node{u}.
+      \end{align*}
+
+    \end{description}
+    By induction, the property must hold for all $n \in\BBNO$
+  \end{proof}
+\end{proposition}
+
+\typeout{Chapter 4: Seminorms, norms and metrics} %
+\section{Seminorms, norms and metrics} %
+
+Now that we have a vector space, we can construct model configurations
+as linear combinations of basis configurations. In the context of
+models which change their configuration, we need a way for the model
+itself to combine basis configuration trees by choosing from a set of
+configurations that are known to exhibit suitable properties.  To this
+end, we need a mechanism for judging how far a configuration is from
+where it needs to be; ideally, we would like be able to decompose an
+extant, running configuration into its basis elements, and then
+possibly map these to other configurations which are justifiably more
+suitable. This ideal is probably unattainable, but we may be able to
+substantially improve on configurations, and to do this, we need to
+add some additional structure to convert our vector space into a
+metric space.
+
+% Seminorm: triangle inequality, |a|||v|| = ||av|| ... note |a| = 0
+We will now construct a seminorm on the vector space
+$\DOM$. This will induce a norm on a quotient space of $\DOM$ which we
+can use as a tool for assessing the similarity of trees and,
+ultimately, provide both a means of clustering trees and selecting
+trees with particular properties.
+
+\subsection{$\DOM$ and its seminorm}
+In this section, we prove the properties we need for our vector space
+to be a metric space. 
+
+\begin{proposition}\label{absolutehomogeneity}\typeout{...absolutehomogeneity}
+  For $a \in \FIELD$ and $\node{u} \in \DOM, \abs{a}\nabs{\node{u}} =
+  \nabs{a \node{v}}$.
+  \begin{proof}
+    The absolute magnitude of the empty tree is trivially zero, so $\abs{a}\nabs{\zerotree} =
+    \nabs{a\zerotree} = 0$.
+
+    Consider simple nodes in $\DOM$:
+    \begin{align*}
+      \abs{a}\nabs{\node{u}} &= \abs{a}(\abs{\scalar(\nlabel{u})} + 0) \\
+      &= \abs{a}\abs{\scalar(\nlabel{u})} \\
+      &= \abs{a\scalar(\nlabel{u})} \\
+      &= \abs{\scalar(a\nlabel{u})} \\
+      &= \nabs{a \node{u}}.
+    \end{align*}
+
+    Now suppose that there is $n \in \BBNI$ such that the proposition is true for
+    all trees with a depth of $n$ or less. Then, taking $\node{u} \in
+    \DOM$ where $\depth(\node{u}) = n+1$, we have
+    \begin{align*}
+      \abs{a}\nabs{\node{u}} &= \abs{a}\bigl(\abs{\scalar(\nlabel{u}) + \sum_{\node{e}\in\child{u}}\nabs{\node{e}}}\bigr) \\
+      &= \abs{a}\abs{\scalar(\nlabel{u})} + \abs{a}\sum_{\node{e}\in\child{u}}\nabs{\node{e}}\\
+      &= \abs{a}\abs{\scalar(\nlabel{u})} + \sum_{\node{e}\in\child{u}}\abs{a}\nabs{\node{e}}\\
+      \intertext{but all the elements in $\child{u}$ have a depth of $n$ or less}
+      &= \abs{\abs{a}\scalar(\nlabel{u})} + \sum_{\node{e}\in\child{u}}\nabs{\abs{a}\node{e}} \\
+      &= \abs{\scalar(a\nlabel{u})} + \sum_{\node{e}\in\child{u}}\nabs{a \node{e}} \\
+      &= \nabs{a \node{u}}.
+    \end{align*}
+
+    By induction, the proposition must be true for all $n \in \BBNO$.
+  \end{proof}
+\end{proposition}
+
+\begin{proposition}\label{triangle1}\typeout{...triangle1}
+  For $\node{u} \mand \node{v} \in \DOM, \nabs{\node{u} + \node{v}}
+  \leq \nabs{\node{u}} + \nabs{\node{v}}$.
+
+  \begin{proof}
+    We start by considering trees of depths zero and one. The case for
+    the zero tree is trivial: $\nabs{\zerotree + \zerotree} = \abs{0 +
+      0} = 0$, and if only one of the trees has a depth of one, we get
+    either $\nabs{\node{u} + \zerotree} = \nabs{\node{u}}$ or
+    $\nabs{\zerotree + \node{u}} = \nabs{\node{u}}.$
+
+    For $\node{u} \mand \node{v}$  with depths of one, \[\nabs{\node{u} + \node{v}} = \nabs{(\nlabel{u}+\nlabel{v}, \emptyset)}= \abs{\nlabel{u}+\nlabel{v}}.\]
+    Since $\scalar(\nlabel{u})$ and $\scalar(\nlabel{v})$ are scalars in $\FIELD$, we must have
+    \[\abs{\sv{u} + \sv{v}} \leq \abs{\sv{u}}+\abs{\sv{v}},\]
+    so \[\abs{\sv{u}+\sv{v}} \leq \abs{\sv{u}}+\abs{\sv{v}} = \nabs{\node{u}} + \nabs{\node{v}}.\]
+
+    So, let $n\in\BBNO$ be an integer for which the triangle inequality holds for all
+    trees with a depth of $n$ or less.  Let's consider similar trees, \tnode{u} and \tnode{v} whose depths are less
+    than or equal to $n+1$. Then
+    \begin{align*}
+      \nabs{\node{u} + \node{v}} &= \nabs{(\nlabel{u} + \nlabel{v}, \child{u}\mscup\child{v})} \\
+      &= \abs{\sv{u} + \sv{v}} + \sum_{\node{e},\in{\child{u}\mscup\child{v}}}\nabs{\node{e}}.
+    \end{align*}
+
+    Observe that $\abs{\sv{u} + \sv{v}} \leq \abs{\sv{u}} + \abs{\sv{v}}$, and that each 
+    of the addends in \[\sum_{\node{e},\in{\child{u}\mscup\child{v}}}\nabs{\node{e}}\] has a depth of $n$ or
+    less, so 
+    \begin{align*}
+      \sum_{\node{e}\in{\child{u}\mscup\child{v}}}\nabs{\node{e}} &\leq \sum_{\node{e}\,in{\child{u}}}\nabs{\node{e}} + \sum_{\node{e}\in\child{v}}\nabs{\node{e}}.\\
+      \intertext{ This implies that}
+      \nabs{\node{u} + \node{v}} &\leq \Bigl[\abs{\sv{u}} + \abs{\sv{v}} + \sum_{\node{e},\in\child{u}}\nabs{\node{e}} + \sum_{\node{e}\in\child{v}}\nabs{\node{e}}\Bigr];\\
+      \intertext{rearranging we get}
+      \nabs{\node{u} + \node{v}}  &\leq \Bigl[\abs{\sv{u}} + \sum_{\node{e},\in\child{u}}\nabs{\node{e}}\Bigr] + \Bigl[\abs{\sv{v}} + \sum_{\node{e}\in\child{v}}\nabs{\node{e}}\Bigr] \\
+      \intertext{and hence}
+      \nabs{\node{u} + \node{v}} \leq \nabs{\node{u}} + \nabs{\node{v}}.
+    \end{align*}
+    By induction the result must hold for all $n\in\BBNO$.
+  \end{proof}
+\end{proposition}
+
+\begin{corollary}\label{gseminorm}\typeout{...gseminorm}
+  The absolute value forms a seminorm on $\DOM$.
+  \begin{proof}  
+    Propositions \ref{absolutehomogeneity} and \ref{triangle1} are 
+    sufficient for the absolute value to be a seminorm on
+    $\DOM$.
+  \end{proof}
+\end{corollary}
+
+%%%%%% \section{Ring properties}\label{Ring}\typeout{...Ring}
+%%%%%% While the properties of a ring are not strictly necessary --- having a
+%%%%%% metric space is probably sufficient for use in adjusting model
+%%%%%% configurations, having got this far we might as well establish that
+%%%%%% the tree forms a non-unital ring.
+
+%%%%%% At this point we should consider the elements $\node{o}\in\DOM$
+%%%%%% which are analogues of zero. We define the set $\nullspace =
+%%%%%% \{\node{o}\in\DOM : \nabs{\node{o}} = 0\}$, and observe that for any
+%%%%%% $\node{e} \in \DOM, \mand \node{o} \in \nullspace$ the equation
+%%%%%% $\nabs{\node{e} + \node{o}} = \nabs{\node{e}}$ must hold. 
+
+%%%%%% Since $\DOM$ is a seminormed vector space, it is also a pseudometric
+%%%%%% space and we can induce a fully fledged metric space over the quotient
+%%%%%% space $\DOMQ = \DOM / \nullspace$.
+
+%%%%%% For simplicity, we identify the coset of $\nullspace$ with respect to
+%%%%%% $\zerotree$ with $\rzerotree$, and we take the induced metric on the
+%%%%%% normed vector space $\DOMQ$, to be \[\dist(\qnode{u},\qnode{v}) =
+%%%%%% \nabs{\qnode{u} - \qnode{v}} \text{ for all }\qnode{u}, \qnode{v} \in
+%%%%%% \DOMQ.\]  We will continue to use $\nabs{\rnode{u}}$ to denote the absolute
+%%%%%% value of $\rnode{u}\in\DOMR$.
+
+%%%%%% \subsection{Multiplication}\label{Multiplication}\typeout{...Multiplication}
+%%%%%% Now we define the multiplicative operator on the elements of $\DOMR$.
+%%%%%% This operator is modelled on polynomial multiplication, and it inherits many of its
+%%%%%% properties from the ring of polynomials.
+
+%%%%%% \begin{definition}\label{treemultiplication1} \typeout{...treemultiplication}
+%%%%%%   For nodes $\rnode{u}, \rnode{v} \in \DOMR$, we define their product,
+%%%%%%   $\rnode{u} \tdot \rnode{v}$, by
+%%%%%%   \begin{equation}
+%%%%%%     \rnode{u} \tdot \rnode{v} = \begin{cases}
+%%%%%%       \rzerotree & \text{if either of the nodes is } \rzerotree \\
+%%%%%%       (\rlabel{u}\rlabel{v}, \rchild{u}) & \text{if $\rchild{v} = \emptyset$} \\
+%%%%%%       (\rlabel{u}\rlabel{v}, \rchild{v}) & \text{if $\rchild{u} = \emptyset$}\\
+%%%%%%       \Bigl(\rlabel{u}\rlabel{v},
+%%%%%%       \LS\bigl(\{\rnode{r} \tdot \rnode{s}: \rnode{r}\in\rchild{u},\rnode{s}\in\rchild{v}\}
+%%%%%%       \bigl)\Bigr) & \text{ otherwise} \\
+%%%%%%     \end{cases}
+%%%%%%   \end{equation}
+
+%%%%%%   Like the process of multiplying polynomials, we generate all of the
+%%%%%%   pairwise products, and then collect similar children, here using the
+%%%%%%   $\Lambda^\Sigma$ function.  Note that in the second and third cases
+%%%%%%   we are essentially treating nodes with no children as
+%%%%%%   polynomials or scalars.
+%%%%%% \end{definition}
+
+%%%%%% Now we must prove that the necessary multiplicative properties so that
+%%%%%% we can be confident that arithmetic involving trees works in the
+%%%%%% ``normal'' way.  In the following discussion, the juxtaposition of
+%%%%%% sets or multisets $\multiset{U}\multiset{V}$ can be taken to indicate
+%%%%%% the set $\{\rnode{u} \rnode{v}: \rnode{u}\in \multiset{U} \,\mand \rnode{v}
+%%%%%% \in \multiset{V}\}$. This is mostly pertinent for dealing with the
+%%%%%% sets of children.
+
+%%%%%% \begin{proposition}\label{TMcommutativity}\typeout{...TMcommutativity}
+%%%%%%   Multiplication of trees in $\DOMR$ is commutative.
+%%%%%%   \begin{proof}
+%%%%%%     Suppose there is a number $n\in\BBNO$ such that multiplication is
+%%%%%%     commutative for all trees $\rnode{u}, \rnode{v}$ such that
+%%%%%%     $\depth(\rnode{u}), \depth(\rnode{v}) \le n$.
+
+%%%%%%     Multiplications involving nodes with a depth of zero clearly
+%%%%%%     commute.  In the case where both nodes are simple, it is evident
+%%%%%%     that they must commute, since the multiplication of elements in
+%%%%%%     $\PLY{A}$ is commutative.
+
+%%%%%%     Suppose that one or both of the nodes, $\rnode{u} \mand \rnode{v}$,
+%%%%%%     has a depth of $n+1$, then
+%%%%%%     \begin{align*}
+%%%%%%       \rnode{u}\tdot\rnode{v} &=
+%%%%%%       \NodeR{\rlabel{u}\rlabel{v}}{\LS(\{\rnode{r} \tdot \rnode{s}:
+%%%%%%         \rnode{r}\in\rchild{u},\rnode{s}\in\rchild{v}\})}\\
+%%%%%%       \intertext{and because polynomial mutiplication commutes,}
+%%%%%%       &= \NodeR{\rlabel{v}\rlabel{u}}{\LS({\rnode{r} \tdot\rnode{s}: \rnode{r}\in\rchild{u},\rnode{s}\in\rchild{v}\}})}\\
+%%%%%%         \intertext{but the addition of nodes commutes and all the terms in child are of depth $n$, so ,}
+%%%%%%       &= \NodeR{\rlabel{v}\rlabel{u}}{\LS({\rnode{s} \tdot\rnode{r}: \rnode{r}\in\rchild{u},\rnode{s}\in\rchild{v}\}})}\\
+%%%%%%       &=\rnode{v}\tdot\rnode{u}\,
+%%%%%%     \end{align*}  
+%%%%%%     and so the multiplication of nodes with a depth of $n+1$ must commute.  By
+%%%%%%     induction, we can say that trees of arbitrary depth commute with
+%%%%%%     this definition of multiplication in $\DOMR$.
+%%%%%%   \end{proof}
+%%%%%% \end{proposition}
+
+
+%%%%%% \begin{proposition}\label{TMassociativity}\typeout{...TMassociativity}
+%%%%%%   Multiplication of trees in $\DOMR$ is associative.
+%%%%%%   \begin{proof}
+%%%%%%     Suppose there is a number $n$ such that multiplication is
+%%%%%%     associative for all trees $\rnode{u}, \mand \rnode{v}, \rnode{w}$ such that
+%%%%%%     $\depth(\rnode{u}), \depth(\rnode{v}), \mand  \depth(\rnode{w}) \le n$.
+%%%%%%     In the case where all of the nodes are simple, it is obvious that
+%%%%%%     they must be associative, since polynomial multiplication is associative, and the
+%%%%%%     multiplication of elements in $\PLY{A}$ is associative.
+
+%%%%%%     Suppose that one or more of the nodes has a depth of $n+1$ or
+%%%%%%     less. 
+%%%%%%     \begin{align*}
+%%%%%%       \rnode{u} \tdot (\rnode{v} \tdot \rnode{w}) &= (\rlabel{u},\rchild{u}) \tdot (\rlabel{v}\rlabel{w},\LS(\rchild{v}\tdot\rchild{w}))\\
+%%%%%%       \intertext{so, recalling that $\LS(\rchild{v}\tdot\rchild{w})$ is
+%%%%%%         merely a set of nodes, we can write}
+%%%%%%       &= (\rlabel{u}\rlabel{v}\rlabel{w},\LS(\rchild{u} \tdot \LS(\rchild{v}\tdot\rchild{w})))\\
+%%%%%%       &= \bigl(\rlabel{u} (\rlabel{v}\rlabel{w}), \LS(\rchild{v}(\rchild{w}\rchild{u}))\bigr)
+%%%%%%       \intertext{but associativity holds in both the $\PLY{A}$-product and the  multiset-$\mscup$ operation, so}
+%%%%%%       &= \bigl((\rlabel{u} \rlabel{v})\rlabel{w}, \LS((\rchild{v}\rchild{w})\rchild{u})\bigr)
+%%%%%%     \end{align*}
+%%%%%%     Again, the elements in the multisets of children are all of depth $n$ or less, so associativity and commutativity hold in the children; since both
+%%%%%%     associativity and commutativity also hold in both the multiset-$\mscup$ operation and the multiplication of polynomials in $\PLY{A}$, they hold
+%%%%%%     for multiples with a depth of $n+1$. Induction then gives us the rest.
+%%%%%%   \end{proof}
+%%%%%% \end{proposition}
+
+
+%%%%%% \begin{proposition}\label{TMdistrib}\typeout{...TMdistrib}
+%%%%%%   Tree-multiplication distributes over tree-addition in $\DOMR$.
+
+%%%%%%   Intuitively, the properties of operations on the polynomial labels
+%%%%%%   of each node suggests that this must be true.
+
+%%%%%%   For trees of depth one or zero, the proposition is trivially
+%%%%%%   true.  So suppose we have trees which have a depth of $n$ for some
+%%%%%%   suitable value. We can easily see that the labels of the nodes in
+%%%%%%   the trees present no problem: polynomial multiplication
+%%%%%%   distributes over polynomial addition.  So we consider what happens
+%%%%%%   to the sets of children.  What we have to show is that
+%%%%%%   \[\LS(\rchild{u} \mscup (\rchild{v} \rchild{w})) = \LS((\rchild{u}
+%%%%%%   \rchild{v}) \mscup (\rchild{u} \rchild{w}))\] for nodes $\rnode{u},
+%%%%%%   \rnode{v},$ and $\rnode{w}$.
+
+%%%%%% \begin{proof}
+%%%%%%   We know that polynomial multiplication distributes over polynomial
+%%%%%%   addition, but the question of whether similarity 
+
+%%%%%%   This implies that the proposition must hold for nodes with a depth
+%%%%%%   of two or less, since, under the action of $\LS$, the elements of
+%%%%%%   all the equivalence classes represented by their sum.
+  
+
+%%%%%% %%     \begin{align*}
+%%%%%% %%       \rnode{u}\tdot(\rnode{v}+\rnode{w}) &=
+%%%%%% %%       (\rlabel{u},\emptyset)\tdot((\rlabel{v},\rchild{v})+(\rlabel{w},\rchild{w}))\\
+%%%%%% %%       &=(\rlabel{u},\emptyset)\tdot(\rlabel{v} + \rlabel{w},\rchild{v}\mscup\rchild{w})\\
+%%%%%% %%       \intertext{\Large{HERE}}
+%%%%%% %%       &=\Bigl(\rlabel{u}\rlabel{v} + \rlabel{u}\rlabel{w},
+%%%%%% %%       \LS\big((\rlabel{v}+\rlabel{w})\child{u}\mscup\rlabel{u}(\rchild{v}\mscup\rchild{w})\bigr)\Bigr)\\
+%%%%%% %% %      &=(\rv{u}\rv{v} + \rv{u}\rv{w},\rlabel{u}\rlabel{w},\rchild{v}\mscup\rchild{w})\\
+%%%%%% %% %      &=(\rv{u}\rv{v},\rlabel{u}\rlabel{v},\rchild{v})+(\rv{u}\rv{w},\rlabel{u}\rlabel{w},\child{w})\\
+%%%%%% %%       &=\rnode{u}\tdot\rnode{v} + \rnode{u}\tdot\rnode{w}
+%%%%%% %%     \end{align*}
+%%%%%% %%     Note that this is independent of the depths of nodes $\rnode{v}$ and $\rnode{w}$.
+
+%%%%%% %%     Suppose then that there is an integer $n \in \BBNI$ such that multiplication
+%%%%%% %%     of nodes with a depth of $n$ or less distributes over
+%%%%%% %%     addition, and we consider the case where our factors, $\rnode{u}$, have 
+%%%%%% %%     depths of $n+1$ or less. Then
+%%%%%% %%     \begin{align*}
+%%%%%% %%       \rnode{u}\tdot(\rnode{v}+\rnode{w})&=(\rv{u},\rlabel{u},\rchild{u})\tdot((\rv{v},\rlabel{v},\rchild{v})+(\rv{w},\rlabel{w},\rchild{w}))\\
+%%%%%% %%       &=(\rv{u}(\rv{v}+\rv{w}),\rlabel{u}\rlabel{v},\LS(\rchild{u}\mscup\LS(\rchild{v}\mscup\rchild{w})))\\
+%%%%%% %%       &\intertext{\Large{HERE}}
+%%%%%% %%       &\intertext{all of the nodes in the expression for the multiset
+%%%%%% %%         of children
+%%%%%% %%         are of depth less than or equal to n, so}
+%%%%%% %%       &= \rnode{u}\tdot(\rnode{w}+\rnode{v})
+%%%%%% %%     \end{align*}
+%%%%%%   \end{proof}
+%%%%%% \end{proposition}
+
+%%%%%% \begin{corollary}\label{ItsARingHarry}\typeout{...ItsARingHarry}
+%%%%%%   $\DOMR$ with tree addition and tree multiplication is a commutative \rng.
+%%%%%%   \begin{proof}
+%%%%%%     Propositions \ref{TMcommutativity}, \ref{TMassociativity}, and
+%%%%%%     \ref{TMdistrib} are sufficient to establish that it is a commutative
+%%%%%%     \rng.
+%%%%%%   \end{proof}
+%%%%%% \end{corollary}
+
+\typeout{Chapter 4: Discussion}
+\section{Discussion}\typeout{...Discussion}
+
+This structure arose from attempts to capture the nuanced associations
+in survey questions \footnote{Like \emph{``Thinking about the weather
+    forecast, how would you rate the chances of your favourite
+    sporting team in the coming match?''}} and to be able to
+incorporate the sorts of conflicting data these questions can elicit
+into simulation models. Initially, the trees were no more than
+structured data with a rough and ready ``distance'' function, but as
+the work became more coherent, the underlying mathematical structure
+began to emerge, and the realisation that the trees might be useful
+for representing more than survey responses came about.  Using trees
+to manage the running of a program which might conceivably take weeks
+to run or be the basis of management decisions would require more
+robust foundations than the ad hoc heuristic distance function.
+
+The loosely defined structure was defined and converted into a vector
+space so that I could then construct ``model-spaces'' from a set of basis
+elements corresponding to submodels. Extending this structure to the
+assessment of configurations required a metric space.
+
+In the example model, described later, the states of the model as a
+whole, subdomains of the model and the components within the model are
+identifiec with representative trees.  There are also a sets of trees
+which are identified as ``known-good'' configurations, and the
+mechanism which handles switching within the model uses the metric in
+its assessment.  It would be nice to generalise this, but attempts so
+far have been unsatisfying---the structure described in the appendix
+included in Chapter~\ref{adaptiveselection} depended on a relatively
+contrived multiplicative operator and, since this work only requires the
+properties of a metric space, the more complex construction has ceded
+its place to the simpler structure in this chapter.
+
+
+
+%% In Chapter \ref{adaptiveselection} the model developed is concerned with
+%% demonstrating the adaptive selection of models using abstracted
+%% representations of the model's components and of the model's
+%% configuration. These representations are in the form of trees in
+%% $\DOMR$ with particular forms.
+
+
+
+%% In this context, the difference between a conditional assessment and
+%% an unconditional assessment may be central to the behaviour we want
+%% from simulated entities.  The labels of nodes in a tree could be
+%% associated with particular preconditions, and perturbations of a
+%% tree---perhaps by summation, multiplication, restriction, or
+%% extension---might provide appropriate ways of altering the perceptual
+%% and attitudinal orientation of the modelled entities.  Alas this
+%% project did not continue, but the unfolding mathematics converged with
+%% the desire to control the mix of submodels as discussed in
+
+
+%% \subsection{semantic coherence in the extensions}
+%% The way the extensions of a node influence the value of a node can be
+%% perverse if the data in these nodes aren't appropriate.  The
+%% overriding rule is that extensions to a node \emph{must be relevant to
+%%   that node}. For extrapolation from surveys this is a matter
+%% associated with the coding of data, for simulation models (like MSE
+%% models or evaluating climate adaptation strategies) it is a matter of
+%% keeping track of influences and connections appropriately.  I don't
+%% believe that this is entirely a trivial matter, but I also don't
+%% believe it is a complex one.
+
+%% Example\ldots
+
+%% \section{Example model}
+
+%% \section{Possible domains}
+%% MSE models incorporating public opinion (surveys)
+
+%% Relationship to Bayesian reasoning, Adaptive decision making (Baysian net?)
+
+%% Adaptive behaviour (things can learn by adjusting weightings or
+%% adding new branches)
+
+%% Constructing or assessing phylogenetic trees? 
+
+%% \appendix
+%% \section{Appendix}
+
+%% \subsection{Quotient sets}
+
+%% \textbf{Is this necessary?}
+
+%% An equivalence relation is function which takes elements from a set, say \tset{U}, 
+%% and identifies them with a particular subset of some other set, \tqset{U}, so that every element of \tset{U}\ is
+%% identified with an element of \tqset{U}. Members of a given subset of \tset{U} which are identified with the same
+%% element in \tqset{U}\ are said to be \emph{equivalent}. We do this with even and odd integers -- from the point of view
+%% of splitting a block of chocolate between two friends, a block with only two partitions is equivalent to a block with
+%% thirty partitions.
+
+%% In the context of $\DOM$, we wish to partition the set into sets whose
+%% members are essentially the same from the point of view of addition
+%% and scalar multiplication.  We do this by picking out all of the
+%% elements which behave like ``zero'' and making them one of the
+%% equivalence classes (which is a technical name for the elements of the
+%% quotient space). Elements of $\DOM$ which have only zero values in
+%% their constituent nodes behave essentially like zero: multiplication
+%% by a scalar does not change them at all, and adding them to another
+%% node doesn't alter its magnitude in any discernable way, nor is the
+%% result of such an addition going to influence addition or scalar
+%% multiplication in any way different from from the original.
+
+%% \begin{example}
+%%   Let us consider the sets \[\set{F}_i = \{e \in \mB{Z}: e = 12 n + i, for some n \in \mB{Z}\}\].  Can an integer be in
+%%   more than one of these sets?  Suppose we pick a number, say 14;  this is clearly in $F_2$, since $14 = 12\times1\ + 2$. What happens if we multiply by three?
+%% \begin{align*}
+%%     3\times14 &= 42 \\
+%%     &= 36 + 6 \\
+%%     &= 3\times12 + 6 \\
+%% \end{align*}    
+%% so $3\times14$ is in $F_6$ \ldots which is just what $3\times2$ is in.  It doesn't take much experimentation to
+%% discover that addition and scalar multiplication work in the $F_n$ sets in the way we might hope: $F_3(F_4 + F_9)$
+%% corresponds to $3*(4 + 9)$ \ldots \emph{and to} $75*(888+81)$.  The number 75 is clearly in $F_{75}$, but this
+%% isn't much use to us; looking at the definition of the \{F\} sets, we can see that 75 is also in $F_3$, so perhaps
+%% we can only consider the non-negative indices which are less than 12..  The reason is that the sets are analogous to the
+%% remainder on division by 12.
+
+%% \end{example}
+
+
+%% %\bibliography{biblio}
+%% %\bibliographystyle{harvard}
+%% %\biboptions{}
+
+%% %% The influence of a node contributes to the assessment of the
+%% %% weighted distance between two attitudes: the distance between them
+%% %% incorporates the influence as a multiplicative term
+
+
+
+%% %%  The ``inertia'', $r$\ will typically be propagated from the root
+%% %% node (though it can be different and may change with interactions)
+
+
+%% %% We need a dereferencing function which takes a path comprised of
+%% %% symbols and returns the subtree, as well as the excision operator
+%% %% (which we can use \msetminus for).  Pruning a limb  that doesn't exist
+%% %% returns the tree, pruning the zero tree returns the zero tree. 
+
+%% %% $\node{a} \msetminus \subtree(\node{a},(\nlabel{a}))  = \zerotree.
+
+%% %%\begin{definition}
+%% %% In a similar vein, we define, the domain \TPDOM\ whose elements are
+%% %% finite sequences $\lbrace s_i \rbrace$ where $s_i \in \PLY$, and
+%% %% the function $\prune(\node{u},s): (\DOM, \PDOM) \mapsto \DOM)$.
+%% %% \[
+%% %%    \prune(\node{u}) = \begin{cases}
+%% %%      \zerotree & \text{ if } \node{u} = \zerotree \\
+%% %%      \zerotree & \text{ if } \nlabel{u} 
+%% %%      (\nv{u}, \nlabel{u}, \lbrace \prune(\node{e}):
+%% %%      \node{e}\in\child{u} \rbrace) & otherwise \\
+%% %% \end{cases}
+%% %% \].
+%% %% \end{definition}
+
+\definecolor{fairlywhite}{rgb}{0.98,0.98,1.0}
+\color{fairlywhite}
+{{\scriptsize
+\emph{Did you hear about the mathematician that was arrested at a
+lemma-n-aide stall? The caught the suspect surruptitiously
+passing a proposition on a piece of paper to the attendent.}
+\color{black}

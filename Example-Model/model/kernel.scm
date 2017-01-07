@@ -519,7 +519,7 @@ since the function saved in the kernel slot captures the agent's closure.
 			  (/ (apply + (map subjective-time Q)) (length Q))))
 		(else (error "Unrecognised kernel-call request" query args)))
 	 )
-   (#t (abort 'kernel-call:bad-argument))
+   (#t (error 'kernel-call:bad-argument))
    )
   )	
 

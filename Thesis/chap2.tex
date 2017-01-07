@@ -1,6 +1,6 @@
 
-\chapter[Increasing model efficiency by dynamically changing model
-  representations]{ Increasing model efficiency by dynamically
+\chapter[INCREASING MODEL EFFICIENCY BY DYNAMICALLY CHANGING MODEL
+  REPRESENTATIONS]{ Increasing model efficiency by dynamically
   changing model representations}\label{modelefficiency}
 
 \WeAreOn{\ctwo}
@@ -9,8 +9,11 @@
 This body of this chapter is a (verbatim) paper published in the
 refereed journal \emph{Environmental Modelling and Software}
 (\cite{Gray2012adaptive}).  The model discussed in this chapter is
-built using an older, much more primitive version of the framework
-used in Chapter \ref{adaptiveselection}, the source-code can be
+built using an older, much simpler body of code than the framework
+that is explored in Chapter \ref{adaptiveselection}. While the primary
+purpose of the paper is indicated by its title, a significant
+contribution is its development of the basic mechanisms for
+changing representations.The source-code can be
 obtained from\linebreak
 \texttt{https://github.com/snarkypenguin/Model-Efficiency.git}
 
@@ -60,7 +63,7 @@ locations.
 Given the very predictable dynamics of the populations, the inclusion
 of multiple contaminants or multiple sources, such as in
 \cite{Gray06:1, Gray2014}, seemed unlikely to improve the
-argument.\footnote{Had I incorporated mortality or morbidity
+argument.\footnote{incorporated mortality or morbidity
   associated with contact, the mortality strategy used in
   \citet{GrayNingaloo} would have been an appropriate choice.}
 
@@ -120,7 +123,7 @@ strengths and weaknesses of the approach (such as \citet{Huston88:1},
 populations and ecological systems are usually associated with modelling the
 dynamics of large groups and arguably appeared at the end of the eighteenth
 century with Malthus's {\em{{\textbf{An Essay on the Principle of
-Population}}}} (\citeyear{Malthus:1}). The properties of these models are well
+Population}}}}\/ (\citeyear{Malthus:1}). The properties of these models are well
 understood and their state variables usually correspond to measurable
 quantities. Often, they are much faster than individual-based counterparts,
 and the analysis of model error may be much more straightforward. Classical
@@ -178,7 +181,7 @@ already do this to some degree: time-steps or spatial resolutions are changed,
 particular code paths may be by-passed to avoid pointless work, or additional
 calculations might be performed to reduce the error when the state is changing
 rapidly. These optimisations are largely optimisations of the
-{\em{encoding}} of the model or submodels, rather than an actual change in
+{\em{encoding}}\/ of the model or submodels, rather than an actual change in
 representation.
 
 \Citet{Vincenot11:1} make a clear case for considering what the authors term
@@ -203,7 +206,7 @@ This ``mutating'' or ``switching'' approach to the problem of managing
 complex simulations was developed using the experience from making several
 large scale human-ecosystem interaction models (\citeauthor{Lyne94:1};
 \citeauthor{Gray06:1}; and a current, larger study of Ningaloo coastal region
-({\em{work in progress}})). In each of these studies a significant component
+({\em{work in progress}\/})). In each of these studies a significant component
 of the model focused on simulating the interaction between organisms and
 contaminant plumes, though there is nothing that inherently limits the
 techniques to these sorts of studies. \Citeauthor{Lyne94:1} assessed the
@@ -221,7 +224,7 @@ the time taken to run a simulation with contaminants increased by roughly an
 order of magnitude, and in both studies a large amount of time was spent in
 regions where no interaction with contaminant plumes was possible.
 \citet{Monte09:1} presents a lucid discussion of analytic {\em{contaminant
-migration-population effects}} models. These models incorporate the movement
+migration-population effects}\/} models. These models incorporate the movement
 of populations and their internal distribution, the transport of contaminants
 through the system via biotic and abiotic pathways, and the changes in
 behaviour and population dynamics associated with contamination.
@@ -262,10 +265,10 @@ dynamics of animals with behaviour where short periods of time have a
 significant influence on population levels (\citet{Wolff94:1} and
 \citet{Elderd08:1}, for example).
 
-\typeout{Chapter 2: Overview: an {\em{ODD}} model description}
-\section{Overview: an {\em{ODD}} model description}\label{ODD}
+\typeout{Chapter 2: Overview: an {\em{ODD}\/} model description}
+\section{Overview: an {\em{ODD}\/} model description}\label{ODD}
 
-The {\em{ODD}} protocol \citep{Grimm06:1} is used to describe the example
+The {\em{ODD}\/} protocol \citep{Grimm06:1} is used to describe the example
 model. We discuss the issues associated with making such a system, strategies
 and the reasons behind them in the Discussion section.
 
@@ -301,7 +304,7 @@ from intense rainfalls.
 The test models are composed of one or more submodels which run within a
 simple time-sharing system. Each submodel runs for a nominated period of time
 and passes control to the next submodel, very much like tasks running in many
-modern computer operating systems. In a {\em{mutating}} configuration, a
+modern computer operating systems. In a {\em{mutating}\/} configuration, a
 trial will have different models take turns representing components of the
 system.
 
@@ -314,7 +317,7 @@ There are essentially three distinct submodels in the simulation: an
 individual-based representation of the migrating group, population-based
 representation of the group, and a contaminant uptake-depuration model. We can
 think of the models which take the role of the group as candidates for filling
-a {\em{niche}}\label{Niche}, which we can think of as the ``sub-model shaped
+a {\em{niche}\/}\label{Niche}, which we can think of as the ``sub-model shaped
 hole'' in the middle of the program. Because the individual-based and
 population based models have fundamentally different spatial representations,
 each of these models include mechanisms to evaluate their contact with a plume
@@ -396,7 +399,7 @@ should the population's list fall short.
 
 Several characteristic features of the model are determined by the time and
 location represented. The contaminant intensity (and hence extent) at any
-point, $\mathbf{r},$ relative to the centroid of the plume,
+point, $\mathbf{r}$, relative to the centroid of the plume,
 $\mathbf{m}_{{plume}}$, at a time, $t$, by the equation
 \[ I (t, \mathbf{r}) = \frac{1}{2} (1 + \cos (2 \pi t / p)) \exp (- \psi \phi ( \mathbf{r}, \mathbf{m}_{{plume}})) \]
 where $p$ is the period of 34 days, $\psi = 0.05$ is a decay exponent. We take
@@ -419,7 +422,7 @@ Individuals follow a directed random walk around the migratory circle
 described in the previous section. At each time-step the stride the individual
 takes is calculated according to its proximity to the ``target'' on the
 migratory path. There are a number of parameters associated with the movement
-of the individuals presented in Table \ref{IBMovement}.
+of the individuals presented in Table~\ref{IBMovement}.
 
 \begin{table}[h]
 \begin{center}
@@ -628,7 +631,7 @@ and
 to be the maximum root mean square error and the average root mean square
 error. Clearly we can write $\bar{\sigma}_{r r}$ as $\bar{\sigma}_r$ without
 introducing ambiguity, and similarly for $\hat{\sigma}_r$. The values for
-these measure of variability are presented in Table \ref{LoadVarTbl}.
+these measure of variability are presented in Table~\ref{LoadVarTbl}.
 
 \begin{table}[h]
 \begin{center}
@@ -655,7 +658,7 @@ in quite the same way.
 
 \subsection{Sensitivity to the shape of the plume}
 
-We will use the same notation as Section \ref{LoadVar} for the data derived
+We will use the same notation as Section~\ref{LoadVar} for the data derived
 from the circular plumes, while we will add a prime symbol to the data derived
 from the elliptical plumes. Thus, the mean value time series for the mutating
 submodel with elliptical plumes would be denoted $C'_m$ and the mean value of
@@ -665,7 +668,7 @@ There is a good correspondence between the means and deviations associated
 with the mutating model in the circular and elliptical plume scenarios, but
 there is much poorer correspondence in the population based results in the two
 scenarios. The data for the circular plume and for the elliptical plume are
-presented in Tables \ref{Symplume} and \ref{Asymplume} respectively.
+presented in Tables~\ref{Symplume} and \ref{Asymplume} respectively.
 
 \begin{table}[h]
 \begin{center}
@@ -757,7 +760,7 @@ To make our population-based model compatible with the individual-based model
 we have to extend the population's state space and maintain additional
 information to preserve the essential parts of the individual representation
 that makes it valuable to us. This is basically posing the first of the
-enumerated question from section \ref{Intro}. The {\em{significant}}
+enumerated question from section \ref{Intro}. The {\em{significant}\/}
 information which the individual-based representation possesses is embodied in
 the contaminant loads amongst the individuals which comprise the group. We
 assume that the role of their relative locations about the population's centre
@@ -765,7 +768,7 @@ is not important over a large portion of the global state-space and that we
 can discard it when we move from individuals to populations.
 
 The union of submodels' state-spaces can generally be decomposed into
-{\em{processing sets}} of state-variables. Partitioning the state variables
+{\em{processing sets}\/} of state-variables. Partitioning the state variables
 in this way -- particularly in advance -- makes it easier to analyse and
 minimise the boundary effects associated with the transition from one
 representation to another. Within a representation, the state variables which
@@ -801,7 +804,7 @@ encounter the plume if the plume were at its maximum, switch a population to a
 group of individuals. Conversely, if there is no chance that an individual
 heading straight toward the plume (backwards) will encounter it, move the
 individual to a ``close enough'' population, or create a new population to
-accommodate the individual.}} The model was constructed so that any number of
+accommodate the individual.}\/} The model was constructed so that any number of
 populations could be run, and the heuristic was framed so that there were no
 assumptions about the number of population agents and the size of the groups
 they represented.
@@ -838,7 +841,7 @@ population. When values of state variables are generated in the process of
 changing to another representation, they need to conform to the distributions
 of the representation they are leaving. If for some strange reason (like
 behavioural change) the distribution of individuals, for example, does
-{\em{not}} conform to the distribution associated with a coherent
+{\em{not}\/} conform to the distribution associated with a coherent
 population, then additional steps need to be taken accommodate this when
 changing to a population-based representation.
 
@@ -928,30 +931,39 @@ insight are deeply appreciated.
 \typeout{Chapter 3: Epilogue to the paper}
 \section{Epilogue to the paper}
 
-This paper address two of the issues discussed in Chapter \ref{intro},
+This paper shows that two of the basic problems discussed in Chapter \ref{intro},
 namely situations where the mixing assumption fails, and improving the
-run-time efficiency of a model without sacrificing fidelity.  The
+run-time efficiency of a model without sacrificing fidelity, can be
+resolved by models which change their representations according to the
+state of the agents.  The
 initial motivation for considering this kind of model was the
 recurring need to incorporate contaminant modelling in marine
 environments \cite{Lyne1994pmez5, Gray06:1, GrayNingaloo}. 
 
 The decision strategy in this model was unusually straightforward and
-simple, but my fear was that addressing the central idea in a more
-realistic way might obscure the basic simplicity of the idea, and
-would need a significantly more capable modelling system for the
-discourse.  At the time, the mathematical and programmatic resources I
-could bring to bear on the matter were primitive.  A serendipitous
-coincidence came about soon after this paper was submitted. I became
-involved in what seemed to be unrelated work which sought to
-incorporate social survey data into systems-management models. This
-work lead to the development of a tree structure which could closely
-follow the structural characteristics of the surveys, and provide a
-robust mathematical means of allowing simulated individuals with
-different attitudes, organisations or events to exert influence
-(positively or negatively) the attitudes of others in the system.  The
-mathematical work presented later arose from that project, and during
-its development it became evident that this could provide a means of
+simple; this was primarily to avoid obscuring the the central idea,
+since a more realistic treatment might both obscure the basic
+simplicity of the idea, and need a significantly more capable
+modelling system for the discourse.  At the time, the mathematical and
+programmatic resources I could bring to bear on the matter were
+primitive.
+
+A serendipitous coincidence came about soon after this paper was
+submitted. I became involved in what seemed to be unrelated work which
+sought to incorporate social survey data into systems-management
+models. This work lead to the development of a tree structure which is
+used in Chapter \ref{} and fully defined, later, in Chapter
+\ref{treerings}. The configuration of trees can closely follow the
+structural characteristics of the surveys and provide a robust
+mathematical means of allowing simulated individuals with different
+attitudes, organisations or events to exert influence (positively or
+negatively) the attitudes of others in the system.  The mathematical
+work presented later arose from that project, and during its
+development it became evident that this could provide a means of
 encoding complex relationships within a modelling system.
+
+
+
 
 
 

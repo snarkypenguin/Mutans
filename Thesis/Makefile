@@ -1,16 +1,16 @@
 
-chapters = chap1.tex chap2.tex chap3.tex chap4.tex chap4.tex concl.tex tree-ring-formulation.tex
-periphera = thesis.tex prelude.tex newcom.tex biby.tex thesis.bib index.tex 
+chapters = chap1.tex chap2.tex chap3.tex chap4.tex chap4.tex concl.tex
+periphera = manifest.tex thesis.tex prelude.tex newcom.tex biby.tex thesis.bib index.tex 
 
 
 all:	thesis.pdf
 
 thesis.pdf: ${chapters} ${periphera}
-	pdflatex thesis
+	pdflatex -halt-on-error -recorder thesis
 	bibtex thesis
 	bibtex thesis
-	pdflatex thesis
-	pdflatex thesis
+	pdflatex -halt-on-error -recorder thesis
+	pdflatex -halt-on-error -recorder thesis
 #	say Finished.
 
 clean:

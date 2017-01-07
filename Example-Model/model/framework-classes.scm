@@ -65,30 +65,6 @@
 ;;    the kernel of the simulation
 
 
-"<monitor> agents play a special role, keeping an eye on subsets of
-the population of agents.  Monitors can effect changes in the
-composition of both the population and the constituents which comprise
-an agent. In many ways, monitors are similar to introspection agents."
-
-(define-class <monitor>
-  (inherits-from <agent>)
-  (state-variables
-	specific-targets
-	class-targets
-	predicate-targets
-	predicate
-	accessor))
-;; am-i-interested-in is a predicate that takes an agent
-;; accessor is a function which takes an agent and returns a data vector
-
-
-"
-specific-targets are agents that the monitor is interested in, any
-agents which satisfy (isa? agnt clss) are of interest to the monitor,
-predicate targets test each agent in the runqueue with the predicate
-to see if they are of interest (slooow)
-"
-
 ;;;(load "monitor-classes.scm")
 ;;;(load "log-classes.scm") ;; These are used to generate output.
 
