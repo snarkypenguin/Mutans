@@ -1073,7 +1073,7 @@ which represents an exponent. "
 	((and (number? x) (not (zero? x))) x)
 	(#t #f)))
 
-(define (the-non-zero-indeterminant-terms x)  ;; Applies to *terms*, not *factors*
+(define (the-non-zero-indeterminate-terms x)  ;; Applies to *terms*, not *factors*
   (if (and (pair? x)
 			  (number? (car x))
 			  (not (zero? (car x)))
@@ -1081,7 +1081,7 @@ which represents an exponent. "
 		x
 		#f))
 
-(define (the-indeterminant-terms x)  ;; Applies to *terms*, not *factors*
+(define (the-indeterminate-terms x)  ;; Applies to *terms*, not *factors*
   (if (and (pair? x)
 			  (number? (car x))
 			  (car x))
@@ -1104,7 +1104,7 @@ which represents an exponent. "
 			  )))
 
 
-(define (the-non-zero-indeterminant-factors x)  ;; Applies to *factors*, not *terms*
+(define (the-non-zero-indeterminate-factors x)  ;; Applies to *factors*, not *terms*
   (if (and (pair? x)
 			  (number? (car x))
 			  (not (zero? (cadr x)))
@@ -1113,7 +1113,7 @@ which represents an exponent. "
 		x
 		#f))
 
-(define (the-indeterminant-factors x)  ;; Applies to *factors*, not *terms*
+(define (the-indeterminate-factors x)  ;; Applies to *factors*, not *terms*
   (if (and (pair? x)
 			  (number? (car x))
 			  (car x)
@@ -1145,7 +1145,7 @@ which represents an exponent. "
 				(not (null? (filter (lambda (x) (sim? (label t) x)) labels))))
 			 trees))
 
-(define (rewrite-constant-indeterminant x)
+(define (rewrite-constant-indeterminate x)
   ;;  (dnl "---> " x)
   (cond
 	((number? x) x)
@@ -1163,7 +1163,7 @@ which represents an exponent. "
 ;;   ;;  (dnl "** " x " " (term? x))
 ;;   ;;  (set! x (map (lambda (y) (if (and (pair? y) (null? (cdr y))) (car y) y)) x))
 
-;; ;;;  (set! x (!filter the-zero-terms (map rewrite-constant-indeterminant x)))
+;; ;;;  (set! x (!filter the-zero-terms (map rewrite-constant-indeterminate x)))
 
 ;;   (if #t ;; Stable version
 ;; 		(let* ((x  x)
@@ -1188,7 +1188,7 @@ which represents an exponent. "
 
 ;; 		;; Experimental version
 ;; 		(let* ((C (pick-only the-constant-factors x))
-;; 				 (F (pick-only the-indeterminant-factors x))
+;; 				 (F (pick-only the-indeterminate-factors x))
 ;; ;	(NF (filter (lambda (u) (pair? u) (equal? u (filter number? u))) x))
 ;; 				 (ss (map car F))
 ;; 				 (se (map cadr F))
@@ -1222,7 +1222,7 @@ which represents an exponent. "
 ;; ;------ (normalise-terms x) collects compatible 
 
 ;; (define (normalise-terms x)
-;;   (set! x (map rewrite-constant-indeterminant x))
+;;   (set! x (map rewrite-constant-indeterminate x))
 ;;   (if #t ;; Stable version
 ;; 		(let* ((C (filter number? x))
 ;; 				 (T (!filter null? (map normalise-factors (!filter number? x))))
@@ -1240,7 +1240,7 @@ which represents an exponent. "
 
 ;; 		;; Experimental version
 ;; 		(let* ((C (pick-only the-non-zero-constant-terms x))
-;; 				 (T (pick-only the-indeterminant-terms x))
+;; 				 (T (pick-only the-indeterminate-terms x))
 ;; 				 )
 ;; 		  (set! C (if (not (null? C)) (apply + C)))
 ;; 		  (let ((R (sort
@@ -1311,7 +1311,7 @@ which represents an exponent. "
 					 ((and (pair? P) (null? (cdr P)) (number? (car P))) P)
 					 ((and (pair? P) (null? (cdr P)) (number? (car P))) P)
 					 ((and (list? P) (polynomial? P))
-					  (set! P (map rewrite-constant-indeterminant P))
+					  (set! P (map rewrite-constant-indeterminate P))
 					  (let* ((p (normalise-terms P))
 								(C (apply + (filter number? p)))
 								(T (!filter number? p))
@@ -1806,7 +1806,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define node list) ;; makes it easier to read
 
 
-;---- (n-lambda poly) generates a list of the indeterminant factors in a polynomial
+;---- (n-lambda poly) generates a list of the indeterminate factors in a polynomial
 (define (n-lambda n) ;; the relation used for collecting terms
   (let ((fl (factor-list (if (polynomial? n) n (label n))))
 		  (cl (filter number? (if (polynomial? n) n (label n))))
@@ -2336,7 +2336,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;; ;; Add the children appropriately
 ;; (define (TSc+ . args) ;; This handles the addition of sets of polynomials according to the rule that we only really 
 ;;   (time-probe "TSc+"
-;; 				  (if (null? args)  ;; add polynomials with the same indeterminant bits (like x^4)
+;; 				  (if (null? args)  ;; add polynomials with the same indeterminate bits (like x^4)
 ;; 						'()
 ;; 						(!filter null? (normalise-set related-children? tree+ (!filter null? (apply append args)))))
 ;; 				  )

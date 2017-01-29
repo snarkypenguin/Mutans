@@ -1250,7 +1250,7 @@ which represents an exponent. "
 	((and (number? x) (not (zero? x))) x)
 	(#t #f)))
 
-(define (the-non-zero-indeterminant-terms x)  ;; Applies to *terms*, not *factors*
+(define (the-non-zero-indeterminate-terms x)  ;; Applies to *terms*, not *factors*
   (if (and (pair? x)
 			  (number? (car x))
 			  (not (zero? (car x)))
@@ -1258,7 +1258,7 @@ which represents an exponent. "
 		x
 		#f))
 
-(define (the-indeterminant-terms x)  ;; Applies to *terms*, not *factors*
+(define (the-indeterminate-terms x)  ;; Applies to *terms*, not *factors*
   (if (and (pair? x)
 			  (number? (car x))
 			  (car x))
@@ -1281,7 +1281,7 @@ which represents an exponent. "
 			  )))
 
 
-(define (the-non-zero-indeterminant-factors x)  ;; Applies to *factors*, not *terms*
+(define (the-non-zero-indeterminate-factors x)  ;; Applies to *factors*, not *terms*
   (if (and (pair? x)
 			  (number? (car x))
 			  (not (zero? (cadr x)))
@@ -1290,7 +1290,7 @@ which represents an exponent. "
 		x
 		#f))
 
-(define (the-indeterminant-factors x)  ;; Applies to *factors*, not *terms*
+(define (the-indeterminate-factors x)  ;; Applies to *factors*, not *terms*
   (if (and (pair? x)
 			  (number? (car x))
 			  (car x)
@@ -1810,7 +1810,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 ;--- Simple mathematical functions  
 
-;---- (n-lambda poly) generates a list of the indeterminant factors in a polynomial
+;---- (n-lambda poly) generates a list of the indeterminate factors in a polynomial
 (define (n-lambda n) ;; the relation used for collecting terms
   (let ((fl (factor-list (if (polynomial? n) n (label n))))
 		  (cl (filter number? (if (polynomial? n) n (label n))))
