@@ -1,4 +1,3 @@
-
 \chapter[INCREASING MODEL EFFICIENCY BY DYNAMICALLY CHANGING MODEL
   REPRESENTATIONS]{ Increasing model efficiency by dynamically
   changing model representations}\label{modelefficiency}
@@ -7,10 +6,10 @@
 \typeout{Chapter 2: Prologue to the paper}
 \section{Prologue to the paper}
 This body of this chapter is a (verbatim) paper published in the
-refereed journal \emph{Environmental Modelling and Software}
+refereed journal \emph{Environmental Modelling and Software\/}
 (\cite{Gray2012adaptive}).  The model discussed in this chapter is
 built using an older, much simpler body of code than the framework
-that is explored in Chapter \ref{adaptiveselection}. While the primary
+that is explored in Chapter~\ref{adaptiveselection}. While the primary
 purpose of the paper is indicated by its title, a significant
 contribution is its development of the basic mechanisms for
 changing representations.The source-code can be
@@ -61,29 +60,29 @@ simulating the uptake of isotopes associated with particular geographic
 locations.
 
 Given the very predictable dynamics of the populations, the inclusion
-of multiple contaminants or multiple sources, such as in
-\cite{Gray06:1, Gray2014}, seemed unlikely to improve the
-argument.\footnote{incorporated mortality or morbidity
-  associated with contact, the mortality strategy used in
-  \citet{GrayNingaloo} would have been an appropriate choice.}
+of multiple contaminants or multiple sources, such as
+in~\cite{Gray06:1, Gray2014}, seemed unlikely to improve the
+argument.\footnote{incorporated mortality or morbidity associated with
+  contact, the mortality strategy used in ~\citet{GrayNingaloo} would
+  have been an appropriate choice.}
 
 \pagebreak
 
-\typeout{Chapter 2: Increasing model efficiency by dynamically changing model representations}
+\typeout{Chapter~2: Increasing model efficiency by dynamically changing model representations}
 \section*{Increasing model efficiency by dynamically changing model representations}
 \begin{center}
     Randall Gray\footnote{
-     {Published in \emph{Environmental Modelling and Software}, 2012}\\
+     {Published in \emph{Environmental Modelling and Software\/}, 2012}\\
        Corresponding author:
       \texttt{Randall.Gray@limnal.net} (Randall Gray),\\
       \texttt{Simon.Wotherspoon@utas.edu.au} (Simon Wotherspoon)
     }
 
-    \emph{CSIRO Division of Marine and Atmospheric Research}
+    \emph{CSIRO Division of Marine and Atmospheric Research\/}
 
     Simon Wotherspoon 
 
-    \emph{University of Tasmania}
+    \emph{University of Tasmania\/}
 \end{center}
 
 \rule{\textwidth}{2pt}
@@ -109,34 +108,34 @@ argument.\footnote{incorporated mortality or morbidity
 
 \rule{\textwidth}{2pt}
 
-\typeout{Chapter 2: Introduction}
+\typeout{Chapter~2: Introduction}
 \section{Introduction}\label{Intro}
 
 There is a body of literature stretching back several decades which discusses
 individual-based modelling as a useful alternative to classical models. Early
 examples modelled forest canopy dynamics, notably JABOWA and its derivatives
-(\citet{Botkin72:1}, \citet{Botkin72:2}). The number of significant papers and
+(\citet{Botkin72:1},~\citet{Botkin72:2}). The number of significant papers and
 books has steadily increased since the 1980s. These works describe the use of
 individual-based models across a broad range of systems, and the relative
-strengths and weaknesses of the approach (such as \citet{Huston88:1},
-\citet{DeAngelis92:1} and \citet{Grimm05:1}). Classical models exploring
+strengths and weaknesses of the approach (such as~\citet{Huston88:1},
+\citet{DeAngelis92:1} and~\citet{Grimm05:1}). Classical models exploring
 populations and ecological systems are usually associated with modelling the
 dynamics of large groups and arguably appeared at the end of the eighteenth
-century with Malthus's {\em{{\textbf{An Essay on the Principle of
-Population}}}}\/ (\citeyear{Malthus:1}). The properties of these models are well
+century with Malthus's \textbf{\emph{An Essay on the Principle of
+Population\/}} (\citeyear{Malthus:1}). The properties of these models are well
 understood and their state variables usually correspond to measurable
 quantities. Often, they are much faster than individual-based counterparts,
 and the analysis of model error may be much more straightforward. Classical
 and individual-based approaches represent the ends of a spectrum of
 aggregation in time, space and membership. Representations lying between these
-extrema, such as described by \citet{Scheffer95:1}, capitalise on the
+extrema, such as described by~\citet{Scheffer95:1}, capitalise on the
 process-fidelity of an individual-based representation and gain some of the
 computational efficiency of a more aggregated classical approach, but an
 adaptive exploitation of the strengths of different representations is
 possible and worth exploring.
 
 Ecosystem models are becoming broader in scope (\citet{Rose10:1},
-\citet{DeAngelis98:1}, \citet{Harvey03:1} \citet{Fulton04:1}, \citet{Gray06:1},
+\citet{DeAngelis98:1},~\citet{Harvey03:1}~\citet{Fulton04:1},~\citet{Gray06:1},
 \citet{Ningaloo:1}) and include more species with richer environments. The
 environmental response to climate change has also made anthropogenic pressure
 an important feature in many of these models. As this trend grows it seems
@@ -152,12 +151,12 @@ there is no real distinction between one ``model'' and the next.
 The dynamics associated with biological and ecological systems can depend on
 the distributions and states of individuals in ways which are not amenable to
 equation-based modelling. The individual-based models described in
-\citet{Farolfi2010}, and \citet{Almeida2010} deal with systems of this sort.
+\citet{Farolfi2010}, and~\citet{Almeida2010} deal with systems of this sort.
 Versions of these models could be embedded in a common simulation environment
 in order to address more complex problems which span traditional domain
 boundaries, and such a model could address broader questions, such as how
 mosquito control strategies may best adapt to evolving agricultural practices
-and watershed conditions. \Citet{Thiele2010} describes an extension to NetLogo
+and watershed conditions.~\citet{Thiele2010} describes an extension to NetLogo
 which allows modellers to incorporate calls to R functions to aid in
 configuring the model to meet desirable mathematical conditions, to provide
 ongoing analysis, and to display the model's state through its run. This
@@ -181,7 +180,7 @@ already do this to some degree: time-steps or spatial resolutions are changed,
 particular code paths may be by-passed to avoid pointless work, or additional
 calculations might be performed to reduce the error when the state is changing
 rapidly. These optimisations are largely optimisations of the
-{\em{encoding}}\/ of the model or submodels, rather than an actual change in
+\emph{encoding\/} of the model or submodels, rather than an actual change in
 representation.
 
 \Citet{Vincenot11:1} make a clear case for considering what the authors term
@@ -193,9 +192,9 @@ system dynamics models embedded in individual-based models, individual-based
 models interacting with a number of system dynamics models, and models in
 which the representation swaps between individual-based and an equation-based
 form. They argue that a hybrid approach may provide a means of increasing the
-speed and accuracy of our models and \citet{Lyne94:1} and \citet{Gray06:1} have
+speed and accuracy of our models and~\citet{Lyne94:1} and~\citet{Gray06:1} have
 demonstrated that large models of ecosystems can be modelled this way.
-\citeauthor{Vincenot11:1} note that they found relatively few models which use both
+\Citeauthor{Vincenot11:1} note that they found relatively few models which use both
 individual-based and equation-based submodels, and they present no existing
 models representing their fourth reference case. This final case, where models
 swap from equation-based to individual-based, is briefly described in general
@@ -209,17 +208,17 @@ large scale human-ecosystem interaction models (\citeauthor{Lyne94:1};
 ({\em{work in progress}\/})). In each of these studies a significant component
 of the model focused on simulating the interaction between organisms and
 contaminant plumes, though there is nothing that inherently limits the
-techniques to these sorts of studies. \Citeauthor{Lyne94:1} assessed the
+techniques to these sorts of studies.~\citeauthor{Lyne94:1} assessed the
 potential of contaminants originating in industrial waste percolating through
-the food chain into commercially exploited fish stocks. \citeauthor{Gray06:1}
+the food chain into commercially exploited fish stocks.~\citeauthor{Gray06:1}
 developed a regional model to assess management strategies for human activity
 which interacts with the biological systems along the Northwest Shelf of
 Australia.
 
 Simulating contaminant interactions in an ecosystem is expensive in terms of
-run-time and memory use. The models described by \citeauthor{Gray06:1} and
+run-time and memory use. The models described by~\citeauthor{Gray06:1} and
 \citeauthor{Lyne94:1} include contaminant transport, uptake and depuration
-modelling, with behavioural sensitivity to contaminants. In \citeauthor{Gray06:1},
+modelling, with behavioural sensitivity to contaminants. In~\citeauthor{Gray06:1},
 the time taken to run a simulation with contaminants increased by roughly an
 order of magnitude, and in both studies a large amount of time was spent in
 regions where no interaction with contaminant plumes was possible.
@@ -265,10 +264,10 @@ dynamics of animals with behaviour where short periods of time have a
 significant influence on population levels (\citet{Wolff94:1} and
 \citet{Elderd08:1}, for example).
 
-\typeout{Chapter 2: Overview: an {\em{ODD}\/} model description}
+\typeout{Chapter~2: Overview: an {\em{ODD}\/} model description}
 \section{Overview: an {\em{ODD}\/} model description}\label{ODD}
 
-The {\em{ODD}\/} protocol \citep{Grimm06:1} is used to describe the example
+The {\em{ODD}\/} protocol~\citep{Grimm06:1} is used to describe the example
 model. We discuss the issues associated with making such a system, strategies
 and the reasons behind them in the Discussion section.
 
@@ -283,7 +282,7 @@ for other systems.
 
 The model simulates organisms moving along a simple migratory path which
 intersects a region containing a field of fluctuating contamination (see
-Figure \ref{Fig1}). This model exhibits fundamental attributes of larger
+Figure~\ref{Fig1}). This model exhibits fundamental attributes of larger
 studies of pollutant/ecosystem interactions (\citeauthor{Lyne94:1} and
 \citeauthor{Gray06:1}) and, while it is not intended to accurately represent any
 particular system, it might loosely correspond to some body of water
@@ -298,8 +297,6 @@ from intense rainfalls.
   a single individual approaching it. The domain of a population is is
   circumscribed around the individuals at day 196 for comparison.}
 \end{figure}\label{Fig1}
-
-
 
 The test models are composed of one or more submodels which run within a
 simple time-sharing system. Each submodel runs for a nominated period of time
@@ -363,13 +360,13 @@ time-step is unnecessary, since the individual's or the population's
 contaminant updates are resolved for the contaminant contact across their
 time-step and are not dependent on the state of any other agents.
 
-\typeout{Chapter 2: Design concepts}
+\typeout{Chapter~2: Design concepts}
 \section{Design concepts}
 
 The central reason for the model is the mutability of the representation of
 the simulated organisms. Individuals and populations in the model are
 profoundly simple: no real scope is present for any of the trait categories
-mentioned in \citet{Grimm06:1}, apart from their interaction with the
+mentioned in~\citet{Grimm06:1}, apart from their interaction with the
 contaminant plume, though this interaction is completely deterministic with
 respect to their path through the plume. In place of these traits, we have the
 basic heuristics associated with triggering a change from a population-based
@@ -536,10 +533,10 @@ call is never used directly by the population, rather it is the supervising
 scheduler which organises the transfer to and from individuals and
 populations.
 
-\typeout{Chapter 3: Results}
+\typeout{Chapter~3: Results}
 \section{Results}\label{Results}
 
-The data presented in section \ref{Correspondence} are based on two sets of
+The data presented in section~\ref{Correspondence} are based on two sets of
 simulations representing forty individuals. The first set uses a circular
 plume and the second an elliptical plume. These data sets allow a comparison
 of run-times, the equivalence (or lack of equivalence) amongst the submodels,
@@ -593,8 +590,7 @@ representations}\label{Correspondence}
 
 
 
-Both sets, $\bar{C}_r$ and $\hat{C}_r$, are presented in Table
-\ref{MaximaMeans}.
+Both sets, $\bar{C}_r$ and $\hat{C}_r$, are presented in Table~\ref{MaximaMeans}.
 
 \begin{table}[h]
 \begin{center}
@@ -625,9 +621,9 @@ We calculated measures of variability in the time series using the aggregated
 time series $^{} C_{i k} (t)$ and $^{} C_{m k} (t)$ and their respective means
 across the $k$ trials, $C_i (t)$ and $C_m (t)$. We will take $T$ to be the total
 number of time steps taken, and we take
-\[ \hat{\sigma}_{a b} = \max_{t \in [1, T]} \left[ \frac{1}{k} \sum_{j = 1}^k (C_{a k} (t) - C_b (t))^2 \right]^{1 / 2} \]
+\[ \hat{\sigma}_{a b} = \max_{t \in [1, T]} {\left[ \frac{1}{k} \sum_{j = 1}^k {(C_{a k} (t) - C_b (t))}^2 \right]}^{1 / 2} \]
 and
-\[ {\bar{\sigma}}_{a b} = \left[ \frac{1}{T} \sum_{t = 1}^T \left[ \frac{1}{k} \sum_{j = 1}^k (C_{a k} (t) - C_b (t))^2 \right] \right]^{1 / 2}, \]
+\[ {\bar{\sigma}}_{a b} = {\left[ \frac{1}{T} \sum_{t = 1}^T {\left[ \frac{1}{k} \sum_{j = 1}^k {(C_{a k} (t) - C_b (t))}^2 \right]} \right]}^{1 / 2}, \]
 to be the maximum root mean square error and the average root mean square
 error. Clearly we can write $\bar{\sigma}_{r r}$ as $\bar{\sigma}_r$ without
 introducing ambiguity, and similarly for $\hat{\sigma}_r$. The values for
@@ -668,7 +664,7 @@ There is a good correspondence between the means and deviations associated
 with the mutating model in the circular and elliptical plume scenarios, but
 there is much poorer correspondence in the population based results in the two
 scenarios. The data for the circular plume and for the elliptical plume are
-presented in Tables~\ref{Symplume} and \ref{Asymplume} respectively.
+presented in Tables~\ref{Symplume} and~\ref{Asymplume} respectively.
 
 \begin{table}[h]
 \begin{center}
@@ -729,7 +725,7 @@ just over a mean time of 4205 cpu seconds with a standard deviation of
 approximately 16 seconds and the mean of the mutating submodel's run time was
 1157 cpu seconds with a standard deviation of slightly over 11 cpu seconds.
 
-\typeout{Chapter 3: Discussion}
+\typeout{Chapter~3: Discussion}
 \section{Discussion}
 
 In the example our objective is to produce time-series data associated with
@@ -760,7 +756,7 @@ To make our population-based model compatible with the individual-based model
 we have to extend the population's state space and maintain additional
 information to preserve the essential parts of the individual representation
 that makes it valuable to us. This is basically posing the first of the
-enumerated question from section \ref{Intro}. The {\em{significant}\/}
+enumerated question from section~\ref{Intro}. The {\em{significant}\/}
 information which the individual-based representation possesses is embodied in
 the contaminant loads amongst the individuals which comprise the group. We
 assume that the role of their relative locations about the population's centre
@@ -769,7 +765,7 @@ can discard it when we move from individuals to populations.
 
 The union of submodels' state-spaces can generally be decomposed into
 {\em{processing sets}\/} of state-variables. Partitioning the state variables
-in this way -- particularly in advance -- makes it easier to analyse and
+in this way---particularly in advance---makes it easier to analyse and
 minimise the boundary effects associated with the transition from one
 representation to another. Within a representation, the state variables which
 are unique to it form a special subset. The subset can be divided into the
@@ -845,7 +841,7 @@ behavioural change) the distribution of individuals, for example, does
 population, then additional steps need to be taken accommodate this when
 changing to a population-based representation.
 
-In section \ref{Heuristics}, transitions between representations in the
+In section~\ref{Heuristics}, transitions between representations in the
 example model are mediated by the scheduler. Decisions to change
 representation must be based, in part, on whether the transition will increase
 or decrease the efficacy of the suite of representations as a whole. If the
@@ -855,7 +851,7 @@ individual and individual to population. Our simulation was aimed at producing
 contaminant load results, but in this context our aim would be to track the
 mean position, variance and extrema of the distribution of individuals
 relative to the population. To do this we would perform a comparison similar
-to that of section \ref{Results} but using positional data rather than
+to that of section~\ref{Results} but using positional data rather than
 contaminant load. The results would indicate if there might be significant
 transition effects associated with the change in representation. This sort of
 testing should ideally be performed at a number of scales (temporal or
@@ -884,7 +880,7 @@ potential sources of error we must analyse. Since transitions can be recorded
 confidence based on our understanding of the representations used in a
 simulation.
 
-\typeout{Chapter 3: Conclusion}
+\typeout{Chapter~3: Conclusion}
 \section{Conclusion}
 
 Interesting and unanticipated results have come from this experiment. The
@@ -928,17 +924,17 @@ insight are deeply appreciated.
 %% \end{document}
 \pagebreak
 
-\typeout{Chapter 3: Epilogue to the paper}
+\typeout{Chapter~3: Epilogue to the paper}
 \section{Epilogue to the paper}
 
-This paper shows that two of the basic problems discussed in Chapter \ref{intro},
+This paper shows that two of the basic problems discussed in Chapter~\ref{intro},
 namely situations where the mixing assumption fails, and improving the
 run-time efficiency of a model without sacrificing fidelity, can be
 resolved by models which change their representations according to the
 state of the agents.  The
 initial motivation for considering this kind of model was the
 recurring need to incorporate contaminant modelling in marine
-environments \cite{Lyne1994pmez5, Gray06:1, GrayNingaloo}. 
+environments~\cite{Lyne1994pmez5, Gray06:1, GrayNingaloo}. 
 
 The decision strategy in this model was unusually straightforward and
 simple; this was primarily to avoid obscuring the the central idea,
@@ -952,9 +948,9 @@ A serendipitous coincidence came about soon after this paper was
 submitted. I became involved in what seemed to be unrelated work which
 sought to incorporate social survey data into systems-management
 models. This work lead to the development of a tree structure which is
-used in Chapter \ref{} and fully defined, later, in Chapter
-\ref{treerings}. The configuration of trees can closely follow the
-structural characteristics of the surveys and provide a robust
+used in Chapter~\ref{} and fully defined, later, in
+Chapter~\ref{treerings}. The configuration of trees can closely follow
+the structural characteristics of the surveys and provide a robust
 mathematical means of allowing simulated individuals with different
 attitudes, organisations or events to exert influence (positively or
 negatively) the attitudes of others in the system.  The mathematical

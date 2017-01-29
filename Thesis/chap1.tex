@@ -24,7 +24,7 @@ and states both of the other components and of the model as a whole. Such
 a strategy has a number of potential benefits:
 \begin{itemize}
 \item we can make many simple representations, submodels, for a niche
-         (\emph{sensu}~\cite{Gray06:1} and \cite{Gray2014}) in the
+         (\emph{sensu}~\cite{Gray06:1} and~\cite{Gray2014}) in the
         model, each of which deals well with a particular part of the
         submodel's domain;
 \item the comparative simplicity of these representations effectively 
@@ -103,7 +103,7 @@ assessment of whether email is spam or not in its subsequent
 assessments. A common trait these adaptive techniques share is that
 \emph{algorithm} which processes the data remains essentially the same.
 
-\cite{DBLP:ZhangZR16} describe a system for the
+\Cite{DBLP:ZhangZR16} describe a system for the
 detection and tracking of pedestrians which selects the algorithms and
 parameters to be used in the analysis of segments of data based on the
 nature of the data it is given. This approach has qualitative
@@ -119,7 +119,7 @@ freezing liquids, through to climatic changes.  The discussion of
 (\citep{bhatanacharoentipping}), indicating a broad recognition that
 systems' dynamics can (and do) switch rapidly from one mode to another
 
-\cite{huston1988new} is an early review paper which deals with
+\Cite{huston1988new} is an early review paper which deals with
 individual-based modelling as an alternative to purely equation-based
 models which deal with population level data.  It opens with the
 observation to the effect that mathematical models in ecology often
@@ -150,7 +150,7 @@ locations for breeding, avoiding seasonal scarcity of resources, or
 the encroachment of competing species such as \emph{H. sapiens}.
 These examples are relatively predictable, and typically involve a
 homogeneous response from the migrating population.
-\cite{ward1985behavioural} discusses the behaviour of
+\Cite{ward1985behavioural} discusses the behaviour of
 lynxes in response to declining prey populations. In this study, two
 distinct behavioural responses prevailed: some animals choose a
 nomadic lifestyle as a means of optimising their likelihood of hunting
@@ -165,12 +165,12 @@ on members of a population. The significant issues in modelling this
 type of interaction is that the population can be fragmented into a
 number of distinct sub populations bases on their level of contact and
 uptake, and airborne or water born contaminants' footprint may vary
-dramatically through time. ~\cite{zala2004abnormal} presents a useful
+dramatically through time. \Cite{zala2004abnormal} presents a useful
 review of the the effects of behaviour disrupting contaminants in a
 broad range of animals.  Even in simple situations, where the behaviour
 and viability of members of a population are not compromised, the
 consequences of contact may percolate through the food-chain to higher
-order predators. ~\cite{swan2006toxicity} has found that very low
+order predators. \Cite{swan2006toxicity} has found that very low
 levels of cloven are fatal to old world vultures which acquire it
 by scavenging carcasses of dead cattle, and the bio magnification and
 effects of DDT in the food chain have been well discussed in the
@@ -185,18 +185,18 @@ ideal example: rats exposed to infected cat feces lose their innate
 fear of cats --- the positive reinforcement on the spread
 of \emph{T. gondii} afforded by this leads to greater potential for
 the pathogen to infect more cats, and hence, more
-rats. ~\citet{dobson1988population} investigates the population
+rats. \Citet{dobson1988population} investigates the population
 dynamics of these kinds of interactions, and present a useful approach
 to incorporating these effects into analytic models. This paper
 explored the population dynamics of parasite-host systems where the
 parasites influenced host behaviour found that the reproductive
 capacity of the host populations could be significantly modified by
-the behaviour altering parasites. ~\citep{Dobbin1952food} observes that
+the behaviour altering parasites. \Citep{Dobbin1952food} observes that
 roaches infected with \emph{Lingual intestinal is} were three to five
 times more numerous in cormorant catches than in the roach population
 of the IJsselmeer (as estimated from commercial catches), suggesting
 that something in the fish's behaviour makes them more susceptible to
-capture. ~\cite{poulin1994meta} assesses the effect on host behaviour
+capture. \Cite{poulin1994meta} assesses the effect on host behaviour
 in a number of host-parasite pairings, and found that the parasites
 had a significant effect on the behaviour of their hosts.  In the
 cases addressed in these papers, the process in question is predation,
@@ -251,7 +251,7 @@ growth in the complexity of the code required
 
 Many individual-based models incorporate environmental characteristics
 that influence the behaviour of of the individuals
-simulated. ~\citet{Botkin72:2} and~\citet{deangelis1978model} are
+simulated. \Citet{Botkin72:2} and~\citet{deangelis1978model} are
 important early examples: Botkin \etal\ modelled the effect of
 spatially explicit environmental conditions on simulated trees (rather
 than stands or coupes) in a mixed species population in
@@ -278,25 +278,25 @@ other ways similar to conventional agent-based modelling of the time.
 %basic element underpinning their model, ATLSS, of the Everglades
 %region in the U.S.A.
 
-\cite{bobashev2007hybrid} describes a model of epidemic simulation in
+\Cite{bobashev2007hybrid} describes a model of epidemic simulation in
 which the representation of populations or portions of populations are
 decided based on the number of infected individuals relative to a
 nominated trigger value. This model demonstrates that there is an
 advantage to changing representation in terms of computational
-efficiency and the fidelity of the model. The published model in Chapter
-\ref{modelefficiency} is similar: the rule governing the switching
-from one representation to another depends on the state of the system:
-switching occurs when some monitored quantity crosses a nominated
-boundary. The problem of contact with infection and contact with a
-contaminant is similar, though the treatments are quite
+efficiency and the fidelity of the model. The published model in
+Chapter~\ref{modelefficiency} is similar: the rule governing the
+switching from one representation to another depends on the state of
+the system: switching occurs when some monitored quantity crosses a
+nominated boundary. The problem of contact with infection and contact
+with a contaminant is similar, though the treatments are quite
 different. In~\citet{bobashev2007hybrid}, an individual moves
 from \texttt{Susceptible}, through \texttt{Exposed},
 to \texttt{Infectious} and then \texttt{Recovered}; in contrast, when
-individuals with contaminant loads in Chapter \ref{modelefficiency}
+individuals with contaminant loads in Chapter~\ref{modelefficiency}
 leave the region where contamination is possible, they are subsumed
 back into the population and their data is incorporated so that the
 individual contaminant profiles are maintained and subject to
-depuration. 
+depuration.
 
 The model discussed in~\cite{Gray2014}
 and~\cite{Fulton2009crossingscales} simulates the effect of a number
@@ -323,8 +323,8 @@ In contrast, the approach discussed in this thesis addresses this
 problem by constructing the models as an ensemble of agents which can
 cede their role to another representation which is more suitable when
 the need arises.  A resident population might thus be represented by a
-single \emph{population} agent, a set of \emph{individual-based}
-agents, \emph{super-individual} agents or by some mixture of these
+single \emph{population\/} agent, a set of \emph{individual-based\/}
+agents, \emph{super-individual\/} agents or by some mixture of these
 representations.  It may be that particular representations are unable
 to respond to the conditions they encounter: a population based agent
 may be unable to to interact with a contaminant plume, for example,
@@ -358,28 +358,24 @@ individuals.
 
 The interplay of factors like these make a simple vector-based
 encoding mechanism for the states of a model and its components
-awkward, thus we turn to a metric space over a \rng\footnote{To avoid
-confusion, we take \rng\ to denote a non-unital ring --- an algebraic
-structure that has addition and multiplication, an equivalent of zero,
-but no equivalent of one.  An example of a \rng is the even integers.}
-of trees with a finite number of weighted, labelled nodes. This
-simplifies the comparison of possible ways to fill the niches in the
-model for a given global state, and makes available any algorithms
-(particularly useful are clustering) which depend only on ring
-properties (excluding, of course, those that need a multiplicative
-unit).
+awkward, thus we turn to a metric space whose elements are trees with
+a finite number of weighted, labelled nodes. This simplifies the
+comparison of possible ways to fill the niches in the model for a
+given global state, and makes available any algorithms (particularly
+useful are clustering) which depend only on the properties of a metric
+space.
 
 The decision to change representations can be made by an agent that
 recognises that it is unable to continue in the conditions in which it
 finds itself (akin to the code-path decisions in more traditional
 models), or by a similar assertion from some higher agency
-(a \emph{monitor} in the discussion which follows) which assesses
+(a \emph{monitor\/} in the discussion which follows) which assesses
 states more broadly.  In the case of an agent determining that it
 needs to change, such as a penguin moving from the ``nestling''
 submodel to the ``juvenile'' submodel, this can be effected directly,
 though the more general (and in this case, burdensome) strategy would
 be for the desired state-change to be flagged and acted on by
-a \emph{monitor}.
+a \emph{monitor\/}.
 
 The models explored in this work bear a resemblance to a multitasking
 operating system, but, unlike an operating system, the model's ``kernel''
@@ -391,7 +387,7 @@ this as an organisational template means that there are many patterns
 to serve as templates for further development.
 
 All of the submodels in the example model presented in
-Chapter \ref{explicitmodel} are able to act to some degree as a kernel
+Chapter~\ref{explicitmodel} are able to act to some degree as a kernel
 themselves --- in a sense, models can be nested.
 
 \section{Scales}
@@ -419,8 +415,8 @@ are inspected and updated in the body of an event loop (or many
 loops). Some models achieve temporal optimisation by dividing the
 arrays into various groups of fast-stepping and slower-stepping
 variables, only dealing with the necessary parts of the system at each
-time-step (\emph{variable speed splitting} as
-in~\cite{walters2000ecosystem}, for example). ~\cite{Gray06:1}
+time-step (\emph{variable speed splitting\/} as
+in~\cite{walters2000ecosystem}, for example). \Cite{Gray06:1}
 and~\cite{Gray2014} allow agents to dynamically determine their own
 time step based on their state--- time steps may be truncated, or
 changed for their next turn in response to their situation. There is a
@@ -461,7 +457,7 @@ limited by the magnitude of the changes which may occur as a result of
 interactions --- large changes may call for small time steps.
 
 \section{Outline}
-The paper which forms the body of Chapter \ref{modelefficiency}
+The paper which forms the body of Chapter~\ref{modelefficiency}
 develops a model of organisms that periodically move through a region
 subject to plumes of contaminant.  The model is capable of
 modelling the organisms either with a population-based representation
@@ -476,8 +472,8 @@ The purpose of the model and its runs is to compare both the execution
 speed of the simulations and the fidelity of the simulation with
 respect to the contaminant loads of the simulated population.
 
-Chapter \ref{adaptiveselection} was published in a special issue
-of \emph{Frontiers in Environmental Science}. It considers the 
+Chapter~\ref{adaptiveselection} was published in a special issue
+of \emph{Frontiers in Environmental Science\/}. It considers the 
 properties needed for a more complex evaluation of possible
 configurations of a running model, and develops a speculative model as
 a platform for discussion.  To support the dynamic assessment and
@@ -489,17 +485,18 @@ similar in their constitution.
 
 The final section of this thesis describes an implementation of a
 framework for a models of this sort, and the implementation of the
-model described in Chapter \ref{adaptiveselection }. The corpus of
+model described in Chapter~\ref{adaptiveselection }. The corpus of
 code in the framework is roughly 15,000 lines of Scheme which is
 freely available at \texttt{github.com:///snarkypenguin/Mutans.git}.
 
 An essential notion that was treated lightly in the paper of
-Chapter \ref{modelefficiency} is there developed much more fully,
+Chapter~\ref{modelefficiency} is there developed much more fully,
 namely that for a model to allow an oscillation between
 representations, additional data must be passed between them,
 maintained and possibly adjusted in order to preserve consistency
 across transitions.  The model discussed in
-Chapter \ref{modelefficiency} does this by having the population
+Chapter~\ref{modelefficiency} does this by having the population
+
 maintain a vector of contaminant levels which is updated at each time
 step, but a more general solution is presented.
 

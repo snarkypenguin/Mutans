@@ -22,6 +22,11 @@
 % file in the main document.
 \makeindex
 
+\newcommand{\blockcomment}[1]{}
+\newcommand{\UseFirstVersion}[2]{#1}
+\newcommand{\UseSecondVersion}[2]{#2}
+\newcommand{\UseNeitherVersion}[2]{}
+
 % Include the style file which contains all the required formatting
 % information that is set out in the Research Higher Degrees Resource
 % Handbook (2003 version). NOTE: This file uses the following packages
@@ -35,6 +40,26 @@
 
 \input{mathphdthesis.sty}
 
+\usepackage{etoolbox}
+
+\newtoggle{usesamssymb}
+\toggletrue{usesamssymb}
+
+\newtoggle{usesMnSymbol}
+\toggletrue{usesMnSymbol}
+
+\newtoggle{usesScriptFonts}
+\toggletrue{usesScriptFonts}
+
+\newtoggle{usesCalligra}
+\togglefalse{usesCalligra}
+
+\newtoggle{usesChancery}
+\toggletrue{usesChancery}
+
+\newtoggle{frakok}
+\toggletrue{frakok}
+
 %\let\chapter\section
 
 %\usepackage{accents}
@@ -44,18 +69,27 @@
 %\usepackage{slashed}
 \usepackage{a4}
 \usepackage{esvect}
-\usepackage[OT1]{fontenc}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+%-- Fonts
+
+\iftoggle{usesMnSymbol}{
+  \usepackage{mathpazo}
+  \usepackage{MnSymbol}
+}{
+  \usepackage{amssymb}
+  \usepackage{amsfonts}
+}
+
+%\usepackage{lmodern}
 \usepackage{outline}
-\renewcommand*\familydefault{ocm}
+%\renewcommand*\familydefault{ocm}
 \usepackage[outline]{contour}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{amsmath}
 \usepackage{stmaryrd}
-\usepackage{amssymb}
-\usepackage{amsthm}
 \usepackage{enumitem}
-\usepackage{lmodern}
 \usepackage{mathtools}
 \usepackage{url,lineno}
 \usepackage{graphicx}
@@ -65,6 +99,7 @@
 \usepackage[usenames]{xcolor}
 \usepackage{textcomp}
 \usepackage{accents}
+%\usepackage{scalerel}
 \lstset{
   language=Scheme
 }
@@ -81,21 +116,74 @@
 %%      eprint=false
 %% ]{biblatex}
 %
- %%%%\addbibresource{biblatex-examples.bib}
- %%\usepackage[]{hyperref}
+%%%%\addbibresource{biblatex-examples.bib}
+%%\usepackage[]{hyperref}
 %%\setcitestyle{authoryear, open={((},close={))}
 
 
-%-- Fonts
-%\usepackage[T1]{fontenc}
-\usepackage{calligra}
-%%\usepackage{chancery}
+\DeclareRobustCommand\chancery{
+  \fontfamily{pzc}
+  \fontencoding{T1}
+  \selectfont
+}
+\def\textpzc#1{\begingroup \fontfamily{pzc}
+  \fontencoding{OT1}\selectfont #1\endgroup}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\DeclareMathAlphabet{\chanc}{OT1}{pzc}{m}{it}
 
+\iftoggle{usesMnSymbol}{
+  \typeout{Using MnSymbol}
+  \DeclareRobustCommand\mnsymbol{
+    \fontfamily{mns}
+    \fontencoding{T1}
+    \selectfont}
+  \typeout{MnSymbol 1}
+  \def\textmns#1{\begingroup \fontfamily{mns}
+    \fontencoding{OT1}\selectfont #1\endgroup}
+  \typeout{MnSymbol 2}
+  \DeclareMathAlphabet{\mathmns}{OT1}{mns}{m}{it}
+  \typeout{got it}
+  \def\mnsym#1{{\mnsymbol #1}}
+  \typeout{... and bbm}
+   \DeclareRobustCommand\pazo{\fontfamily{pzo}
+     \fontencoding{T1}
+     \selectfont}
+  %% \def\textbbm#1{\begingroup \fontfamily{bbm}
+  %%   \fontencoding{T1}\selectfont #1\endgroup}
+  \DeclareMathAlphabet{\mathbb}{OT1}{pzo}{bb}{it}
+  %%\def\bbm#1{{\Bb #1}}
+}{
+}
+
+%%\usepackage{breqn}
+
+% compile with xelatex
+%\usepackage{fourier}
+% set math font
+%\usepackage[no-math]{fontspec}  % to load non-Latex fonts (keeping math font)
+%\setmainfont{Palatino}
+% fontspec reverts to CM, so reset to Times
+%\setsansfont{Optima}
+% set sans-serif font
+%-\usepackage{sectsty}
+% to override section fonts
+%-\allsectionsfont{\fontspec{Optima}}  % set header font
+
+\usepackage[T1]{fontenc}
+%% Do nothing else -- it's the default allegedly set things to CM
+
+
+
+\typeout{Graphics}
 \DeclareGraphicsExtensions{.eps,.pdf,.png}
+
+
+%\newcommand{\hmmax}{0}
+%\newcommand{\bmmax}{0}
 
 \DeclareMathAlphabet{\mathocm}{OT1}{ocm}{m}{rm}
 \DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
-\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
 
 
 \typeout{Got packages}
@@ -139,5 +227,40 @@
 %\input{app1}   % section 1: environment , section 2: code for explicit model
 \input{biby}   % Makes the bibliography from the BibTeX database
 \input{index}  % Places the index in the thesis
+
+
+
+
+%% With unicode-math Unicode math fonts support a wide range of
+%% symbols. Among these are a lot of symbols which were only available
+%% using supplemental package when not using Unicode fonts.
+
+%% The unicode-math package enables you to load these Unicode math
+%% fonts. Some are available in TeXlive, such as Latin Modern Math, a
+%% Unicode port of the popular lmodern package.
+
+%% A list of symbols, defined by some of these fonts can be found in
+%% the document Every symbol (most symbols) defined by unicode-math by
+%% the developer of unicode-math and TeX.SX user Will Robertson.
+
+%% Let's take for example, the \llangle and \rrangle symbols. These
+%% are not available in Latin Modern Math but they are in XITS
+%% Math. To import these when using Latin Modern Math as the main math
+%% font, one has to use the range option. The range option accepts
+%% Unicode slots or alternatively, for easier understanding, the
+%% mnemonic names of the symbols. Be sure to load the custom range
+%% after setting the main math font. Otherwise your hand-crafted set
+%% of symbols will be overwritten.
+
+%% \documentclass{article}
+%% \usepackage{unicode-math}
+%% \setmathfont{Latin Modern Math}
+%% \setmathfont[range={\llangle,\rrangle}]{XITS Math}
+%% \begin{document}
+%% $\llangle a \rrangle$
+%% \end{document}
+
+%% enter image description here
+
 \end{document}
 

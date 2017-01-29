@@ -4,7 +4,7 @@
 \chapter[ADAPTIVE SUBMODEL SELECTION IN HYBRID MODELS]{Adaptive submodel selection in hybrid  models}\label{adaptiveselection}
 
 \WeAreOn{\cthree}
-\typeout{Chapter 3: Prologue to the paper}
+\typeout{Chapter~3: Prologue to the paper}
 \section{Prologue to the paper}  
 This chapter is a (verbatim) inclusion of a paper that I was invited
 to submit for a special topic issue of the refereed journal
@@ -35,7 +35,7 @@ without proof, though the corresponding propositions for the work in
 Chapter~\ref{treering} are proved in the material in Chapter~\ref{treering}.
 
 \pagebreak
-\typeout{Chapter 3: Adaptive submodel selection in hybrid  models}
+\typeout{Chapter~3: Adaptive submodel selection in hybrid  models}
 \section*{Adaptive submodel selection in hybrid  models}
 
 \begin{center}
@@ -94,12 +94,12 @@ Chapter~\ref{treering} are proved in the material in Chapter~\ref{treering}.
 %- Beginning of text
 
 %-- Introduction
-\typeout{Chapter 3: Introduction}
+\typeout{Chapter~3: Introduction}
 \section{Introduction}
 %----> The case has been made <----
 The case has been made for developing systems with sub\-models that
 change their rep\-re\-sen\-ta\-tion according to their state.
-\citet{vincenot2011theoretical} identify reference cases describing the
+\Citet{vincenot2011theoretical} identify reference cases describing the
 major ways system dynamics models (\SD) and in\-di\-vidu\-al-based models
 (\IB) can be coupled. Their final case, \SD-\IB\ model swapping, is
 exemplified in the models described by both~\cite{bobashev2007hybrid}
@@ -182,14 +182,14 @@ model. In this paper we will develop a more general strategy which may
 be appropriate for more complex systems.
 
 
-\typeout{Chapter 3: Model organization}
+\typeout{Chapter~3: Model organization}
 \section{Model organization}
 
 For clarity, we will take the term \emph{niche} to refer to something
 in the model which could be modeled in several ways: a ``porpoise''
 niche could be filled by many instances of an in\-di\-vidu\-al-based
 model, models of pods, or a regional \SD\ model of the porpoises.
-This is essentially the same as the term \emph{component} in
+This is essentially the same as the term \emph{component} in~
 \cite{vincenot2011theoretical}. The motivation for departing from this
 convention arose from confusion resulting from inadvertently using
 \emph{component} both in a technical and non-technical sense.  The
@@ -274,7 +274,7 @@ as a means of removing inappropriate edges, or generating subscale
 data, for example.  Changes in an agent's time step can have a
 dramatic causal influence on the subsequent simulation.
 
-\cite{chivers2009generalised} discusses how in\-di\-vidu\-al-based models
+\Cite{chivers2009generalised} discusses how in\-di\-vidu\-al-based models
 are sen\-si\-tive to when state variables are updated.  In his discussion,
 the issue arises as a result of when the probability of a
 predator-prey in\-ter\-ac\-tion is cal\-cu\-la\-ted relative to when the prey are
@@ -297,8 +297,7 @@ model.
     that have not yet been run. ``Uni:''  and ``Vss:'' sub\-models are
     members of a uniform or variable speed splitting
     sub\-models and require uniform time steps, and ``Dyn:'' sub\-models
-    have adaptive time steps.}
-\label{times}
+    have adaptive time steps.}\label{times}
 \end{center}
 \end{figure}
 A better approach is the technique of variable speed splitting, such
@@ -325,7 +324,7 @@ situation may introduce a great many small time steps which agents may
 exploit.  This kind of problem can be overcome by introducing a
 randomizing process within each time step. Early versions of the
 variable speed splitting model in~\cite{Lyne1994pmez5} suffered from
-predator-prey artifacts arising from a na\"ive introduction of
+predator-prey artifacts arising from a na\"{\i}ve introduction of
 predators and prey into the list of agents, and such randomizing was
 introduced to minimize the effects. In situations where the time steps
 of the interacting agents differ, implementing a randomization
@@ -333,7 +332,7 @@ strategy may require a significant increase in the complexity of the
 system to accommodate irregular stepping through the lists of
 agents, or a significant change in the basic structure of the model.
 
-\cite{Gray2006nws} and~\cite{Fulton2009crossingscales} describe models that have a well
+\Cite{Gray2006nws} and~\cite{Fulton2009crossingscales} describe models that have a well
 developed approach to coordinating agents using adaptive time
 steps. In these models agents may set their own time steps to
 intervals that are suitable for their current activity or role. This
@@ -381,8 +380,7 @@ from other niches.
 
 %---- Algorithm MonAlg
 \begin{algorithm}
-  \caption{Basic processing pass for the monitor}
-\label{MonAlg}
+  \caption{Basic processing pass for the monitor}\label{MonAlg}
   \begin{algorithmic}
     \ForAll{niches}
     \ForAll{sub\-models in the niche}
@@ -446,7 +444,7 @@ which implements some alternative strategy.
 
 %-- The example model
 %--- Algorithmic description of the model
-\typeout{Chapter 3: The example model}
+\typeout{Chapter~3: The example model}
 \section{The example model}
 
 The purpose of the example model described below, is to provide a
@@ -462,8 +460,7 @@ swamped by detail.
   \caption{The model domain is divided into nine cells. An \SD\ agent
     is associated with each of these cells and with the domain as a
     whole. Any \IB\ agents which are created during the simulation
-    will be associated with one cell at any given time.}
-\label{domain}
+    will be associated with one cell at any given time.}\label{domain}
 \end{center}
 \end{figure}
 
@@ -515,8 +512,7 @@ the carrying capacity of the pertinent domain (either global or
 cell-based).
 %------ fruitalg
 \begin{algorithm}
-  \caption{Basic processing pass for fruit}
-\label{fruitalg}
+  \caption{Basic processing pass for fruit}\label{fruitalg}
   \begin{algorithmic}
     \State $\N{F} \gets \N{F} - (\mathit{Spoilage}_{\mt{F}} \cdot \N{F})$
   \end{algorithmic}
@@ -528,8 +524,7 @@ the system is required, and only the number of fruit is adjusted as a
 result (Algorithm~\ref{fruitalg}).
 %------ seedalg
 \begin{algorithm}
-  \caption{Basic processing pass for seeds}
-\label{seedalg}
+  \caption{Basic processing pass for seeds}\label{seedalg}
   \begin{algorithmic}
     \State $\mathit{NewTreeCount} \gets \mathit{Germination} \cdot  \mathit{SeedCount}$
     \State $\mathit{SeedCount} \gets \mathit{SeedCount} -  (\mathit{NewTreeCount} $
@@ -584,8 +579,7 @@ raw numbers of fruit and viable seeds.
 \begin{algorithm}
   %% if we swap the order of the caption and label, we get the section number
   %% rather than the algorithm number!
-  \caption{Basic processing pass for the \SD\ models}
-\label{sdalg}
+  \caption{Basic processing pass for the \SD\ models}\label{sdalg}
 \begin{algorithmic}
   \ForAll{agents in this domain}
     \State{Incorporate quantities that are }
@@ -640,8 +634,7 @@ occurs probabilistically as in the \SD\ represen\-tation.
 
 %------ plantalg
 \begin{algorithm}
-  \caption{Basic processing pass for plants}
-\label{plantalg}
+  \caption{Basic processing pass for plants}\label{plantalg}
   \begin{algorithmic}
     \If {$(\mass \ge \Mtt{P}_{\mature}) \land (\ttt{P}_{\fruits} \ge \Urnd)$}
     \State $\AddFruit{\ttt{P}_\rho}{\mass^{\frac{2}{3}}}$
@@ -709,24 +702,23 @@ particular value, $H_\Omega$ or $C_\Omega$, the in\-di\-vidu\-al dies.
 
 %------ animalalg
 \begin{algorithm}
-  \caption{Basic processing pass for herbivores and carnivores}
-\label{animalalg}
+  \caption{Basic processing pass for herbivores and carnivores}\label{animalalg}
   \begin{algorithmic}
   \If {$(\imort{A} > \Urnd) \lor (\hungertime \ge \ttt{A}_\Omega)$}
   \State \Die
   \EndIf
-  \State $\preylist \gets \PreyPresent{A}{\location}{\mass}$
+  \State {$\preylist \gets \PreyPresent{A}{\location}{\mass}$}
   \If {$\satedtime \ge 0$}
-  \State $\mass \gets \mass + \Growth{A}{mass}{\delta t}$
+  \State {$\mass \gets \mass + \Growth{A}{mass}{\delta t}$}
   \ElsIf {$(\hungertime \ge 0)\land(\lcount{\preylist} > 0)$}
-  \State $\satedtime \gets \Eat{\preylist}{\ttt{A}_{EatLimit}}{mass}$
-  \State $\hungertime \gets 0$
-  \State $\foragecount \gets 0$
-  \ElsIf {$(\hungertime \ge 0) \land len(\preylist) = 0)$}
-  \State \textsc{Forage}
-  \State $\foragecount \gets \foragecount + 1$
+  \State {$\satedtime \gets \Eat{\preylist}{\ttt{A}_{EatLimit}}{mass}$}
+  \State {$\hungertime \gets 0$}
+  \State {$\foragecount \gets 0$}
+  \ElsIf {$((\hungertime \ge 0) \land len(\preylist) = 0)$}
+  \State {\textsc{Forage}}
+  \State {$\foragecount \gets \foragecount + 1$}
   \ElsIf {$(\hungertime \ge \ttt{A}_{moveT}) \lor \LocallyCrowded{A}$}
-  \State $\Migrate{A}{\location}$
+  \State {$\Migrate{A}{\location}$}
   \Else
   \If {$(mass \ge \ttt{A}_{RepSize}) \land (\ttt{A}_{RepP} \ge \Urnd)$}
   $\Reproduce{A}{\location}$
@@ -805,7 +797,7 @@ handle this value appropriately.
 The following may be typical of the types of situations that could or
 should cause changes in the con\-fig\-ur\-a\-tion:
 \begin{itemize}
-  \item \emph{Low population} ---- If, in an \SD\ representa\-tion,
+  \item \emph{Low population}---If, in an \SD\ representa\-tion,
     the number of in\-di\-vidu\-als filling a niche (either explicitly taken
     from a distribution, or estimated using a mean and a biomass)
     drops below a nominated value, then the biomass in that niche
@@ -815,7 +807,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     population as having uniform access to resources (or be uniformly
     available to predators) breaks down;
 
-  \item \emph{High population} ---- If a niche in a cell is
+  \item \emph{High population}---If a niche in a cell is
     represented by \IB\ agents and the number of in\-di\-vidu\-als exceeds a
     (higher) nominated value, the biomass those agents represent
     should be subsumed by the distribution in the local
@@ -823,7 +815,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     two reasons: an equation-based rep\-re\-sen\-ta\-tion will be much faster,
     and \SD\ submodels are arguably simpler to calibrate;
 
-  \item \emph{Starvation risk} --- If the mean amount of time an
+  \item \emph{Starvation risk}---If the mean amount of time an
     animal in a cell spends \emph{hungry} in a cell exceeds half of
     $\ttt{A}_\omega$ (or some other nominated time), the prey biomass
     must convert to \IB\ agents if it isn't already so (bearing in
@@ -832,7 +824,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     triggered, it indicates that the biomass of the prey species is
     sparse enough that homogeneity assumption is unlikely to hold;
 
-  \item \emph{Relative biomass} --- If the biomass available for
+  \item \emph{Relative biomass}---If the biomass available for
     predation is represented in a local \SD\ agent and its density
     drops below some proportion of the minimum required to support the
     predators in the domain, the prey species should convert its
@@ -939,18 +931,18 @@ in the \appendixname.
     \SD\ agent, and red indicates that an \IB\ model is being
     used. Symbols composed of two colors indicate that more than one
     rep\-re\-sen\-ta\-tion is currently controlling portions of the
-    relevant biomass.}
-\label{timeline}
+    relevant biomass.}\label{timeline}
 \end{center}
 \end{figure}
 
 %------> walking through the  <------
-Now let us consider what a simulation might look like. Figure
-\ref{timeline} provides an overview of the con\-fig\-ur\-a\-tion of the system
+Now let us consider what a simulation might look
+like. Figure~\ref{timeline}
+provides an overview of the con\-fig\-ur\-a\-tion of the system
 as our hypothetical simulation runs. The model begins with eleven
 agents (not counting the monitor). The monitor runs its first step
-generating the status trees: $\stmA{0},$ which characterizes the model
-in aggregate, $\stsdA{0}{0},\ldots,\stsdA{9}{0},$ which record the
+generating the status trees: $\stmA{0}$, which characterizes the model
+in aggregate, $\stsdA{0}{0},\ldots,\stsdA{9}{0}$, which record the
 aggregate state of the ten \SD\ submodels, the aggregate status tree for
 the \IB\ agent, $\stibA{0}[9]$, status trees for the \SD\ submodels:
 $\stsd{0}{0}$--$\stsd{10}{0}$, the status tree for the lone carnivore,
@@ -988,7 +980,7 @@ measure to construct a set of the results of applying an optimisation
 function, $opt$, to each of the candidate trees and their similarity
 to the current con\-fig\-ur\-a\-tion.  So if $\set{S}$ is the set of all
 serial numbers for candidates, $\domt{d}$ is the status tree fo the
-current domain, and  is the  , we calculate
+current domain, and  is the, we calculate
 \begin{equation*}
   \set(C) = \{(\delta(\domt{d},\cst{i}),i): \forall i \in \set{S}\},
 \end{equation*}
@@ -1002,8 +994,7 @@ where $\delta$ stands for our chosen measure of similarity.
 \begin{center}
   \includegraphics{Figure4}
   \caption{Normalized indexes of execution speed (black) and fidelity (red) the 
-    against configuration changes through time associated with Figure~\ref{timeline}}
-\label{indices}
+    against configuration changes through time associated with Figure~\ref{timeline}}\label{indices}
 \end{center}
 \end{figure}
 
@@ -1027,8 +1018,8 @@ that there is an \IB\ agent in their domain and that their
 biomass. Both the status and candidate trees for agent 11,
 $\staR{11}{0}, \nsta{\IB}{11}{0}$ and $\asta{\IB}{11}{0}$, indicate
 that it is confident that it can represent the biomass, and that there
-are no immediate unmet requirements from other agents.  Figure 
-\ref{timeline} (\textbf{A})
+are no immediate unmet requirements from other agents.
+Figure~\ref{timeline} (\textbf{A})
 
 \item %B
 %-------> Finding a match <--------
@@ -1044,8 +1035,7 @@ and informs the global \SD\ agent that it is no longer controlling the
 biomasses in cell 9. Figure
 \ref{timeline} (\textbf{B})\label{firstconv}
 
-\item %C
-\label{cv1}
+\item\label{cv1}
 %-------> Run for a while and convert C to SD <--------
 The model may run for some time without any change in con\-fig\-ur\-a\-tion.
 Both the herbivores and carnivores breed. The increased execution speed
@@ -1070,8 +1060,8 @@ Figure~\ref{timeline} (\textbf{D})
 
 \item %E
 %-------> + monitor converts cell 5 in fashion analogous to start  <--------
-A carnivore, agent 43, has been hungry ($(\hungertime \ge
-\ttt{A}_{moveT}$) and has migrated to the cell 5
+A carnivore, agent 43, has been hungry $(\hungertime \ge
+\ttt{A}_{moveT})$ and has migrated to the cell 5
 (noted in $\sta{\IB}{43}{t_5}$). As occurred in cell 9 at step~\ref{firstconv}, the monitor
 converts plants and herbivores in cell 5 to a local
 \SD\ rep\-re\-sen\-ta\-tion, with \IB\ carnivores. Figure~\ref{timeline}
@@ -1124,7 +1114,7 @@ Figure~\ref{timeline} (\textbf{H})
 
 
 %-- Discussion
-\typeout{Chapter 3: Discussion}
+\typeout{Chapter~3: Discussion}
 \section{Discussion}
 %-----> Where do we put the smarts? <-----
 
@@ -1240,7 +1230,7 @@ would naturally inherit the body of techniques which only require the
 properties of such a ring.
 
 %-- Conclusion
-\typeout{Chapter 3: Conclusion}
+\typeout{Chapter~3: Conclusion}
 \section{Conclusion}
 
 There are still some major obstacles to developing a fully fledged
@@ -1292,10 +1282,9 @@ completely with the lead author.
 %% The mathematics formats poorly in two column mode.
 \onecolumn
 
-\typeout{Chapter 3: \appendixname}
+\typeout{Chapter~3: \appendixname}
 \section{\appendixname}
-\subsection{Mathematical definitions}
-\label{AppTrees}
+\subsection{Mathematical definitions}\label{AppTrees}
 The trees we use are members of a normed vector space: we can add
 them, find out how far apart they are and interpolate between them. In
 principle, we can run clustering algorithms to find con\-fig\-ur\-a\-tions
@@ -1305,9 +1294,8 @@ entered another.
 %--- Preliminary definitions
 
 %---- Domain 
-\begin{definition}
-\label{defdomain}
-  Let $\mc{S}$ be a set of labels, and let \TFIELD\ be a field like
+\begin{definition}\label{defdomain}
+  Let $\mc{S}$ be a set of labels, and let \TFIELD be a field like
   the real or complex numbers. Then we define a node $\node{n}$ as a
   triplet of the form $(\mc{s}, v, \set{E})$, with $v \in \FIELD$,
   $\mc{s} \subset \mc{S}$, and the set $\set{E}$ is a (possibly empty)
@@ -1402,8 +1390,7 @@ The \emph{overlap} between two trees is defined
 %--- Scalar multiplication 
 
 We can now define scalar multiplication, and tree addition.
-\begin{definition}
-\label{defscalar*}
+\begin{definition}\label{defscalar*}
   Take $a \in \FIELD$ and $\node{u} \in \DOM$, then
   \begin{equation}
     a\node{u} = \begin{cases}
@@ -1418,8 +1405,7 @@ We can now define scalar multiplication, and tree addition.
 
 %--- Tree addition
 
-\begin{definition}
-\label{deftree+}
+\begin{definition}\label{deftree+}
   Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM.\@Then taking the
   symbol $+$ to be addition in the field \TFIELD, we extend  it to addition in
   \TDOM\ so that for nodes \tnode{u} and \tnode{v},
@@ -1428,7 +1414,7 @@ We can now define scalar multiplication, and tree addition.
     \node{u}+\node{v}=\begin{cases}
     \nulltree & \text {if } \node{u} = \node{v} = \nulltree \\
     %%!    \nulltree & \text {if } \extn{u} = \extn{v} = \nulltree \mand \nv{u} = \nv{v} = 0 \\
-    %% we don't really want to loose the data associated with the labels --- zero is a valid number after all 
+    %% we don't really want to loose the data associated with the labels---zero is a valid number after all 
     \node{u} & \text {if } \node{u} \neq \nulltree \mand  \node{v} = \nulltree \\
     \node{v} & \text {if } \node{u} = \nulltree \mand \node{v} \neq \nulltree  \\
     (\nlabel{u}, \nv{u} + \nv{v}, \emptyset) & \text{if } \extn{u}, \extn{v} = \emptyset \\
@@ -1441,8 +1427,7 @@ We can now define scalar multiplication, and tree addition.
 
 %--- Tree inner-multiplication
 
-\begin{definition}
-\label{deftree*}
+\begin{definition}\label{deftree*}
   Let $\node{u}$ and $\node{v}$ be compatible elements of \TDOM.\@Then 
   we define inner-multiplication between the two nodes
   \begin{equation}
@@ -1456,8 +1441,7 @@ We can now define scalar multiplication, and tree addition.
 
 It can be shown that \TDOM\ with scalar multiplication and tree addition forms a vector space. This
 isn't quite enough to give us distances between trees, however, so we define a semi-norm
-\begin{definition}
-\label{defnabs}
+\begin{definition}\label{defnabs}
   Let \tnode{u} be an element of \TDOM.\@Then we can define a semi-norm over \TDOM
   \begin{align*}
     \nabs{\node{u}} = \begin{cases}
@@ -1478,12 +1462,11 @@ $\node{u} + \node{z_u} = \node{v} + \node{z_v}$.  It can be shown that scalar mu
 tree addition, \blockcomment{tree multiplication,} and the semi-norm behave appropriately with
 respect to the equivalence classes. This means that if we identify
 elements of \TDOM\ with their equivalence class, then we can take $\nabs{\node{u}}$ to be a norm and
-that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} - \node{v}}\].
+that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} - \node{v}}.\]
 
 %----- Define mask and nmask
 
-\begin{definition}
-\label{mask}
+\begin{definition}\label{mask}
   We define the functions $\mask$ and $\nmask$ that set the values
   associated with particular nodes in a tree to $v\in\FIELD$.  Specifically,
   if $\mc{L} \subset \SDOM$, then
@@ -1543,8 +1526,7 @@ that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} 
 
 We now finish with a definition of a function, $\devi{}{}$, that gives us a
 measure of the degree of divergence between two trees.
-\begin{definition}
-\label{defdeviation}
+\begin{definition}\label{defdeviation}
   The degree of deviation between two trees, \tnode{u} and \tnode{v} is given  by the expression
   \begin{equation}
     \devi{\node{u}}{\node{v}} = \begin{cases}
@@ -1559,7 +1541,7 @@ measure of the degree of divergence between two trees.
 \end{definition}
 %%%\end{document}
 
-\typeout{Chapter 3: Epilogue to the paper}
+\typeout{Chapter~3: Epilogue to the paper}
 \section{Epilogue to the paper}
 
 The model described in this paper has been used as a template for the

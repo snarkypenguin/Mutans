@@ -1,18 +1,62 @@
 \typeout{******* in manifest.tex}
+%% \newcommand{\blockcomment}[1]{}
+%% \newcommand{\UseFirstVersion}[2]{#1}
+%% \newcommand{\UseSecondVersion}[2]{#2}
+%% \newcommand{\UseNeitherVersion}[2]{}
 
 
-%\DeclareMathAlphabet{\mathoss}{OT1}{cmss}{m}{sl}
-%\DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
-%\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
 
+\typeout{bungie jumping}
+\iftoggle{usesMnSymbol}{
+   \typeout{using MnSymbol}
+   \newcommand{\BBN}[0]{\mathbb{N}}
+   \newcommand{\BBNO}[0]{\mathbb{N}^0}
+   \newcommand{\BBNI}[0]{\mathbb{N}^+}
+   \newcommand{\mB}[1]{\mathbb{#1}}
+   \newcommand{\dotcup}{\ensuremath{\mathaccent\cdot\cup}}
+}{
+   \typeout{Hack the barstud}
+   \DeclareMathAlphabet{\mathoss}{OT1}{cmss}{m}{sl}
+   \DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
+   \typeout{declaring BBN BBNO BBNI mB ranglebar langlebar dotcup}
+   \newcommand{\BBN}[0]{\mathbb{N}}
+   \newcommand{\BBNO}[0]{\mathbb{N}^0}
+   \newcommand{\BBNI}[0]{\mathbb{N}^+}
+   \newcommand{\mB}[1]{\mathbb{#1}}
+   \newcommand{\ranglebar}{\lvert\rangle}
+   \newcommand{\langlebar}{\langle\rvert}
+   \newcommand{\dotcup}{\ensuremath{\mathaccent\cdot\cup}}
+}
+
+\newcommand{\mt}[1]{\mathtt{#1}}
+\newcommand{\ms}[1]{\mathsf{#1}}
+\newcommand{\mb}[1]{\boldsymbol{#1}}  %% from amsbsy
+\newcommand{\mf}[1]{\mathfrak{#1}}
+\newcommand{\mc}[1]{\mathpzc{#1}}
+
+%%\newcommand{\mb}[1]{\mathbf{#1}}
+%\newcommand{\mo}[1]{\mathocm{#1}} 
+
+
+%\setmathfont{MnSymbol}
+%\setmathfont[range={\llangle,\rrangle}]{XITS Math}
+
+\typeout{set ops}
 %\newcommand{\msdec}[1]{\ddot{#1}}
 %\newcommand{\msdec}[1]{\dot{#1}}
 \newcommand{\set}[1] {\mb{#1}}
+%\newcommand{\msdec}[1]{\bar{#1}}
 \newcommand{\msdec}[1]{\bar{#1}}
-\newcommand{\multiset}[1]{\mb{\msdec{#1}}}
-%\newcommand{\multiset}[1] {\mc{{#1}}}
-%\newcommand{\multiset}[1]{\contour{gray}{\protect\mb{#1}}}
-%\newcommand{\multiset}[1]{\mb{\contour{gray}{\protect{#1}}}}
+\newcommand{\mset}[1]{\mb{\msdec{#1}}}
+\newcommand{\multiset}[1]{\mset{#1}}
+\newcommand{\TN}[1]{\Phi(\overline{\mset{#1}})}
+
+%% \newcommand{\zz}[3]{\mathrel{\substack{\text{{\Large S}}\\{#1}\in{#2}}{#3}}}
+%% \newcommand{\szz}[3]{\mathrel{\substack{\text{{\Large S}}^\Sigma\\{#1}\in{#2}}{#3}}}
+%% \newcommand{\Zz}[3]{\mathrel{\substack{\text{{\huge S}}\\{#1}\in{#2}}{#3}}}
+%% \newcommand{\sZz}[3]{\mathrel{\substack{\text{{\huge S}}^\Sigma\\{#1}\in{#2}}{#3}}}
+%% \newcommand{\ZZ}[3]{\mathrel{\substack{\text{{\Huge S}}\\{#1}\in{#2}}{#3}}}
+%% \newcommand{\sZZ}[3]{\mathrel{\substack{\text{{\Huge S}}^\Sigma\\{#1}\in{#2}}{#3}}}
 
 %% From tex.stackexchange:
 %% Macro \vv breaks in a \typeout message, because \vv is not robust. \protect helps:
@@ -26,12 +70,12 @@
 %%   \contour{red}{$\protect\vv{aa}$}
 %% \end{document}
 
-\newcommand{\BBN}[0]{\mathbb{N}}
-\newcommand{\BBNO}[0]{\mathbb{N}^0}
-\newcommand{\BBNI}[0]{\mathbb{N}^+}
+\newcommand{\Cite}[1]{\cite{#1}}
 
-
+\DeclareMathOperator{\m}{m}
 \DeclareMathOperator{\agg}{agg}
+\DeclareMathOperator{\term}{term}
+\DeclareMathOperator{\coeff}{coeff}
 \DeclareMathOperator{\scalar}{scalar}
 \DeclareMathOperator{\nonscalar}{nonscalar}
 \DeclareMathOperator{\opt}{opt}
@@ -51,14 +95,33 @@
 \DeclareMathOperator{\excise}{excise}
 %\DeclareMathOperator{\devi}{dev}
 
-\DeclareMathOperator{\mie}{\ensuremath{\text{i.e.}}}
-\DeclareMathOperator{\meg}{\ensuremath{\text{e.g.}}}
-\DeclareMathOperator{\mst}{\ensuremath{\text{s.t.}}}
-\DeclareMathOperator{\mand}{\ensuremath{\text{and}}}
-\DeclareMathOperator{\mbut}{\ensuremath{\text{but}}}
-\DeclareMathOperator{\mor}{\ensuremath{\text{or}}}
-\DeclareMathOperator{\mnot}{\ensuremath{\text{ not }}}
-\DeclareMathOperator{\otherwise}{\ensuremath{\text{otherwise}}}
+%\def\capcross{\mathrel{\mathchoice{\CAPCROSS}{\CAPCROSS}{\scriptsize\CAPCROSS}{\tiny\CAPCROSS}}}
+%\def\CAPCROSS{{\setbox0\hbox{\cap}\rlap{\hbox to \wd0{\centerdot}}\box0}}
+
+%% there are three overlap things: \llap \clap and \rlap
+
+\def\SIM{{\setbox0\hbox{\cap}\rlap{\hbox\wd0{\sim}}\box0}}
+
+\def\SDC{{\setbox0\hbox{\setminus}\rlap{\hbox\wd0{\approx}}\box0}}
+\def\NTC{{\setbox0\hbox{\cap}\rlap{\hbox\wd0{\approx}}\box0}}
+
+
+
+%%\newcommand\scaleobj[2]{\hstretch{#1}{\vstretch{#1}{#2}}}
+%%\newcommand\Alpha{\scaleobj{1.5}{\alpha}}
+
+
+\newcommand{\UpnotVp}[2]{\set{#1}\bbslash\set{#2}}
+\newcommand{\UpandVp}[2]{\set{#1}\doublecap\set{#2}}
+
+\DeclareMathOperator{\mie}{\ensuremath{\text{~i.e.~}}}
+\DeclareMathOperator{\meg}{\ensuremath{\text{~e.g.~}}}
+\DeclareMathOperator{\mst}{\ensuremath{\text{~s.t.~}}}
+\DeclareMathOperator{\mand}{\ensuremath{\text{~and~}}}
+\DeclareMathOperator{\mbut}{\ensuremath{\text{~but~}}}
+\DeclareMathOperator{\mor}{\ensuremath{\text{~or~}}}
+\DeclareMathOperator{\mnot}{\ensuremath{\text{~not~}}}
+\DeclareMathOperator{\otherwise}{\ensuremath{\text{~otherwise~}}}
 \DeclareMathOperator{\md}{d\!}
 
 \DeclareMathOperator{\oop}{OutOp2}
@@ -78,6 +141,7 @@
 \DeclareMathOperator{\linvf}{inv}
 \DeclareMathOperator{\lscalarf}{scalar}
 
+\newtheorem{notation}{Notation}[]
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[section]
 \newtheorem{proposition}{Proposition}[section]
@@ -85,6 +149,7 @@
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{remark}{Remark}[section]
 \newtheorem{example}{Example}[section]
+\newtheorem{prototype}{Prototype}[section]
 
 \newcommand{\draw}[1]{\drawf(#1)}
 \newcommand{\lfwd}[1]{\lfwdf(#1)}
@@ -101,8 +166,8 @@
 
 %{\mbox{\mathsurround=0pt \makebox[0pt][l]{\(\cap\)}\(\centerdot\)})
 
-%\def\capcross{\mathrel{\mathchoice{\CAPCROSS}{\CAPCROSS}{\scriptsize\CAPCROSS}{\tiny\CAPCROSS}}}
-%\def\CAPCROSS{{\setbox0\hbox{\cap}\rlap{\hbox to \wd0{\centerdot}}\box0}}
+\newcommand{\Sim}[2]{{#1}\SIM{#2}}
+\newcommand{\NSim}[2]{\overline{\Sim{#1}{#2}}}
 
 %\newcommand{\marginnote}[1]{\marginpar{\scriptsize{#1}}}
 %\newcommand{\marginnote}[1]{\marginpar{\footnotesize{#1}}}
@@ -114,14 +179,18 @@
 %\def\MSCUP{{\setbox0\hbox{\cup}\rlap{\hbox to \wd0{\dagger}}\box0}}
 %\def\mscup{\mathrel{\mathchoice{\MSCUP}{\MSCUP}{\scriptsize\MSCUP}{\tiny\CUPPLUS}}}
 
+\iftoggle{usesMnSymbol}{
+\newcommand{\msetminus}{\bbslash}
+\newcommand{\mscup}{\uplus}
+}{
 \newcommand{\msetminus}{\bbslash}
 \newcommand{\mscup}{\uplus}
 \newcommand{\cupdot}{\udot}
 \newcommand{\cupplus}{\uplus}
 \newcommand{\bigcupplus}{\biguplus}
+}
 
 \newcommand{\eqc}[1]{\left[#1\right]}
-
 \newcommand{\TT}[1]{\texttt{{#1}}}
 \newcommand{\TTC}[1]{\texttt{{<#1>}}}
 
@@ -133,13 +202,6 @@
 % Some useful definitions...
 
 \newcommand{\I}{\mathsf{I}}
-
-\newcommand{\blockcomment}[1]{}
-
-\newcommand{\UseFirstVersion}[2]{#1}
-\newcommand{\UseSecondVersion}[2]{#2}
-\newcommand{\UseNeitherVersion}[2]{}
-
 \newcommand{\FillThisIn}[1]{{\textbf{\Large{#1}}}}
 \newcommand{\textbsf}[1]{\textbf{\textsf{#1}}}
 
@@ -180,8 +242,7 @@
 
 \newcommand{\bdot}{%
 \setbox0\hbox{\box}
-\rlap{\hbox{ to \wd0{\hss\cdot\hss}}}\box0
-}
+\rlap{\hbox{ to \wd0{\hss\cdot\hss}}}\box0}
 
 \newcommand{\bplus}{\boxplus}
 
@@ -190,16 +251,6 @@
 \newcommand{\tdot}{\cdot}
 \newcommand{\stplus}{\boxplus}
 \newcommand{\stdot}[0]{\boxdot}
-
-\newcommand{\mt}[1]{\mathtt{#1}}
-\newcommand{\ms}[1]{\mathsf{#1}}
-\newcommand{\mB}[1]{\mathbb{#1}}
-%%\newcommand{\mb}[1]{\mathbf{#1}}
-\newcommand{\mo}[1]{\mathocm{#1}} 
-\newcommand{\mb}[1]{\boldsymbol{#1}}  %% from amsbsy
-\newcommand{\mf}[1]{\mathfrak{#1}}
-\newcommand{\mc}[1]{\mathpzc{#1}}
-%\newcommand{\mc}[1]{\mathcal{#1}}
 
 \newcommand{\haschild}[2]{{#1}\rightarrow{#2}}
 \newcommand{\hasextn}[2]{{#1}\rightarrow{#2}}
@@ -254,15 +305,23 @@
 \newcommand{\zerotree}{\node{\mathsf{O}}}
 \newcommand{\tnulltree}{\(\nulltree\)}
 \newcommand{\nulltree}{\node{\mathsf{O}}}
-\newcommand{\nullspace}{\mf{O}}
+\iftoggle{frakok}{
+   \newcommand{\nullspace}{\mf{O}}
+}{
+   \DeclareMathAlphabet{\mathfrak}{OT1}{}{m}{sl}
+   \newcommand{\nullspace}{\underline{\overline{\mc{O}}}}
+}
+
 \newcommand{\nel}[2]{{\node{#1}}_{{}_{#2}}}
 \newcommand{\nv}[1]{\nel{#1}{v}}
 \newcommand{\extn}[1]{\nel{#1}{\set{E}}}
-\newcommand{\child}[1]{\nel{#1}{\msdec{\set{C}}}}
+%\newcommand{\child}[1]{\nel{#1}{\msdec{\set{C}}}}
+\newcommand{\child}[1]{\nel{#1}{\set{C}}}
 \newcommand{\nlabel}[1]{\nel{#1}{\mathsf{P}}}
+\newcommand{\nslabel}[2]{\nel{#1}{\mathsf{P}_{#2}}}
 \newcommand{\ninertia}[1]{\nel{#1}{r}}
 
-\newcommand{\Zerotree}{\Node{0}{\emptyset}}
+\newcommand{\Zerotree}{\NodeIII{0}{0}{\emptyset}}
 
 \newcommand{\cross}{\times}
 \newcommand{\crossproduct}{\otimes}
@@ -393,7 +452,8 @@
 \newcommand{\rnulltree}{\rnode{\mathsf{O}}}
 \newcommand{\rel}[2]{{\rnode{#1}}{{}_{_{#2}}}}
 \newcommand{\rextn}[1]{\rel{#1}{\set{E}}}
-\newcommand{\rchild}[1]{\rel{#1}{\msdec{\set{C}}}}
+%\newcommand{\rchild}[1]{\rel{#1}{\msdec{\set{C}}}}
+\newcommand{\rchild}[1]{\rel{#1}{\set{C}}}
 \newcommand{\rlabel}[1]{\rel{#1}{\mathsf{P}}}
 \newcommand{\rv}[1]{\rel{#1}{\nu}}
 \newcommand{\rinertia}[1]{\rel{#1}{r}}
@@ -450,8 +510,8 @@
 % Must be math mode!
 \newcommand{\half}[0]{\frac{1}{2}}
 
-\newcommand{\rrangle} {\rangle\hspace{-2.5pt}\rangle}
-\newcommand{\llangle} {\langle\hspace{-2.5pt}\langle}
+%?\newcommand{\rrangle} {\rangle\hspace{-2.5pt}\rangle}
+%?\newcommand{\llangle} {\langle\hspace{-2.5pt}\langle}
 
 \newcommand{\lHash}{\mbox{\ooalign{\(=\)\cr\hidewidth\(\|\)\hidewidth\cr}}}
 \newcommand{\rHash}{\mbox{\ooalign{\(=\)\cr\hidewidth\(\|\)\hidewidth\cr}}}
@@ -460,23 +520,32 @@
 
 %% %% subscript lower on the \vert and smaller, you see
 %\newcommand{\norm}[1]{\lVert{#1}\rVert}
+\newcommand{\nnorm}[1]{\llangle{#1}\rrangle}
+\newcommand{\prennorm}[1]{\langlebar{#1}\ranglebar}
 \newcommand{\norm}[1]{\langle{#1}\rangle}
 \newcommand{\card}[1]{\lVert{#1}\rVert}
 \newcommand{\abs}[1]{\lvert{#1}\rvert}
-
-%\newcommand{\nabs}[1]{\mb{\lvert}{#1}\mb{\rvert}} 
-%\newcommand{\nabs}[1]{\mb{\lvert}{#1}\mb{\rvert}_{{}_\Sigma}} 
-
-%\newcommand{\nabs}[1]{\lVert{#1}\rVert}
-%\newcommand{\nabs}[1]{\abs{#1}}
-\newcommand{\nabs}[1]{\norm{#1}}
-
-%\newcommand{\fmag}[1]{\lvert\lvert{#1}\rvert\rvert}
-%\newcommand{\fmag}[1]{\overset{\nabs{#1}}{
-%\newcommand{\fmag}[1]{\norm{#1}}
+\newcommand{\lpar}{\llparenthesis}
+\newcommand{\rpar}{\rrparenthesis}
+\newcommand{\nabs}[1]{\lpar{#1}\rpar}
+%\newcommand{\nabs}[1]{\norm{#1}}
+\newcommand{\magn}[1]{\nabs{#1}}
 \newcommand{\fmag}[1]{\nabs{#1}}
 \newcommand{\Tcard}[1]{\card{#1}_{\intercal}}
 \newcommand{\content}[1]{\llbracket{#1}\rrbracket}
+
+%\newcommand{\nabs}[1]{\mb{\lvert}{#1}\mb{\rvert}} 
+%\newcommand{\nabs}[1]{\mb{\lvert}{#1}\mb{\rvert}_{{}_\Sigma}} 
+%\newcommand{\nabs}[1]{\lVert{#1}\rVert}
+%\newcommand{\nabs}[1]{\abs{#1}}
+%\newcommand{\fmag}[1]{\lvert\lvert{#1}\rvert\rvert}
+%\newcommand{\fmag}[1]{\overset{\nabs{#1}}{
+%\newcommand{\fmag}[1]{\norm{#1}}
+
+\newcommand{\NodeR}[2]{\left({#1},{#2}\right)}
+\newcommand{\NNodeR}[2]{\bigl({#1},{#2}\bigr)}
+\newcommand{\NNNodeR}[2]{\Bigl({#1},{#2}\Bigr)}
+\newcommand{\NNNNodeR}[2]{\BIGL({#1},{#2}\BIGR)}
 
 \newcommand{\Node}[3]{\left({#1},{#2}, {#3}\right)}
 \newcommand{\NNode}[3]{\bigl({#1},{#2}, {#3}\bigr)}
@@ -488,11 +557,6 @@
 \newcommand{\SNNNode}[1]{\NNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
 \newcommand{\SNNNNode}[1]{\NNNNNode{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
 
-\newcommand{\NodeR}[2]{\left({#1},{#2}\right)}
-\newcommand{\NNodeR}[2]{\bigl({#1},{#2}\bigr)}
-\newcommand{\NNNodeR}[2]{\Bigl({#1},{#2}\Bigr)}
-\newcommand{\NNNNodeR}[2]{\BIGL({#1},{#2}\BIGR)}
-
 %\newcommand{\SNode}[3]{({#1}, {#2}, {#3})}
 %\newcommand{\SNNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
 %\newcommand{\SNNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
@@ -501,6 +565,44 @@
 %\newcommand{\NNode}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
 %\newcommand{\NNNode}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
 %\newcommand{\NNNNode}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+\newcommand{\NodeIII}[3]{\left({#1},{#2}, {#3}\right)}
+\newcommand{\NNodeIII}[3]{\bigl({#1},{#2}, {#3}\bigr)}
+\newcommand{\NNNodeIII}[3]{\Bigl({#1},{#2}, {#3}\Bigr)}
+\newcommand{\NNNNodeIII}[3]{\BIGL({#1},{#2}, {#3}\BIGR)}
+
+\newcommand{\SNodeIII}[1]{\NodeIII{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNodeIII}[1]{\NNodeIII{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNodeIII}[1]{\NNNodeIII{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+\newcommand{\SNNNNodeIII}[1]{\NNNNNodeIII{\rv{#1}}{\rlabel{#1}}{\rchild{#1}}}
+
+%\newcommand{\SNodeIII}[3]{({#1}, {#2}, {#3})}
+%\newcommand{\SNNodeIII}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\SNNNodeIII}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\SNNNNodeIII}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+%\newcommand{\NNodeIII}[3]{\bigl({#1}, {#2}, {#3}\bigr))}
+%\newcommand{\NNNodeIII}[3]{\Bigl({#1}, {#2}, {#3}\Bigr))}
+%\newcommand{\NNNNodeIII}[3]{\BIGL({#1}, {#2}, {#3}\BIGR))}
+
+\newcommand{\NodeII}[2]{\left({#1},{#2}\right)}
+\newcommand{\NNodeII}[2]{\bigl({#1},{#2}\bigr)}
+\newcommand{\NNNodeII}[2]{\Bigl({#1},{#2}\Bigr)}
+\newcommand{\NNNNodeII}[2]{\BIGL({#1},{#2}\BIGR)}
+
+\newcommand{\SNodeII}[1]{\NodeII{\rv{#1}}{\rchild{#1}}}
+\newcommand{\SNNodeII}[1]{\NNodeII{\rv{#1}}{\rchild{#1}}}
+\newcommand{\SNNNodeII}[1]{\NNNodeII{\rv{#1}}{\rchild{#1}}}
+\newcommand{\SNNNNodeII}[1]{\NNNNNodeII{\rv{#1}}{\rchild{#1}}}
+
+%\newcommand{\SNodeII}[2]{({#1}, {#2})}
+%\newcommand{\SNNodeII}[2]{\bigl({#1}, {#2}\bigr))}
+%\newcommand{\SNNNodeII}[2]{\Bigl({#1}, {#2}\Bigr))}
+%\newcommand{\SNNNNodeII}[2]{\BIGL({#1}, {#2}\BIGR))}
+
+%\newcommand{\NNodeII}[2]{\bigl({#1}, {#2}\bigr))}
+%\newcommand{\NNNodeII}[2]{\Bigl({#1}, {#2}\Bigr))}
+%\newcommand{\NNNNodeII}[2]{\BIGL({#1}, {#2}\BIGR))}
 
 
 %\newcommand{\Tcard}[1]{\norm{#1}}
@@ -587,7 +689,7 @@
 \newcommand{\N}[1]{N_{\mt{#1}}}
 \newcommand{\R}[1]{\rho_{\mt{#1}}}
 \newcommand{\F}[1]{f_{\mt{#1}}}
-\newcommand{\G}[1]{\Gamma_{\mt{#1}}}
+\newcommand{\Gm}[1]{\Gamma_{\mt{#1}}}
 \newcommand{\E}[1]{E_{\mt{#1}}}
 \newcommand{\K}[1]{K_{\mt{#1}}}
 \newcommand{\mort}[1]{\Omega_{\mt{#1}}}
@@ -602,13 +704,6 @@
 \newenvironment{indented}{\begin{adjustwidth}{24pt}{}}{\end{adjustwidth}}
 
 %-- Commands for fonts
-
-\DeclareRobustCommand\chancery{% \fontfamily{pzc}% \fontencoding{T1}%
-\selectfont}\newcommand\textpzc[1]{\begingroup \fontfamily{pzc}%
-\fontencoding{T1}}% \selectfont #1\endgroup}
-
-\def\calli#1{{\calligra #1}}\def\chanc#1{{\chancery #1}}
-
 
 %-- Newcommands
 
@@ -673,8 +768,8 @@
 %\{#3\}\vert\!)}} \newcommand{\etree}[3]{\ensuremath{(\mc{#1}, #2,
 %\{#3\})}}
 
-%\newcommand{\sxtree}[1]{\chanc{root}, #1, }
-%\newcommand{\nxtree}[2]{\chanc{#1}, #2, }
+%\newcommand{\sxtree}[1]{\mathpzc{root}, #1, }
+%\newcommand{\nxtree}[2]{\mathpzc{#1}, #2, }
 
 %%\newcommand{\tree}[0]{\textsf{tree}}
 %%\newcommand{\trees}[0]{\textsf{trees}}
@@ -700,7 +795,12 @@
 \newcommand{\polytype}[0]{\polystruct\ of \polyrat\ \polyform}
 \newcommand{\polytypes}[0]{\polystruct\ of \polyrat\ \polyforms}
 
-%\newcommand{\polystruct}{rng\ }
+
+
+%\newcommand{\UpnotVp}[2]{{\set{#1}{\lnot\set{#2}}}}
+%\newcommand{\UpandVp}[2]{{\set{#1}{\wedge\set{#2}}}}
+
+%\newcommand{\polystruct}{ring\ }
 %\newcommand{\polyrat}{\ }
 %\newcommand{\polytype}{commutative rng of\ }
 \typeout{manifest.tex finished ******* }
