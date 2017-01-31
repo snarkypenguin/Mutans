@@ -3,50 +3,47 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: thesis.aux
 The style file: plainnat.bst
 Database file #1: thesis.bib
-Warning--I didn't find a database entry for "bhatanacharoentipping"
-Warning--I didn't find a database entry for "beady2000fatal"
-Warning--I didn't find a database entry for "Dobbin1952food"
-Warning--I didn't find a database entry for "kiczales1993xerox"
-Warning--I didn't find a database entry for "scheffer1995super"
-You've used 51 entries,
+Warning--empty year in bhatanacharoentipping
+Warning--empty institution in kiczales1993xerox
+You've used 56 entries,
             2773 wiz_defined-function locations,
-            932 strings with 15339 characters,
-and the built_in function-call counts, 28413 in all, are:
-= -- 2482
-> -- 2099
-< -- 30
-+ -- 713
-- -- 655
-* -- 2548
-:= -- 4486
-add.period$ -- 181
-call.type$ -- 51
-change.case$ -- 367
-chr.to.int$ -- 44
-cite$ -- 102
-duplicate$ -- 1082
-empty$ -- 1961
-format.name$ -- 725
-if$ -- 5834
-int.to.chr$ -- 8
+            955 strings with 16072 characters,
+and the built_in function-call counts, 30640 in all, are:
+= -- 2689
+> -- 2237
+< -- 33
++ -- 761
+- -- 697
+* -- 2737
+:= -- 4848
+add.period$ -- 197
+call.type$ -- 56
+change.case$ -- 396
+chr.to.int$ -- 48
+cite$ -- 114
+duplicate$ -- 1175
+empty$ -- 2125
+format.name$ -- 773
+if$ -- 6263
+int.to.chr$ -- 9
 int.to.str$ -- 1
-missing$ -- 48
-newline$ -- 286
-num.names$ -- 205
-pop$ -- 670
+missing$ -- 51
+newline$ -- 312
+num.names$ -- 229
+pop$ -- 726
 preamble$ -- 1
-purify$ -- 319
+purify$ -- 342
 quote$ -- 0
-skip$ -- 886
+skip$ -- 953
 stack$ -- 0
-substring$ -- 1023
-swap$ -- 121
+substring$ -- 1103
+swap$ -- 128
 text.length$ -- 10
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 531
-warning$ -- 0
-while$ -- 221
+type$ -- 586
+warning$ -- 2
+while$ -- 252
 width$ -- 0
-write$ -- 723
-(There were 5 warnings)
+write$ -- 786
+(There were 2 warnings)

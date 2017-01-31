@@ -99,7 +99,7 @@ The first step in being able to quantitatively compare configurations
 of models is to construct a means for encoding the state in some
 metric space.  The trees described briefly in Chapter
 \ref{adaptiveselection} and more comprehensively in Chapter
-\ref{treerings} are elements of a metric space, and since their set of
+\ref{treering} are elements of a metric space, and since their set of
 indeterminate variables is quite arbitrary, we can identify cells and
 groups of cells explicitly with indeterminates, and we can also extend
 this to the classes which may be used within a run.  So, building our
@@ -561,7 +561,7 @@ agent's time steps. While there is an
 \texttt{agent-initialisation-method}, there is no \texttt{object-body}
 since objects are not able to be run by the kernel.
 
-\section{Interactions}\ref{interactions}
+\section{Interactions}\label{interactions}
 
 The time taken to simulate interactions between individuals in an
 individual-based model is often a significant proportion of the total
@@ -606,7 +606,7 @@ Unfinished business
 
 The model periodically generates a ``map'' of the current
 configuration as an element in the space of the tree-ring elements of
-Chapter~\ref{treerings}.  We use this mapping to calculate the
+Chapter~\ref{treering}.  We use this mapping to calculate the
 closest candidate configuration from a set of configurations we
 believe (or know) to represent the system well in a given part of its
 state space. Because the trees are elements of a ring, we can, in some cases,
