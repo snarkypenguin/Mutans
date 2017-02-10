@@ -1,5 +1,5 @@
 % -*- outline-regexp: "%--* ";  -*-
-\chapter[A RING OF TREES]{A non-unital ring of trees}\label{treering}
+\chapter[A RING-LIKE STRUCTURE OF TREES]{A non-unital ring-like structure of trees}\label{treering}
 \section{Introduction}
 The project which triggered the development of the structure in this
 chapter considered using the modeling of the social dynamics
@@ -50,7 +50,7 @@ attitudes or semantic data which were taken from a nominated set.
 This had the advantages of simplicity and clarity, but their very
 simplicity made the multiplicative operator much more complicated. I
 realised that much of the machinery associated with labels was really
-just a messy version of arithmetic in commutative ring of
+just a messy version of arithmetic in commutative ring-like structure of
 multinomials. I believe that using the field of rational multinomials
 may be productive, but this notion has not been seriously explored.
 Once labels were identified with multinomials, everything became
@@ -73,7 +73,7 @@ field such as $\mB{Q, R}$ or $\mB{C}$, for example.
 
 \begin{definition}\label{def-of-dom}
   Given $\set{A}$ and $\PLY{A}$ and an arbitrary field, $\FIELD$, we
-  define the set, $\DOM$ of finite (acyclic) trees where each node is
+  define the set, $\DOMstar$ of finite (acyclic) trees where each node is
   of the form $(\nv{u}, \nlabel{u}, \child{u})$ where the value,
   $\nv{u}$, is a member of $\FIELD$, it's label, $\nlabel{u}$ is
   a member of $\PLY{A}$ and the set of children, $\child{u}$, contains
@@ -84,10 +84,17 @@ Nodes or trees with no children, \(\set{E} = \emptyset\), will be
 called \emph{simple nodes, simple trees}, or \emph{leaf nodes}, and
 simple nodes which also have scalar multinomials as their labels may
 be referred to as \emph{scalar nodes} or \emph{scalar trees}. The
-domain of trees, $\DOM$, is the collection of only those trees with a
+domain of trees, $\DOMstar$, is the collection of only those trees with a
 finite number of nodes.  form. We will make use of a special element
-in $\DOM$, $\zerotree = (0, 0, \emptyset)$, which is an an analogue of
+in $\DOMstar$, $\zerotree = (0, 0, \emptyset)$, which is an an analogue of
 zero that we will call the \emph{zerotree}.
+
+In this work, we will largely be concerned with a subset of
+$\DOMstar$, $\DOM$ which consists only of trees whose root nodes have
+a label equal to zero. This subdomain obviously includes \tzerotree,
+and will be closed under the arithmetic operations we define. The
+other
+
 
 %% \begin{definition}
 %% A node, $\node{u}$, is a representative of a recursive, acyclic
@@ -116,9 +123,21 @@ zero that we will call the \emph{zerotree}.
 Note that the choice to use elements of the \polytypes\ for labels is, in a
 sense, arbitrary: elements of any commutative ring will serve, though
 we will see that if we use a commutative ring, $\DOM$ and the derived
-domains are also commutative rings,; here, the \polytypes\ provide a
+domains are also commutative; here, the \polytypes\ provide a
 simple example which is easily manipulated and printed. 
 $\FIELD$ is taken to be $\mathbb{R}$ or $\mathbb{Q}$.
+
+\begin{definition}\label{compatibility}
+Two nodes or trees, $\node{u}$, $\node{v}$ are said to be
+\emph{compatible\/} if they have the same label, or at least one has
+a label equal to zero.
+\[
+  \node{u} \sim \node{v} \iff  
+  \node{u}\in\set{R}_{\nlabel{v}} \iff 
+  \node{v}\in\set{R}_{\nlabel{u}}.
+\]
+Clearly, all the trees in $\DOM$ are compatible.
+\end{definition}
 
 When there is no risk of ambiguity, we will use the same symbol to
 refer to a set, $\DOM$ for example, and a vector space based on that
@@ -131,25 +150,6 @@ constraint in the pairwise multiplication of trees.
 First, the definitions for some basic tools for manipulating these
 trees. Some of the functions defined below are not used in this chapter, but
 play a role in the explicit model described in Chapter \ref{explicitmodel}.
-
-\begin{definition}
-  We define the relation which partitions $\DOM$ into
-  \emph{compatible} sets of trees. Two nodes or trees, $\node{u}$, $\node{v}$
-  are said to be compatible if they have the same label or at least
-  one of them is $\zerotree$
-  \[
-  \sigma(\set{R}) = \{\set{R}_p: \forall \node{u} \in \set{R}, \nlabel{u} = p \iff \node{u} \in \set{R}_p\},
-  \]
-  which we may denote
-  \[
-  \node{u} \sim \node{v} \iff  
-  \node{u}\in\set{R}_{\nlabel{v}} \iff 
-  \node{v}\in\set{R}_{\nlabel{u}}.
-  \]
-  
-  Compatibility is analogous to compatibility in matrices, and nodes
-  may only be added if they are compatible.
-\end{definition}
 
 \begin{definition}
   The cardinality of a tree is the number of nodes it contains. We
@@ -166,7 +166,7 @@ cardinality of zero.
 \end{definition}
 
 \begin{definition}
-  For \(\node{u} \in \DOM\)\ we define the function
+  For \(\node{u} \in \DOMstar\)\ we define the function
   \marginnote{\Defn\ of \(\depth(\node{u})\)}
   \begin{align*}
     \depth(\node{u}) = \begin{cases}
@@ -179,7 +179,7 @@ cardinality of zero.
 \end{definition}
 
 \begin{definition}
-  We will also define for \(\node{u} \in \DOM\),
+  We will also define for \(\node{u} \in \DOMstar\),
   \marginnote{\Defn\ of \(\trim(\node{u})\)}
   \begin{align*}
       \trim(\node{u}) = \begin{cases}
@@ -191,9 +191,7 @@ cardinality of zero.
 \end{definition}
 
 Obviously the $\depth$ is an indication of how many levels of nodes
-the tree possesses.
-
-Trimming essentially removes all simple nodes from the tree.
+the tree possesses. Trimming essentially removes all simple nodes from the tree.
 \marginnote{\Defn\ of \(\trim_{k}(\node{u})\)} A recursive application
 of trimming will be denoted \(\trim_{k}\), indicating that the tree
 \tnode{u} will be trimmed \(k\)\ times. Note that
@@ -216,6 +214,54 @@ be said to \emph{completely overlap} if \(\Tcard{\node{u}} = \Tcard{\node{v}} =
 %= \frac{2 \overlap(\node{u},\node{v})}{\Tcard{\node{u}}+\Tcard{\node{v}}}.\] The relative overlap of  \tzerotree\ with itself is
 %not defined.
 \end{definition}
+
+\begin{definition}
+The \emph{shadow} cast by a tree, \tnode{v}, onto another tree,
+\tnode{u}, is given by
+\[
+\shadow(\node{u},\node{v}) = \begin{cases}
+  \left(\nv{u},\nlabel{u},\{\shadow(\node{r},\node{s}):\node{r}\in\child{u},\node{s}\in\child{v}\}\setminus\{\zerotree\}\right)&\text{if~}\nlabel{u}=\nlabel{v}\\
+  \zerotree&\text{otherwise}
+\end{cases}
+\]
+\end{definition}
+This lets us restrict our attention to those parts of a tree which
+conform to some ``template'' tree.  
+
+\begin{definition}\label{useful-set-functions}
+  We will define a few useful notations for sets derived from sets of
+  nodes in $\DOMstar$. Take \(\set{U}\) and \(\set{V}\) be such sets and
+  \tnode{a} be a node in $\DOMstar$; then 
+  \begin{align*}
+      \nlabels{U} &= \{\nlabel{e}: \forall \node{e} \in \set{U}\} \notag\\
+      & \notag\\
+      \srestrictedto{U}{V} &= \{\node{f} \in \set{U}: \nlabel{f} \in \nlabels{V} \} \notag\\
+      \nsrestrictedto{U}{V} &= \{ \node{f} \in \set{U}: \nlabel{f} \notin \nlabels{V} \} \label{restrictions}\notag\\
+      \intertext{and}
+      a \set{U} &= \{a \node{u}: \forall \node{u} \in \set{U}\} \notag
+  \end{align*}
+\end{definition}
+
+\begin{definition}\label{useful-node-functions}
+  For convenience, we define analogues of several of the above
+  relations for nodes to implicitly refer to the children of
+  those nodes.
+
+  Let \tnode{u} and \tnode{v} be arbitrary nodes in $\DOMstar$.  Then we
+  define the following
+  \begin{align*}
+      \nlabels{u} &\equiv \nlabels{\child{u}}\\
+      \restrictedto{u}{v} &\equiv \restrictedto{\child{u}}{\child{v}}\\
+      \nrestrictedto{u}{v} &\equiv \nrestrictedto{\child{u}}{\child{v}}
+      %% \node{r} \oplus \node{s} &= \child{r} \oplus \child{s}
+  \end{align*}
+\end{definition}
+
+
+
+Some of these functions are not used in this chapter, but are
+presented because they may come into play in constructing software
+components used to assess and trigger changes in model configuration. 
 
 %% \begin{definition}
 %%   \label{delta-function}
@@ -246,7 +292,7 @@ a vector space based on that set.
 
 \subsection{Scalar multiplication and some convenience functions}
 \begin{definition}
-  For all \(a \in \PLY{A}\)\ and \(\node{u} \in \DOM\), we
+  For all \(a \in \PLY{A}\)\ and \(\node{u} \in \DOMstar\), we
   define\marginnote{\(a \node{u}\)}
   \begin{align*}
       a \node{u} = \begin{cases}
@@ -259,45 +305,14 @@ a vector space based on that set.
   multiplication of trees by elements of $\FIELD$.
 \end{definition}
 
-\begin{definition}\label{useful-set-functions}
-  We will define a few useful notation or relations on sets of nodes
-  in $\DOM$. Take \(\set{U}\) and \(\set{V}\) be such sets and
-  \tnode{a} be a node in $\DOM$; then 
-  \begin{align*}
-      \nlabels{U} &= \{\nlabel{e}: \forall \node{e} \in \set{U}\} \notag\\
-      & \notag\\
-      \srestrictedto{U}{V} &= \{\node{f} \in \set{U}: \nlabel{f} \in \nlabels{V} \} \notag\\
-      \nsrestrictedto{U}{V} &= \{ \node{f} \in \set{U}: \nlabel{f} \notin \nlabels{V} \} \label{restrictions}\notag\\
-      \intertext{and}
-      a \set{U} &= \{a \node{u}: \forall \node{u} \in \set{U}\} \notag
-  \end{align*}
-\end{definition}
-
-
-\begin{definition}\label{useful-node-functions}
-  For convenience, we define analogues of several of the above
-  relations for nodes to implicitly refer to the children of
-  those nodes.
-
-  Let \tnode{u} and \tnode{v} be arbitrary nodes in $\DOM$.  Then we
-  define the following
-  \begin{align*}
-      \nlabels{u} &\equiv \nlabels{\child{u}}\\
-      \restrictedto{u}{v} &\equiv \restrictedto{\child{u}}{\child{v}}\\
-      \nrestrictedto{u}{v} &\equiv \nrestrictedto{\child{u}}{\child{v}}
-      %% \node{r} \oplus \node{s} &= \child{r} \oplus \child{s}
-  \end{align*}
-\end{definition}
-
 \subsection{Addition}
 Now we define the addition of two trees,
-\begin{definition}
-  \label{treeaddition}
-  For compatible nodes \tnode{u} and \(\node{v} \in \DOM\),\marginnote{\(\node{u}+\node{v}\)} 
-  \begin{align*}
+\begin{definition}\label{treeaddition}
+  For compatible nodes \tnode{u} and \(\node{v} \in \DOMstar\),\marginnote{\(\node{u}+\node{v}\)} 
+  \begin{align}
       \node{u} + \node{v} = \begin{cases}
-        \node{u} &\text{ if } \node{v} = \zerotree \\
-        \node{v} &\text{ if } \node{u} = \zerotree \\
+        \node{u} &\text{ if } \node{v} = \zerotree\notag\\
+        \node{v} &\text{ if } \node{u} = \zerotree\notag\\
 %%%???        \zerotree &\text{ if } \child{u} = \emptyset \mand \child{v} = \emptyset \mand \nv{u} + \nv{v} = 0 \\
 %%%%%%        \Node{\nv{u} + \nv{v}}{\nlabel{u}}{\emptyset} & \text{ if } \child{u} = \emptyset \mand \child{v} = \emptyset \\
         %% &\NNNode{\nv{u} + \nv{v}}{\nlabel{u}}{\bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \node{s} \in \child{v}\mand\nlabel{r} = \nlabel{s}\} \\
@@ -306,73 +321,37 @@ Now we define the addition of two trees,
         \bigl(\nrestrictedto{u}{v}\cup\nrestrictedto{v}{u} & {} \\
         \quad\cup\{\node{r}+\node{s}:\node{r}\in\restrictedto{u}{v}\mand\node{s}\in\restrictedto{v}{u}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}\Bigr) & \text{ otherwise}
       \end{cases}
-  \end{align*}
+  \end{align}
 \end{definition}
 
-{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  \blockcomment{
-    Here we extend the notion to the addition of the elements of two sets
-
-    \begin{definition}
-      For sets \(\set{B}, \set{C}\) with elements from $\DOM$, we define
-      the set 
-      \[
-      \set{B}\capplus\set{C} = \{\node{r} + \node{s}: \node{r} \in \set{B}, \node{s} \in \set{C}
-      \mand \nlabel{r} = \nlabel{s}.\}
-      \]
-    \end{definition}
-
-    With these definitions, we can express the value of the sum of two
-    non-null trees, \tnode{u} and \tnode{v}, as 
-    \[
-    \node{u} + \node{v} = \Bigl(\nv{u} + \nv{v}, \nlabel{u}, 
-    \bigl(\nrestrictedto{u}{v} \cup \nrestrictedto{v}{u} \cup (\child{u} \capplus \child{v})\bigr)\setminus \{\zerotree\}\Bigr),
-    \]
-    and we note that the children of the sum is the disjoint union of the sets
-    \(\nrestrictedto{u}{v}, \nrestrictedto{v}{u}\), and \((\child{u} \capplus \child{v})\).
-  }
-}%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Here we extend the notion to the addition of the elements of two
-sets. This allows us to be a little more concise in dealing with the
-children.
-
 \begin{definition}[Notation]
-  We define a mapping which takes two sets, each comprised of nodes in
-  $\DOM$, to another set of nodes.The resulting set contains the nodes
-  of the each of the operands which are incompatible with all the
-  nodes in the other and the set obtained by applying addition to
-  compatible pairs from the first and second set. This notation is
-  used to express the restriction of addition to compatible nodes in
-  the children of the root nodes.  Let
+  As a more concise representation of the addition of two sets, such
+  as the sets of children in Eq. \ref{pluskinder}, by
   \begin{align*}
       \set{B}\stplus\set{C} = \childO{B}{C}{r}{s}{+}.
   \end{align*}
-  Notice that $\stplus$ must commute by the symmetry of its construction and the
-  commutativity of tree addition. Moreover, it must also be associative, since both tree 
-  addition and set intersection are associative.
 \end{definition}
+\
+
 
 \section{Properties of a vector space}
 In this section we prove that the defined elements and operations give
 us a vector space.  
 
-\begin{proposition}\label{vspace} $\DOM$, with scalar multiplication and addition is a vector space.
+\begin{proposition}\label{vspace} $\DOM$, with scalar multiplication
+  and tree addition is a vector space.
   \begin{proof}
-    We will assume that  \(\node{p}, \node{q}, \node{u},\node{v},\node{w} \in \DOM\)\ and \(a, b \in  \FIELD\), and that
-    addition $\node{u} \sim \node{v} \sim \node{w}$ (they are all compatible).
+    We will assume that  \(\node{p}, \node{q}, \node{u},\node{v},\node{w} \in \DOM\)\ and \(a, b \in  \FIELD\).
 
     %%%%%% Delete the vspace if you remove margin notes
-    \vspace{28pt}
+    %%\vspace{28pt}
     \begin{description} 
-    \item[Additive identity element]
-      \imarginnote{\(\zerotree+\node{u}=\node{u}\)}
+    \item[Additive identity element]\label{additiveidentity}
 
       This is explicit in the definition of addition between elements
       of $\DOM$.
 
     \item[Inverse elements with respect to addition]
-      \imarginnote{\(\node{u} - \node{u} = \zerotree\)}
 
       The element \(\zerotree\) is its own inverse, since \(\zerotree
       + \zerotree = \zerotree\) by definition.
@@ -398,7 +377,7 @@ us a vector space.
       since the simple leaf nodes are all added to their own additive
       inverse.
 
-      Having established this, we can generalise to trees with a depth
+      So, we can generalise to trees with a depth
       greater than two. Assuming that the proposition holds for
       elements of $\DOM$ with depth \(n\), we consider an element, \tnode{u},
       where \(\depth(\node{u}) = n+1\) added to the element
@@ -416,11 +395,9 @@ us a vector space.
       for each \(\node{v}\in\child{u}\) and, by induction, our inverse
       holds for all members of $\DOM$.
 
+    \item[Multiplicative identity element]\label{multiplicativeidentity}
 
-    \item[Multiplicative identity element]
-      \imarginnote{\(1 \node{u} = \node{u}\)}
-
-      First observe that \(1\/\zerotree\)\ is by definition \tzerotree.
+      First observe that \(1\/\zerotree = (1\cdot0,0,\emptyset) = \zerotree\).
 
       Now consider an arbitrary  non-null tree in $\DOM$, \tnode{u};
       \tnode{u} is either simple, or it has child nodes. In the
@@ -466,9 +443,7 @@ us a vector space.
       identity for scalar multiplication of nodes of arbitrary (finite) depth.
 
 
-
-    \item[Commutativity]
-      \imarginnote{\(\node{u} + \node{v} = \node{v} + \node{u}\)}
+    \item[Commutativity]\label{additivecommutativity}
 
       Let us consider compatible nodes \tnode{u} and \tnode{v}.
 
@@ -514,18 +489,17 @@ us a vector space.
       commutative, the order of \(\nrestrictedto{u}{v}\) and \(\nrestrictedto{v}{u}\) doesn't affect the result, thus, addition must be commutative
       for all \(\node{u} \text{ where } \depth({\node{u}}) \leq n+1\).  By induction, this must be true for all \(n \geq 0\).
 
-    \item[Associativity]
-      \imarginnote{\((\node{u}+\node{v})+\node{w} = \node{u}+(\node{v}+\node{w})\)}
+    \item[Associativity]\label{additiveassociativity}
 
       Let us consider compatible nodes \(\node{u}, \node{v}\) and
       \(\node{w}\) in $\DOM$. 
 
-      First consider the situation where the depths of \(\node{u}, \node{v}\) and
-      \(\node{w}\) are all less than or equal to one. If they all have
-      a depth of zero, the sum is almost trivially the null
-      tree. Similarly, if only one is the null tree, it rapidly
-      degenerates to simple addition. So we take \tnode{u}, \tnode{v},
-      and \tnode{w} to be simple. Then
+      First consider the situation where the depths of \(\node{u},
+      \node{v}\) and \(\node{w}\) are all less than or equal to
+      one. If they all have a depth of zero, the sum is trivially the
+      null tree. Similarly, if any have depths of one or less is the
+      zero tree, we also get a trivial result. So we take all of
+      \tnode{u}, \tnode{v}, and \tnode{w} to be simple. Then
       \begin{align*}
           (\node{u}+\node{v})+\node{w} &= ((\nv{u}, \nlabel{u}, \emptyset) + (\nv{v}, \nlabel{u}, \emptyset)) + (\nv{w}, \nlabel{u}, \emptyset) \\
           &= (\nv{u} + \nv{v}, \nlabel{u}, \emptyset) + (\nv{w}, \nlabel{u}, \emptyset) \\
@@ -562,7 +536,8 @@ us a vector space.
           \intertext{we get}
           (\node{u}+\node{v})+\node{w} &=\NNNode{(\nv{u} + \nv{v}) + \nv{w}}{\nlabel{u}}{\bigl(\nsrestrictedto{B}{w}\cup\nrestrictedto{w}{B} \cup \set{B}\stplus\child{w}\bigr)\setminus\{\zerotree\}} \\
           &=\NNNode{\nv{u} + (\nv{v} + \nv{w})}{\nlabel{u}}{\bigl(\nsrestrictedto{B}{w}\cup\nrestrictedto{w}{B}\cup \set{B}\stplus\child{w}\bigr)\setminus\{\zerotree\}} \\
-          \intertext{since addition in $\DOM$ is associative}
+          \intertext{since addition in $\DOM$ is associative for nodes
+          with a depth of $n$ or less}
       \end{align*}
 
       Notice that the elements of all the sets which comprise the children, those in \(\set{B}\) and in \tchild{w},
@@ -573,8 +548,7 @@ us a vector space.
       \end{align*}
 
 
-    \item[Compatibility of scalar multiplication and multiplication in $\FIELD$]
-      \imarginnote{\(a(b \node{u}) = (a b) \node{u}\)}
+    \item[Compatibility of scalar multiplication and multiplication in $\FIELD$]\label{additivecompatibility}
 
       Observe first that \(a \zerotree = \zerotree, \forall a \in
       \FIELD\). We also dispose with the case of simple nodes:
@@ -600,8 +574,7 @@ us a vector space.
       Thus the scalar and field multiplication operators are compatible.
 
       
-    \item[Distribution of scalar multiplication with respect to vector addition]
-      \imarginnote{\(a(\node{u}+\node{v}) = a \node{u}+a \node{v}\)}
+    \item[Distribution of scalar multiplication with respect to vector addition]\label{additivedistributivity}
 
       Let us consider compatible trees, \tnode{u}\ and \tnode{v}.
       
@@ -652,8 +625,7 @@ us a vector space.
       vector addition, to any value we wish.
 
     \item[Distribution of scalar multiplication with respect to
-      addition in $\FIELD$ ]
-      \imarginnote{\(a+b)\node{u}) = a \node{u}+b \node{u}\)}
+      addition in $\FIELD$ ]\label{distribution}
 
       The property is clearly true when \(\node{u} = \zerotree\),
       since \((a+b)\zerotree = \zerotree = a\zerotree+b\zerotree\).
@@ -745,7 +717,7 @@ can use as a tool for assessing the similarity of trees and,
 ultimately, provide both a means of clustering trees and selecting
 trees with particular properties.
 
-\subsection{$\DOM$ and its seminorm}
+\subsection{$\DOM$ and its classwise seminorm}
 \begin{definition}\label{absolute-mag}
 \marginnote{Absolute value: \(\nabs{\node{u}}\)} We define the absolute value of a node to be
 \begin{align*}
@@ -762,9 +734,48 @@ nodes of trees. % This corresponds to the $L^1$ norm on the tree space.
 Note that each node in a tree can only contribute a non-negative
 quantity to the absolute value of the tree, it is obvious that
 \(\nabs{\node{u}} \geq 0\)\ for all \(\node{u} \in \DOM\)\ and that
-equality only occurs if the value of each node in the tree \tnode{u}
-is zero.
+equality only occurs if the weight of each node in the tree \tnode{u}
+is zero.\footnote{\ldots Or, alternatively, the absolute value of every subtree is zero.}
 %\end{remark}
+
+For any two trees (including those with dissimilar labels) we can
+define a function analogous to a distance.
+
+\begin{definition}\label{treenorm}\typeout{---tree-norm}
+  We will define a semi-norm on the trees. 
+  If we take $\term(\poly{p})$ to be the set of terms in $\poly{p}$,
+  then we define
+  \begin{equation}
+    \prennorm{\node{u}}={\label{u} + \stsum{\poly{t}\in\term(\nlabel{u})}\abs{\coeff({t})}^2+\stsum{\node{c}\in\child{u}}\prennorm{\node{c}}},
+  \end{equation}
+  where $\coeff(t)$ is the coefficient associated with a term in the polynomial $\nlabel{u}$,
+  and we define the norm in terms of this with
+  \begin{equation}
+    \nnorm{\node{u}}=\sqrt{\nnorm{\node{u}}}.
+  \end{equation}
+\end{definition}
+
+Both of these functions clearly have non-negative ranges, and they
+only take the value zero if all the node values and the node labels
+are zero.  Since we restrict ourselves to finite, acyclic trees, we
+can argue that for any finite set of $n$ trees, there is an equivalent
+vector-based representation. We can construct a partial order
+(see \ref{partial-order} in Chapter \ref{explicitmodel}) on trees, and
+then we can construct a set of sparsely populated vectors which encode
+each of the trees in a consistent way (in a computer scientist's
+terms, we would be serialising the tree). If we indicate the vectorised
+tree \tnode{u} with $\vec{\node{u}}$, then
+\[\prennorm{\node{u}}=\vec{\node{u}}\cdot\vec{\node{u}},\] and
+$\nnorm{\node{u}}$ corresponds to the vector length.
+
+In the example model discussed in Chapter~\ref{explicitmodel} we may
+make use of both this norm and the distance function
+$\sqrt{\nnorm{\node{u}-\node{v}}}$.
+
+
+
+
+
 
 \begin{proposition}\label{absolutehomogeneity}
   For \(a \in \FIELD\) and \(\node{u} \in \DOM, \abs{a}\nabs{\node{u}} =
@@ -876,15 +887,15 @@ the induced absolute value of \(\rnode{u}\in\DOMR\).
 
 
 \section{Element multiplication in $\DOMR$ and establishing the
-  properites of a ring}
+  properites similar to those of a ring}
 
-In this section, we will define a multiplicative operator for trees, and
-demonstrate that there is a multiplicative identity.  My motivation for establising
-these properties is twofold; most importantly, it broadens the set of
-mathematical tools we have at our disposal to analyse sets of trees
-(clustering, classification, interpolation, extrapolation...), but
-also because we never know just what else we might discover along the
-way!
+In this section, we will define a multiplicative operator for
+trees. My motivation for establising these properties is mainly that
+it may broaden the set of mathematical tools we have at our
+disposal to analyse sets of trees (clustering, classification,
+interpolation, extrapolation...).  The element \((1,1,\emptyset)\)
+acts as a multiplicative identity, but this will not be useful to us
+since it lies outside the domain we are considering.
 
 \begin{definition}\label{rtreemult}
   We define the multiplication of two trees (or nodes) to be
@@ -1015,8 +1026,12 @@ Multiplication of trees in $\DOMR$ is associative.
 \end{proof}
 \end{proposition}
 
+
+
+
+
 %% \begin{corollary}\label{ItsARingHarry}
-%% \(\DOMR\) with tree addition and tree multiplication is a commutative \ring.
+%%  \(\DOMR\) with tree addition and tree multiplication is a commutative \ring.
 %% \begin{proof}
 %%   Propositions \ref{TMcommutativity}, \ref{TMassociativity}, and
 %%   \ref{TMdistrib} are sufficient to establish that it is a commutative
@@ -1080,7 +1095,7 @@ which are identified by known-good configurations, and the
 mechanism which handles switching within the model uses the metric in
 its assessment.  Like the model in Chapter \ref{modelefficiency}, the
 approach is quite shallow, but the hope is that, having established
-the ring-theoretic properties, more advanced clustering and
+the ring-like properties, more advanced clustering and
 discrimination techniques can be brought to bear.
 
 In Chapter \ref{adaptiveselection} the model developed is concerned with

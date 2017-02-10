@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99996 (TeX Live 2016/Arch Linux) (preloaded format=xelatex 2017.1.25)  31 JAN 2017 16:04
+This is XeTeX, Version 3.14159265-2.6-0.99996 (TeX Live 2016/Arch Linux) (preloaded format=xelatex 2017.1.25)  10 FEB 2017 15:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -879,18 +879,35 @@ Chapter\nobreakspace {}3: Epilogue to the paper
 Chapter 4.
 [57
 
-] [58] [59] [60]
-Overfull \hbox (4.81065pt too wide) in paragraph at lines 309--309
+] [58]
+Overfull \hbox (8.71503pt too wide) in paragraph at lines 193--200
+\T1/ppl/m/n/10.95 will be trimmed $\OML/zplm/m/it/10.95 k$ \T1/ppl/m/n/10.95 ti
+mes. Note that $[][] [] \U/MnSymbolD/m/n/10.95 ^^@ \OT1/ppl/m/n/10.95 0$ \T1/pp
+l/m/n/10.95 and $[]\OMX/MnSymbolE/m/n/10.95 ^^88[][] []^^8d \U/MnSymbolD/m/n/10
+.95 ^^@
+ []
+
+[59] [60]
+Overfull \hbox (4.81065pt too wide) in paragraph at lines 324--324
 [] 
  []
 
 
-Overfull \hbox (13.14464pt too wide) in paragraph at lines 350--350
+LaTeX Warning: Reference `pluskinder' on page 61 undefined on input line 329.
+
+
+Overfull \hbox (13.14464pt too wide) in paragraph at lines 332--332
 [] 
+ []
+
+
+Overfull \hbox (3.68564pt too wide) in paragraph at lines 351--353
+[]\T1/ppl/m/n/10.95 This is ex-plicit in the def-i-ni-tion of ad-di-tion be-twe
+en
  []
 
 [61] [62]
-Overfull \hbox (48.28635pt too wide) in paragraph at lines 487--490
+Overfull \hbox (48.28635pt too wide) in paragraph at lines 462--465
 []\T1/ppl/m/n/10.95 Now sup-pose that there is some num-ber $\OML/zplm/m/it/10.
 95 n$ \T1/ppl/m/n/10.95 for which $[]\OMX/MnSymbolE/m/n/10.95 ^^88 []^^8d \U/Mn
 SymbolD/m/n/10.95 B \OML/zplm/m/it/10.95 n [] []\OMX/MnSymbolE/m/n/10.95 ^^88 [
@@ -898,30 +915,47 @@ SymbolD/m/n/10.95 B \OML/zplm/m/it/10.95 n [] []\OMX/MnSymbolE/m/n/10.95 ^^88 [
  []
 
 
-Overfull \hbox (59.49332pt too wide) in paragraph at lines 499--499
+Overfull \hbox (59.49332pt too wide) in paragraph at lines 474--474
+[] 
+ []
+
+
+Overfull \hbox (6.1637pt too wide) in paragraph at lines 480--480
 [] 
  []
 
 [63]
-Overfull \hbox (6.1637pt too wide) in paragraph at lines 505--505
+Overfull \hbox (45.05429pt too wide) in paragraph at lines 541--541
 [] 
  []
 
 [64]
-Overfull \hbox (45.05429pt too wide) in paragraph at lines 566--566
-[] 
+Overfull \hbox (2.0662pt too wide) in paragraph at lines 553--555
+[]\T1/ppl/m/n/10.95 Observe first
  []
 
-[65] [66] [67]
-LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 748.
 
- [68] [69]
+Overfull \hbox (17.75722pt too wide) in paragraph at lines 579--580
+[]\T1/ppl/m/n/10.95 Let us con-
+ []
+
+[65]
+Overfull \hbox (8.2091pt too wide) in paragraph at lines 630--632
+[]\T1/ppl/m/n/10.95 The prop-
+ []
+
+[66]
+LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 720.
+
+ [67]
+---tree-norm
+[68] [69]
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <14.4> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 879.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 890.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 879.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 890.
 
  [70] [71] [72]) (./chap5.tex [73]
 Chapter 5.
@@ -1070,12 +1104,12 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 9930 strings out of 493589
- 132241 string characters out of 6148800
- 214307 words of memory out of 5000000
- 13005 multiletter control sequences out of 15000+600000
+ 9947 strings out of 493589
+ 132475 string characters out of 6148800
+ 214490 words of memory out of 5000000
+ 13022 multiletter control sequences out of 15000+600000
  118282 words of font info for 308 fonts, out of 8000000 for 9000
  1347 hyphenation exceptions out of 8191
- 39i,26n,43p,980b,560s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 40i,26n,43p,980b,560s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on thesis.pdf (99 pages).

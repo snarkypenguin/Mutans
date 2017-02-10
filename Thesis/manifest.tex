@@ -90,6 +90,7 @@
 \DeclareMathOperator{\labels}{labels}
 \DeclareMathOperator{\dist}{d}
 \DeclareMathOperator{\overlap}{overlap}
+\DeclareMathOperator{\shadow}{shadow}
 \DeclareMathOperator{\boundary}{bnd}
 \DeclareMathOperator{\interior}{int}
 \DeclareMathOperator{\excise}{excise}
@@ -269,12 +270,19 @@
 
 %-- 
 
-\newcommand{\SDOM}{\set{T}}
 \newcommand{\A}{\mc{A}}
 \newcommand{\PLY}[1]{\FIELD[{\set{#1}}]}
+
+\newcommand{\SDOMstar}{\set{T}^*}
+\newcommand{\DOMstar}{\mb{T}^*}
+\newcommand{\DOMstars}[1]{{\mb{T}^*}_\mc{#1}}
+\newcommand{\TSDOMstar}{\(\SDOMstar\!\)}
+
+\newcommand{\SDOM}{\set{T}}
 \newcommand{\DOM}{\mb{T}}
 \newcommand{\DOMs}[1]{{\mb{T}}_\mc{#1}}
 \newcommand{\TSDOM}{\(\SDOM\!\)}
+
 
 \newcommand{\devi}[2]{\Delta(#1,#2)}
 
