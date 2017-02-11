@@ -156,6 +156,12 @@ constructors to generate it.
 ;;(load "crossproduct.scm")
 
 ;-  Infrastructure and polynomial code
+
+(define (equal*? x y . z)
+  (and (equal? x y)
+		 (or (null? z)
+			  (apply equal*? (cons x z)))))
+
 ;-- direct product functions (op is list concatenation)
 ;--- (%cross2 a b) basic two element cross product
 (define (%cross2 a b)
@@ -228,6 +234,29 @@ constructors to generate it.
 		lst)) ;; Probably ought to return an error... but we are trying to delete a phantom element.
 
 
+(define (set-weight! t w)
+  (cond
+	((= 3 (length t))	(set-car! t w))
+	((= 2 (length t))	(error "not yet implemented for node2"))
+	(#t #f)
+	))
+	 
+(define (set-label! t w)
+  (cond
+	((= 3 (length t))	(set-cadr! t w))
+	((= 2 (length t))	(set-car! t w))
+	(#t #f)
+	))
+
+(define (set-children! t w)
+  (cond
+	((= 3 (length t))	(set-caddr! t w))
+	((= 2 (length t))	(set-cadr! t w))
+	(#t #f)
+	))
+
+
+
 
 ;-- String conversions
 ;--- (read-string str) converts a string to a list of symbols, numbers and lists.
@@ -254,6 +283,9 @@ constructors to generate it.
 	  (t (* b (power b (- e 1)))))
 	 )
 	(else (exp (* e (log b))))))
+
+;--- (sqr x) useful for map calls
+(define (sqr x) (* x x))
 
 ;--- Identity function
 (define I (lambda (x) x))
@@ -283,6 +315,12 @@ constructors to generate it.
 		  (arity-loop (cdr a) (op (car a) r)))))))
 
 ;-- type predicates and query functions
+(define (Zero? x)
+  (cond
+	((or (number? x) (string? x)) (Zero? (canonical-label x)))
+	((polynomial? x) (and (= (length x) 1) (= (car x) 0)))
+	(#t #f)))
+
 ;--- (type%? x) returns the type (node2 and node3  are distinct) or #f
 (define (type%? x)
   (cond
@@ -291,9 +329,9 @@ constructors to generate it.
 	((symbol? x) 'symbol)
 	((number? x) 'number)
 	((polynomial? x) 'polynomial)
+	((node3? x) 'node3)
 	((unique-node? x) 'unique-node)
 	((node2? x) 'node2)
-	((node3? x) 'node3)
 	((children? x) 'children)
 	((list? x) 'list)
 	((pair? x) 'pair)
@@ -306,29 +344,29 @@ constructors to generate it.
 (define (type? x)
   (cond
 	((boolean? x) 'boolean)
+	((vector? x) 'vector)
 	((null? x) 'null)
 	((symbol? x) 'symbol)
 	((number? x) 'number)
+	((and (list? x) (apply andf (map number? x))) 'Vector)
 	((polynomial? x) 'polynomial)
+	((node3? x) 'node)
 	((unique-node? x) 'unique-node)
-	((or (node2? x) (node3? x)) 'node)
+	((node2? x) 'node)
 	((children? x) 'children)
 	((list? x) 'list)
 	((pair? x) 'pair)
 	((procedure? x) 'procedure)
 	((char? x) 'char)
 	(#t #f)))
-  
+
 ;--- (Type? x) Wrapper that returns 'tree
 (define (Type? x)
-  (let ((t (type? x)))
-	 (if (eq? t 'node)
-		  (cond 
-			((node2? t) 'node2)
-			((and (node3? t) (zero? (weight t))) 'tree3)
-			((node3? t) 'node3)
-			(#t #f))
-		  t)))
+  (cond
+	((node3? x)
+	 (if (Zero? (label x)) 'tree3 'node3))
+	((node2? x) 'tree2)
+	(#t (type? x))))
 
 ;-- Supporting code: string and list utilities, simple polynomial arithmetic
 ;--- Mostly convenience functions, utilities
@@ -1749,7 +1787,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	(#t (and (= (length n) 2)
 				(polynomial? (label n))
 				(or (null? (children n))
-					 (apply andf (map node2? (children n))))
+					 (and (pair? (children n))
+							(apply andf (map node2? (children n)))))
 				))
 	))
 
@@ -1762,7 +1801,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				(number? (weight n))
 				(polynomial? (label n))
 				(or (null? (children n))
-					 (apply andf (map node3? (children n))))
+					 (and (pair? (children n))
+							(apply andf (map node3? (children n)))))
 				))
 	))
 
@@ -1985,6 +2025,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;---- (canonical-label L) supports a string specification of the labels in code
 (define (canonical-label L)
   (cond
+	((number? L) (list L))
 	((string? L) (string->polynomial L))
 	((symbol? L) (list (list 1 (list L 1))))
 	((polynomial L) L)
@@ -1997,7 +2038,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	((and (pair? tree) (= (length tree) 3))
 	 (cond
 	  ((and (polynomial? (canonical-label list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
-		(set-car! tree value)
+		(set-weight! tree value)
 		#t)
 	  ((polynomial? (canonical-label list-of-labels)) (result #f 1))
 
@@ -2006,7 +2047,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			  (equal? (canonical-label (car list-of-labels)) (label tree))
 			  (null? (cdr list-of-labels))
 			  )
-		(set-car! tree value)
+		(set-weight! tree value)
 		#t)
 	  ((and (list? list-of-labels)
 			  (polynomial? (canonical-label (car list-of-labels)))
@@ -2024,6 +2065,74 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 (error "Not yet implemented for two element trees"))
 	(#t (error "Bad mojo in change-weight"))))
 
+;---- (change-label! tree list-of-labels value) changes the label of a node
+(define (change-label! tree list-of-labels  value)
+  (cond
+	((not (pair? tree)) #f)
+	((and (pair? tree) (= (length tree) 3))
+	 (cond
+	  ((and (polynomial? (canonical-label list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
+		(set-label! tree value)
+		#t)
+	  ((polynomial? (canonical-label list-of-labels)) (result #f 1))
+
+	  ((and (list? list-of-labels)
+			  (polynomial? (canonical-label (car list-of-labels)))
+			  (equal? (canonical-label (car list-of-labels)) (label tree))
+			  (null? (cdr list-of-labels))
+			  )
+		(set-label! tree value)
+		#t)
+	  ((and (list? list-of-labels)
+			  (polynomial? (canonical-label (car list-of-labels)))
+			  (equal? (canonical-label (car list-of-labels)) (label tree))
+			  )
+		(let* ((lbllist (map label (children tree)))
+				 (ix (index-in lbllist (canonical-label (cadr list-of-labels)))))
+		  (set! piglet lbllist)
+		  (set! pooh (canonical-label (car list-of-labels)))
+		  (if ix
+				(change-label (list-ref (children tree) ix) (cdr list-of-labels) value)
+				(result #f 2))))
+	  (#t (result #f 3))))
+	((and (pair? tree) (= (length tree) 2))
+	 (error "Not yet implemented for two element trees"))
+	(#t (error "Bad mojo in change-label"))))
+
+;---- (change-children! tree list-of-childrens value) changes the children of a node
+(define (change-children! tree list-of-labels value)
+  (cond
+	((not (pair? tree)) #f)
+	((and (pair? tree) (= (length tree) 3))
+	 (cond
+	  ((and (polynomial? (canonical-children list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
+		(set-children! tree value)
+		#t)
+	  ((polynomial? (canonical-children list-of-labels)) (result #f 1))
+
+	  ((and (list? list-of-labels)
+			  (polynomial? (canonical-children (car list-of-labels)))
+			  (equal? (canonical-label (car list-of-labels)) (label tree))
+			  (null? (cdr list-of-labels))
+			  )
+		(set-children! tree value)
+		#t)
+	  ((and (list? list-of-labels)
+			  (polynomial? (canonical-children (car list-of-labels)))
+			  (equal? (canonical-label (car list-of-labels)) (label tree))
+			  )
+		(let* ((lbllist (map children (children tree)))
+				 (ix (index-in lbllist (canonical-children (cadr list-of-labels)))))
+		  (set! piglet lbllist)
+		  (set! pooh (canonical-children (car list-of-labels)))
+		  (if ix
+				(change-children (list-ref (children tree) ix) (cdr list-of-labels) value)
+				(result #f 2))))
+	  (#t (result #f 3))))
+	((and (pair? tree) (= (length tree) 2))
+	 (error "Not yet implemented for two element trees"))
+	(#t (error "Bad mojo in change-children"))))
+
 ;---- (replace-child! tree list-of-labels  new-child) replaces a child node with a substitute.
 (define (replace-child! tree list-of-labels  new-child) ;; the new child need not have the same label as the old one
   (cond
@@ -2039,9 +2148,9 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			  (equal? (canonical-label (car list-of-labels)) (label tree))
 			  (null? (cdr list-of-labels))
 			  )
-		(set-car! tree (weight new-child))
-		(set-cadr! tree (label new-child))
-		(set-caddr! tree (children new-child))
+		(set-label! tree (weight new-child))
+		(set-weight! tree (label new-child))
+		(set-children! tree (children new-child))
 		#t)
 	  ((and (list? list-of-labels)
 			  (polynomial? (canonical-label (car list-of-labels)))
@@ -2551,7 +2660,11 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  )
 	 (if (not (= (length X+y) (length Y+x)))
 		  (error "Inconsistent intersection in boxplus" X+y Y+x)
-		  (append X-y Y-x  (filter (lambda (x) (not (equal? x '(0 0 '())))) (map (lambda (x) (apply tree+ x) ) (cross** X+y Y+x)))))
+		  (append X-y Y-x  (filter (lambda (x) (not (equal? x '(0 0 '()))))
+											(map (lambda (x) (apply tree+ x) )
+												  (filter (lambda (x) (equal? (label (car x)) ;; this bit excludes incompatible
+																						(label (cadr x))));; nodes
+															 (cross** X+y Y+x))))))
 	 ))
 
 (define (less-zerotree A)
@@ -2593,28 +2706,32 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;; yields a tree with an absolute magnitude of zero.
 
 (define (tree+ . args)
-  (case (length args)
-	 ((0) zerotree)
-	 ((1) (car args))
-	 ((2)
-	  (cond ((node2? (car args)) (apply tree2+ args))
-			  ((node3? (car args)) (apply tree3+ args))
-			  (A very bad thing)))
-	 (else
-	  (cond ((node2? (car args)) (tree2+ (car args) (apply tree2+ (cdr args))))
-			  ((node3? (car args)) (tree3+ (car args) (apply tree3+ (cdr args))))
-			  (A very bad thing)))
-	 ))
+	 (case (length args)
+		((0) zerotree)
+		((1) (car args))
+		((2)
+		 (cond ((node2? (car args)) (apply tree2+ args))
+				 ((node3? (car args)) (apply tree3+ args))
+				 (A very bad thing)))
+		(else
+		 (cond ((node2? (car args)) (tree2+ (car args) (apply tree2+ (cdr args))))
+				 ((node3? (car args)) (tree3+ (car args) (apply tree3+ (cdr args))))
+				 (A very bad thing)))
+		))
 
 ;----  (tree- . args) 
 (define (tree- . args)
-  (case (length args)
-	 ((0) zerotree)
-	 ((1) (tree* -1 (car args)))
-	 ((2) (tree+ (car args) (tree* -1 (cadr args))))
-	 (else (tree+ (car args) (tree -1 (apply tree+ (cdr args)))))
-;;	 (else (apply tree+ (cons (car args) (map (lambda (x) (tree* -1 x)) (cdr args)))))
-	 ))
+	 (case (length args)
+		((0) zerotree)
+		((1) (tree* -1 (car args)))
+		((2) 
+		 (tree+ (car args) (tree* -1 (cadr args)))
+		 )
+		 (else 
+		  (tree+ (car args) (tree -1 (apply tree+ (cdr args))))
+		  )
+		;;	 (else (apply tree+ (cons (car args) (map (lambda (x) (tree* -1 x)) (cdr args)))))
+		))
 			
 ;----  (T/Z t)  
 (define (T/Z t)
@@ -2627,6 +2744,21 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  (list (weight t) (label t) emptyset)
 		  (list (weight t) (label t) (!filter null? childs))
 		  )))
+
+(define (norm t)
+  (+ (sqr (weight t))
+	  (if (pair? (children t))
+			(apply + (map norm (children t)))
+			0)))
+
+(define (distance s t)
+  (if (equal? (Type? s) (Type? t))
+		(case (Type? s)
+		  ((number) (abs (- s t)))
+		  ((Vector) (sqrt (apply + (map sqr (map - s t)))))
+		  ((tree3) (sqrt (norm (tree- s t))))
+		  (else #f))
+		#f))
 
 ;--- (absolute-value t)  returns the absolute magnitude of a tree [Definition 11]
 (define (absolute-value t)
@@ -2647,138 +2779,14 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  'node?  (node?  x)
 		  'children? (children? x)))
 
-;----  type-of-multiplication-for-children 
+;----  type-of-multiplication-for-children  (tree2 only)
 (define type-of-multiplication-for-children
   ;;  '*simple-children*
   ;;  'first-variant
     'experimental
   )
 
-
-
-;--- (* . args) two argument multiplication of trees
-(define (%tree* . args)
-  (define (ddnl . arg)
-	 #!void
-;;	 (apply dnl (cons "tree* " arg))
-	 )
-
-  (case (length args)
-	 ((0) '())
-	 ((1) (car args))
-	 ((2)
-	  (let ((B (car args)) (C (cadr args)))
-			 (cond
-			  ((and (null? B)(null? C)) '())
-			  ((null? C) B)
-			  ((null? B) C)
-			  ((and (number? B) (number? C))
-				(ddnl "numbers")
-				(* B C))
-			  
-			  ((or (and (polynomial? B) (number? C))
-					 (and (polynomial? B) (polynomial? C)))
-				(ddnl "polynomial and number, polynomial and polynomial")
-				(p* B C))
-			  
-			  ((and (number? B) (node? C))
-				(ddnl "number and node")
-				(list
-				 (p* B (label C))
-				 (map (lambda (x) (tree* B x)) (children C))))
-			  
-			  ((and (polynomial? B) (node? C))
-				(ddnl "polynomial and node")
-				(list
-				 (p* B (label C))
-				 (map (lambda (x) (tree* B) x) (children C))))
-
-			  ((and (polynomial? B) (children? C))
-				(ddnl "polynomial and children")
-				(sort (map (lambda (x) (tree* B x)) C) node<? ))
-
-			  ((and (number? B) (children? C))
-				(ddnl "polynomial and children")
-				(sort (map (lambda (x) (tree* (list B) x)) C) node<?)) ;; because we use multiplication by -1 to do subtraction
-
-			  ((and (tree? B) (tree? C))
-				;; (dnl "Two trees")
-				(let* ((NB (length B))
-						 (NC (length C))
-						 (N (cond ((= NB NC 2) 2) ((= NB NC 3) 3) (#t #f)))
-						 (B B)
-						 (C C)
-						 (CB (children B))
-						 (CC (children C)))
-				  ;;((or (zerotree? B) (zerotree? C))
-				  ;; zerotree)
-				  (cond
-					((not N) (bad tree))
-					((= N 3)
-					 (normalise-tree 
-					  (sort
-						(cond
-						 ((and (null? B) (null? C)) '())
-						 ((null? B) C)
-						 ((null? C) B)
-						 (else
-						  (list (* (weight B) (weight C))
-								  (p* (label B) (label C))
-								  
-
-								  
-								  )
-						  
-						  )) node<?)))
-					((= N 2)
-					 (let* ((L (p* (label B) (label C)))
-							  ;; (CB (sort CB node<?))
-							  ;; (CC (sort CC node<?))
-							  )
-						(normalise-tree (list L (sort
-														 (cond
-														  ((and (null? B) (null? C)) '())
-														  ((null? B) C)
-														  ((null? C) B)
-														  (else
-															(case (if (symbol? multiplier) multiplier (car multiplier))
-															  ((intersection+)
-																(n-Lambda^sigma (intersection-l*~ CB CC))
-																)
-															  ((intersection)
-																(intersection-l*~ CB CC)
-																)
-															  ((pairwise-*)
-																(map* tree* CB CC)
-																)
-															  ((pairwise-multiplication)
-																(n-Lambda^sigma (map* tree* CB CC))
-																)
-															  (else (error "bad multiplication selector" multiplier))
-															  )))
-														 node<?)))
-						)
-					 )
-					))
-				)
-
-			  ((or
-				 (and (polynomial? C) (number? B))
-				 (and (number? C) (node? B))
-				 (and (polynomial? C) (node? B))
-				 (and (number? C) (children? B) (not (null? (children B))))
-				 (and (polynomial? C) (children? B) (not (null? (children B))))
-				 )
-				(ddnl "swapping B and C")
-				(tree* C B))
-
-			  (#f (error "bad argument to tree*"))
-			  ))
-	  )
-	  (else (error "too many arguments to tree*" args))
-	  )
-	 )
-
+;--- (* . args)
 (define (tree* . args)
   (let ((t3 (apply orf (map node3? args)))
 		  (t2 (apply orf (map node2? args)))
@@ -2919,7 +2927,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 ;----  (tree-distance p q) 
 (define (tree-distance p q)
-  (abort 'HERE)
+  (distance p q)
   )
 
 ;-- (tree->wordies t)
@@ -3170,20 +3178,20 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  )
 	 n))
 
-(define tst1 (string->tree "(5: c +  b + a {(4: 2 m c + 3 m b - m a {}) 
+(define tst1 (string->tree "(0: 0  {(5: c +  b + a {(4: 2 m c + 3 m b - m a {}) 
                                             (1/2:  n c - n b + 2 n a {})
                                             (7/2:  n c - n b + n a {})
-                                            (1/3:-1 + p c + 2 p b - 2 p a {})})"))
+                                            (1/3:-1 + p c + 2 p b - 2 p a {})})})"))
 
-(define tst2 (string->tree "(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
+(define tst2 (string->tree "(0: 0 {(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
                                             (1/5:  n c - n b + 2 n a {})
-                                            (1/7:-1 + p c + 2 p b + 3 p a {})})"))
+                                            (1/7:-1 + p c + 2 p b + 3 p a {})})})"))
 
 						  
-(define tst3 (string->tree "(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
+(define tst3 (string->tree "(0: 0 {(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
                                             (1/5:  n c - n b + 2 n a {})
                                             (6: n + 3 m {})		
-                                            (1/7:-1 + p c + 2 p b + 3 p a {})})"))
+                                            (1/7:-1 + p c + 2 p b + 3 p a {})})})"))
 ;; model status format
 
 ;;    model --> domain* --> niche* --> agent* --> sub-agents
