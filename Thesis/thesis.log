@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99996 (TeX Live 2016/Arch Linux) (preloaded format=xelatex 2017.1.25)  10 FEB 2017 15:01
+This is XeTeX, Version 3.14159265-2.6-0.99996 (TeX Live 2016/Arch Linux) (preloaded format=xelatex 2017.1.25)  19 FEB 2017 11:47
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -646,15 +646,7 @@ for a niche (\T1/ppl/m/it/10.95 sensu \T1/ppl/m/n/10.95 Gray
 
 ] [3] [4] [5]
 Chapter 1: Historical work
-[6] [7] [8] [9]
-LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/ppl/b/n' tried instead on input line 495.
-
-
-LaTeX Warning: Reference `adaptiveselection ' on page 10 undefined on input lin
-e 495.
-
-) (./chap2.tex [10]
+[6] [7] [8] [9]) (./chap2.tex [10]
 Chapter 2.
 Chapter 2: Prologue to the paper
 
@@ -692,6 +684,8 @@ LaTeX Font Info:    Try loading font information for U+stmry on input line 65.
 (/usr/share/texmf-dist/tex/latex/stmaryrd/Ustmry.fd) [12]
 Chapter\nobreakspace {}2: Increasing model efficiency by dynamically changing m
 odel representations
+LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 91.
 Chapter\nobreakspace {}2: Introduction
 LaTeX Font Info:    Font shape `T1/ppl/bx/it' in size <10.95> not available
 (Font)              Font shape `T1/ppl/b/it' tried instead on input line 125.
@@ -748,12 +742,6 @@ Overfull \hbox (3.79544pt too wide) in paragraph at lines 930--938
 \T1/ppl/m/n/10.95 This pa-per shows that two of the ba-sic prob-lems dis-cussed
  in Chap-ter 1[], namely
  []
-
-
-LaTeX Warning: Reference `' on page 30 undefined on input line 951.
-
-
-LaTeX Warning: Reference `treerings' on page 30 undefined on input line 952.
 
 ) (./chap3.tex [30]
 Chapter 3.
@@ -888,26 +876,23 @@ l/m/n/10.95 and $[]\OMX/MnSymbolE/m/n/10.95 ^^88[][] []^^8d \U/MnSymbolD/m/n/10
  []
 
 [59] [60]
-Overfull \hbox (4.81065pt too wide) in paragraph at lines 324--324
+Overfull \hbox (4.81065pt too wide) in paragraph at lines 321--321
 [] 
  []
 
 
-LaTeX Warning: Reference `pluskinder' on page 61 undefined on input line 329.
-
-
-Overfull \hbox (13.14464pt too wide) in paragraph at lines 332--332
+Overfull \hbox (13.14464pt too wide) in paragraph at lines 330--330
 [] 
  []
 
 
-Overfull \hbox (3.68564pt too wide) in paragraph at lines 351--353
+Overfull \hbox (3.68564pt too wide) in paragraph at lines 349--351
 []\T1/ppl/m/n/10.95 This is ex-plicit in the def-i-ni-tion of ad-di-tion be-twe
 en
  []
 
 [61] [62]
-Overfull \hbox (48.28635pt too wide) in paragraph at lines 462--465
+Overfull \hbox (48.28635pt too wide) in paragraph at lines 460--463
 []\T1/ppl/m/n/10.95 Now sup-pose that there is some num-ber $\OML/zplm/m/it/10.
 95 n$ \T1/ppl/m/n/10.95 for which $[]\OMX/MnSymbolE/m/n/10.95 ^^88 []^^8d \U/Mn
 SymbolD/m/n/10.95 B \OML/zplm/m/it/10.95 n [] []\OMX/MnSymbolE/m/n/10.95 ^^88 [
@@ -915,156 +900,156 @@ SymbolD/m/n/10.95 B \OML/zplm/m/it/10.95 n [] []\OMX/MnSymbolE/m/n/10.95 ^^88 [
  []
 
 
-Overfull \hbox (59.49332pt too wide) in paragraph at lines 474--474
+Overfull \hbox (59.49332pt too wide) in paragraph at lines 472--472
 [] 
  []
 
 
-Overfull \hbox (6.1637pt too wide) in paragraph at lines 480--480
+Overfull \hbox (6.1637pt too wide) in paragraph at lines 478--478
 [] 
  []
 
 [63]
-Overfull \hbox (45.05429pt too wide) in paragraph at lines 541--541
+Overfull \hbox (45.05429pt too wide) in paragraph at lines 539--539
 [] 
  []
 
 [64]
-Overfull \hbox (2.0662pt too wide) in paragraph at lines 553--555
+Overfull \hbox (2.0662pt too wide) in paragraph at lines 551--553
 []\T1/ppl/m/n/10.95 Observe first
  []
 
 
-Overfull \hbox (17.75722pt too wide) in paragraph at lines 579--580
+Overfull \hbox (17.75722pt too wide) in paragraph at lines 577--578
 []\T1/ppl/m/n/10.95 Let us con-
  []
 
 [65]
-Overfull \hbox (8.2091pt too wide) in paragraph at lines 630--632
+Overfull \hbox (8.2091pt too wide) in paragraph at lines 628--630
 []\T1/ppl/m/n/10.95 The prop-
  []
 
 [66]
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <12> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 720.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 718.
 
  [67]
 ---tree-norm
 [68] [69]
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <14.4> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 890.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 880.
 
 LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <10> not available
-(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 890.
+(Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 880.
 
  [70] [71] [72]) (./chap5.tex [73]
 Chapter 5.
 [74
 
 ] [75] [76]
-Overfull \hbox (2.43729pt too wide) in paragraph at lines 177--181
+Overfull \hbox (2.43729pt too wide) in paragraph at lines 182--186
 \T1/ppl/m/n/10.95 the run-queue (or in the subsidiary-runqueues of other agents
 ), con-trol is passed
  []
 
 [77] [78]
-Overfull \hbox (22.18608pt too wide) in paragraph at lines 265--287
+Overfull \hbox (22.18608pt too wide) in paragraph at lines 270--292
 []\T1/ppl/m/n/10.95 All of the agents and ob-jects in the model are de-rived fr
 om the \T1/cmtt/m/n/10.95 <primitive-object>
  []
 
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 292.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 297.
 
-Overfull \hbox (7.03984pt too wide) in paragraph at lines 296--303
+Overfull \hbox (7.03984pt too wide) in paragraph at lines 301--308
 []\T1/ppl/m/n/10.95 ---These ob-jects (not agents) con-tain func-tions with
  []
 
 
-Overfull \hbox (4.3958pt too wide) in paragraph at lines 304--306
+Overfull \hbox (4.3958pt too wide) in paragraph at lines 309--311
 []\T1/ppl/m/n/10.95 ---These classes are used to de-lin-eate re-gions within
  []
 
 
-Overfull \hbox (18.52682pt too wide) in paragraph at lines 307--309
+Overfull \hbox (18.52682pt too wide) in paragraph at lines 312--314
 []\T1/ppl/m/n/10.95 ---These classes pro-vide the metabolic
  []
 
 [79]
-Overfull \hbox (15.32175pt too wide) in paragraph at lines 328--331
+Overfull \hbox (15.32175pt too wide) in paragraph at lines 333--336
 []\T1/ppl/m/n/10.95 ---Instances of the log-data class gen-er-ate datafiles
  []
 
 
-Overfull \hbox (9.89607pt too wide) in paragraph at lines 369--373
+Overfull \hbox (9.89607pt too wide) in paragraph at lines 374--378
 \T1/ppl/m/n/10.95 an-i-mal mod-els. The an-i-mal classes in-herit from \T1/cmtt
 /m/n/10.95 <metabolism>
  []
 
 
-Overfull \hbox (8.13255pt too wide) in paragraph at lines 376--384
+Overfull \hbox (8.13255pt too wide) in paragraph at lines 381--389
 \T1/ppl/m/n/10.95 ``super-individuals'' in the sense of  Schef-fer et al. [1995
 b] through
  []
 
 
-Overfull \hbox (1.79265pt too wide) in paragraph at lines 386--392
+Overfull \hbox (1.79265pt too wide) in paragraph at lines 391--397
 []\T1/ppl/m/n/10.95 ---Ecoservices cor-re-spond to re-sources which may be used
 
  []
 
 
-Overfull \hbox (9.49348pt too wide) in paragraph at lines 394--398
+Overfull \hbox (9.49348pt too wide) in paragraph at lines 399--403
 []\T1/ppl/m/n/10.95 ---Population-systems are a sub-class of ecoser-
  []
 
 
-Overfull \hbox (2.00021pt too wide) in paragraph at lines 394--398
+Overfull \hbox (2.00021pt too wide) in paragraph at lines 399--403
 \T1/ppl/m/n/10.95 vices, and is tai-lored to rep-re-sent-ing sim-ple equa-tion 
 based pop-
  []
 
-
-Overfull \hbox (3.0246pt too wide) in paragraph at lines 400--403
+[80]
+Overfull \hbox (3.0246pt too wide) in paragraph at lines 405--408
 []\T1/ppl/m/n/10.95 ---These classes as-so-ciate a ge-o-graphic re-gion
  []
 
-[80]
-Overfull \hbox (8.96545pt too wide) in paragraph at lines 464--464
+
+Overfull \hbox (8.96545pt too wide) in paragraph at lines 469--469
 []                       \T1/cmtt/m/n/10.95 '(temp contlevel) ;; required exter
 nal values[] 
  []
 
-
-Overfull \hbox (99.49939pt too wide) in paragraph at lines 464--464
+[81]
+Overfull \hbox (99.49939pt too wide) in paragraph at lines 469--469
 []                         \T1/cmtt/m/n/10.95 (set! contaminant (fishcont dt ma
 ss contaminant contlevel))[] 
  []
 
 
-Overfull \hbox (20.10037pt too wide) in paragraph at lines 465--471
+Overfull \hbox (20.10037pt too wide) in paragraph at lines 470--476
 \T1/ppl/m/n/10.95 con-tam-i-nant level, \T1/cmtt/m/n/10.95 contaminant\T1/ppl/m
 /n/10.95 . The macro def-i-ni-tion for \T1/cmtt/m/n/10.95 define-update-closure
 
  []
 
-[81]
-Overfull \hbox (6.45518pt too wide) in paragraph at lines 514--519
+
+Overfull \hbox (6.45518pt too wide) in paragraph at lines 519--524
 []\T1/ppl/m/n/10.95 which
  []
 
 
-Overfull \hbox (12.80064pt too wide) in paragraph at lines 519--521
+Overfull \hbox (12.80064pt too wide) in paragraph at lines 524--526
 []\T1/ppl/m/n/10.95 which de-
  []
 
 [82]
-Overfull \hbox (8.82224pt too wide) in paragraph at lines 539--550
+Overfull \hbox (8.82224pt too wide) in paragraph at lines 544--555
 []\T1/ppl/m/n/10.95 Redeclaring
  []
 
 
-Overfull \hbox (16.02727pt too wide) in paragraph at lines 550--556
+Overfull \hbox (16.02727pt too wide) in paragraph at lines 555--561
 []\T1/ppl/m/n/10.95 Generally,
  []
 
@@ -1072,12 +1057,12 @@ Overfull \hbox (16.02727pt too wide) in paragraph at lines 550--556
 HERE: Unfinished business
 HERE: Unfinished business
 HERE: Unfinished business
-
-Overfull \hbox (71.07152pt too wide) in paragraph at lines 650--658
+[84]
+Overfull \hbox (71.07152pt too wide) in paragraph at lines 655--663
  [] 
  []
 
-[84] [85] [86]) (./concl.tex [87]
+[85] [86]) (./concl.tex [87]
 Chapter 6.
 [88
 
@@ -1088,7 +1073,7 @@ LaTeX Font Info:    Font shape `OT1/pzc/m/it' in size <7.6> not available
 (Font)              Font shape `OT1/pzc/mb/it' tried instead on input line 151.
 
  [92] [93] [94]
-Underfull \hbox (badness 3849) in paragraph at lines 404--407
+Underfull \hbox (badness 3849) in paragraph at lines 410--413
 []\T1/ppl/m/n/10 Collective work, Au-gust 2009.  URL $\T1/cmtt/m/n/10 http : / 
 / www . ningaloo . org . au / www / en /
  []
@@ -1099,17 +1084,14 @@ No file thesis.ind.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-
-LaTeX Warning: There were undefined references.
-
  ) 
 Here is how much of TeX's memory you used:
- 9947 strings out of 493589
- 132475 string characters out of 6148800
- 214490 words of memory out of 5000000
- 13022 multiletter control sequences out of 15000+600000
- 118282 words of font info for 308 fonts, out of 8000000 for 9000
+ 9946 strings out of 493589
+ 132514 string characters out of 6148800
+ 214541 words of memory out of 5000000
+ 13021 multiletter control sequences out of 15000+600000
+ 119213 words of font info for 309 fonts, out of 8000000 for 9000
  1347 hyphenation exceptions out of 8191
- 40i,26n,43p,980b,560s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,26n,43p,980b,500s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on thesis.pdf (99 pages).

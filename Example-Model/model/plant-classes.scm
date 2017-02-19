@@ -32,7 +32,7 @@
 	;; level of water stress
 	seeds-per-fruit
 	habitat            ;; #f or a landscape thing
-	;; <thing> mass is our mass
+	population-switch
 	))
 
 

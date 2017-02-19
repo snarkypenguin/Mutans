@@ -224,13 +224,6 @@
 							 'remove)
 							 )
 
-
-
-
-
-
-
-
 (model-method (<metabolism> <number> <number>) (eat self available-food dt)
 				  (if mass
 						(let* ((struct-mass (my 'structural-mass))
@@ -269,7 +262,25 @@
 						0)
 				  )
 
+
 ;---- animal methods
+
+;----- (self-assessment)
+"This is a placeholder ... it almost certainly needs to change"
+(model-method <simple-animal> (representation-assessement self . args) 
+				  (if (null? args) ;; only passed self
+						(let ((rgr (/ (my 'mass) (* (my 'age))))
+								(ngr (my 'nominal-growth-rate))
+								)
+						  (if (< rgr (* ngr 2)) 0 (- (/ rgr ngr) 2)) ;; steps over at (> rgr (* 3 ngr))
+						  )
+						(let ((n (car args)) ;; mixing assumption 
+								)
+						  (+ (/ n (my 'population-switch)))
+						  ))
+				  )
+
+
 
 ;----- (initialise) 
 (model-method <animal> (initialise self args)
@@ -661,9 +672,6 @@ with the following differences:
 *** fruit and leaving seeds, otherwise we cannot have 
 *** recolonisation by plants in a cell that has become denuded.
 ")
-
-
-
 
 
 (model-method <example-animal> (die self)

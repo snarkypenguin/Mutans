@@ -203,7 +203,8 @@ The \emph{overlap} between two trees is defined
 \[
   \overlap(\node{u},\node{v}) = \begin{cases}
     0 & \text{ if } \node{u} = \zerotree \mor \node{v} = \zerotree \mor \nlabel{u} \neq \nlabel{v} \\
-    1 + \displaystyle\sum_{\substack{\node{e}\in\child{u} \\ \node{f}\in\child{v}}} \overlap(\node{e},\node{f}) & \text{otherwise}
+    1 + \displaystyle\sum_{\substack{\node{e}\in\child{u} \\
+        \node{f}\in\child{v}}} \overlap(\node{e},\node{f}) & \text{otherwise}
   \end{cases}
 \]
 
@@ -313,10 +314,6 @@ Now we define the addition of two trees,
       \node{u} + \node{v} = \begin{cases}
         \node{u} &\text{ if } \node{v} = \zerotree\notag\\
         \node{v} &\text{ if } \node{u} = \zerotree\notag\\
-%%%???        \zerotree &\text{ if } \child{u} = \emptyset \mand \child{v} = \emptyset \mand \nv{u} + \nv{v} = 0 \\
-%%%%%%        \Node{\nv{u} + \nv{v}}{\nlabel{u}}{\emptyset} & \text{ if } \child{u} = \emptyset \mand \child{v} = \emptyset \\
-        %% &\NNNode{\nv{u} + \nv{v}}{\nlabel{u}}{\bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \node{s} \in \child{v}\mand\nlabel{r} = \nlabel{s}\} \\
-        %% & \qquad \qquad \qquad \qquad \cup \{\node{r} : \node{r} \in \child{u}\mand\nlabel{r} \notin \nlabels{v}\} \cup \{\node{s} : \node{s} \in \child{v}\mand\nlabel{s} \notin \nlabels{u}\}\bigr) \setminus \{\zerotree\} \\
         \Bigl(\nv{u} + \nv{v}, \nlabel{u}, 
         \bigl(\nrestrictedto{u}{v}\cup\nrestrictedto{v}{u} & {} \\
         \quad\cup\{\node{r}+\node{s}:\node{r}\in\restrictedto{u}{v}\mand\node{s}\in\restrictedto{v}{u}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}\Bigr) & \text{ otherwise}
@@ -325,8 +322,9 @@ Now we define the addition of two trees,
 \end{definition}
 
 \begin{definition}[Notation]
-  As a more concise representation of the addition of two sets, such
-  as the sets of children in Eq. \ref{pluskinder}, by
+  We will use the following notation as a more concise representation
+  of the addition of two sets, such as the sets of children in
+  Eq. \ref{treeaddition}, by
   \begin{align*}
       \set{B}\stplus\set{C} = \childO{B}{C}{r}{s}{+}.
   \end{align*}
@@ -746,9 +744,10 @@ define a function analogous to a distance.
   If we take $\term(\poly{p})$ to be the set of terms in $\poly{p}$,
   then we define
   \begin{equation}
-    \prennorm{\node{u}}={\label{u} + \stsum{\poly{t}\in\term(\nlabel{u})}\abs{\coeff({t})}^2+\stsum{\node{c}\in\child{u}}\prennorm{\node{c}}},
+    %\prennorm{\node{u}}={\label{u} +
+    %    \stsum{\poly{t}\in\term(\nlabel{u})}\abs{\coeff({t})}^2+\stsum{\node{c}\in\child{u}}\prennorm{\node{c}}},
+    \prennorm{\node{u}}={\abs{\nv{u}}^2 + \stsum{\node{v}\in\child{u}} \prennorm{v}}
   \end{equation}
-  where $\coeff(t)$ is the coefficient associated with a term in the polynomial $\nlabel{u}$,
   and we define the norm in terms of this with
   \begin{equation}
     \nnorm{\node{u}}=\sqrt{\nnorm{\node{u}}}.
@@ -758,24 +757,15 @@ define a function analogous to a distance.
 Both of these functions clearly have non-negative ranges, and they
 only take the value zero if all the node values and the node labels
 are zero.  Since we restrict ourselves to finite, acyclic trees, we
-can argue that for any finite set of $n$ trees, there is an equivalent
-vector-based representation. We can construct a partial order
-(see \ref{partial-order} in Chapter \ref{explicitmodel}) on trees, and
-then we can construct a set of sparsely populated vectors which encode
-each of the trees in a consistent way (in a computer scientist's
-terms, we would be serialising the tree). If we indicate the vectorised
-tree \tnode{u} with $\vec{\node{u}}$, then
-\[\prennorm{\node{u}}=\vec{\node{u}}\cdot\vec{\node{u}},\] and
-$\nnorm{\node{u}}$ corresponds to the vector length.
-
-In the example model discussed in Chapter~\ref{explicitmodel} we may
+can argue that for any finite set of $n$ trees, we can construct an
+equivalent vector-based representation by serialising the tree.
+The defined norm is precisely equivalent to the length
+of the vector.\footnote{The fact that we can construct a total order
+  on trees makes this quite straightforward
+  [c.f. Chapter\ref{explicitmodel}, Section \ref{partial-order}]}
+In the example model discussed in Chapter~\ref{explicitmodel} we 
 make use of both this norm and the distance function
-$\sqrt{\nnorm{\node{u}-\node{v}}}$.
-
-
-
-
-
+$\nnorm{\node{u}-\node{v}}$.
 
 \begin{proposition}\label{absolutehomogeneity}
   For \(a \in \FIELD\) and \(\node{u} \in \DOM, \abs{a}\nabs{\node{u}} =

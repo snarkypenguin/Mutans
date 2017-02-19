@@ -25,7 +25,7 @@ CXXFLAGS = -g
 
 # These *must not* be put into the rewrite group else they get overwritten.  YOU HAVE BEEN WARNED!
 
-SCLOS = preamble.scm sort.scm sclos.scm utils.scm sclos-extn.scm framework-declarations.scm framework.scm 
+SCLOS = preamble.scm sort.scm utils.scm sclos+extn.scm framework-declarations.scm framework.scm 
 KERNEL = kdnl.scm kernel.scm
 
 DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm

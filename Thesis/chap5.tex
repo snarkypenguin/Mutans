@@ -50,16 +50,22 @@ candidate would have been \texttt{C++}, since I had extensive
 experience in modelling in the language, and a significant corpus of
 code from which I might draw, but the considerations which prompted me
 to use Scheme in the paper of Chapter~\ref{modelefficiency} still
-pertained---Implementing the clean closures for general state
-maintenance would be awkward. While Scheme is not a particularly
-commonly used language, it is a language under active development and
-refinement, there are a number of very good interpreters and compilers
-for it, and many of the implementations are amenable to integration
-with other languages, either through the linking binary objects or by
-interacting through a virtual machine (such as a JVM). 
+pertained. While Scheme must be considered a minor language in
+industry\footnote{It was ranked $43^{\text{rd}}$ in the IEEE Spectrum 2016 list
+of programming languages}, in most of the more common languages it
+is difficult to cleanly and generically implement an analogue to the
+closures used in Chapter~\ref{modelefficiency} to maintain attributes
+possessed by superceded representations.  Scheme is active developed,
+there are a number of very good interpreters and compilers for it;
+many of these implementations are also amenable to integration with
+other languages, either through the linking binary objects or by
+interacting through a virtual machine (such as a JVM).
+Scheme was, at its inception, designed to be a tool for exploration
+\cite{sussman1998first} and it remains an excellent tool for this
+purpose.
 
 The class structure in the example is based on the Scheme
-implementation of tiny-CLOS (SCLOS), written by Gregor Kiczales
+implementation of tiny-CLOS (SCLOS) that was written by Gregor Kiczales
 \cite{kiczales1993xerox} while he was working at Xeros PARC in 1992
 and 1993.  Kiczales has been an instrumental researcher and proponent
 for the use of metaobject protocols (MOPs) as a tool for making
@@ -70,9 +76,8 @@ being passed to them and pass the processing to a specialised function
 which deals with the task most appropriately.  While this is not an
 exact analogue to the problems we seek to address in this work, there
 is enough commonality that using tiny-CLOS and its implicit MOP seemed
-a natural fit.  Moreover, tiny-CLOS is the base that many of the
-object systems used in modern implementations of Scheme are derived
-from.
+a natural fit.  Tiny-CLOS has been the basis on which many of the
+significant object systems for Scheme have been built.
 
 I have used Gambit-C (Gambit), a well regarded implementation of
 Scheme which runs on all of the major platforms (Linux, Unix, OSX, and

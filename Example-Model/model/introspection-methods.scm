@@ -84,10 +84,10 @@
 
 (model-method <introspection> (agent-shutdown self #!rest args)
 					 (agent-shutdown-parent)
-					 ))
+					 )
 
 (model-body <introspection>
-				(kdnl* '(log-* introspection-trace)
+				(kdnl* '(introspection-trace)
 						 "[" (my 'name) ":" (class-name-of self) "]"
 						 "Introspection: model-body")
 
@@ -98,9 +98,9 @@
 									(- (car sched) t)
 									dt))
 
-				  (kdnl* '(log-* introspection-trace)
+				  (kdnl* '(introspection-trace)
 							"      list:     " (my 'introspection-list))
-				  (kdnl* '(log-* introspection-trace)
+				  (kdnl* '(introspection-trace)
 							"      schedule: "
 							(list-head (my 'timestep-schedule) 3)
 							(if (> (length (my 'timestep-schedule)) 3)

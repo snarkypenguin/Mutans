@@ -6,8 +6,6 @@
 
 (include "framework")
 
-
-
 ;;; (compile-file "support-lib.scm")
 ;;; (load "support-lib.o1")
 ;;; (compile-file "sclos.scm")
@@ -43,6 +41,8 @@
 
 ;;; (load "model-configuration.scm")
 
+(define loaded #f)
+
 (define load-list-1 '("sclos.o1" "support.o1" "classdecs.o1" "kernel.o1"))
 (define load-list-2 '("chassisa.o1" "chassisb.o1" "chassisc.o1" "chassisd.o1"))
 (define load-list-3 '("log.o1"))
@@ -60,7 +60,10 @@
  
 
 (define (load-em-all)
-  (load-em (append load-list-1 load-list-2 load-list-3 load-list-4 load-list-5)))
+  (load-em (append load-list-1 load-list-2 load-list-3 load-list-4 load-list-5))
+  (set! loaded #t)
+  )
+
 
 (define (model T)
   (doit Q T)
@@ -68,13 +71,19 @@
 
 
 (define (go)
-  (display "Run the model for how long? ")
-  (model (read)))
+  (if (not loaded) (load-em-all))
+  (display "Model configuration file? ")
+  (let ((file (object->string (read))))
+	 (load file)
+	 (display "Run the model for how long? ")
+	 (model (read)))
+)
+;(dnl "(run-simulation Q 0 20)")
+;(dnl "(doit Q 200)")
+;(dnl "(shutdown-agents Q)")
 
-;; (run-simulation Q 0 20)
+(dnl "Try typing '(go)'")
 
-;(doit Q 200)
-;(shutdown-agents Q)
 
 
 ;;; Local Variables:
@@ -84,3 +93,6 @@
 ;;; comment-start: ";;; "
 ;;; comment-end:"" 
 ;;; End:
+
+
+

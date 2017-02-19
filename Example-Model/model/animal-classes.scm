@@ -37,8 +37,8 @@
 						 mass->food-conversion-rate
 						 condition-conversion-rate
 						 mass-conversion-rate
-						 max-growth-rate
 						 max-condition-rate
+						 max-growth-rate
 						 )
   )
 
@@ -80,6 +80,8 @@
 						 foodlist homelist breedlist
 						 domain-attraction
 						 food-attraction
+						 nominal-growth-rate
+						 population-switch ;; level at which it might pay to switch to analytic form
 						 )
   ) ;; lists of attributes it looks for for eating, denning and breeding
 
@@ -89,19 +91,16 @@
 ;; 
 
 (define-class <animal>
-  (inherits-from <metabolism> <thing>)
+  (inherits-from <simple-animal>)
   ;; lists of attributes it looks for for eating, denning
   ;; and breeding
   (state-variables
-	current-interest age sex
-	habitat searchradius foodlist homelist breedlist
+	current-interest
 	movementspeed
 	searchspeed 
 	foragespeed
 	wanderspeed
 	objective
-	domain-attraction
-	food-attraction
 	near-food-attraction
 	))
 

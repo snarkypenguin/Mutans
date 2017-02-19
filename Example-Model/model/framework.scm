@@ -35,7 +35,18 @@
 
 (define (no-default-variables) '())
 
+(define (slow-sort lst)
+  (let ((<=? (lambda (x y) (string<=? (object->string x) (object->string y)))))
+	 (sort lst <=?)))
 
+
+(define (count-keyed-members lst)
+  (let* ((slst (slow-sort lst))
+			(keys (uniq (map car slst)))
+			(lslst (map (lambda (k) (filter (lambda (c) (equal? k (car c))) slst)) keys))
+			)
+	 (map length lslst)))
+	 
 ;; subsidiary-agents are agents which may be embedded in a larger dynamic agent. Agents know 
 ;; what their parent agent is (if they have one) and may indicate to the parent that they should be
 ;; added to the active list. The parent agent is the one that actually decides if a agent is to move 

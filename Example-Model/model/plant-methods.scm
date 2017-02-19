@@ -176,6 +176,18 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 					(/ (slot-ref self 'mass) (slot-ref self 'max-mass))))
  )
  
+;----- (self-assessment)
+"This is a placeholder ... it almost certainly needs to change"
+(model-method <animal> (representation-assessement self . args) 
+				  (if (null? args) ;; only passed self
+						0
+						(let ((n (car args)) ;; mixing assumption 
+								)
+						  (+ (/ n (my 'population-switch)))
+						  ))
+				  )
+
+
 												 
 (model-method <simple-plant> (plant-radius self)
 				  (plant-mass->radius (slot-ref self 'mass)))

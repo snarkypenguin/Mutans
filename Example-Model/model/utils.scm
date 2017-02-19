@@ -175,8 +175,21 @@
 (define (txyz->y x) (caddr x))
 (define (txyz->z x) (cadddr x))
 
+(define (o->s x) (if (string? x) x (object->string x)))
 
-;(define (general-sigmoid x y) (/ 1.0 (+ 1.0  (exp (- (* x y))))))
+(define (random-location minv maxv)
+  (map + (map * (map - maxv minv) (map (lambda (x) (random-real)) (make-list (length minv)))) minv))
+
+(define (nrandom mean . its) ;; very dodgey ... but bog simple
+  (let ((N (if (null? its) 100 (car its))))
+	 (let loop ((i 0)
+					(the-sum 0))
+		(if (>= i N)
+			 (* (/ mean (/ N 2.0)) the-sum)
+			 (loop ((+ 1  i) (+ the-sum (random-real))))))))
+
+
+(define (simple-general-sigmoid x y) (/ 1.0 (+ 1.0  (exp (- (* x y))))))
 ;
 ;;(define sigmoid (lambda (x) (general-sigmoid x 1.0)))
 
@@ -198,26 +211,14 @@
 ; 	((<= x 0) 0)
 ; 	(else (max 0.0 (min 1.0 (+ (/ (- (log x) (log (- 1 x))) (* 4 pi)) 0.5))))))
 
-(define (o->s x) (if (string? x) x (object->string x)))
 
-
-(define (random-location minv maxv)
-  (map + (map * (map - maxv minv) (map (lambda (x) (random-real)) (make-list (length minv)))) minv))
-
-(define (nrandom mean . its) ;; very dodgey ... but bog simple
-  (let ((N (if (null? its) 100 (car its))))
-	 (let loop ((i 0)
-					(the-sum 0))
-		(if (>= i N)
-			 (* (/ mean (/ N 2.0)) the-sum)
-			 (loop ((+ 1  i) (+ the-sum (random-real))))))))
 
 
 (define (general-biomass-growth-rate x peak width scale y) 
   (* scale 
 	  (- 
-		(general-sigmoid (+ (- x peak) width) y)
-		(general-sigmoid (- (- x peak) width) y))))
+		(simple-general-sigmoid (+ (- x peak) width) y)
+		(simple-general-sigmoid (- (- x peak) width) y))))
 
 (define (dP/dt P dt r K) (* r P (- 1.0 (/ P K))))0
 

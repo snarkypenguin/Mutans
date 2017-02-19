@@ -289,7 +289,7 @@ is to make everything within the model use the shortest time step
 required.  This is computationally inefficient in a heterogeneous
 model.
 
-\begin{figure}
+\begin{figure}\label{times}
 \begin{center}
   \includegraphics{Figure1}
   \caption{Time scheduling strategies.  Red boxes represent time steps that
@@ -297,7 +297,7 @@ model.
     that have not yet been run. ``Uni:''  and ``Vss:'' sub\-models are
     members of a uniform or variable speed splitting
     sub\-models and require uniform time steps, and ``Dyn:'' sub\-models
-    have adaptive time steps.}\label{times}
+    have adaptive time steps.}
 \end{center}
 \end{figure}
 A better approach is the technique of variable speed splitting, such
@@ -379,8 +379,8 @@ from other niches.
 
 
 %---- Algorithm MonAlg
-\begin{algorithm}
-  \caption{Basic processing pass for the monitor}\label{MonAlg}
+\begin{algorithm}\label{MonAlg}
+  \caption{Basic processing pass for the monitor}
   \begin{algorithmic}
     \ForAll{niches}
     \ForAll{sub\-models in the niche}
@@ -454,13 +454,13 @@ spectrum between \SD\ models and \IB\ models are represented, and the
 environment is unrealistically simple in order to keep us from being
 swamped by detail. 
 
-\begin{figure}
+\begin{figure}\label{domain}
 \begin{center}
   \includegraphics{Figure2}
   \caption{The model domain is divided into nine cells. An \SD\ agent
     is associated with each of these cells and with the domain as a
     whole. Any \IB\ agents which are created during the simulation
-    will be associated with one cell at any given time.}\label{domain}
+    will be associated with one cell at any given time.}
 \end{center}
 \end{figure}
 
@@ -511,8 +511,8 @@ where $\N{P}(t)$ is the biomass of plants at time $t$, and $\K{P}$ is
 the carrying capacity of the pertinent domain (either global or
 cell-based).
 %------ fruitalg
-\begin{algorithm}
-  \caption{Basic processing pass for fruit}\label{fruitalg}
+\begin{algorithm}\label{fruitalg}
+  \caption{Basic processing pass for fruit}
   \begin{algorithmic}
     \State $\N{F} \gets \N{F} - (\mathit{Spoilage}_{\mt{F}} \cdot \N{F})$
   \end{algorithmic}
@@ -523,8 +523,8 @@ applying ``spoilage''; no reference to other agents in
 the system is required, and only the number of fruit is adjusted as a
 result (Algorithm~\ref{fruitalg}).
 %------ seedalg
-\begin{algorithm}
-  \caption{Basic processing pass for seeds}\label{seedalg}
+\begin{algorithm}\label{seedalg}
+  \caption{Basic processing pass for seeds}
   \begin{algorithmic}
     \State $\mathit{NewTreeCount} \gets \mathit{Germination} \cdot  \mathit{SeedCount}$
     \State $\mathit{SeedCount} \gets \mathit{SeedCount} -  (\mathit{NewTreeCount} $
@@ -576,10 +576,10 @@ biomass-by-size distributions for plants, herbivores and carnivores, and the
 raw numbers of fruit and viable seeds. 
 
 %------ SDalg
-\begin{algorithm}
+\begin{algorithm}\label{sdalg}
   %% if we swap the order of the caption and label, we get the section number
   %% rather than the algorithm number!
-  \caption{Basic processing pass for the \SD\ models}\label{sdalg}
+  \caption{Basic processing pass for the \SD\ models}
 \begin{algorithmic}
   \ForAll{agents in this domain}
     \State{Incorporate quantities that are }
@@ -633,8 +633,8 @@ some reasonable asymptote and intermediate sharpness; fruiting
 occurs probabilistically as in the \SD\ represen\-tation.
 
 %------ plantalg
-\begin{algorithm}
-  \caption{Basic processing pass for plants}\label{plantalg}
+\begin{algorithm}\label{plantalg}
+  \caption{Basic processing pass for plants}
   \begin{algorithmic}
     \If {$(\mass \ge \Mtt{P}_{\mature}) \land (\ttt{P}_{\fruits} \ge \Urnd)$}
     \State $\AddFruit{\ttt{P}_\rho}{\mass^{\frac{2}{3}}}$
@@ -701,8 +701,8 @@ species, if the amount of time they have been hungry exceeds a
 particular value, $H_\Omega$ or $C_\Omega$, the in\-di\-vidu\-al dies.
 
 %------ animalalg
-\begin{algorithm}
-  \caption{Basic processing pass for herbivores and carnivores}\label{animalalg}
+\begin{algorithm}\label{animalalg}
+  \caption{Basic processing pass for herbivores and carnivores}
   \begin{algorithmic}
   \If {$(\imort{A} > \Urnd) \lor (\hungertime \ge \ttt{A}_\Omega)$}
   \State \Die
@@ -751,7 +751,7 @@ handle this value appropriately.
 \subsection{The monitor and model dynamics}
 %-------> commands <--------
 %% {repset}{sn}
-\newcommand{\cst}[1]{\node{\check{\tau}}^\Sigma_{#1}} % candidate tree 
+\newcommand{\cst}[1]{\node{\bar{\check{\tau}}}^\Sigma_{#1}} % candidate tree 
                                                        % for config
 \newcommand{\domt}[1]{\node{\check{\tau}}^\Sigma_{#1}} % candidate
                                                      % tree for a domain
@@ -919,7 +919,7 @@ in the \appendixname.
 
 
 
-\begin{figure}
+\begin{figure}\label{timeline}
 \begin{center}
   \includegraphics{Figure3}
   \caption{The color of the \textbsf{p},\textbsf{h} and \textbsf{c}
@@ -931,7 +931,7 @@ in the \appendixname.
     \SD\ agent, and red indicates that an \IB\ model is being
     used. Symbols composed of two colors indicate that more than one
     rep\-re\-sen\-ta\-tion is currently controlling portions of the
-    relevant biomass.}\label{timeline}
+    relevant biomass.}
 \end{center}
 \end{figure}
 
@@ -990,11 +990,11 @@ and this is used to generate
 \end{equation*}
 where $\delta$ stands for our chosen measure of similarity.
 
-\begin{figure}
+\begin{figure}\label{indices}
 \begin{center}
   \includegraphics{Figure4}
   \caption{Normalized indexes of execution speed (black) and fidelity (red) the 
-    against configuration changes through time associated with Figure~\ref{timeline}}\label{indices}
+    against configuration changes through time associated with Figure~\ref{timeline}}
 \end{center}
 \end{figure}
 

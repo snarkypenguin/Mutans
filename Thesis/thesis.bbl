@@ -1,4 +1,4 @@
-\begin{thebibliography}{56}
+\begin{thebibliography}{57}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -169,7 +169,7 @@ R.~Gray, E.~Fulton, R.~Little, and R.~Scott.
 \bibitem[Gray et~al.(2006{\natexlab{b}})Gray, Fulton, Little, and
   Scott]{Gray2006nws}
 R~Gray, EA~Fulton, LR~Little, and R~Scott.
-\newblock \emph{Operating model specification within an agent based framework.
+\newblock \emph{Ecosystem model specification within an agent based framework.
   North West Shelf Joint Environmental Management Study Technical Report}.
 \newblock Number~16 in CSIRO-CMAR NWSJEMS Technical Reports. CSIRO, Hobart,
   Tasmania, Hobart, Tasmania, 2006{\natexlab{b}}.
@@ -325,6 +325,12 @@ M~Scheffer, JM~Baveco, DL~DeAngelis, KA~Rose, and EH~Van Nes.
   on an individual basis.
 \newblock \emph{Ecological modelling}, 80\penalty0 (2):\penalty0 161--170,
   1995{\natexlab{b}}.
+
+\bibitem[Sussman and Steele(1998)]{sussman1998first}
+Gerald~Jay Sussman and Guy~L Steele.
+\newblock The first report on scheme revisited.
+\newblock \emph{Higher-Order and Symbolic Computation}, 11\penalty0
+  (4):\penalty0 399--404, 1998.
 
 \bibitem[Swan et~al.(2006)Swan, Cuthbert, Quevedo, Green, Pain, Bartels,
   Cunningham, Duncan, Meharg, Oaks, et~al.]{swan2006toxicity}
