@@ -56,10 +56,10 @@
 ;--- <landscape> generics
 
 ;--- <environment> generics
-;(declare-method value "value")
-;(declare-method set-value! "set-value!")
-;(declare-method min-bound "min-bound")
-;(declare-method max-bound "max-bound")
+(declare-method value "value")
+(declare-method set-value! "set-value!")
+(declare-method min-bound "min-bound")
+(declare-method max-bound "max-bound")
 (declare-method mean-value "mean value of a resource or service")
 
 ;--- <habitat> (and possibly <gridenv>) generics

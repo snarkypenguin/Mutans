@@ -1,0 +1,6 @@
+'Parameters
+(define <log-data>-parameters
+  (list
+  )
+)
+(set! global-parameter-alist (cons (cons <log-data> <log-data>-parameters) global-parameter-alist))

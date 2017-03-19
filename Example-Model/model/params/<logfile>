@@ -1,0 +1,6 @@
+'Parameters
+(define <logfile>-parameters
+  (list
+  )
+)
+(set! global-parameter-alist (cons (cons <logfile> <logfile>-parameters) global-parameter-alist))

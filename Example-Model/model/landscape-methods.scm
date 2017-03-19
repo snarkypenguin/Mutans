@@ -305,7 +305,7 @@
 ;; Stops things going off the rails 
 
 ;--- (services...) returns services matching the sym or in the symlist
-(default-agent-initialisation <environment>)
+;;(default-agent-initialisation <environment>)
 
 (model-method (<environment>) (services% self syms)
 				  '())
@@ -314,7 +314,36 @@
 						(parent-body)
 						dt)
 
+(model-method (<environment> <list>) (contains? self loc)
+				  (if (member (my 'rep) '(() #f <uninitialized> <uninitialized>))
+						(let ((m (map <= loc (my 'minv)))
+								(M (map <= (my 'maxv) loc)))
+						  (apply andf (append m M)))
+						((my 'rep) (contains? self loc))))
 
+
+(model-method (<environment> <list>) (contains? self loc)
+				  (let* ((minv (my 'minv))(maxv (my 'maxv))
+							(n (min (length loc) (length minv) (length maxv)))
+							(m (list-head (min-bound self) n))
+							(M (list-head (max-bound self) n))
+							(l (list-head loc n)))
+				  (if (member (my 'rep) '(() #f <uninitialized> <uninitialized>))
+						(if (null? l)
+							 #f
+							 (apply andf (append (map <= m l)
+														(map <= l M))))
+						((my 'rep) (contains? self loc)))))
+
+(model-method (<environment> <thing>) (contains? self entity)
+				  (contains? (location entity))
+				  )
+
+
+(model-method (<environment>) (random-point self) ;; returns a random location in the environment
+				   ;;(let ((n (my 'minv)))
+				  ;;  (map + (map * (map random-real n) (map - (my 'maxv) (my 'minv))) (my 'minv)))
+				  (random-location (my 'minv) (my 'maxv)))
 
 ;-- <ecoservice> methods and bodies
 
@@ -336,22 +365,29 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ")
 
 
-(default-agent-initialisation <ecoservice> 'do-growth #t 'history #f 'run-externally #f 'ext-get (lambda x #f) 'ext-set! (lambda x #f) 'external-rep-list '())
+;;(default-agent-initialisation <ecoservice> '() 'do-growth #t 'history #f 'run-externally #f 'ext-get (lambda x #f) 'ext-set! (lambda x #f) 'external-rep-list '())
 
-
-(define (simple-ecoservice N n V C r maxdt growing? growthmodel . P) 
+;; 
+(define (simple-ecoservice taxon N n V C r maxdt growing? growthmodel . P) 
   (if (pair? P) (set! P (car P)))
   
-  (let ((A (make-agent <ecoservice>
+  (let ((A (create <ecoservice> taxon
 							  'name N
-							  ;'type 'eqn-based
+							  ;; string corresponding to its name, like "Vulpes lagopus"
 							  'type n
+							  ;;eg 'eqn-based
 							  'sym n
+							  ;; 'Vl perhaps
 							  'value V
+							  ;; Immediately after model-body this will be the value calculated, before hand it is the value to be used
 							  'capacity C
+							  ;; this corresponds to a carrying capacity ... +inf.0 and -inf.0 are reasonable values for this 
 							  'r r
+							  ;; r controls the growth rate per unit time, for linear values this is the slope, 
 							  'delta-T-max maxdt	
+							  ;; r is the rate of growth per unit time
 							  'do-growth growing?
+							  ;; if #f any changes must be effected by external agency
 							  'growth-model growthmodel
                        ;;; 'sigmoid
                        ;;; 'linear
@@ -360,6 +396,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							  )
 
 			  ))
+	 (dnl "Made ecoservice for " n)
 	 (slot-set! A 'provides (list n))
 	 A
 	 )
@@ -642,7 +679,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							  
 
 ;--- <circle>
-(default-object-initialisation <circle>)
+;;(default-object-initialisation <circle>)
 
 (define (Circle c r n)
   (let ((pi (acos -1)))
@@ -652,7 +689,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							)))
 
 (define (make-crop-circle centre radius . n) ;; (-: make-patch-circle might be more appropriate, but not as much fun :-)
-  (make-object <circle> 'type 'area 'locus centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
+  (create- <circle> 'type 'area 'locus centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
   )
 
 ;(model-method (<circle>) (dump self)
@@ -706,12 +743,12 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 ;--- <polygon>
 
-(default-object-initialisation <polygon>)
+;;(default-object-initialisation <polygon>)
 
 (define (make-polygon centre polygon)
   (if (not (eqv? (car polygon) (car (reverse polygon))))
 		(set! polygon (append polygon (list (car polygon)))))
-  (make-object <polygon> 'type 'area 'locus centre 'perimeter (copy-list polygon)))
+  (create- <polygon> 'type 'area 'locus centre 'perimeter (list-copy polygon)))
 
 ;(model-method (<polygon>) (dump self)
 ;					(dump% self 0))
@@ -790,24 +827,24 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							((polygon relative-polygon) <polygon>)
 							(else 'bad))))
 
-	 (let ((M (make-object rep-class 'type 'area)))
+	 (let ((M (create- rep-class 'type 'area)))
 		(case rep
 		  ((circle)
-			(slot-set! M 'rep (make-object <circle> 'type 'area 'locus centre 'radius arg))
+			(slot-set! M 'rep (create- <circle> 'type 'area 'locus centre 'radius arg))
 
-			(slot-set! M 'rep (make-object <polygon> 'type 'area 'locus centre
-											'perimeter (copy-list arg)))
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
+											'perimeter (list-copy arg)))
 			
 			)
 
 		  ((polygon absolute-polygon)
-			(slot-set! M 'rep (make-object <polygon> 'type 'area 'locus centre
-													 'perimeter (copy-list arg)))
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
+													 'perimeter (list-copy arg)))
 			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep))
 			))
 
 		  ((relative-polygon)
-			(slot-set! M 'rep (make-object <polygon> 'type 'area 'locus centre
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
 											'perimeter (translate-trace centre arg)))
 			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep))
 			))
@@ -818,28 +855,14 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;; min-bound, max-bound contains? services 
 
 ;--- (initialise...) 
-;;(default-initialisation <patch>)
-
-;;; (add-method initialise
-;;; 				(let ((m (make-method (list <patch>)
-;;; 											 (lambda (initialise-parent self args)
-;;; 												(let ((my (lambda (x) (slot-ref self x)))
-;;; 														(set-my! (lambda (x y) (slot-set! self x y)))
-;;; 														(kernel (if (member 'kernel (class-slot-of self))
-;;; 																		(slot-ref self 'kernel)
-;;; 																		#f))
-;;; 														)
-;;; 												  (set-state-variables self args)
-;;; 												  )
-;;; 												)
-;;; 											 )))
-;;; 				  (register-method m 'initialise)
-;;; 				  m))
 
 
-;;(method-initialiser <patch> '())
-
-(default-agent-initialisation <patch> 'minv -inf.0 'maxv +inf.0 'need-all-parent-bodies #f)
+;;(default-agent-initialisation <patch>
+;;  'service-list '()
+;;  'default-value +nan.0
+;;  'minv '(-inf.0 -inf.0)
+;;  'maxv '(+inf.0 +inf.0)
+;;  'needs-parent-bodies #t)
 
 ;;; (model-method <patch>  (initialise self args)
 ;;; 				  (if (and (pair? args) (pair? (car args)) (= (length args) 1))
@@ -1245,72 +1268,72 @@ When ecoservices are running externally, they maintain a list of agents which wi
   "A dynamic patch expects definitions similar to those in diffeq-systems")
 
 ;--- <dynamic-patch> (initialise  (self args)
-(agent-initialisation-method (<dynamic-patch> args) (no-default-variables)
-				  (set-state-variables self (list 'population-names '()
-															 'population-symbols '()
-															 'd/dt-list '()
-															 'do-dynamics #t
-															 'population-definitions '()	
-															 'subdivisions 12
-															 ;; 'cause 12 is a nice number?
-															 ))
-				  (let ((population-definitions
-							(slot-ref self 'population-definitions))
-						  (population-names
-							(slot-ref self 'population-names))
-						  (population-symbols
-							(slot-ref self 'population-symbols))
-						  (d/dt-list (slot-ref self 'd/dt-list)))
+;;; (agent-initialisation-method (<dynamic-patch> args) (no-default-variables)
+;;; 				  (set-state-variables self (list 'variable-names '()
+;;; 															 'variable-symbols '()
+;;; 															 'd/dt-list '()
+;;; 															 'do-dynamics #t
+;;; 															 'variable '()	
+;;; 															 'subdivisions 12
+;;; 															 ;; 'cause 12 is a nice number?
+;;; 															 ))
+;;; 				  (let ((variable-definitions
+;;; 							(slot-ref self 'variable-definitions))
+;;; 						  (variable-names
+;;; 							(slot-ref self 'variable-names))
+;;; 						  (variable-symbols
+;;; 							(slot-ref self 'variable-symbols))
+;;; 						  (d/dt-list (slot-ref self 'd/dt-list)))
 
-					 (if (or (pair? population-definitions)
-								(pair? population-names)
-								(pair? population-symbols)
-								(pair? d/dt-list))
-						  (begin
-							 (if (and (pair? population-definitions)
-										 (or (pair? d/dt-list)
-											  (pair? population-names)
-											  (pair? population-symbols)))
-								  (abort (string-append
-											 "Dynamic patch specified a "
-											 "population-definition *and* "
-											 "one or more of\n"
-											 "population-names "
-											 "population-symbols "
-											 "d/dt-list\n")))
+;;; 					 (if (or (pair? variable-definitions)
+;;; 								(pair? variable-names)
+;;; 								(pair? variable-symbols)
+;;; 								(pair? d/dt-list))
+;;; 						  (begin
+;;; 							 (if (and (pair? variable-definitions)
+;;; 										 (or (pair? d/dt-list)
+;;; 											  (pair? variable-names)
+;;; 											  (pair? variable-symbols)))
+;;; 								  (abort (string-append
+;;; 											 "Dynamic patch specified a "
+;;; 											 "population-definition *and* "
+;;; 											 "one or more of\n"
+;;; 											 "variable-names "
+;;; 											 "variable-symbols "
+;;; 											 "d/dt-list\n")))
 							 
-							 (if (and (null? population-definitions)
-										 (not (and (pair? d/dt-list)
-													  (pair? population-names)
-													  (pair? population-symbols))))
-								  (abort (string-append
-											 "Dynamic patch specified at "
-											 "least one of population-names "
-											 "population-symbols d/dt-list\n"
-											 "but not all three."
-											 )))
+;;; 							 (if (and (null? variable-definitions)
+;;; 										 (not (and (pair? d/dt-list)
+;;; 													  (pair? variable-names)
+;;; 													  (pair? variable-symbols))))
+;;; 								  (abort (string-append
+;;; 											 "Dynamic patch specified at "
+;;; 											 "least one of variable-names "
+;;; 											 "variable-symbols d/dt-list\n"
+;;; 											 "but not all three."
+;;; 											 )))
 
-							 ))
-					 (cond
-					  ((pair? population-definitions)
-						(define-population-dynamics! self
-						  population-definitions))
-					  ((pair? population-names)
-						(define-population-dynamics! self
-						  population-names
-						  population-symbols
-						  d/dt-list))
-					  (#t (slot-set! self 'population-definitions #f)
-							(slot-set! self 'population-names #f)
-							(slot-set! self 'population-symbols #f)
-							(slot-set! self 'd/dt-list #f)))
-					 )
-				  (initialise-parent) ;; call "parents" last
-				  ;; to make the
-				  ;; initialisation list
-				  ;; work
-				  (set-state-variables self args)
-				  )
+;;; 							 ))
+;;; 					 (cond
+;;; 					  ((pair? variable-definitions)
+;;; 						(define-system-dynamics! self
+;;; 						  variable-definitions))
+;;; 					  ((pair? variable-names)
+;;; 						(define-system-dynamics! self
+;;; 						  variable-names
+;;; 						  variable-symbols
+;;; 						  d/dt-list))
+;;; 					  (#t (slot-set! self 'variable-definitions #f)
+;;; 							(slot-set! self 'variable-names #f)
+;;; 							(slot-set! self 'variable-symbols #f)
+;;; 							(slot-set! self 'd/dt-list #f)))
+;;; 					 )
+;;; 				  (initialise-parent) ;; call "parents" last
+;;; 				  ;; to make the
+;;; 				  ;; initialisation list
+;;; 				  ;; work
+;;; 				  (set-state-variables self args)
+;;; 				  )
 
 
 
@@ -1325,12 +1348,12 @@ When ecoservices are running externally, they maintain a list of agents which wi
 		(append (list clss)
 				  (cond
 					((eq? bdry <circle>)
-					 (list 'rep (make-object <circle> 'name name 
+					 (list 'rep (create- <circle> 'name name 
 											'locus centre 'radius radius)
 							 ))
 					((eq? bdry <polygon>)
-					 (let ((p (list 'rep (make-object <polygon> 'name name 
-											'locus centre 'perimeter (copy-list box))
+					 (let ((p (list 'rep (create- <polygon> 'name name 
+											'locus centre 'perimeter (list-copy box))
 										 )))
 						;(dump (cadr p))
 						p))
@@ -1338,7 +1361,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 (error "bad boundary class specified in patch-initialiser"
 							  bdry)))
 				  therest)
-		(error (string-append "patches may only be initialised as <patch> or "
+		(error (string-append "patches may only be initialized as <patch> or "
 				 "<dynamic-patch> agents")
 				 clss)
 		))
@@ -1346,47 +1369,52 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 
 ;; make-grid is geared to making patches and dynamic-patches in a regular array
-;; n m is the size of the grid, ll up are the ordinates of the ll cell and the ur cell
+;; n m is the size of the grid, ll ur are the ordinates of the ll cell and the ur cell
 ;; bdry should be <circle> or <polygon>, clss should be <patch> or <dynamic-patch>,
 ;; clss-initialiser is a function that returns a fully formed initialiser list
 ;; (apart from the centre and radius or perimeter), and P should be either null
 ;; or a <habitat> like class.
 
 ;; Returns a list of the form (patchlist patchgrid)
-(define (make-grid name cell-class cell-type n m ll ur #!optional terrain)
-	 (let* ((nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
-			  (mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 n))))
-			  (radius (min nscale mscale))
-			  (patch-list '())
-			  (M (make-list* n m))
-			  )
-			
-			  (map-**-ix (lambda (x i)
-							(let ((centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
-													  (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
-									(box (bbox (list (+ (car ll) (* nscale (car i)))
-														  (+ (cadr ll) (* mscale (cadr i))))
-												  (list (+ (car ll) (* nscale (+ 1 (car i))))
-														  (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
-									(pname (string-append name "-" (number->string (car i)) ","
-																 (number->string (cadr i))))
-									)
-							  (let* ((cell
-										 (make-agent
-											  cell-class
-											  'name pname
-											  'type 'habitat-cell
-											  'rep
-											  (make-object
-												<polygon>
-												'locus centre
-												'perimeter box ))))
-								 (set! patch-list (cons cell patch-list))
-								 cell)))
-							 M)
-			  patch-list
-			  )
+(define (make-grid cell-class taxon name cell-type n m ll ur #!rest terrain)
+  (let* ((nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
+			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 n))))
+			(radius (min nscale mscale))
+			(patch-list '())
+			(M (make-list* n m))
+			)
+	 
+	 (map-**-ix (lambda (x i)
+					  (dnl "X: " x)
+					  (dnl "I: " i)
+					  (let ((centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
+												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
+							  (box (bbox (list (+ (car ll) (* nscale (car i)))
+													 (+ (cadr ll) (* mscale (cadr i))))
+											 (list (+ (car ll) (* nscale (+ 1 (car i))))
+													 (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
+							  (pname (string-append name "-" (number->string (car i)) ","
+															(number->string (cadr i))))
+							  )
+						 
+						 (let* ((cell
+									(create 
+									 cell-class
+									 taxon
+									 'name pname
+									 'type cell-type
+									 'rep
+									 (create-
+									  <polygon>
+									  'locus centre
+									  'perimeter box ))))
+							
+							(set! patch-list (cons cell patch-list))
+							cell)))
+					M)
+	 (reverse patch-list) 
 	 )
+  )
 
 
 ;; the services are defined by a list containing a name, a symbol, an
@@ -1404,7 +1432,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 															  )))))
 					(#t (error (string-append "populate-patch should be a list containing members which are"
 													  "patches, arguments  or "
-													  "(make-agent <ecoservice> ....)"
+													  "(create <ecoservice> taxon ...)"
 													  services))))
 				  )
 				services)
@@ -1416,7 +1444,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;;  (cadr domain) 2) (list-head (car domain) 2)))))
 
 
-
 ;--- (make-patch services centre representation repspec . args)
 (Comment "services should be a list of the form '((name type capacity) ...)
 args can be  an update map or an update map and update equations 
@@ -1425,7 +1452,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <string>) (service-list-index self service)
 (model-method (<dynamic-patch> <string>) (service-list-index self service)
-				  (let* ((si (my 'population-names))
+				  (let* ((si (my 'variable-names))
 							(n (length si))
 							(ix (member service si))
 							(i (if ix  (- n (length ix)) #f)))
@@ -1433,7 +1460,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <symbol>) (service-list-index self service)
 (model-method (<dynamic-patch> <symbol>) (service-list-index self service)
-				  (let* ((si (my 'population-symbols))
+				  (let* ((si (my 'variable-symbols))
 							(n (length si))
 							(ix (member service si))
 							(i (if ix  (- n (length ix)) #f)))
@@ -1607,11 +1634,11 @@ args can be  an update map or an update map and update equations
 ;; domain is a list  ((minx miny minz) (maxx maxy maxz))
 ;; patch-data is a list of  services lists for make-patch
 
-(define (make-habitat name default-ht domain terrain-function 
+(define (make-habitat taxon name default-ht domain terrain-function 
 							 patch-list
 							 )
   ;;(dnl* "Making hay")
-  (let* ((H (make-agent <habitat*> 'name name 'default-value default-ht
+  (let* ((H (create <habitat*> taxon 'name name 'default-value default-ht
 								'type 'habitat
 						'minv (car domain) 'maxv (cadr domain)
 						'terrain-function terrain-function
@@ -1620,7 +1647,9 @@ args can be  an update map or an update map and update equations
 						)			
 				)
 			)
+	 (dnl "Acquiring patches " patch-list)
 	 (acquire-agents H #t patch-list) ;; insert the patches into the nested runqueue ... the #t means they go in the active queue too.
+	 (dnl "Finished making habitat")
 	 H)
   )
 
@@ -1658,7 +1687,7 @@ args can be  an update map or an update map and update equations
 
 
 ;--- initialise <habitat> (self args) -- make a new habitat
-(default-agent-initialisation <habitat> 'scale #f)
+;;(default-agent-initialisation <habitat> 'scale #f)
 
 ;;; (model-method <habitat> (initialise self args)
 ;;; 				  (set-state-variables self (list 'scale #f))
@@ -1853,19 +1882,25 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method <habitat> (min-bound self)
 (model-method <habitat> (min-bound self)
-				  (let* ((v (map min-bound (slot-ref self 'patch-list)))
-							(vx (apply min (map car v)))
-							(vy (apply min (map cadr v)))
-							)
-					 (list vx vy)))
+				  (let ((pl (slot-ref self 'patch-list)))
+					 (if (pair? pl)
+						  (let* ((v (map min-bound pl))
+									(vx (apply min (map car v)))
+									(vy (apply min (map cadr v)))
+									)
+							 (list vx vy))
+						  (my 'minv))))
 
 ;--- model-method <habitat> (max-bound self)
 (model-method <habitat> (max-bound self)
-				  (let* ((v (map max-bound (slot-ref self 'patch-list)))
-							(vx (apply max (map car v)))
-							(vy (apply max (map cadr v)))
-							)
-					 (list vx vy)))
+				  (let ((pl (slot-ref self 'patch-list)))
+					 (if (pair? pl)
+						  (let* ((v (map max-bound (slot-ref self 'patch-list)))
+									(vx (apply max (map car v)))
+									(vy (apply max (map cadr v)))
+									)
+							 (list vx vy))
+						  (my 'maxv))))
 
 ;;1.0/(1.0 + exp(-2*pi*l*(2*(x+(0.5 - off)) - 1.0)) )
 ;; l = 1.0, off = 0.5

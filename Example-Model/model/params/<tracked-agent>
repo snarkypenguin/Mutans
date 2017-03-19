@@ -1,0 +1,10 @@
+'Parameters
+(define <tracked-agent>-parameters
+  (list
+    (list 'track #t)
+    (list 'tracked-paths #f)
+    (list 'track-schedule '())
+    (list 'track-epsilon (* 1e-6 seconds))
+  )
+)
+(set! global-parameter-alist (cons (cons <tracked-agent> <tracked-agent>-parameters) global-parameter-alist))

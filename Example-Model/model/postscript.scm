@@ -71,7 +71,7 @@
 
 (define (make-list-matrix . rows)
   (if (apply = (map length rows))
-		(map copy-list rows)
+		(map list-copy rows)
 		#f))
 
 (define (ps-list-ref*? lst ix)

@@ -24,11 +24,11 @@ changes, we hope not too many.
 "
 ;-- fundamental monitor class methods
 
-;--- initialisation
-(agent-initialisation-method (<monitor> args) (specific-targets '() selector (lambda x #f) tree '(0 0 {}))
-									  (initialise-parent)
-									  ;; call "parents" last to make the initialisation list work
-									  )
+;;; ;--- initialisation -;
+;;; (agent-initialisation-method <monitor> (args) (specific-targets '() selector (lambda x #f) tree '(0 0 {})) -;
+;;; 									  (initialise-parent) -;
+;;; 									  ;; call "parents" last to make the initialisation list work -;
+;;; 									  ) -;
 
 ;--- pass-preparation
 ;; This method sets the list of agents to be dealt with to the empty list
@@ -79,7 +79,7 @@ changes, we hope not too many.
 ;---- (assess-representations domain) assesses the niches in a given domain
 (define (assess-representations domain)
   (let* ((candidate-reps (slot-ref self 'representation-list)) ;; representations which the domain is sensitive to
-			(candidate-trees (map (lambda (x) (copy-list zerotree)) candidate-reps)) ;; list of trees to hold the "state" of reps
+			(candidate-trees (map (lambda (x) (list-copy zerotree)) candidate-reps)) ;; list of trees to hold the "state" of reps
 			(candidate-agents '()) ;; a-list of agents in domain keyed by representation class
 			(niches (slot-ref domain 'niche-list))
 			)

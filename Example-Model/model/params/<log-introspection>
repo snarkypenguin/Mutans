@@ -1,0 +1,17 @@
+'Parameters
+(define <log-introspection>-parameters
+  (list
+    (list 'file '<uninitialized>)
+    (list 'filename '<uninitialized>)
+    (list 'filetype '<uninitialized>)
+    (list 'format '<uninitialized>)
+    (list 'variables '<uninitialized>)
+    (list 'variables-may-be-set '<uninitialized>)
+    (list 'missing-val '<uninitialized>)
+    (list 'show-field-name '<uninitialized>)
+    (list 'preamble-state '<uninitialized>)
+    (list 'introspection-list '<uninitialized>)
+    (list 'timestep-epsilon '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <log-introspection> <log-introspection>-parameters) global-parameter-alist))

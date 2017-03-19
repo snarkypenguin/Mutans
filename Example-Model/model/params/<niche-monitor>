@@ -1,0 +1,9 @@
+'Parameters
+(define <niche-monitor>-parameters
+  (list
+    (list 'representation-alternatives '<uninitialized>)
+    (list 'domain '<uninitialized>)
+    (list 'niche-selector '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <niche-monitor> <niche-monitor>-parameters) global-parameter-alist))

@@ -1,3 +1,0 @@
-Following the execution path through the model code, at least at the
-lowest level, isn't trivial.  The model is defined in the files
-"submodels.scm", "kernel.scm" and "model-configuration.scm"

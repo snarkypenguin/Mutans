@@ -1,1 +1,0 @@
-(load "log-methods.scm")

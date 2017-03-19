@@ -5,7 +5,7 @@
 (define currently-loading #f)
 (define true #t)
 (define false #f)
-
+(define <uninitialized> '<uninitialized> )
 
 ;; Registers to associate  classes, methods and objects with their name.
 
@@ -18,14 +18,12 @@
 (define original-newline newline)
 (define fake-newline (lambda x (void)))
 
-(define original-ednl ednl)
-(define fake-ednl (lambda x (void)))
+;(define original-ednl ednl)
+;(define fake-ednl (lambda x (void)))
 
 ;(set! display fake-display)
 ;(set! newline fake-newline)
 ;(set! ednl fake-ednl)
-
-
 
 
 (define getenv (let ((ge getenv))
@@ -55,108 +53,141 @@
          (warn-loaded #t)
          (loaded '())
          (loading '())
+			(EQ? eqv?)
+			(MEMB memq)
          (prload (lambda (x y)
                    (display (string-append "\n[" x " "))
                    (display y)(display "]\n")))
          )
     (lambda (fn . args)
-
       (if (not (null? fn))
-          (if (member fn loaded)
+          (if (MEMB fn loaded)
               (if warn-loaded
                   (dnl "[" fn " is already loaded]"))
               (cond
-               ((member fn (list "loaded?"))
-                (for-each dnl (reverse loaded))
-                )
                ;; ((and (string? fn) (not (null? args)))
                ;;  (dnl "forced loading of " fn)
                ;;  (oload fn) ;; forces a load, doesn't record it
                ;;  )
-					((and (member fn '(force force-load)) (not (null? args)))
+
+					;; Load the file irrespective of whether it has been loaded before
+					((and (MEMB fn '(force force-load)) (not (null? args)))
 					 (for-each oload args))
 
-               ((eq? fn 'flush)
+					;; The next two substantially change the behaviour ------
+					((EQ? fn 'revert!)
+					 (display "Reverted to original load\n")
+					 (set! load oload))
+
+               ((or (EQ? fn 'flush!)(EQ? fn 'flush))
 					 (display "Flushed load list\n   ")
 					 (display loaded)(newline)
                 (set! loaded '())
 					 )
 
-               ((eq? fn 'warn-loaded)
+					;; the next three return state information ---------------
+					((EQ? fn 'loaded-list)
+					 (reverse loaded))
+
+					((EQ? fn 'loading-list)
+					 loading)
+
+               ((MEMB fn '(now-loading now-loading? current-file current-file?))
+                ;;(prload "loaded" loaded)
+					 (if (pair? loading) (car loading) #f)
+					 )
+
+
+               ((MEMB fn '(prloaded? loaded loaded-list loaded-list?))
+                (prload "loaded" loaded))
+
+               ((MEMB fn '(prloading? loaded loaded-list loaded-list?))
+                (prload "loading" loading)
+					 )
+
+					;; Set/reset flags --------------------------------------
+					((EQ? fn 'warn-loaded)
 					 (display "Warning when files are already loaded\n")
                 (set! warn-loaded #t))
 
-               ((eq? fn '!warn-loaded)
+					((EQ? fn '!warn-loaded)
 					 (display "Not warning when files are already loaded\n")
-                (set! warn-loaded #f))
+					 (set! warn-loaded #f))
 
-               ((eq? fn 'always-load)
+					;;--
+
+               ((EQ? fn 'always-load)
 					 (display "Always loading.\n")
                 (set! always-load #t))
 
-               ((eq? fn '!always-load)
+               ((EQ? fn '!always-load)
 					 (display "Only loading new files.\n")
                 (set! always-load #f))
 
-               ((eq? fn 'print-loaded)
+					;;--
+
+               ((EQ? fn 'print-loaded)
 					 (display "Printing loaded files at each load.\n")
                 (set! always-print-loaded #t))
 
-               ((eq? fn '!print-loaded)
+               ((EQ? fn '!print-loaded)
 					 (display "Not printing loaded files at each load.\n")
                 (set! always-print-loaded #f))
 
-               ((eq? fn 'print-loading!)
+					;;--
+
+               ((EQ? fn 'print-loading)
 					 (display "Printing currently loading files at each load.\n")
                 (set! always-print-loading #t))
 
-               ((eq? fn '!print-loading!)
+               ((EQ? fn '!print-loading)
 					 (display "Not printing currently loading files at each load.\n")
                 (set! always-print-loading #f))
 
-               ((member fn '(loaded? loaded loaded-list loaded-list?))
-                (prload "loaded" loaded))
-
-               ((member fn '(loading? loading loading-list
-                                     loading-list? load-list?))
-                (prload "loading" loading))
-
-					((eq? fn 'help)
+					;; Print help -----------------------------------------------
+					((EQ? fn 'help)
 					 (display
 					  (string-append
 						"This load routine suppresses loading a file more than once "
-						                "by default.\n"
+						"by default.\n"
 						"The load procedure responds to a number of symbols:\n\n"
 						"help           this help message\n"
-						"loaded?        prints the list of loaded files\n"
+						"revert!        revert to the original load procedure\n"
+						"flush!         flushes the list of loaded files\n"
+						"list-loading   returns the list of active files\n"
+						"now-loading?   returns the file currently being loaded\n"
+						"loading\n"
+						"list-loaded    returns the list of files already loaded\n"
 						"loading?       prints the list of files that are currently "
-                                  "loading\n"
-						"flush          flushes the list of loaded files\n"
+						"loading\n"
+						"loaded?        prints the list of loaded files\n"
 						"warn-loaded    sets the flag that makes it warn about "
-						                "attempts to\n"
+						"attempts to\n"
 						"               load a file more that once\n"
 						"!warn-loaded   turns off the warning\n"
 						"always-load    (load...) will alway load the files "
-						                "indicated\n"
+						"indicated\n"
 						"!alway-load    (load...) only loads files which have not been "
-                                  "loaded\n"
-						"print-loaded   the list of loaded files is printed at each call "
-                                  "to (load...)\n"
+						"loaded\n"
+						"print-loading  the list of loaded files is printed at each call "
+						"to (load...)\n"
 						"!print-loaded  turns off the previous flag\n"
 						"print-loading  the list of loading files is printed at each call "
-                                  "to (load...)\n"
+						"to (load...)\n"
 						"!print-loading turns off the previous flag\n"
 						"\n")))
-               (#t
+               ((string? fn)
                 (set! loading (cons fn loading))
                 (if always-print-loading (prload "loading" loading))
-                (if (or always-load (not (member fn loaded)))
+                (if (or always-load (not (MEMB fn loaded)))
                     (begin
                       (oload fn)
                       (set! loading (cdr loading))
                       (set! loaded (cons fn loaded))
                       (if always-print-loaded (prload "loaded" loaded))))
-                ))
+                )
+					(#t (error "bad argument to (load)" fn))
+					)
               )
           )))
   )
@@ -193,16 +224,16 @@
 (setenv "SCHEME_RC_LOADED" *scheme-version*)
 ;(setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/")
 
- ;; for C junkies :->
- (define stdin 'use:current-input-port)
- (define stdout 'use:current-output-port)
- (define stderr 'use:current-error-port)
+;; for C junkies :->
+(define stdin 'use:current-input-port)
+(define stdout 'use:current-output-port)
+(define stderr 'use:current-error-port)
 
 
- (define (maybe-expand-path path . dir)
-   (if (string-index path #\~)
-       (path-expand path)
-       path))
+(define (maybe-expand-path path . dir)
+  (if (string-index path #\~)
+		(path-expand path)
+		path))
 
 
 (define (dnl* . args)
@@ -213,7 +244,7 @@
         (for-each (lambda (x) (display " ") (display x)) t)))
   (newline))
 
-  
+
 (define (dnl . args)
   (if (not (null? args))
       (let ((h (car args))
@@ -224,19 +255,20 @@
 
 (define ednl dnl)
 (define ednl* dnl*)
-  
 
-                  
+
+
 ;; This allows me to put in comments which I can "articulate" if needs be.
 (define (Comment . args) #!void)
 
- ;; set the value associated with key in a-list
- ;; (assoc-set! list key value)
+;; set the value associated with key in a-list
+;; (assoc-set! list key value)
 
-(define (list-copy l) ;; Remember, copy-list is the canonical list duplication routine
+(define (list-copy l) ;; Remember, list-copy is the canonical list duplication routine
   (if (not (pair? l))
 		l
 		(cons (list-copy (car l)) (list-copy (cdr l)))))
+
 
 ;---- (!filter selector lst) -- returns a list of those elements which fail the selector
 
@@ -285,7 +317,7 @@
   (if (not (and (symbol? s) (symbol? t)))
 		(error "Passed a non symbol to symbol<?" s t)
 		(string<? (symbol->string s) (symbol->string t))))
-	
+
 (define (call-with-input-port p thunk)
   (let ((pp (current-input-port)))
 	 (current-input-port p)

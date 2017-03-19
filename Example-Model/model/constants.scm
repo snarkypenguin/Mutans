@@ -44,8 +44,8 @@
 
 
 
-;; Used as the placeholder for uninitialised things in classes
-(define uninitialised (lambda args (abort)))
+;; Used as the placeholder for uninitialized things in classes
+(define uninitialized (lambda args (abort)))
 
 
 ;-  The End 

@@ -69,6 +69,7 @@
 (define logger-tags '())
 
 (define submodel-register '())
+
 (define (register-submodel tag . filelist)
   (if (assoc tag submodel-register)
 		(set-cdr! (assoc tag submodel-register)
@@ -76,7 +77,6 @@
 		(set! submodel-register
 				(cons (cons tag filelist) submodel-register)))
   )
-
 
 (define (load-submodels)
   (let ((L load))

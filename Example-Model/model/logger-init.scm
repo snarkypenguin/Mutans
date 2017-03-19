@@ -31,7 +31,7 @@
 ;-  Code 
 
 (define logger 
-  (make-agent <log-data> (list 'name "Data" 
+  (create <log-data> "datalogger" (list 'name "Data" 
 								 'dt 4
 								 'missing-val missing-value
 								 'timestep-schedule schedtimes 

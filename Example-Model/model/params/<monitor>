@@ -1,0 +1,16 @@
+'Parameters
+(define <monitor>-parameters
+  (list
+    (list 'selector '<uninitialized>)
+    (list 'configuration-candidates '<uninitialized>)
+    (list 'domain*-options '<uninitialized>)
+    (list 'niche*-options '<uninitialized>)
+    (list 'assessment-function '<uninitialized>)
+    (list 'history '<uninitialized>)
+    (list 'target-list '<uninitialized>)
+    (list 'specific-agents '<uninitialized>)
+    (list 'KnownGood '<uninitialized>)
+    (list 'KnownBad '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <monitor> <monitor>-parameters) global-parameter-alist))

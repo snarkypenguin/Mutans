@@ -41,7 +41,7 @@ closure. The special growth functions 'sigmoidal and 'linear  can
 be specified by passing the appropriate symbol.
 
 A typical construction of an ecoservice might look like
-(make-agent <ecoservice> 
+(create <ecoservice> ecosrvtaxon
   'patch P 
   'value 42000 
   'capacity +inf.0 
@@ -89,18 +89,16 @@ A typical construction of an ecoservice might look like
   (state-variables locus perimeter radius)
   )
 
-
-
-
 (define-class <patch> (inherits-from  <environment>)
-  (state-variables service-list rep))
+  (state-variables service-list))
+;; This one needs a 'rep set (which is what <environment> provides
 
 (Comment "A patch is a geographic region with a list of ecological
 services.  The representation (rep) is a spatial thingie.")
 
 ;;
 (define-class <dynamic-patch>
-  (inherits-from <patch> <dynamic-system>)
+  (inherits-from <patch> <diffeq-system>)
   (state-variables
 	do-dynamics       ;; #t/#f whether to do the dynamics
 	;; or not if this is false, state
@@ -118,14 +116,14 @@ differential equations which stand in the place of the simpler
 representation of patches with ecoservices.
 
 A straightforward instantiation of a <dynamic-patch> might look like
-  (define P (make-agent <dynamic-patch> 'location loc 'radius radius 'type 
+  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 'type 
                   'patch 'representation 'patch 
                   'do-growth #f 'do-dynamics #t
                   'population-definitions 
 						  (list (list \"plants\" 'plant dplant/dt) 
                          ... (list \"spiders\" spider dspider/dt)) ))
 or 
-  (define P (make-agent <dynamic-patch> 'location loc 'radius radius 'type 
+  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 'type 
           'patch 'representation 'patch 
           'do-growth #f 'do-dynamics #t
           'population-names 
@@ -162,7 +160,7 @@ services must be there or Bad Things Happen.
 
 (define-class <landscape> (inherits-from <environment>)
   (state-variables terrain-function))
-;; terrain-function is a function in x and y that returns a DEM
+;; terraino-function is a function in x and y that returns a DEM
 
 (define-class <habitat> (inherits-from <landscape>)
   (state-variables patch-list dump-times scale internal-runqueue))
@@ -173,8 +171,7 @@ services must be there or Bad Things Happen.
   (state-variables global-patch global-update))
 ;; global-patch is a patch/dynamic-patch which maintains "variables" 
 ;;   pertinent to the whole domain (and it ought to contain the patch-list)
-;; patch-list is a list of patches -- the patches can be either patches,
-;;   dynamic-patches or a mix -- the list is passed in at initialisation.
+;; global-update is a function that updates the values in the global patch.
 
 
 
@@ -188,3 +185,4 @@ services must be there or Bad Things Happen.
 ;;; comment-start: ";;; "
 ;;; comment-end:"" 
 ;;; End:
+

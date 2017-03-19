@@ -1,0 +1,18 @@
+'Parameters
+(define <example-plant>-parameters
+  (list
+    (list 'cell '<uninitialized>)
+    (list 'peak-mass '<uninitialized>)
+    (list 'mass '<uninitialized>)
+    (list 'fruiting-mass '<uninitialized>)
+    (list 'fruiting-prob '<uninitialized>)
+    (list 'fruiting-rate '<uninitialized>)
+    (list 'seeds-per-fruit '<uninitialized>)
+    (list 'seed-queue '<uninitialized>)
+    (list 'mort-mass '<uninitialized>)
+    (list 'mort-prob '<uninitialized>)
+    (list 'seeds-per-fruit '<uninitialized>)
+    (list 'habitat '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <example-plant> <example-plant>-parameters) global-parameter-alist))

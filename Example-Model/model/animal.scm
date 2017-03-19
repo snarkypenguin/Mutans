@@ -1,1 +1,0 @@
-(load "animal-methods.scm")

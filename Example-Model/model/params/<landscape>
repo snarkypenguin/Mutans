@@ -1,0 +1,7 @@
+'Parameters
+(define <landscape>-parameters
+  (list
+    (list 'terrain-function (lambda x 0)) ;; defaults to flat
+  )
+)
+(set! global-parameter-alist (cons (cons <landscape> <landscape>-parameters) global-parameter-alist))

@@ -1,0 +1,10 @@
+'Parameters
+(define <habitat>-parameters
+  (list
+    (list 'patch-list '())
+    (list 'dump-times '())
+    (list 'scale '1)
+    (list 'internal-runqueue '()) ;; no internal run-queue by default
+  )
+)
+(set! global-parameter-alist (cons (cons <habitat> <habitat>-parameters) global-parameter-alist))

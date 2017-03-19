@@ -30,6 +30,7 @@
 ;--    Public data 
 
 ;-  Code 
+(include "framework")
 
 (define-class <introspection> (inherits-from <agent>)
 				  (state-variables introspection-list

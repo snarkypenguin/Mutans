@@ -29,10 +29,11 @@
 
 (define temporal-fascist #f) ;; This can make things quite picky.
 
+(define track-initialisations #t)
+
 (define FirstJiggle 1.0)
 (define LastJiggle 0.0)
 (define DefaultPriority 0)
-
 
 
 ;; the list representation of a vector from s to d, but smart about <agent>s
@@ -72,20 +73,11 @@
 ;; doesn't happen, though I prefer to keep a class all in one place.
 ;; Ditto for the "make-class" calls.
 
-;; This is the only "initialize"-with-a-zed that ought to be present ... adding another
-;; may do bad things to the initialisation processing.
-
-(add-method initialize (make-method (list <object>)
-												(lambda (call-next-method object initargs)
-												  ;;(dnl* "calling initialize for <object>")
-												  (call-next-method)
-												  (initialise object initargs)
-												  object) ))
-
-
 ;--- maintenance code (for submodels maintaining data for another representation)
 
-(default-agent-initialisation <model-maintenance>)
+;;; (define-macro (lookit-this)
+;;;   (let ((tst (default-agent-initialisation <model-maintenance>)))
+;;; 	 (pp tst)))
 
 (model-body <model-maintenance>
 				(let ((status-list (map (lambda (kernel t dt maint-routine)
@@ -113,14 +105,14 @@
 				  ))
 
 
-;--- Helper classes (wart classes)
+;;; ;--- Helper classes (wart classes) 
 
-(object-initialisation-method
- (<object> initargs) ;; <object> is the most primitive of the framework classes,  there are no default intitialisation args
- '() 				      ;; and the "make" initialisation args are called initargs
- ;; Body:
- (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
- )
+;;; (object-initialisation-method <object> "this is done in sclos+extra", but somewhat differently
+;;;  (initargs) ;; <object> is the most primitive of the framework classes,  there are no default intitialisation args
+;;;  '(no-default-values) 				      ;; and the "make" initialisation args are called initargs
+;;;  ;; Body:
+;;;  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
+;;;  )
 
 
 ;--- Fundamental "run" routine -- accepts anything, but fails if it's inappropriate
@@ -132,70 +124,79 @@
 										  (slot-ref self 'name)))))
 
 ;--- Agent classes
+"We have the agent initialisation here, rather than in
+sclos+extras.scm, for a few reasons.  First, it is much more complex
+and people may need to look at it to see what is happening.  Second,
+<object>s are really not much more than data structures with
+specialised methods.  <agent>s are much more complex, and might not be
+commonly viewed as just a simple extension of sclos.
+"
 ;---- <agent> methods
 ;----- (initialise) 
 
 
-(agent-initialisation-method (<agent> initargs) '()
-				  (kdnl* '(track-init) "<agent> initialise---")
-				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialised))
+;;; (agent-initialisation-method <agent> (initargs) '(no-default-values)
+;;; 				  (kdnl* '(track-init) "<agent> initialise---")
+;;; 				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialized))
 
-				  ;;(pp args)
-				  ;;(dnl "agent")
-				  (slot-set! self '<agent>-initialised #t)
+;;; 				  ;;(pp args)
+;;; 				  ;;(dnl "agent")
+;;; 				  (slot-set! self '<agent>-initialized #t)
 
-				  (initialise-parent)
+;;; 				  (initialise-parent) ;; the only parent is <object>
 
-				  (set-state-variables ;; We set some reasonable default values for
-					;; some of the slots
-					self (list
-							'active-subsidiary-agents '()
-							'agent-body-ran #f
-							'agent-epsilon 1e-6
-							'agent-schedule '()
-							'agent-state 'ready-for-prep 
-							'counter 0
-							'dt 1.0
-							'jiggle LastJiggle
-							'maintenance-list '() ;; this is a list of funcs
-							'map-projection (lambda (x) x)
-							'migration-test  (lambda args #f) ;; Don't migrate by default
-							'name '<nameless>
-							'need-all-parent-model-bodies #f
-							'note ""
-							'priority DefaultPriority
-							'state-flags '()
-							'subjective-time 0.0
-							'subsidiary-agents '()
-							))
-				  ;; call "parents" last to make the initialisation list work
-				  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
+;;; 				  (set-state-variables ;; We set some reasonable default values for
+;;; 					;; some of the slots
+;;; 					self (list
+;;; 							'active-subsidiary-agents '()
+;;; 							'agent-body-ran #f
+;;; 							'agent-epsilon 1e-6
+;;; 							'agent-schedule '()
+;;; 							'agent-state 'ready-for-prep 
+;;; 							'counter 0
+;;; 							'dt 1.0
+;;; 							'jiggle LastJiggle
+;;; 							'maintenance-list '() ;; this is a list of funcs
+;;; 							'map-projection (lambda (x) x)
+;;; 							'migration-test  (lambda args #f) ;; Don't migrate by default
+;;; 							'name '<nameless>
+;;; 							'needs-parent-initialisers #f ;; can be #f, 1 (primaries only), or #t (all)
+;;; 							'needs-parent-bodies #f
+;;; 							'note ""
+;;; 							'priority DefaultPriority
+;;; 							'state-flags '()
+;;; 							'subjective-time 0.0
+;;; 							'subsidiary-agents '()
+;;; 							))
+;;; 				  ;; call "parents" last to make the initialisation list work
+;;; 				  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
 				  
-				  (let ((initslots (evens initargs)))
-					 (if (member 'type initslots)
-						  (load-parameters self (slot-ref self 'type))))
-				  )
+;;; 				  (let ((initslots (evens initargs)))
+;;; 					 (if (member 'type initslots)
+;;; 						  (load-parameters self (slot-ref self 'type))))
+;;; 				  )
 
-(model-method (<agent>) (load-parameters self type-name)
-				  (set! type-name (if (string? type-name) type-name (object->string type-name)))
-				  (let* ((type (string->symbol type-name))
-							(fname (string-append "parameters/" type-name))
-							(param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
-						  )
-					 (slot-set! self 'type type)
-					 (for-each
-					  (lambda (setting)
-						 (if (has-slot? self (car setting))
-							  (let ((len (length setting))
-									  (slot (car setting))
-									  (implicit-lists #f)
-									  )
-								 (cond
-								  ((= 1 len) (slot-set! self slot #t))
-								  ((= 2 len) (slot-set! self slot (cadr setting)))
-								  (implicit-lists (slot-set! self slot (cdr setting)))
-								  (#t (error "parameter has more than one value!" type-name settings))))))
-					  param-list)))
+
+;;; ;;; (model-method (<agent>) (set-parameters self type-name)
+;;; ;;; 				  (set! type-name (if (string? type-name) type-name (object->string type-name)))
+;;; ;;; 				  (let* ((type (string->symbol type-name))
+;;; ;;; 							(fname (string-append "parameters/" type-name))
+;;; ;;; 							(param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
+;;; ;;; 						  )
+;;; ;;; 					 (slot-set! self 'type type)
+;;; ;;; 					 (for-each
+;;; ;;; 					  (lambda (setting)
+;;; ;;; 						 (if (has-slot? self (car setting))
+;;; ;;; 							  (let ((len (length setting))
+;;; ;;; 									  (slot (car setting))
+;;; ;;; 									  (implicit-lists #f)
+;;; ;;; 									  )
+;;; ;;; 								 (cond
+;;; ;;; 								  ((= 1 len) (slot-set! self slot #t))
+;;; ;;; 								  ((= 2 len) (slot-set! self slot (cadr setting)))
+;;; ;;; 								  (implicit-lists (slot-set! self slot (cdr setting)))
+;;; ;;; 								  (#t (error "parameter has more than one value!" type-name settings))))))
+;;; ;;; 					  param-list)))
 
 
 (model-method <agent> (change-type self newtype)
@@ -209,18 +210,18 @@
 
 
 (model-method <agent> (provides self)
-				  (copy-list (slot-ref self 'provides)))
+				  (list-copy (slot-ref self 'provides)))
 
 (model-method <agent> (requires self)
-				  (copy-list (slot-ref self 'requires)))
+				  (list-copy (slot-ref self 'requires)))
 
 (model-method <agent> (provides? self args)
 				  (if (not (pair? args)) (set! args (list args)))
-				  (intersection args (slot-ref self 'provides)))
+				  (list-intersection args (slot-ref self 'provides)))
 
 (model-method <agent> (requires? self args)
 				  (if (not (pair? args)) (set! args (list args)))
-				  (intersection args (slot-ref self 'requires)))
+				  (list-intersection args (slot-ref self 'requires)))
 
 
 (model-method <agent> (provides! self service)
@@ -356,7 +357,7 @@
 ;----- (name) 
 
 (model-method (<agent>) (name self)
-				  (let ((n (my 'name)))
+				  (let ((n (if (has-slot? self 'name) (my 'name) '<nameless>)))
 					 (cond
 					  ((eqv? n '<nameless>)
 						"--nameless--")
@@ -577,7 +578,7 @@
   ;;(dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
   (let ((r '())
 		  )
-	 (if (uninitialised? ttr) (set! ttr (list 0)))
+	 (if (uninitialized? ttr) (set! ttr (list 0)))
 	 (set! r (let loop ((l ttr))
 				  (if (or (null? l)
 							 (> tm (car l))
@@ -970,19 +971,19 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 ;---- <blackboard> methods
 
-(agent-initialisation-method (<blackboard> args)
-				  (kdnl* '(track-init) "<blackboard> initialise---")
-				  ;;(pp args)
-				  ;;(dnl "variable")
-				  (set-state-variables ;; We set some reasonable default values for
-					;; some of the slots
-					self (list 'message-list '()
-								  'label ""
-								  ))
-				  (initialise-parent)
-				  ;; call "parents" last to make the initialisation list work
-				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
-				  )
+;;; (agent-initialisation-method <blackboard> (args) (no-default-values)
+;;; 				  (kdnl* '(track-init) "<blackboard> initialise---")
+;;; 				  ;;(pp args)
+;;; 				  ;;(dnl "variable")
+;;; 				  (set-state-variables ;; We set some reasonable default values for
+;;; 					;; some of the slots
+;;; 					self (list 'message-list '()
+;;; 								  'label ""
+;;; 								  ))
+;;; 				  (initialise-parent)
+;;; 				  ;; call "parents" last to make the initialisation list work
+;;; 				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
+;;; 				  )
 
 				
 (model-method (<blackboard> <symbol>) (query self tag #!rest args)
@@ -1021,7 +1022,17 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 ;---- <tracked-agent> methods
 
-(default-agent-initialisation <tracked-agent> 'track #f 'tracked-paths #f 'track-schedule '() 'track-epsilon 1e-6)
+;;; (default-agent-initialisation <tracked-agent>
+;;;   'track #f
+;;;   'tracked-paths #f
+;;;   'track-schedule '()
+;;;   'track-epsilon 1e-6)
+
+;;; (agent-initialisation-method <tracked-agent> () (
+;;;   'track #f
+;;;   'tracked-paths #f
+;;;   'track-schedule '()
+;;;   'track-epsilon 1e-6))
 
 
 (model-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
@@ -1070,11 +1081,11 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 ;---- <thing> methods
 
-(default-agent-initialisation <thing> 'dim #f 'location #f
-  'direction #f
-  'speed #f 'mass #f
-  'track #f
-  'tracked-paths #f)
+;;; (default-agent-initialisation <thing> 'dim #f 'location #f
+;;;   'direction #f
+;;;   'speed #f 'mass #f
+;;;   'track #f
+;;;   'tracked-paths #f)
 
 ;----- (mass) 
 (model-method
@@ -1169,13 +1180,13 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 ;---- environment methods
 
-(default-agent-initialisation <environment>
-  'minv '(-inf.0 -inf.0 -inf.0)
-  'maxv '(+inf.0 +inf.0 +inf.0)
-  'split-flexibly #f
-  'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
-  'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
-  )
+;;; (default-agent-initialisation <environment>
+;;;   'minv '(-inf.0 -inf.0 -inf.0)
+;;;   'maxv '(+inf.0 +inf.0 +inf.0)
+;;;   'split-flexibly #f
+;;;   'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
+;;;   'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
+;;;   )
 
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)
@@ -1186,21 +1197,15 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;; or an intermediate node (six elements)
 
 (model-method <environment> (min-bound self)
-				  (copy-list (my 'minv)))
+				  (list-copy (my 'minv)))
 
 (model-method <environment> (max-bound self)
-				  (copy-list (my 'maxv)))
+				  (list-copy (my 'maxv)))
 
-(UNFINISHED-BUSINESS "This spatial sorting is not finished yet.  At the moment it seems a little touch and go
-as to whether the long term benefit of maintaining the structure outweighs the cost of ad hoc queries.")
-
-
-(model-method (<environment> <pair>) (contains? self loc)
-				  (let ((mbounds (min-bound self))
-						  (Mbounds (max-bound self))
-						  )
-					 (apply andf (append (map < mbounds loc)
-												(map < loc Mbounds)))))
+(UNFINISHED-BUSINESS "This spatial sorting is not finished yet. 
+At the moment it seems a little touch and go as to whether the 
+long term benefit of maintaining the structure outweighs the
+cost of ad hoc queries.")
 
 
 ;; Default environment only has the default value, oddly enough
@@ -1209,21 +1214,6 @@ as to whether the long term benefit of maintaining the structure outweighs the c
 
 (model-method (<environment> <pair>) (set-value! self loc val)
 				  (set-my! 'default-value val))
-
-(model-method (<environment> <thing>) (contains? self entity)
-				  (contains? (location entity))
-				  )
-
-(model-method (<environment> <symbol> <pair>) (value self tag loc)
-				  (my 'default-value))
-
-(model-method (<environment> <symbol> <pair>) (set-value! self tag loc val)
-				  (set-my! 'default-value val))
-
-(model-method (<environment> <thing>) (contains? self entity)
-				  (contains? (location entity))
-				  )
-
 
 ;;; Local Variables:
 ;;; mode: scheme

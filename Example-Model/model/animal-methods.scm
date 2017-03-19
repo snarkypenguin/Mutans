@@ -1,4 +1,5 @@
 (include "framework")
+; -*- mode: scheme; -*-
 ;-  Identification and Changes
 
 ;--
@@ -17,11 +18,11 @@
 
 ;-  Included files 
 
+(include "framework")
+
 ;-  Variables/constants both public and static
 
 ;--    Static data
-
-
 
 ;-  Variables/constants both public and static
 
@@ -42,12 +43,12 @@
 
 ;----- initialise
 
-(model-method <simple-metabolism> (initialise self args)
-				  (set-state-variables self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
-				  (initialise-parent)
-				  ;; call "parents" last to make the initialisation list work
-				  (set-state-variables self args)
-				  )
+;; (model-method <simple-metabolism> (initialise self args)
+;; 				  (set-state-variables self (list 'hunger-limit 20.0 'days-of-hunger 0.0))
+;; 				  (initialise-parent)
+;; 				  ;; call "parents" last to make the initialisation list work
+;; 				  (set-state-variables self args)
+;; 				  )
 
 
 
@@ -267,7 +268,7 @@
 
 ;----- (self-assessment)
 "This is a placeholder ... it almost certainly needs to change"
-(model-method <simple-animal> (representation-assessement self . args) 
+(model-method <simple-animal> (representation-assessment self . args) 
 				  (if (null? args) ;; only passed self
 						(let ((rgr (/ (my 'mass) (* (my 'age))))
 								(ngr (my 'nominal-growth-rate))
@@ -282,22 +283,22 @@
 
 
 
-;----- (initialise) 
-(model-method <animal> (initialise self args)
-				  (call-all-initialisers baseclass->class self)
-				  (slot-set! self 'current-interest 
-								 (lambda args 
-									(aborts
-									 (string-append
-									  "current-interest isn't defined for a "
-									  "member of the <animal> class: ")
-									 (slot-ref self 'name) ":"
-									 (slot-ref self 'type) ":"
-									 (slot-ref self 'representation))))
-				  (set-state-variables self (list 'age #f 'sex #f))
-				  ;; call "parents" last to make the initialisation list work
-				  (set-state-variables self args)
-				  )
+;; ;----- (initialise) 
+;; (model-method <animal> (initialise self args)
+;; 				  (call-initialisers '* baseclass->class self)
+;; 				  (slot-set! self 'current-interest 
+;; 								 (lambda args 
+;; 									(aborts
+;; 									 (string-append
+;; 									  "current-interest isn't defined for a "
+;; 									  "member of the <animal> class: ")
+;; 									 (slot-ref self 'name) ":"
+;; 									 (slot-ref self 'type) ":"
+;; 									 (slot-ref self 'representation))))
+;; 				  (set-state-variables self (list 'age #f 'sex #f))
+;; 				  ;; call "parents" last to make the initialisation list work
+;; 				  (set-state-variables self args)
+;; 				  )
 
 ;----- (age) 
 (model-method <animal> (age self)

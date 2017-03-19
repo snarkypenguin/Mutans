@@ -19,7 +19,7 @@
 	max-age ;; dies beyond this
 	max-mass ;; unlikely to reach this
 	age ;; age of plant in [0,4)
-	lai ;; leaf area index in (0,10)
+	lai ;; leaf area index in (0,10) -- leaf area/area in drip-line
 	water-stress  ;; [0,1]
 	water-use ;; amount of water required for a square metre
 	water-stress-effect ;; True if we factor water stress

@@ -1,0 +1,7 @@
+'Parameters
+(define <patch>-parameters
+  (list
+    (list 'service-list '())
+  )
+)
+(set! global-parameter-alist (cons (cons <patch> <patch>-parameters) global-parameter-alist))

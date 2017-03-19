@@ -46,6 +46,31 @@
 ;;
 ;;invsigmoid(x) =  (log(x) - log(1-x))/(4 * pi) + 0.5
 
+(define (default-object? x) (equal? x (void)))
+
+;; So we can load gauss.scm
+(define-macro (define* func-template . body)
+  (let* ((fname (car func-template))
+			(optionalix (map (lambda (x y) (cons x y)) (cdr func-template) (seq (length (cdr func-template)))))
+			(oix (assoc '#:optional optionalix))
+			(normalargs (if oix (map car (list-head optionalix (cdr oix))) optionalix))
+			(optarg (if oix (list-ref optionalix (+ (cdr oix) 1)) (void))))
+	 (dnl* 'Func func-template)
+	 (dnl* 'fname fname)
+	 (dnl* 'optionalix optionalix )
+	 (dnl* 'oix oix)
+	 (dnl* 'normalargs normalargs)
+	 (dnl* 'optarg optarg)
+
+	 (let ((txt `(define (,fname ,@normalargs #!rest ,optarg)
+						(if (null? ,optarg) (set! ,optarg (void)) (set! ,optarg (car ,optarg)))
+						,@body)))
+		(pp txt)
+		txt)
+	 )
+)
+
+
 (define-macro (pi) `,(* 4 (atan 1)))
 
 ;;# general-sigmoid: x is in [0,1], lmb governs how sharp the transition is and phi shifts it to 
@@ -124,7 +149,7 @@
 	((and (integer? e) (rational? b)) ;; This will keep them as exact numbers if they are exact
 	 (cond
 	  ((even? e) (power (* b b) (/ e 2)))
-	  (t (* b (power b (- e 1)))))
+	  (#t (* b (power b (- e 1)))))
 	 )
 	(else (exp (* e (log b))))))
 
@@ -300,14 +325,38 @@
   (apply + (list-operator * a b)))
 
 
+(define (urnd-int m M) (+ m (random-integer (- M m))))
+(define (urnd-real m M) (+ m (* (- M m) (randomreal))))
+
+
+(define (nrnd . args)
+  (let* ((N (length args))
+			(mean (if (> N 0) (car args) 0))
+			(stddev (if (> N 1) (cadr args) 1))
+			(m (if (> N 1) (cadr args) -inf.0))
+			(M (if (> N 1) (cadr args) +inf.0))
+			)
+
+	 (let* ((gaussian (lambda ()
+							 (let* ((pi*2 (* (pi) 2))
+									  (u (random-real))
+									  (v (random-real))
+									  (w (sqrt (* -2.0 (log u)))))
+								(* w (cos (* v pi*2))))))
+			  (p (+ (* (gaussian) stddev) mean)))
+		(if (or (< p m) (< M p))
+			 (apply nrnd (append (list mean var) args))
+			 p))))
+
+
+;; this is so we can use gauss.scm for normally distributed random numbers from scmutils
+(define random random-real)
+
 (define (random-angle)
   (* (pi) (- (* (random-real) 2.0) 1)))
 
 (define (rotated-velocity v theta)
   (rotated-vector v theta))
-
-
-
 
 (define (rotated-vector V theta #!optional axis)
   (let ((isvec (vector? V))

@@ -30,53 +30,54 @@
 ;--    Public data 
 
 ;-  Code 
+(include "framework")
 
-(agent-initialisation-method
- (<introspection> args) (no-default-variables)
- (set-state-variables
-  self (list 'type 'introspection
-				 'priority introspection-priority
-				 'jiggle 0 'introspection-list '() 
-				 'timestep-epsilon 1e-6 'file #f
-				 'dont-log '(ready-for-prep
-								 ;; agent things
-								 agent-body-ran agent-schedule
-								 agent-epsilon map-projection counter 
-								 migration-test state-flags
-								 dont-log timestep-schedule kernel
+;; (agent-initialisation-method
+;;  <introspection> (args) (no-default-variables)
+;;  (set-state-variables
+;;   self (list 'type 'introspection
+;; 				 'priority introspection-priority
+;; 				 'jiggle 0 'introspection-list '() 
+;; 				 'timestep-epsilon 1e-6 'file #f
+;; 				 'dont-log '(ready-for-prep
+;; 								 ;; agent things
+;; 								 agent-body-ran agent-schedule
+;; 								 agent-epsilon map-projection counter 
+;; 								 migration-test state-flags
+;; 								 dont-log timestep-schedule kernel
 								 
-								 ;; log agent things
-								 introspection-list introspection-schedule
-								 timestep-epsilon 
+;; 								 ;; log agent things
+;; 								 introspection-list introspection-schedule
+;; 								 timestep-epsilon 
 
-								 dims ;; thing things
+;; 								 dims ;; thing things
 
-								 ;; environment things
-								 default-value minv maxv 
+;; 								 ;; environment things
+;; 								 default-value minv maxv 
 
-								 ;; ecoservice things
-								 plateau-interval growth-rate 
+;; 								 ;; ecoservice things
+;; 								 plateau-interval growth-rate 
 
-								 ;; landscape things
-								 service-list service-update-map
-								 update-equations terrain-function
-								 dump-times scale 
-								 log-services-from-patch
-								 log-patches-from-habitat
+;; 								 ;; landscape things
+;; 								 service-list service-update-map
+;; 								 update-equations terrain-function
+;; 								 dump-times scale 
+;; 								 log-services-from-patch
+;; 								 log-patches-from-habitat
 
-								 ;; animal things
-								 domain-attraction food-attraction 
-								 near-food-attraction searchspeed
-								 wanderspeed foragespeed	
-								 movementspeed foodlist homelist
-								 breedlist habitat
-								 )
-				 'variables-may-be-set #t
-				 ))
- (initialise-parent) ;; call "parents" last to make the
- ;; initialisation xxxxxxxxxxxxxxxxxxxblist work
- (set-state-variables self args)
- )
+;; 								 ;; animal things
+;; 								 domain-attraction food-attraction 
+;; 								 near-food-attraction searchspeed
+;; 								 wanderspeed foragespeed	
+;; 								 movementspeed foodlist homelist
+;; 								 breedlist habitat
+;; 								 )
+;; 				 'variables-may-be-set #t
+;; 				 ))
+;;  (initialise-parent) ;; call "parents" last to make the
+;;  ;; initialisation xxxxxxxxxxxxxxxxxxxblist work
+;;  (set-state-variables self args)
+;;  )
 
 (model-method (<introspection> <number> <number>) (agent-prep self start end)
 				  (agent-prep-parent self start end) ;; parents should prep first

@@ -178,7 +178,7 @@ constructors to generate it.
   (cond
 	((null? args) '())
 	((= (length args) 1)
-	 (copy-list (car args)))
+	 (list-copy (car args)))
 	((= (length args) 2)
 	 (%cross2 (car args) (cadr args)))
 	(#t
@@ -1702,7 +1702,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;--- (children<- . args) construct a set of children
 (define (children<- . kids)
   (if (apply andf (map node? kids))
-		(copy-list kids)
+		(list-copy kids)
 		(error "Bad element(s) in children" kids)))
 
 ;--- (children v) returns the set of children of v

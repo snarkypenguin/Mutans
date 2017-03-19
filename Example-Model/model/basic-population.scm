@@ -108,7 +108,7 @@ The usual pattern for a std-d/dt would be
 				(if (zero? nrest)
 
 					 (lambda args (error
-										(string-append "d/dt is uninitialised:"
+										(string-append "d/dt is uninitialized:"
 															" use the 'set-d/dt! call to set it")))
 					 (lambda (t . pvals)
 						;; t is the first element in the list, other
@@ -207,7 +207,7 @@ The usual pattern for a std-d/dt would be
 										  (error ))
 									 (if (null? (cdr args))
 										  (error  "No populations?  What's the point?")
-										  (set! populations (copy-list (cadr args)))
+										  (set! populations (list-copy (cadr args)))
 										  ))
 									
 									((eqv? (car args) 'register-prey)

@@ -69,7 +69,7 @@
 (define (subset-species data glst lst) 
   (let* ((symbols (symbolist glst))
 			(m (length symbols))
-			(I (intersection symbols lst))
+			(I (list-intersection symbols lst))
 			(ix (getix lst))
 			)
 
@@ -84,7 +84,7 @@
 (define (species-subset-list data lst #!rest a) 
   (let* ((symbols (apply symbolist a))
 			(m (length symbols))
-			(I (intersection symbols lst))
+			(I (list-intersection symbols lst))
 			(ix (getix lst))
 			)
 

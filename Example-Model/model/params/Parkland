@@ -1,0 +1,14 @@
+'Parameters
+(define Parkland-parameters
+  (list
+	'(type area)
+	;; This uses the "six" notation supported by gambit-c
+	(list 'terrain-function (lambda (x y) \10*power(abs(power(sin(x/600),4)-power(cos(x/500),3)+2*cos((x+y)/923)-power(sin(y/600),5)),0.5);
+											  )) ;; the expression is bounded by the backslash and the semicolon in the line above.
+	(list 'patch-list '())
+	(list 'dump-times '())
+	(list 'scale '1)
+	(list 'internal-runqueue '()) ;; no internal run-queue by default
+  )
+)
+(set! global-parameter-alist (cons (cons <habitat> <habitat>-parameters) global-parameter-alist))

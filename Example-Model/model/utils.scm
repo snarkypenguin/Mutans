@@ -18,6 +18,10 @@
 ;;	 s)
 ;;  )
 
+
+(define (atom? x)
+  (not (pair? x)))
+
 ;;(define (cddddr x) (cdr (cdddr x)))
 ;;(define (cadddr x) (car (cdddr x)))
 ;(define (caddddr x) (car (cdddr x)))
@@ -72,6 +76,43 @@
 	(else 'unknown)
 	)
   )
+
+;---- (list-intersection a b) intersection of lists a and b
+(define (list-intersection A B)
+  (if (not (pair? A)) (set! A (list A)))
+  (if (not (pair? B)) (set! A (list B)))
+  (let ((f (filter (lambda (x) (member x B)) A)))
+	 (if (null? f)
+		  '()
+		  f)))
+
+;---- (list-intersection* a b) intersection 
+(define (list-intersection* . args )
+  (case (length args)
+	 ((0) '())
+	 ((1) (car args))
+	 ((2) (list-intersection (car args) (cadr args)))
+	 (else (list-intersection (car args) (apply list-intersection* (cdr args))))))
+
+;---- (list-intersection? op a b) intersection of lists a and b
+(define (list-intersection? op selector A B)
+  (if (not (pair? A)) (set! A (list A)))
+  (if (not (pair? B)) (set! A (list B)))
+  (let ((f (filter (lambda (x) (op (selector x) (map selector B))) A))
+		  (g (filter (lambda (x) (op (selector x) (map selector A))) B)))
+	 (union+ f g)))
+
+;---- (list-intersection* a b) intersection of lists 
+(define (list-intersection?* op selector . args )
+  (let ((li?* (lambda x (apply list-intersection?* (cons op (cons selector x))))))
+	 (case (length args)
+		((0) '())
+		((1) (car args))
+		((2) (list-intersection? op selector (car args) (cadr args)))
+		(else (list-intersection? op selector (car args) (apply li?* (cdr args)))))))
+
+
+
 
 ;; Selects a random member of a list when each element has a given weighting
 (define (random-list-ref lst class-weights)
@@ -178,7 +219,7 @@
 (define (o->s x) (if (string? x) x (object->string x)))
 
 (define (random-location minv maxv)
-  (map + (map * (map - maxv minv) (map (lambda (x) (random-real)) (make-list (length minv)))) minv))
+  (map + (map * (map - maxv minv) (map (lambda (x) (random-real)) (make-list% (length minv)))) minv))
 
 (define (nrandom mean . its) ;; very dodgey ... but bog simple
   (let ((N (if (null? its) 100 (car its))))
@@ -238,13 +279,17 @@
 
 ;; returns the elements with "even" indices
 ;; (evens '(a b c d)) => (a c)
-(define (evens lst)
+(define (evens* lst)
   (map (lambda (x) (list-ref lst x)) (filter even? (seq (length lst)))))
 
 ;; returns the elements with "odd" indices
 ;; (odds '(a b c d e) => (b d)
-(define (odds lst)
+(define (odds* lst)
   (map (lambda (x) (list-ref lst x)) (filter odd? (seq (length lst)))))
+
+;; These are faster, but not robust w.r.t. line length
+(define (evens lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (evens (cddr lst)) '()))))
+(define (odds lst) (if (null? lst) '() (if (pair? (cdr lst)) (evens (cdr lst)) '())))
 
 ;; true if the list l is comprised of atoms
 (define (simple-list? l)	
@@ -549,13 +594,13 @@
 			  (set! dims (car dims))))
 
 		  (if (null? (cdr dims))
-				(make-list (car dims) defval)
-				(map (lambda (x) (make-list* (cdr dims) defval)) (make-list (car dims) ))))
+				(make-list% (car dims) defval)
+				(map (lambda (x) (make-list* (cdr dims) defval)) (make-list% (car dims) ))))
 )
 (define (make-list** dims defval) ;; This expects defval to either be a "thing" or a procedure of no arguments
   (if (null? (cdr dims))
-		(map (if (procedure? defval) (lambda x (defval)) defval) (make-list (car dims)))
-		(map (lambda (x) (make-list** (cdr dims) defval)) (make-list (car dims))))
+		(map (if (procedure? defval) (lambda x (defval)) defval) (make-list% (car dims)))
+		(map (lambda (x) (make-list** (cdr dims) defval)) (make-list% (car dims))))
 )
 
 (define (depth* l)
@@ -582,13 +627,13 @@
   (set! d (if (null? d) 0 (car d)))
   
   (if (simple-list? list*)
-		(map proc list* (seq (length list*)) (make-list (length list*) d))
+		(map proc list* (seq (length list*)) (make-list% (length list*) d))
 		(map (lambda (l* l d)
 				 (if (atom? l*)
 					  (proc l* (if (list? l) (car l) l)  (if (list? d) (car d) d))
 					  (map% proc l* d))
 				 )
-			  list* (seq (length list*)) (make-list (length list*) d))
+			  list* (seq (length list*)) (make-list% (length list*) d))
 		)
   )
 
@@ -995,7 +1040,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 	 (cond 
 	  ((< l 2) (aborts "bad length in prj-xy"))
 	  ((= l 2) loc)
-	  (else (append (list (car loc) (cadr loc)) (make-list (- l 2) 0))))))
+	  (else (append (list (car loc) (cadr loc)) (make-list% (- l 2) 0))))))
 
 ;; First ordinate is the "base" altitude the second is the slope along "x" the third the slope along "y"
 ;; the value returned is the altitude.
@@ -1167,7 +1212,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
  ;; breadth first search
  (define (bfs-list key list-of-lists)
-   (let bsof ((lol (copy-list list-of-lists)))
+   (let bsof ((lol (list-copy list-of-lists)))
      (if (or (not (pair? lol)) (null? lol))
          #f
          (if (equal? key (car lol))
@@ -1194,7 +1239,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
      
      (if (null? list-of-lists)
          #f
-         (let bsof ((lol (copy-list list-of-lists)))
+         (let bsof ((lol (list-copy list-of-lists)))
            (if (or (not (pair? lol)) (null? lol))
                #f
                (if (pair? (car lol)) 

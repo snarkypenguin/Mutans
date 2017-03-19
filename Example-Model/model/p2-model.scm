@@ -127,8 +127,8 @@
 (iQ habitat)
 (for-each iQ (slot-ref habitat  'patchlist))
 
-(set-introspection-list! psdumper (copy-list Q))
-(set-introspection-list! logger (copy-list (service-list habitat)))
+(set-introspection-list! psdumper (list-copy Q))
+(set-introspection-list! logger (list-copy (service-list habitat)))
 
 
 (for-each (lambda (x) (set-map-projection! x mm->points)) Q)

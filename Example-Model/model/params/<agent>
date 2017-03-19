@@ -1,0 +1,23 @@
+'Parameters
+(define <agent>-parameters
+		  (list
+			  (list 'active-subsidiary-agents '())
+			  (list 'agent-body-ran #f)
+			  (list 'agent-epsilon (* 1e-6 seconds))
+			  (list 'agent-schedule '())
+			  (list 'agent-state 'ready-for-prep )
+			  (list 'counter 0)
+			  (list 'subjective-time 0) ;; we assume we start at t=0, but this may not be the case
+			  (list 'dt (* seconds 1.0))
+			  (list 'jiggle 0)
+			  (list 'maintenance-list '()) ;; this is a list of funcs
+			  (list 'map-projection (lambda (x) x))
+			  (list 'migration-test  (lambda args #f)) ;; Don't migrate by default
+			  (list 'name '<nameless>)
+			  (list 'note "")
+			  (list 'priority 0) ;; give no advantage
+			  (list 'state-flags '())
+			  (list 'subjective-time 0.0)
+			  (list 'subsidiary-agents '())
+))
+(set! global-parameter-alist (cons (cons <agent> <agent>-parameters) global-parameter-alist))

@@ -34,22 +34,26 @@
 
 (define-class <diffeq-system>
   (inherits-from <agent>)
-  (
+  (state-variables
 	variable-names        ;; list of strings associated with each value
 	variable-values       ;; list of strings associated with each value
 	variable-symbols      ;; unique symbols for each of the values
 	d/dt-list             ;; differential equations which describe the dynamics
 	subdivisions          ;; Number of intervals a given dt is subdivided into
-	variable-values       ;; the values returned from get-externals or from P
-	get-externals         ;; a list of functions which return the current state
-	                      ;; of the variables
-	external-update       ;; a list of functions which update the external variables
-	domains               ;; List of functions that define the domains associated 
+	variable-values       ;; the list of symbol+values returned from get-externals
+	                      ;; or from P
+	get-externals         ;; a list of symbol+functions which return the current 
+	                      ;; state of the external variables
+	external-update       ;; an a-list of symbol+functions which update the external
+                         ;; variables			
+	domains               ;; List of predicates that define the domains of each of the
+	                      ;; variables (returns #f if the value is outside the domain)
+
    ;;; The order of all the preceeding lists must be consistent. There is no way for
 	;;; the code to ensure that this is so.  Be warned.
 
 	;; An alternate representation for input
-	variable-definitions  ;; list of the form ((nameA dA/dt) ...)  
+	variable-definitions  ;; list of the form ((nameA dA/dt) ...)  or (nameZ agent accessor)
 
 	too-small             ;; time steps smaller than this cause an abort
 	epsilon               ;; for little things

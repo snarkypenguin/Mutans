@@ -1,5 +1,0 @@
-(load "kdnl.scm")
-(load "framework.scm")
-(load "framework-wrappers.scm")
-(load "framework-controls.scm")
-(load "framework-methods.scm")

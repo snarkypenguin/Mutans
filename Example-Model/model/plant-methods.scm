@@ -47,9 +47,10 @@ exact tree size, tree variety, etc
 vccs.edu
 
 There are about 240 US Gallons of water in a ton. SO the above figure
-equates to an average of about 0.45 tons a day. However, trees in
-temperate climates are much more active in summer than in winter, so
-the peak daily value might be several times higher.
+equates to an average of about 0.45 tons of transpired water a day for
+a full canopy. However, trees in temperate climates are much more
+active in summer than in winter, so the peak daily value might be
+several times higher.
 
     the full-grown oak (Quercus robur L.) tree ... [has] sap flow rate
 values ... of up to 400 Kg per day ... 100 years of age, 33 m height.
@@ -80,7 +81,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 "
 
 
-(define (lai-area p)
+(define (leaf-area p) ;; leaf area
   (let ((pi (acos -1.0)))
 	 (* (slot-ref p 'lai) pi (sqr (plant-radius p)))))
 
@@ -141,44 +142,45 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 
 
-(agent-initialisation-method  (<simple-plant> args) (no-default-args)
- (set-state-variables self (list 'max-age 37.0
-											'max-mass 300.0
-											'age 12
-											'lai 1.7
-											'water-stress 0
-											'water-stress-effect #t 
-											'water-use  4/5 ;; l/m^2 default is similar to oneoak
-											'reproduction-period 
-											(if #f
-												 (random-real) ;; a probability, or
-												 (+ 30 (random-integer 30)); an interval
-												 )
+;;; (agent-initialisation-method <simple-plant> (args) (no-default-values) ;-
+;;;  (set-state-variables self (list 'max-age 37.0 ;-
+;;; 											'max-mass 300.0 ;-
+;;; 											'age 12 ;-
+;;; 											'lai 1.7 ;-
+;;; 											'water-stress 0 ;-
+;;; 											'water-stress-effect #t  ;-
+;;; 											'water-use  4/5 ;; l/m^2 default is similar to oneoak ;-
+;;; 											'reproduction-period  ;-
+;;; 											(if #f ;-
+;;; 												 (random-real) ;; a probability, or ;-
+;;; 												 (+ 30 (random-integer 30)); an interval ;-
+;;; 												 ) ;-
 											
-											'reproduction-offset (random-integer 20)
-											'reproduction-mechanism #f ;; <fruit> or a
-											;; procedure which performs an update on
-											;; some undefined thing. 
+;;; 											'reproduction-offset (random-integer 20) ;-
+;;; 											'reproduction-mechanism #f ;; <fruit> or a ;-
+;;; 											;; procedure which performs an update on ;-
+;;; 											;; some undefined thing.  ;-
 											
-											;; (mass (truncate rr)) > 0
-											'fruiting-rate  0.01   ;; relative to mass
-											;; influenced by ...
-											'seeds-per-fruit 50
-											;; gives about 15 fruiting trees per 100
-											))
- (initialise-parent)
- (set-state-variables self args) ;; set specifics passed in here...
+;;; 											;; (mass (truncate rr)) > 0 ;-
+;;; 											'fruiting-rate  0.01   ;; relative to mass ;-
+;;; 											;; influenced by ... ;-
 
- (slot-set! self 'mass (* (random-real) (random-real)
-								  (slot-ref self 'max-mass)))
- (slot-set! self 'age
-				(* (slot-ref self 'max-age)
-					(/ (slot-ref self 'mass) (slot-ref self 'max-mass))))
- )
+;;; 											'seeds-per-fruit 50 ;-
+;;; 											;; gives about 15 fruiting trees per 100 ;-
+;;; 											)) ;-
+;;;  (initialise-parent) ;-
+;;;  (set-state-variables self args) ;; set specifics passed in here... ;-
+
+;;;  (slot-set! self 'mass (* (random-real) (random-real) ;-
+;;; 								  (slot-ref self 'max-mass))) ;-
+;;;  (slot-set! self 'age ;-
+;;; 				(* (slot-ref self 'max-age) ;-
+;;; 					(/ (slot-ref self 'mass) (slot-ref self 'max-mass)))) ;-
+;;;  ) ;-
  
 ;----- (self-assessment)
-"This is a placeholder ... it almost certainly needs to change"
-(model-method <animal> (representation-assessement self . args) 
+(UNFINISHED-BUSINESS "<simple-plant>: This is a placeholder ... it almost certainly needs to change")
+(model-method <simple-plant> (representation-assessment self . args) 
 				  (if (null? args) ;; only passed self
 						0
 						(let ((n (car args)) ;; mixing assumption 
@@ -222,6 +224,9 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 			 (mass (my 'mass))
 			 )
 
+	  (if (uninitialised? (my 'mass)) (error "mass not set for " (class-name-of (class-of self))))
+	  (if (uninitialised? (my 'age)) (set-my! 'age (plant-mass->age (my 'mass))))
+	  
 	  ;; set water stress level and update hydrology
 
 	  (set! waterstress (water-stress-level available-water waterneeds))
@@ -276,7 +281,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
        reproduction-offset
        max-age max-mass))
 
-(define (make-simple-plant-xy env loc mass . otherargs)
+(define (make-simple-plant-xy taxon env loc mass . otherargs)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -290,21 +295,20 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   ;; If no reproduction-mechanism is specified, the plant does not
   ;; reproduce -- never fruits
 
-  (if (number? (car otherargs))
+  (if (not (null? otherargs))
 		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
 
-  (let ((sp (apply make-agent (cons <simple-plant>
-										(append (list 'habitat env
-														  'location loc
-														  'age (+ 8 (random 24))
-														  'mass mass) otherargs)))))
+  (let ((sp (apply create (append (list <simple-plant> taxon 'habitat env
+						  'location loc
+						  'age (+ 8 (random-integer 24))
+						  'mass mass) otherargs)) ))
 	 (UNFINISHED-BUSINESS "The age here is totally bogus")
 
 	 (if (contains? env loc)
 		  sp
 		  (error "location for simple-plant is not in indicated environment" loc env))))
 
-(define (make-simple-plant env mass . more)
+(define (make-simple-plant taxon env mass . more)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -323,10 +327,10 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
   (kdnl* '(init plants) "env:" env  "args:"  more)
   (set! more (append (list 'habitat env
-									;'location (random-point env)
+									'location (random-point env)
 									'mass mass) more))
   (kdnl* '(init plants) "->args:"  more)
-  (let ((sp (make-agent <simple-plant> )	))
+  (let ((sp (apply create (cons <simple-plant> taxon more ))))
 	 sp
 	 ))
 
@@ -473,11 +477,11 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 (UNFINISHED-BUSINESS "Need to flesh this out a bit")
 
-(agent-initialisation-method (<example-plant> args) (no-default-args)
-									  (set-state-variables self '())
-									  (initialise-parent)
-									  (set-state-variables self args) ;; set specifics passed in here...
-									  )
+;;; (agent-initialisation-method <example-plant> (args) (no-default-values) ;-
+;;; 									  (set-state-variables self '()) ;-
+;;; 									  (initialise-parent) ;-
+;;; 									  (set-state-variables self args) ;; set specifics passed in here... ;-
+;;; 									  ) ;-
  									  									  									  
 
 (model-body <example-plant>

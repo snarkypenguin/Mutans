@@ -31,6 +31,7 @@
 
 ;-  Code 
 
+(define --load-- load) ;; just so we remember
 (define smart-load
   (let* ((oload load)
          (always-print-loading #f)
@@ -44,7 +45,6 @@
                    (display y)(display "]\n")))
          )
     (lambda (fn . args)
-
       (if (not (null? fn))
           (if (member fn loaded)
               (if warn-loaded
@@ -59,6 +59,11 @@
                ;;  )
 					((and (member fn '(force force-load)) (not (null? args)))
 					 (for-each oload args))
+
+               ((eqv? fn 'revert)
+					 (display "Reverted to original load\n   ")
+					 (set! load oload)
+					 )
 
                ((eqv? fn 'flush)
 					 (display "Flushed load list\n   ")
@@ -112,10 +117,12 @@
 						                "by default.\n"
 						"The load procedure responds to a number of symbols:\n\n"
 						"help           this help message\n"
+						"revert!        reverts back to original load function\n"
 						"loaded?        prints the list of loaded files\n"
+						"current?       prints the file that is currently loading\n"
 						"loading?       prints the list of files that are currently "
                                   "loading\n"
-						"flush          flushes the list of loaded files\n"
+						"flush!         flushes the list of loaded files\n"
 						"warn-loaded    sets the flag that makes it warn about "
 						                "attempts to\n"
 						"               load a file more that once\n"

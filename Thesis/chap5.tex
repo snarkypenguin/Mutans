@@ -6,139 +6,154 @@
 
 Chapter~\ref{modelefficiency} argued that switching models are worth
 considering because they may provide benefits in fidelity and
-efficiency. The results in the chapter demonstrate the potential
-advantages in these regards, and while the example used is quite
-simple compared to other models of marine or aquatic contaminant
-interaction, such as in ~\cite{Gray2006nws, Gray2014}, the results are
-credible.  The role of the example model discussed in this chapter is
-not to provide a complete, efficient implementation of an adaptive
-hybrid model.  Rather, it is the starting point for further
-exploration and development.  It follows the pattern described by
-Chapter~\ref{adaptiveselection}, but includes minor improvements and
-enough extensions to provide a useful platforn for further work.
+efficiency. The paper demonstrated significant advantages over
+non-switching versions of the the system.  The hypothetical example
+developed in Chapter~\ref{adaptiveselection} attempts to flesh out a
+more fully formed representation of a small trophic network, and to
+provide a platform for a discussion of how a general model might be
+constructed. Here, we describe an explicit implementation of a system
+based on Chapter~\ref{adaptiveselection}. The role of this
+implementation is not primarily to provide a complete, efficient
+implementation of a framework supporting adaptive hybrid models;n
+rather, it is the starting point for further exploration and
+development.  In this chapter, we describe the system, discuss the
+reasons certain approaches have been taken, and address both how the
+system could be used when implementing new models and avenues for
+further research.
 
-The focus in the development of this chapter is to illuminate the most
-important parts of the framework. This must obviously include brief
-discussions of the basic design decisions, the overall uses and
-relationships of the classes in the framework, a description of how
-control passes from kernel to agents and back, how representational
-change and maintenance occurs, and how one might go about adding new
-classes. 
+\section{Design}
+In general, the design of this example framework is a conventional
+agent-based model with arbitrary time steps. Its overall design was
+influenced by my previous work in modelling the interactions of human
+activity and marine ecosystems (\cite{lyne1994pmez5, gray06:1,
+  gray2014}). This work takes as its starting point the scheduling
+strategies which allow modelled entities to adjust their timesteps on
+a step\-by\-step basis according to their circumstances, a floating
+point representation of time and space, and the notion that behaviour
+is most readily represented in a modal fashion --- animals, for
+example, would \emph{sleep}\/, \emph{flee}\/, and \emph{forage}\/ as
+quite distinct activities. Implicit in the modal approach to behaviour
+is a mechanism for selecting an appropriate type of behaviour for the
+entity's context. In some sense, changing a representation of a
+submodel is qualitatively similar to the selection of an appropriate
+mode of behaviour; the major differences lying in the level of
+support required from the underlying model framework.
 
-\section{Design and implementation}
-\subsection{Design}
-The design of the example framework is quite conventional for an
-agent-based model with arbitrary time steps, and the basic structure
-was influenced by previous work on ecosystem models. The mechanisms
-for changes in representation and the maintenance of state for
-superceded representations evolved from the basic strategy developed
-in Chapter~\ref{modelefficiency}.  Since the only interactions in
-Chapter~\ref{modelefficiency} were between the simulated organisms and
-the environmental plume, there was no need to include mechanisms for
-agents to interact in a more general sense. Much of the code in the
-example model is devoted to providing the basic mechanisms with which
-models of various entities, environmental domains may interact, and to
-ensure that the operation of the systems is temporally coherent,
-consistent and readily extended. Additionally, experience in computer
-operating systems also played a role in the design of the framework,
-and the queue of agents which is central to the process of shepherding
-them in an orderly way through time is directly analogous to the
-simpler UNIX kernels of decades past.
+The mechanisms for changes in representation and the maintenance of
+state for superceded representations evolved from the basic strategy
+developed in Chapter~\ref{modelefficiency}.  Since the only
+interactions in Chapter~\ref{modelefficiency} were between the
+simulated organisms and the environmental plume, there was no need to
+include mechanisms for agents to interact in a more general
+sense. Much of the code in the example model is devoted to providing
+the basic mechanisms with which models of various entities,
+environmental domains may interact, and to ensure that the operation
+of the systems is temporally coherent, consistent and readily
+extended. 
 
-The choice of implementation language was more difficult.  An obvious
-candidate would have been \texttt{C++}, since I had extensive
-experience in modelling in the language, and a significant corpus of
-code from which I might draw, but the considerations which prompted me
-to use Scheme in the paper of Chapter~\ref{modelefficiency} still
-pertained. While Scheme must be considered a minor language in
+The ``processing loop'' which governs the simulation of each modelled
+entity is directly analogous to the simpler UNIX kernels of decades
+past---there is only one entity actually being simulated at any point
+in time, but they are interleaved in such a way as to minimise
+inappropriate bias and avoid too much temporal disparity.
+
+The choice of implementation language was more difficult. I chose
+\textsf{Scheme} over the more obvious candidate, \textsf{C++}.
+While I had extensive experience in modelling in \textsf{C++}, and a significant body of
+code from which I might draw, the considerations which prompted me
+to use \textsf{Scheme} in the paper of Chapter~\ref{modelefficiency} still
+pertained. While \textsf{Scheme} must be considered a minor language in
 industry\footnote{It was ranked $43^{\text{rd}}$ in the IEEE Spectrum 2016 list
 of programming languages}, in most of the more common languages it
 is difficult to cleanly and generically implement an analogue to the
 closures used in Chapter~\ref{modelefficiency} to maintain attributes
-possessed by superceded representations.  Scheme is active developed,
+possessed by superceded representations.  \textsf{Scheme} is active developed,
 there are a number of very good interpreters and compilers for it;
 many of these implementations are also amenable to integration with
 other languages, either through the linking binary objects or by
 interacting through a virtual machine (such as a JVM).
-Scheme was, at its inception, designed to be a tool for exploration
+\textsf{Scheme} was, at its inception, designed to be a tool for exploration
 \cite{sussman1998first} and it remains an excellent tool for this
 purpose.
 
-The class structure in the example is based on the Scheme
-implementation of tiny-CLOS (SCLOS) that was written by Gregor Kiczales
-\cite{kiczales1993xerox} while he was working at Xeros PARC in 1992
-and 1993.  Kiczales has been an instrumental researcher and proponent
-for the use of metaobject protocols (MOPs) as a tool for making
-computer programs clearer, more efficient, and more robust.  The basic
-tenet is that generic methods or functions are used to manipulate
-objects, and that these generic objects inspect the nature of the data
-being passed to them and pass the processing to a specialised function
-which deals with the task most appropriately.  While this is not an
-exact analogue to the problems we seek to address in this work, there
-is enough commonality that using tiny-CLOS and its implicit MOP seemed
-a natural fit.  Tiny-CLOS has been the basis on which many of the
-significant object systems for Scheme have been built.
+The class structure in the example is based on the \textsf{Scheme}
+implementation of \textsf{tiny-CLOS} (\textsf{SCLOS}) that was written
+by Gregor Kiczales \cite{kiczales1993xerox} while he was working at
+Xeros PARC in 1992 and 1993.  Kiczales has been an instrumental
+researcher and proponent for the use of metaobject protocols (MOPs) as
+a tool for making computer programs clearer, more efficient, and more
+robust.  The basic tenet is that generic methods or functions are used
+to manipulate objects, and that these generic objects inspect the
+nature of the data being passed to them and pass the processing to a
+specialised function which deals with the task most appropriately.
+While this is not an exact analogue to the problems we seek to address
+in this work, there is enough commonality that using \textsf{SCLOS}
+and its implicit MOP seemed a natural fit.  \textsf{SCLOS} has been
+the basis on which many of the significant object systems for
+\textsf{Scheme} have been built.
 
-I have used Gambit-C (Gambit), a well regarded implementation of
-Scheme which runs on all of the major platforms (Linux, Unix, OSX, and
-Android, for example). Gambit incorporates both a fully developed
-Scheme interpreter and a compiler, and both can readily link programs
-with external code and libraries which exist either as compiled or as
-interpreted scheme code. The choice to use Gambit, rather than another
-version of Scheme, was heavily influenced by the fact that it was the
-implementation used for the model in Chapter~\ref{modelefficiency},
-its compiled code was significantly faster than the interpreted code,
-and that adding hand-crafted C or C++ code for particularly intensive
-routines is not difficult.  Porting the model to other versions of
-Scheme should be relatively simple; the only potentially awkward issue
-in using a different scheme implementation would be the use of
+I have used \textsf{Gambit-C} (\textsf{Gambit}), a well regarded
+implementation of \textsf{Scheme} which runs on all of the major
+platforms (Linux, Unix, OSX, and Android, for
+example). \textsf{Gambit} incorporates both a fully developed
+\textsf{Scheme} interpreter and a compiler, and both can readily link
+programs with external code and libraries which may exist either as
+compiled or as interpreted \textsf{Scheme} code. The choice to use
+\textsf{Gambit}, rather than another version of \textsf{Scheme}, was
+heavily influenced by several points: it was the implementation used
+for the model in Chapter~\ref{modelefficiency}; its compiled code can
+be significantly faster than the interpreted code; it supports very
+\textsf{C}-like infix notation; and adding hand-crafted \textsf{C} or
+\textsf{C++} code for particularly intensive routines is not
+difficult.  Porting the model to other versions of \textsf{Scheme}
+should be relatively simple; the only potentially awkward issue in
+using a different \textsf{Scheme} implementation would be the use of
 \texttt{define-macro} which is used to provide syntactic structures
 which are able to detect and respond to inconsistencies and makes
 using objects simpler and less error prone\footnote{At least for
   \emph{some} types of error!}.  In principle, \texttt{define-syntax}
 and other tools for syntactic extension or modification might be
-substituted for the macros defined in the \texttt{framework} file. 
+substituted for the macros defined in the \texttt{framework} file.
 
-\subsection{Encoding strategy}
+\subsection{Comparison of states}
 The first step in being able to quantitatively compare configurations
-of models is to construct a means for encoding the state in some
-metric space.  The trees described briefly in Chapter
-\ref{adaptiveselection} and more comprehensively in Chapter
-\ref{treering} are elements of a metric space, and since their set of
-indeterminate variables is quite arbitrary, we can identify cells and
-groups of cells explicitly with indeterminates, and we can also extend
-this to the classes which may be used within a run.  So, building our
-set of appropriate configurations, we might start looking at a tree
-(or set of trees) which are associated with the aggregate global
-condition:
+of models is to construct a means for encoding the state in a way that
+supports some sort of qualitative or quantitative comparison.  The
+trees described briefly in Chapter \ref{adaptiveselection} and more
+comprehensively in Chapter \ref{treering} are elements of a metric
+space. Since the set of indeterminate variables in the labels of these
+trees is quite arbitrary, we can identify cells and groups of cells
+explicitly with indeterminates, and we can also extend this to
+denoting representations which are in use or may be used.
 
 \subsection{Partial ordering of trees and nodes}\label{partial-order}
 We can construct a partial order on nodes relatively simply.  In the
 first instance we normalise the polynomial labels if necessary (by
 collecting like terms) and sort nodes using their labels, where the polynomial labels are
-ordered canonically with indeterminate factors in each term sortedby
+ordered canonically with indeterminate factors in each term sorted by
 lexicographic order, and the terms then sorted by degree.\footnote{Of course
 other sorting strategies are possible.} If two nodes, possess the same
 label, they are then ordered by their weights.  Should the weights
 \emph{also} match, they are sorted on the relative order of their set
 of children, with empty sets taking precedence over sets with
-children.
+children. We may have to exercise some care in ensuring that the
+lexical ordering doesn't unduly influence our ranking of different
+configurations. 
 
 The sorting order makes the construction of regular, readable output
 straightforward, since it largely conforms to one of the common
 patterns used in mathematics and computer science. 
 
-\subsection{Model implementation}
-
+\section{Model implementation}
 The model is largely similar to the example used in Chapter
 \ref{adaptiveselection}. In the hypothetical example, the domain
 consists of nine cells containing tree-like plants. These trees are a
 critical food source for a population of herbivores, and the trees
 rely on the young herbivores to eat the ripe fruit in order to make
-their seeds viable (perhaps they have a particularly tough
+their seeds viable (perhaps the seeds have a particularly tough
 seedcoat). A carnivore which preys solely on juvenile herbivores is
 introduced into a stable system.  In Chapter~\ref{adaptiveselection},
-the introduction of the carnivore (and a subsequent rangeland fire)
+the introduction of the carnivore and a subsequent rangeland fire
 initiated a sequence of events which, in turn, engendered
 changes in the configuration of the model as a whole.  The
 implementation described here is not identical to the system described
@@ -146,11 +161,153 @@ in the paper---some inadequacies of the model presented in the paper
 have been addressed (such as the inability of the plants to recolonise
 a cell after they have become extinct in it).
 
-\subsubsection{Initialisation}
+The primary purpose of the framework is to aid construction and
+exploration of models, rather than as a pedagogic aid in teaching
+object-oriented programming. As a result, some of the basic machinery
+that one would typicall need to use in \textsf{SCLOS} is available via
+macros which provide
+\begin{itemize}
+   \item syntactic sugar to make the code more readable, and to simplify
+     definitions of model components \\
+   \item targetted checks in the definition of methods which catch
+     errors which are particularly opaque and difficult to isolate,\\
+   \item a means of constructing ``maintenance closures'' for
+     representations of submodels which are about to cede their place
+     to new representations
+\end{itemize}
+and
+\begin{itemize}[resume]
+\item support for straighforward chaining back through sets of
+  a submodel's parent classes.
+\end{itemize}
 
-Models in the framework are initialised by constructing a set of
-agents (instances of submodels) and introducing them into the
-runqueue. The framework provides for the ability to make an agent
+Representations of submodels are constructed as sets of state
+variables, a set of appropriate \texttt{model-methods}, and a
+\texttt{model-body} which embodies their control loops. 
+
+\subsection{Initialisation}
+
+The first stage in starting a model run is the creation and
+initialisation of the components of the model. Start a model run would
+usually involve running a short \texttt{Scheme} program which uses the
+model infrastructure to create and configure agents which comprise the
+model ensemble.  These agents are added to a list called the runqueue,
+which corresponds to the execution queue in a multitasking operating
+system. The agents are usually created (typically by calling \texttt{(create
+  \textit{<classname> \textit{taxon}}\/\ldots)} where the ellipsis indicates
+a set of appropriate state variable assignments.  Sometimes additional
+machinery is required to add agents to encompassing entities (such as
+including trees in the landscape).
+
+The principal tasks of \texttt{create} are to allocate storage, and to
+call the functions which initialise the state variables of an agent.
+\texttt{Create} initialises its state variables using the data from
+the files in a nominated parameter directory. The state variable
+initialisations specified in class--based files are applied first from
+the parent class farthest away in inheritance, through to file
+associated with class of the agent being created. It is quite likely
+that a given state variable may be reset several times in the process
+as the model representation is refined. Finally, the state variable
+settings from a file associated with a \emph{particular}\/ set of
+instantiations---the agent's taxon---are applied.  A model might deal
+with several populations of distinct species (taxa) of tuna.
+These taxa may have different prey preferences, temperature preferences, and
+metabolic parameters.  Each distinct species would load its
+initialisation parameters from a taxon file associated with the
+species.
+
+In order for the initialisations indicated in these files to be
+applied in the correct order, class--associated files must have the
+same name as the class they relate to (such as ``\texttt{<tuna>}''),
+and taxon--associated files will have the same name (including case)
+as the taxon used (such as ``\texttt{T.albacares}''.\footnote{It
+  doesn't matter if there are entries for things which are not state
+  variables---any specification which isn't recognised is silently
+  ignored.}
+
+Parameter files contain \textsf{Scheme} code and they are loaded
+immediately after all of the code associated with implementing
+representations of submodels has been loaded, but before any model
+initialisation occurs.  A typical parameter file might look
+like look like the '\texttt{<example-plant>}' file below:
+\begin{verbatim}
+'Parameters
+(define <example-plant>-parameters
+  (list
+    (list 'cell '<uninitialized>)
+    (list 'location '(@ (random-location '(-2000 -2000) '(2000 2000))))
+    (list 'peak-mass 12)                 ;; this will seed trees in the
+                                         ;; 4km x 4km square around
+                                         ;; the origin
+    (list 'mass (@ (nrnd 4 1 0.01 12)))
+    (list 'fruiting-mass (* 8 kg))
+    (list 'fruiting-prob (/ 0.1 week))         ;; 10% per week
+    (list 'fruiting-rate (* 7 (/ 1 kg))))      ;; seven fruit per kg of tree
+    (list 'mort-mass '<uninitialized>)
+    (list 'mort-prob (/ 0.1 year))
+    (list 'seeds-per-fruit '(@ (+ 4 (urnd 8)))
+    (list 'habitat '<uninitialized>)
+    (list 'references '(J. Muppet Botany, S.Chef et. al. v2,1995))
+    (list 'note "This is enough for things to run")
+  )
+)
+(set! global-parameter-alist 
+   (cons (cons <example-plant> <example-plant>-parameters) 
+         global-parameter-alist))
+\end{verbatim}
+The \texttt{'Parameter} line which is the first entry in the file is
+an indicator that this is a parameter file, and \textsf{Scheme}
+programs (like the modelling framework) can readily use this to
+determine that the file is not actually code intended to be executed.
+The definition which follows is a list of lists where the first
+element of each of the second level lists must be a symbol.  These
+symbols should (but are not required to) correspond to the state
+variables in the agent. Note that even though this file is associated
+with '\texttt{<example-plant>}', it is not restricted to setting state
+variable defined in \texttt{<example-plant>}---it is \emph{reasonable
+  and common} to set variables associated with parent classes, such as
+its \texttt{location}, above, which ultimately comes from the \texttt{<thing>}
+class.
+
+The last three lines of the file add the definitions to the list of
+all the state variable defaults the system knows about---if they are
+missing or compromised, the definitions may not be accessible.
+
+Most of the expressions in parameter files are evaluated while the
+file is being loaded, but there are exceptions.  Any item with a
+single quote will not be evaluated during the loading process, so the
+list associated with ``\texttt{'references}'' is preserved, similarly
+the list associated with the number of seeds per fruit, ``\texttt{(\at
+  (+ 4 (urnd 8)))}'', is read verbatim, but will be evaluated each
+time an agent is instantiated, so that each tree will produce seeds at
+its own rate from between four and twelve seeds per fruit.  The
+framework uses the ``\texttt{\at}
+
+\subsection{Configuration seeds}
+
+\subsubsection{Known--good and known--bad status-configurations}
+
+\subsubsection{Operational configurations}
+
+
+\subsection{Assembling a model}
+Models in the framework are assembled by constructing a small scheme
+program which creates the agents and introduces them into the
+runqueue. The set of agents would typically include
+\texttt{<monitors>} which will periodically assess the state of the
+model and its components with the charge of changing the configuration
+if things drift too far from its preferred region of the state-space
+of the model.  The model also loads the sets of known--good
+and known-bad corpora which serve to inform the assessments of the
+monitoring agents.
+
+
+
+
+
+\section{Execution}
+
+The framework provides for the ability to make an agent
 ``subsidiary'' to another agent in one of two ways: the subsidiary
 agent may remain a member of the global runqueue---only notionally
 ``contained'' by its supervisor, or it may be wholly subsidiary and
@@ -172,14 +329,14 @@ run, so they will not have control passed to them till the rest of the
 agents have caught up.
 
 Additional agents within the system, the monitors and loggers, are
-also instanciated and added to the queue. The monitors will
+also instantiated and added to the queue. The monitors will
 periodically assess the configurations of agents, ensembles of agents
 and the model as a whole and make changes in the configuration, if
 required.  The loggers will periodically poll the other agents and
 produce some sort of output or record of data derived from the state
 of the model.
 
-After the initial cohort of agents have been instanciated and
+After the initial cohort of agents have been instantiated and
 introduced into the runqueue (or in the subsidiary-runqueues of other
 agents), control is passed to the kernel which then begins to run each
 agent in turn for an appropriate time step.
@@ -234,7 +391,7 @@ This is an uncomplicated system, more significant issues would arise
 in a parallelised system.  
 
 
-\subsubsection{Classes and structure}
+\section{Classes and structure}
 
 The example model follows a traditional agent-based approach using a
 class hierarchy that reflects the entities we wish to model. Most of
@@ -269,12 +426,12 @@ of debugging and exploration.
 
 All of the agents and objects in the model are derived
 from the \texttt{<primitive-object>} class in a slightly modified
-tiny-CLOS\footnote{This class is actually the \texttt{<object>} class in
-  the canonical tiny-CLOS (version 1.7), but I really wanted
+\textsf{SCLOS}\footnote{This class is actually the \texttt{<object>} class in
+  the canonical \textsf{SCLOS} (version 1.7), but I really wanted
   \texttt{<object>} to provide an entity which was like an agent, but
   without the ability to run as an independent dynamic element in the
   system---hence the name change}, this provides a clean distinction
-between the classes which are associated only with the tiny-CLOS
+between the classes which are associated only with the \textsf{SCLOS}
 architecture and the classes associated with the model.  The basic
 classes used to build the entities of the model are the
 \TTC{object} class and the slightly more complex \TTC{agent}
@@ -434,7 +591,7 @@ relationships
 \subsection{Methods, model bodies and closures}
 
 Methods are functions which are specifically associated with instances
-of a class.  Tiny-CLOS supports having a number of distinct methods
+of a class.  \textsf{SCLOS} supports having a number of distinct methods
 with the same name, but different arguments, as determined by their
 type.  This means that \texttt{Seal} and \texttt{Shark} may both have an
 \texttt{Eat} method---moreover, sharks may have two \texttt{Eat}
@@ -497,7 +654,7 @@ create a closure containing a function which is able to access the
 variables within the closure, and maintain their values; it may
 ultimately pass these values back to another agent which will take
 over the role played by the model maintenance function.  Indeed,
-scheme was chosen specifically because these functions are a natural
+\textsf{Scheme} was chosen specifically because these functions are a natural
 representation for a fragment of a model which needs to be
 maintained.\footnote{In principle, each class could be comprised of such
 fragments from the outset, but it seemed that the purpose of the
@@ -507,11 +664,11 @@ Initialisation methods are run when instances of classes are created
 using the \texttt{make} function.  Two types of these functions occur
 in the code---\texttt{initialize} with a \emph{z} and
 \texttt{initialise} with an \emph{s}---and the distiction is that
-the \emph{z} versions are associated with the tiny-CLOS initialisation
+the \emph{z} versions are associated with the \textsf{SCLOS} initialisation
 chain, and the \emph{s} version is associated with the modelling
 classes. When an instance is created the \TTC{object}
 \texttt{initialize} is called, and this chains to the framework's
-intitialisers.  When \TTC{object} derived class is instanciated, all of
+intitialisers.  When \TTC{object} derived class is instantiated, all of
 its parent initialisers (with an \emph{s}) are called.  The
 initialisers are
 \begin{description}
@@ -552,7 +709,7 @@ consequences to this approach which ought to be mentioned
     of defining a method before you have a generic-method declared---
     the macros in ``framework'' should catch this.
   \item[Don't try and construct methods that match the same argument
-    lists] Generally, tiny-CLOS is very good at getting the right
+    lists] Generally, \textsf{SCLOS} is very good at getting the right
     method for the job, but there are situations where it can be
     confusing for it.  If you have a situation where there are several
     possible desired code paths for essentially similar arguments, it

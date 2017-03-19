@@ -80,10 +80,10 @@
 ;; present either as independent things or as components within a
 ;; habitat
 
-(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
+;(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
 
-(add-kernel-message! 'introspection)
-(add-kernel-message! 'log-*)
+(add-kernel-msg-tag 'introspection)
+(add-kernel-msg-tag 'log-*)
 
 ;; options include focus stomach hunger-proximity eating log animal-running
 
@@ -107,64 +107,6 @@
 "The following code takes the list of registered submodels and loads any files they may be 
 dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
 
-(dnl "Registered submodels: " submodel-register)
-
-(let ((submodel-files
-		 (!filter
-		  null?
-		  (map
-			cdr
-			(!filter
-			 null?
-			 (!filter
-			  (lambda (x) (member (car x) logger-tags))
-			  submodel-register))))
-		 ))
-
-  (if (pair? submodel-files)
-		(begin 
-		  (dnl "Submodels: " submodel-files)
-		  (for-each (if #t
-							 load 
-							 (lambda (x)
-								(display "loading submodel: ")
-								(display x)
-								(newline)
-								(load x))
-							 )
-						submodel-files))
-		(dnl "No submodel files to be loaded"))
-  )
-
-
-;;; loggers get inserted at the head of the queue
-
-(let ((logger-files
-		 (!filter
-		  null?
-		  (map
-			cdr
-			(!filter
-			 null?
-			 (filter
-			  (lambda (x) (member (car x) logger-tags))
-			  submodel-register))))
-		 ))
-
-  (if (pair? logger-files)
-		(begin 
-		  (dnl "Loggers: " logger-files)
-		  (for-each (if #t
-							 load 
-							 (lambda (x)
-								(display "loading logger: ")
-								(display x)
-								(newline)
-								(load x))
-							 )
-						logger-files))
-		(dnl "No logger files to be loaded"))
-  )
 
 
 ;-- Example code to run things....
@@ -229,14 +171,14 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 										(+ y 80))
 									)
 											  ))
-					 (make-grid 3 3 '(0 0) A4domain
-									<patch> <polygon> "kunlun"
-									'environs %patch-initialiser)))
+					 (make-grid "kunlun" <patch> 'environs 3 3 '(0 0) (append A4domain '(900))))
+  )
 
 (define trees '())
 
 (for-each
  (lambda (p)
+	(dnl "populating " (class-of p) )
 	(slot-set!
 	 p
 	 'service-list
@@ -261,10 +203,14 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 								'sigmoid p)
 	  (for-each
 		(lambda (q)
+		  (display "tree...")
 		  (let ((t (make-simple-plant p (+ 10 (* 30 (random-real))))))
+			 (dnl "!")
 			 (set! Q (q-insert Q t Qcmp))
 			 (set! trees (cons t trees))))
-		(seq 20))
+		;(seq 20)
+		(seq 2)
+		)
 	  )))
  (slot-ref habitat 'patch-list))
 
@@ -275,6 +221,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 ;; This will be the runqueue!
 (define Q '());
 
+(dnl "Loading run queue")
 ;; Define a nice function to insert an agent into the runqueue
 (define (iQ agnt)
   (set! Q (q-insert Q agnt Qcmp)))
@@ -286,13 +233,15 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 
 
 ;; An introspection-list is a list of agents to be examined by a logging agent (in this case "logger")
-;;(set-introspection-list! psdumper (copy-list Q))
-(set-introspection-list! logger (copy-list (service-list habitat)))
+;;(set-introspection-list! psdumper (list-copy Q))
+(set-introspection-list! logger (list-copy (service-list habitat)))
 
 
 ;; Tell each agent what spatial ordinate system their output should be in (if we don't do this,
 ;; it defaults to whatever they use internally) 
 (for-each (lambda (x) (set-map-projection! x mm->points)) Q) 
+
+(dnl "The queue has " (length Q) " entries")
 
 (if use-psdumper
 	 (set! Q (cons psdumper Q))

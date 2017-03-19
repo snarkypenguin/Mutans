@@ -1,34 +1,8 @@
 ; -*- mode: scheme; -*-
 ;; <top> <primitive-object> <object> <agent> ...
 
-(load "preamble.scm")
-(load "sort.scm")
-(load "sclos.scm")
-(load "kdnl.scm")
-(load "utils.scm")
-(include "framework") ;;Needs to come after sclos and utils, needs to be included rather than loaded.
-(load "units.scm")
-(load "maths.scm")
-(load "integrate.scm")
-(load "matrix.scm")
-(load "postscript.scm")
-(load "basic-population.scm")
-(load "framework-classes.scm") ;; must include framework
-(load "framework.scm") ;; must include framework
-(load "framework-declarations.scm") ;;must include framework, loaded early so the generics are there
-(load "declarations.scm") ;; must include framework
-(load "log-classes.scm") ;; must include framework
-(load "landscape-classes.scm") ;; must include framework
-(load "plant-classes.scm") ;; must include framework
-(load "animal-classes.scm") ;; must include framework
-(load "kernel.scm") ;; must include framework
-(load "framework-wrappers.scm") ;; must include framework, wrapper functions for dispatcing to methods
-(load "framework-methods.scm") ;; must include framework
-(load "log-methods.scm") ;; must include framework
-(load "landscape-methods.scm") ;; must include framework
-(load "plant-methods.scm") ;; must include framework
-(load "animal-methods.scm") ;; must include framework
-
+(include "loadem.scm")
+(include "framework") ;; This must be included at the beginning of each file
 
 ;- Inheritance and chaining test rig
 
@@ -39,6 +13,7 @@
 (define-class <E0> (inherits-from <C0>) (state-variables testcase4))
 (define-class <F0> (inherits-from <C0> <D0>) (state-variables testcase5))
 
+(declare-method test "tests")
 
 (model-method <C0> (test self #!rest args)
 				  (dnl* 'CO-- self args)
@@ -110,9 +85,13 @@
 				  (slot-set! self 'testcase5 't5)
 				  )
 
-(define Rob (make-agent <F0> 'testcase5 'Crivens!))
+(dnl "Defining Rob")
+(define Rob (make-agent <F0> 'testcase5 'Crivens! 'needs-parent-initialisers (list <agent> <F0>)))
+(dnl "Defining Hamish")
 (define Hamish (make-agent <E0> 'testcase3 "Nae King nor Quin!"))
+(dnl "Defining Callan")
 (define Callan (make-agent <C0> 'testcase1 "Gie orf!"))
+(dnl "Defining Dimo")
 (define Dimo (make-agent <D0> 'testcase3 "Ho YEZ!"))
 
 (display "Rob Hamish Callan Dimo\n")
@@ -130,7 +109,7 @@
 ;;; ((method-procedure (cadr ((compute-methods test) (list Rob)))) (lambda x x) Rob) ;;;
 ;;; ((method-procedure (caddr ((compute-methods test) (list Rob)))) (lambda x x) Rob) ;;;
 
-(define (call-all-parents methd self #!rest args)
+(define (call-all-parents% methd self #!rest args)
   (let* ((ml (map method-procedure ((compute-methods methd) (cons self args)))))
 	 (map (lambda (m)
 			  (apply m (cons (lambda x x) (cons self args))))

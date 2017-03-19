@@ -1,0 +1,8 @@
+'Parameters
+(define <domain-monitor>-parameters
+  (list
+    (list 'domain-list '<uninitialized>)
+    (list 'domain-selector '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <domain-monitor> <domain-monitor>-parameters) global-parameter-alist))

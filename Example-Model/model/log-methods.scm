@@ -33,55 +33,55 @@ close pages and emit 'showpage' for postscript stuff.
 ;; Logger agents (things that inherit from introspection, really) have
 ;; a high priority; as a consequence they get sorted to the front of a
 ;; timestep
-(agent-initialisation-method
- (<log-introspection> args) (no-default-variables)
- (set-state-variables
-  self (list 'type 'logger
-				 'priority introspection-priority ;; also set in <introspection>
-				 'jiggle 0 'introspection-list '()  ;; also set in <introspection>
-				 'timestep-epsilon 1e-6 'file #f ;; also set in <introspection>
-				 'filename #f 'filetype #f
-				 'format 'text 'missing-val "NoData"
-				 'show-field-name #f 'preamble-state '()
-				 'dont-log '(ready-for-prep
-								 ;; agent things
-								 agent-body-ran agent-schedule
-								 agent-epsilon map-projection counter 
-								 migration-test state-flags
-								 dont-log timestep-schedule kernel
+;;; (agent-initialisation-method <log-introspection> (args)
+;;;  (no-default-variables)
+;;;  (set-state-variables
+;;;   self (list 'type 'logger
+;;; 				 'priority introspection-priority ;; also set in <introspection>
+;;; 				 'jiggle 0 'introspection-list '()  ;; also set in <introspection>
+;;; 				 'timestep-epsilon 1e-6 'file #f ;; also set in <introspection>
+;;; 				 'filename #f 'filetype #f
+;;; 				 'format 'text 'missing-val "NoData"
+;;; 				 'show-field-name #f 'preamble-state '()
+;;; 				 'dont-log '(ready-for-prep
+;;; 								 ;; agent things
+;;; 								 agent-body-ran agent-schedule
+;;; 								 agent-epsilon map-projection counter 
+;;; 								 migration-test state-flags
+;;; 								 dont-log timestep-schedule kernel
 								 
-								 ;; log agent things
-								 introspection-list introspection-schedule
-								 timestep-epsilon 
+;;; 								 ;; log agent things
+;;; 								 introspection-list introspection-schedule
+;;; 								 timestep-epsilon 
 
-								 dims ;; thing things
+;;; 								 dims ;; thing things
 
-								 ;; environment things
-								 default-value minv maxv 
+;;; 								 ;; environment things
+;;; 								 default-value minv maxv 
 
-								 ;; ecoservice things
-								 plateau-interval growth-rate 
+;;; 								 ;; ecoservice things
+;;; 								 plateau-interval growth-rate 
 
-								 ;; landscape things
-								 service-list service-update-map
-								 update-equations terrain-function
-								 dump-times scale 
-								 log-services-from-patch
-								 log-patches-from-habitat
+;;; 								 ;; landscape things
+;;; 								 service-list service-update-map
+;;; 								 update-equations terrain-function
+;;; 								 dump-times scale 
+;;; 								 log-services-from-patch
+;;; 								 log-patches-from-habitat
 
-								 ;; animal things
-								 domain-attraction food-attraction 
-								 near-food-attraction searchspeed
-								 wanderspeed foragespeed	
-								 movementspeed foodlist homelist
-								 breedlist habitat
-								 )
-				 'variables-may-be-set #t
-				 ))
- (initialise-parent) ;; call "parents" last to make the
- ;; initialisation list work
- (set-state-variables self args)
- )
+;;; 								 ;; animal things
+;;; 								 domain-attraction food-attraction 
+;;; 								 near-food-attraction searchspeed
+;;; 								 wanderspeed foragespeed	
+;;; 								 movementspeed foodlist homelist
+;;; 								 breedlist habitat
+;;; 								 )
+;;; 				 'variables-may-be-set #t
+;;; 				 ))
+;;;  (initialise-parent) ;; call "parents" last to make the
+;;;  ;; initialisation list work
+;;;  (set-state-variables self args)
+;;;  )
 
 (model-method (<log-introspection> <number> <number>) (agent-prep self start end)
 				  (agent-prep-parent self start end) ;; parents should prep first
@@ -168,159 +168,159 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;---- snapshot methods
 
-(agent-initialisation-method (<snapshot> args) (no-default-variables)
-				  (initialise-parent) ;; call "parents" last to make the
-											 ;; initialisation list work
-				  (set-state-variables self (list 'type snapshot 'lastfile #f
-												 'currentfile #f))
-				  (set-state-variables self args)
-				  )
-	(use-parent-body <logfile>)
+;;; (agent-initialisation-method <snapshot> (args) (no-default-variables)
+;;; 				  (initialise-parent) ;; call "parents" last to make the
+;;; 											 ;; initialisation list work
+;;; 				  (set-state-variables self (list 'type snapshot 'lastfile #f
+;;; 												 'currentfile #f))
+;;; 				  (set-state-variables self args)
+;;; 				  )
+;;; 	(use-parent-body <logfile>)
 
 
-(model-method <snapshot> (page-preamble self logger format)
-				  (kdnl* '(introspection snapshot)"[" (my 'name) ":"
-							(class-name-of self) "]" "is preparing to dump")
-				  (let ((filename (my 'filename))
-						  (filetype (my 'filetype))
-						  (file (my 'file))
-						  (t (my 'subjective-time))
-						  )
+;;; (model-method <snapshot> (page-preamble self logger format)
+;;; 				  (kdnl* '(introspection snapshot)"[" (my 'name) ":"
+;;; 							(class-name-of self) "]" "is preparing to dump")
+;;; 				  (let ((filename (my 'filename))
+;;; 						  (filetype (my 'filetype))
+;;; 						  (file (my 'file))
+;;; 						  (t (my 'subjective-time))
+;;; 						  )
 
-					 (cond
-					  ((not (or (not filename) (string? filename)))
-						(error (string-append (my 'name)" has a filename which "
-													 "is neither false, nor a string.")))
+;;; 					 (cond
+;;; 					  ((not (or (and (not filename) (not (string? filename))) (string? filename)))
+;;; 						(error (string-append (my 'name)" has a filename which "
+;;; 													 "is neither false, nor a string.")))
 
-					  ((not (or (not filetype) (string? filetype)))
-						(error (string-append (my 'name) " has a filetype which "
-													 "is neither false, nor a string.")))
+;;; 					  ((not (or (and (not filetype) (not (string? filename))) (string? filetype)))
+;;; 						(error (string-append (my 'name) " has a filetype which "
+;;; 													 "is neither false, nor a string.")))
 
-					  ((not (number? t))
-						(error (string-append (my 'name) " has a subjective time "
-													 "which is not a number.")))
-					  )
+;;; 					  ((not (number? t))
+;;; 						(error (string-append (my 'name) " has a subjective time "
+;;; 													 "which is not a number.")))
+;;; 					  )
 
-					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
-							  (class-name-of self) "]" "is opening a log file" "(" filename ")")
+;;; 					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 							  (class-name-of self) "]" "is opening a log file" "(" filename ")")
 
-					 ;; Open a new file
-					 (cond
-					  ((not file)
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype) t)))
-						  (kdnl* '(introspection snapshot) "[" (my 'name) ":"
-									(class-name-of self) "]" "opening" fn)
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
-						  (if (zero? (string-length fn))
-								(set! file (current-output-port))
-								(set! file (open-output-file fn)))
-						  ))
-					  ((memq file (list (current-output-port) (current-error-port)))
-						;; do nothing really
-						(kdnl* '(introspection snapshot) "[" (my 'name) ":"
-								 (class-name-of self) "]"
-								 "is writing to stdout or stderr")
-						#!void
-						)
-					  (else 
-						(kdnl* '(introspection  snapshot) "[" (my 'name) ":"
-								 (class-name-of self) "]" " "
-								 "has hit page-preamble with a file that is still open."
-								 "\nThis is an error.\nClosing the file ("
-								 (my 'lastfile) ") and continuing.")
-						(close-output-port file)
-						(set-my! 'file #f)
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype) t)))
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
-						  (if (zero? (string-length fn))
-								(set! file (current-output-port))
-								(set! file (open-output-file fn)))
-						  )
-						)
-					  )
+;;; 					 ;; Open a new file
+;;; 					 (cond
+;;; 					  ((not file)
+;;; 						(let ((fn (introspection-filename (my 'filename)
+;;; 																	 (my 'filetype) t)))
+;;; 						  (kdnl* '(introspection snapshot) "[" (my 'name) ":"
+;;; 									(class-name-of self) "]" "opening" fn)
+;;; 						  (set-my! 'lastfile (my 'currentfile))
+;;; 						  (set-my! 'currentfile fn)
+;;; 						  (if (or (not (string? fn) (not fn) (zero? (string-length fn))))
+;;; 								(set! file (current-output-port))
+;;; 								(set! file (open-output-file fn)))
+;;; 						  ))
+;;; 					  ((memq file (list (current-output-port) (current-error-port)))
+;;; 						;; do nothing really
+;;; 						(kdnl* '(introspection snapshot) "[" (my 'name) ":"
+;;; 								 (class-name-of self) "]"
+;;; 								 "is writing to stdout or stderr")
+;;; 						#!void
+;;; 						)
+;;; 					  (else 
+;;; 						(kdnl* '(introspection  snapshot) "[" (my 'name) ":"
+;;; 								 (class-name-of self) "]" " "
+;;; 								 "has hit page-preamble with a file that is still open."
+;;; 								 "\nThis is an error.\nClosing the file ("
+;;; 								 (my 'lastfile) ") and continuing.")
+;;; 						(close-output-port file)
+;;; 						(set-my! 'file #f)
+;;; 						(let ((fn (introspection-filename (my 'filename)
+;;; 																	 (my 'filetype) t)))
+;;; 						  (set-my! 'lastfile (my 'currentfile))
+;;; 						  (set-my! 'currentfile fn)
+;;; 						  (if (or (not fn) (string? fn) (zero? (string-length fn)))
+;;; 								(set! file (current-output-port))
+;;; 								(set! file (open-output-file fn)))
+;;; 						  )
+;;; 						)
+;;; 					  )
 					 
-					 (set-my! 'file file)
+;;; 					 (set-my! 'file file)
 
-					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
-							  (class-name-of self) "]" "opened" file)
-					 )
-				  )
+;;; 					 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 							  (class-name-of self) "]" "opened" file)
+;;; 					 )
+;;; 				  )
 
-(model-method <snapshot> (page-epilogue self logger format)
-				  (let ((file (my 'file)))
-					 (if (and file (not (memq file (list (current-output-port)
-																	 (current-error-port)))))
-						  (begin
-							 (kdnl* '(introspection snapshot) "[" (my 'name) ":"
-									  (class-name-of self) "]"
-									  "is closing the output port")
-							 (close-output-port file)
-							 (set-my! 'file #f)))))
+;;; (model-method <snapshot> (page-epilogue self logger format)
+;;; 				  (let ((file (my 'file)))
+;;; 					 (if (and file (not (memq file (list (current-output-port)
+;;; 																	 (current-error-port)))))
+;;; 						  (begin
+;;; 							 (kdnl* '(introspection snapshot) "[" (my 'name) ":"
+;;; 									  (class-name-of self) "]"
+;;; 									  "is closing the output port")
+;;; 							 (close-output-port file)
+;;; 							 (set-my! 'file #f)))))
 
 
 (use-parent-body <snapshot>)
 
-;---- logfile methods
+;;; ;---- logfile methods
 
-(model-method <logfile> (page-preamble self logger format)
-				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
-							(class-name-of self) "]" "is preparing to dump, file is currently" (my 'filename) (my 'file))
-				  (let ((filename (my 'filename))
-						  (file (my 'file))
-						  )
+;;; (model-method <logfile> (page-preamble self logger format)
+;;; 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 							(class-name-of self) "]" "is preparing to dump, file is currently" (my 'filename) (my 'file))
+;;; 				  (let ((filename (my 'filename))
+;;; 						  (file (my 'file))
+;;; 						  )
 					 
-					 (kdnl* 'logfile-issues "In: logfile preamble filename " filename "and file" file)
+;;; 					 (kdnl* 'logfile-issues "In: logfile preamble filename " filename "and file" file)
 
-					 (if (not (or (not filename) (string? filename)))
-						  (error (string-append (my 'name) " has a filename which is "
-														"neither false, nor a string.")))
-					 ;; Open a new file
-					 (if (not file)
-						  (begin
-							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
-									  (class-name-of self) "]" "is opening a log file" "(" filename ")")
-							 (if (zero? (string-length filename))
-								  (set! file (current-output-port))
-								  (set! file (open-output-file filename))
-							 )
-							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
-									  (class-name-of self) "]" "opened" file)
-							 )
-						  )
-					 (kdnl* 'logfile-issues "Mid: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
+;;; 					 (if (not (or (not filename) (string? filename)))
+;;; 						  (error (string-append (my 'name) " has a filename which is "
+;;; 														"neither false, nor a string.")))
+;;; 					 ;; Open a new file
+;;; 					 (if (not file)
+;;; 						  (begin
+;;; 							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 									  (class-name-of self) "]" "is opening a log file" "(" filename ")")
+;;; 							 (if (or (not filename) (string? filename) (zero? (string-length filename)))
+;;; 								  (set! file (current-output-port))
+;;; 								  (set! file (open-output-file filename))
+;;; 							 )
+;;; 							 (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 									  (class-name-of self) "]" "opened" file)
+;;; 							 )
+;;; 						  )
+;;; 					 (kdnl* 'logfile-issues "Mid: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
 
-					 (set-my!'file file)
+;;; 					 (set-my!'file file)
 
-					 (kdnl* 'logfile-issues "Out: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
-					 )
-				  )
+;;; 					 (kdnl* 'logfile-issues "Out: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
+;;; 					 )
+;;; 				  )
 
-(model-method <logfile> (page-epilogue self logger format)
-				  (kdnl* 'logfile-issues "In: logfile epilogue filename " (my 'filename) "and file" (my 'file))
-				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
-							(class-name-of self) "]" "has finished a dump")
-				  (kdnl* 'logfile-issues "Out: logfile epilogue filename " (my 'filename) "and file" (my 'file))
-				  #!void)
-
-
-;---- log-map methods
+;;; (model-method <logfile> (page-epilogue self logger format)
+;;; 				  (kdnl* 'logfile-issues "In: logfile epilogue filename " (my 'filename) "and file" (my 'file))
+;;; 				  (kdnl* '(introspection logfile) "[" (my 'name) ":"
+;;; 							(class-name-of self) "]" "has finished a dump")
+;;; 				  (kdnl* 'logfile-issues "Out: logfile epilogue filename " (my 'filename) "and file" (my 'file))
+;;; 				  #!void)
 
 
-;----- (initialise) 
-(agent-initialisation-method (<log-map> args) (no-default-variables)
-				  (initialise-parent)
-				  ;; call "parents" last
-				  ;; to make the
-				  ;; initialisation list
-				  ;; work
-				  (set-state-variables self '(type log-map format ps)) ;; the type is 'log-map, the format is 'ps
-				  (set-state-variables self args)
-				  ;; keep all files
-				  )
+;;; ;---- log-map methods
+
+
+;;; ;----- (initialise) 
+;;; ;(agent-initialisation-method <log-map> (args) (no-default-variables)
+;;; 				  (initialise-parent)
+;;; 				  ;; call "parents" last
+;;; 				  ;; to make the
+;;; 				  ;; initialisation list
+;;; 				  ;; work
+;;; 				  (set-state-variables self '(type log-map format ps)) ;; the type is 'log-map, the format is 'ps
+;;; 				  (set-state-variables self args)
+;;; 				  ;; keep all files
+;;; 				  )
 
 (use-parent-body <log-map>)
 
@@ -361,9 +361,11 @@ close pages and emit 'showpage' for postscript stuff.
 																	 (my 'filetype) t)))
 						  (set-my! 'lastfile (my 'currentfile))
 						  (set-my! 'currentfile fn)
-						  (if (zero? (string-length fn))
-								(abort "Oh. Bother.")
-								(set! file (make-ps fn '(Helvetica))))
+						  (if (not fn)
+								(void)
+								(if (and (string? fn) (zero? (string-length fn)))
+									 (abort "Oh. Bother.")
+									 (set! file (make-ps fn '(Helvetica)))))
 						  ))
 					  ((memq file (list (current-output-port) (current-error-port)))
 						;; do nothing really
@@ -383,7 +385,7 @@ close pages and emit 'showpage' for postscript stuff.
 																	 (my 'filetype) t)))
 						  (set-my! 'lastfile (my 'currentfile))
 						  (set-my! 'currentfile fn)
-						  (if (zero? (string-length fn))
+						  (if (or (not fn) (string? fn) (zero? (string-length fn)))
 								(abort "Oh. Bother.")
 								(set! file (make-ps fn '(Helvetica))))
 						  )
@@ -427,15 +429,15 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 ;---- log-data methods
-;----- (initialise) 
-(agent-initialisation-method (<log-data>  args) (no-default-variables)
-				  (set-state-variables self '(type log-data)) ;; keep all files
-				  (initialise-parent) ;; call "parents" last
-				  ;; to make the
-				  ;; initialisation list
-				  ;; work
-				  (set-state-variables self args)
-				  )
+;;; ;----- (initialise) 
+;;; (agent-initialisation-method <log-data> (args) (no-default-variables)
+;;; 				  (set-state-variables self '(type log-data)) ;; keep all files
+;;; 				  (initialise-parent) ;; call "parents" last
+;;; 				  ;; to make the
+;;; 				  ;; initialisation list
+;;; 				  ;; work
+;;; 				  (set-state-variables self args)
+;;; 				  )
 
 (use-parent-body <log-data>)
 

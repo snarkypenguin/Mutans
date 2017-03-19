@@ -1,0 +1,46 @@
+'Parameters
+(define B.exemplarii-parameters ;; Parameters for Botanicus exemplarii
+  (list
+	 (list 'note "Simple plants approximating the trees in Chapter 2")
+	 (list 'reference "Based on data from the One Oak project.")
+	 (list 'dt (* 1 day))
+    (list 'type 'plant)
+	 (list 'representation 'simple-individual)
+	 (list 'I-need '(water))
+	 (list 'provides '(fruit seeds vegetation))
+	 (list 'requires '(water)
+    (list 'habitat '<uninitialized>) ;; should be set in the in the create args
+	 (list 'population-switch (/ (* 10000 kg)  hectare)));; if the density is greater than 10000 kg plants in a hectare
+	 (list 'maintenance-list '())
+    (list 'population-switch #f) ;; not a simple switch 
+
+    (list 'max-age (* 37 years))
+    (list 'max-mass (* 150 kg))
+	 (list 'mass '(@ (nrnd 
+    (list 'lai 1.7)
+    (list 'water-stress-effect #t) ;; changes fruiting 
+    (list 'water-stress 0)
+    (list 'water-use 4/5)
+
+    (list 'age '<uninitialized>) ;; derive from mass
+	 (list 'leaf-area '<uninitialized>) ;; derive from mass : real leaf area
+    (list 'reproduction-mass (* 18 kg))
+    (list 'reproduction-period 0) ;; continuous
+    (list 'reproduction-offset 0)
+    (list 'reproduction-mechanism '<uninitialized>) ;; this should be set to the ecoservice assd with fruit in the domain
+    (list 'fruiting-rate (/ 0.1 (* 10 kg)))
+    (list 'seeds-per-fruit 60)
+	 (list 'speed 0)
+	 (list 'direction '(0 0))
+	 ;; The following should be passed in the initialisation:
+	 ;;    mass, location, habitat, water-*, age, lai
+  )
+)
+(set! global-parameter-alist (cons (cons "B.exemplarii" <simple-plant>-parameters) global-parameter-alist))
+
+
+
+
+
+
+

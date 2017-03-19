@@ -2,6 +2,10 @@
 (include "framework")
 ;- Identification and Changes
 
+"The basic classes from which the others are ultimately derived are
+kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
+
+
 ;- Load initial libraries 
 
 ;-- Define/allocate new classes
@@ -13,10 +17,9 @@
 
 ;;; (define-class <agent>
 ;;;   (inherits-from <object>)
-;;;   (state-variables name type representation agent-state
+;;;   (state-variables name taxon type representation agent-state
 ;;; 						 note
 ;;; 						 kernel
-;;; 						 need-all-parent-bodies
 ;;; 						 subjective-time priority jiggle 
 ;;; 						 dt
 ;;; 						 schedule
@@ -81,7 +84,7 @@
 
 (define-class <environment>
   (inherits-from <agent>)
-  (state-variables default-value minv maxv)) ;; bounding volume
+  (state-variables default-value minv maxv rep)) ;; minv and maxv form a bounding volume in however many dimensions
 
 
 (define-class <blackboard>

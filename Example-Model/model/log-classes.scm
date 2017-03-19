@@ -31,7 +31,7 @@
 ;;- the timestep schedule is the set of times to run at
 
 
-(define-class <logfile> (inherits-from <introspection>)
+(define-class <logfile> (inherits-from <log-introspection>)
 										(state-variables)
 										)
 ;;- file is the output handle
@@ -42,7 +42,7 @@
 ;;  to the filename
 
 
-(define-class <snapshot> (inherits-from <introspection>)
+(define-class <snapshot> (inherits-from <log-introspection>)
 									  (state-variables lastfile currentfile))
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout

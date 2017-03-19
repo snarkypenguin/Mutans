@@ -1,0 +1,9 @@
+'Parameters
+(define <dynamic-patch>-parameters
+  (list
+    (list 'do-dynamics '<uninitialized>)
+    (list 'do-growth '<uninitialized>)
+    (list 'subdivisions '<uninitialized>)
+  )
+)
+(set! global-parameter-alist (cons (cons <dynamic-patch> <dynamic-patch>-parameters) global-parameter-alist))

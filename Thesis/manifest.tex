@@ -70,6 +70,19 @@
 %%   \contour{red}{$\protect\vv{aa}$}
 %% \end{document}
 
+
+\newcommand{\at}{\makeatletter @\makeatother}
+
+\makeatletter
+\newcommand{\interitemtext}[1]{%
+\begin{list}{}
+{\itemindent=0mm\labelsep=0mm
+\labelwidth=0mm\leftmargin=0mm
+\addtolength{\leftmargin}{-\@totalleftmargin}}
+\item #1
+\end{list}}
+\makeatother
+
 \newcommand{\Cite}[1]{\cite{#1}}
 
 \DeclareMathOperator{\m}{m}
