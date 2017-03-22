@@ -301,30 +301,30 @@
 ;; 				  )
 
 ;----- (age) 
-(model-method <animal> (age self)
+(model-method <simple-animal> (age self)
 				  (slot-ref self 'age))
 
 
 ;----- (set-age!) 
-(model-method (<animal> <number>) (set-age! self n)
+(model-method (<simple-animal> <number>) (set-age! self n)
 				  (if (not (number? n))
 						(aborts "thing:set-age! -- bad number")
 						(slot-set! self 'age n)))
 
 
 ;----- (sex) 
-(model-method <animal> (sex self)
+(model-method <simple-animal> (sex self)
 				  (slot-ref self 'sex))
 
 
 ;----- (set-sex!) 
-(model-method (<animal> <symbol>) (set-sex! self n)
+(model-method (<simple-animal> <symbol>) (set-sex! self n)
 					(if (not (member n '(female male)))
 						 (aborts "thing:set-sex! -- symbol should be male or female")
 						 (slot-set! self 'sex n)))
 
 ;----- (map-log-track-segment
-(model-method <animal> (map-log-track-segment self track wt p ps)
+(model-method <simple-animal> (map-log-track-segment self track wt p ps)
 				  (if track
 						(let* ((xytrack (map txyz->xy track))
 								 (ptrack (map p xytrack)))
@@ -369,7 +369,7 @@
 				  #t)
 
 
-(model-method <animal> (map-log-data self logger format caller targets)
+(model-method <simple-animal> (map-log-data self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -393,7 +393,7 @@
 					 #t)
 				  )
 				  
-(model-method <animal> (log-data% self logger format caller targets)
+(model-method <simple-animal> (log-data% self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
 						  (p (slot-ref self 'map-projection)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -416,45 +416,67 @@
 				  )
 
 
-(model-method (<animal> <number> <pair> <number> <number>)
+(model-method (<simple-animal> <number> <pair> <number> <number>)
 				  (wander-around self dt point attr speed) ;;
-  (let* ((loc (location self))
-			(p (unit (vector-to loc point)))
-			(v (slot-ref self 'direction))
-			(theta (- (nrandom pi 10) pi))
-			(spd speed)
-		  )
+				  (let* ((loc (location self))
+							(p (unit (vector-to loc point)))
+							(v (slot-ref self 'direction))
+							(theta (- (nrandom pi 10) pi))
+							(spd speed)
+							)
+					 
+					 ;; This calculation ought to use random-angle and rotated-velocity
+					 ;; (which applies to lists!)  I'll keep it this way for local
+					 ;; clarity.
+
+					 (let* ((new-v (unit
+										 (append (list (- (* (car v) (cos theta))
+																(* (cadr v) (sin theta)))
+															(+ (* (cadr v) (cos theta))
+																(* (car v) (sin theta))))
+													(cddr v))))
+
+							  (new-loc
+								(map + loc 
+									  (map *  
+											 (map +
+													(map * (make-list (length v) (- 1.0 attr)) new-v)
+													(map * (make-list (length p) attr) p))
+											 (append (make-list 2 (* spd dt))
+														(make-list (length (cddr v)) 1.0)))))
+							  )
+						(slot-set! self 'location new-loc)
+						(slot-set! self 'direction new-v)
+						new-loc))  )
 	 
-	 ;; This calculation ought to use random-angle and rotated-velocity
-	 ;; (which applies to lists!)  I'll keep it this way for local
-	 ;; clarity.
 
-	 (let* ((new-v (unit
-						 (append (list (- (* (car v) (cos theta))
-												(* (cadr v) (sin theta)))
-											(+ (* (cadr v) (cos theta))
-												(* (car v) (sin theta))))
-										  (cddr v))))
-
-			  (new-loc
-				(map + loc 
-					  (map *  
-							 (map +
-									(map * (make-list (length v) (- 1.0 attr)) new-v)
-									(map * (make-list (length p) attr) p))
-							 (append (make-list 2 (* spd dt))
-										(make-list (length (cddr v)) 1.0)))))
-			  )
-		(slot-set! self 'location new-loc)
-		(slot-set! self 'direction new-v)
-		new-loc)))
-	 
-
-(model-method (<animal> <number> <pair> <number> <symbol>)
+(model-method (<simple-animal> <number> <pair> <number> <symbol>)
 				  (wander-around self dt point attr speedtag) ;;
 				  (wander-around self dt point attr (my speedtag)))
 
-(model-body <animal>
+(model-body <simple-animal>
+				;; Need to flesh this out
+				(parent-bodies <simple-metabolism> <thing>)
+				dt)
+
+
+(define (animal-initfunc self)
+  				 (slot-set! self 'current-interest 
+								(lambda args 
+								  (aborts
+									(string-append
+									 "current-interest isn't defined for a "
+									 "member of the <animal> class: ")
+									(slot-ref self 'name) ":"
+									(slot-ref self 'type) ":"
+									(slot-ref self 'representation))))
+				 (set-state-variables self (list 'age #f 'sex #f))
+				 ;; call "parents" last to make the initialization list work
+				 (set-state-variables self args)
+				 )
+
+
+(model-body <simple-animal>
 				(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
 				(let ((dt/2 (/ dt 2.0))
 						(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
@@ -474,7 +496,7 @@
 				  (set-my! 'age (+ (my 'age) dt/2))
 				  (set-my! 'subjective-time (+ (my 'subjective-time) dt/2))
 
-				  (parent-body)
+				  (parent-bodies <metabolism> <thing>)
 				  ;; should execute body code for <metabolism> and <thing>
 
 				  (let* ((domain (kquery 'containing-agents (my 'location)))

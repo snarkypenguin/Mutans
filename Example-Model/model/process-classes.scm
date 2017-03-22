@@ -70,7 +70,7 @@
 			  (write y)
 			  (display ")\n"))
 			;;(evens ',states) (odds ',states)
-			',states (make-list% (length ',states) '<uninitialized>)
+			',states (make-list% (length ',states) '<uninitialised>)
 			)
 		  (display "  )\n)\n")
 		  (display (string-append "(set! global-parameter-alist (cons (cons " ,(symbol->string cname) " " ,class-init ") global-parameter-alist))\n"))

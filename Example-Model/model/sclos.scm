@@ -287,7 +287,7 @@
 ; 1.1  11/24/92  Gregor  Fixed bug in compute-method-more-specific?,
 ;                        wrt the use of for-each.
 ;                        Both methods on allocate instance failed to
-;                        initialize fields properly.
+;                        initialise fields properly.
 ;                        The specializers and procedure initargs are
 ;                        now required when creating a method, that is,
 ;                        they no longer default.  No working program
@@ -336,7 +336,7 @@
 ;;;  make-method
 ;;;  add-method
 ;;;  make
-;;;  initialize
+;;;  initialise
 ;;;  slot-ref
 ;;;  slot-set!
 ;;;  class-of
@@ -348,7 +348,7 @@
 ;;;  method-specializers
 ;;;  method-procedure
 ;;;  allocate-instance
-;;;  initialize
+;;;  initialise
 ;;;  compute-cpl
 ;;;  compute-slots
 ;;;  compute-getter-and-setter
@@ -431,7 +431,7 @@
 ; So, for example, one might do:
 ;
 ;   (define <position> (make-class (list <primitive-object>) (list 'x 'y)))
-;   (add-method initialize
+;   (add-method initialise
 ;       (make-method (list <position>)
 ;         (lambda (call-next-method pos initargs)
 ;           (for-each (lambda (initarg-name slot-name)
@@ -640,7 +640,7 @@
 
 
 ;
-; Now we can get down to business.  First, we initialize the braid.
+; Now we can get down to business.  First, we initialise the braid.
 ;
 ; For Bootstrapping, we define an early version of MAKE.  It will be
 ; changed to the real version later on.  String search for ``set! make''.
@@ -669,13 +669,13 @@
 												  (map class-direct-slots
 														 (cdr cpl)))))
 						(nfields 0)
-						(field-initializers '())
+						(field-initialisers '())
 						(allocator
 						 (lambda (init)
 							(let ((f nfields))
 							  (set! nfields (+ nfields 1))
-							  (set! field-initializers
-									  (cons init field-initializers))
+							  (set! field-initialisers
+									  (cons init field-initialisers))
 							  (list (lambda (o)   (%instance-ref  o f))
 									  (lambda (o n) (%instance-set! o f n))))))
 						(getters-n-setters
@@ -689,8 +689,8 @@
 				 (slot-set! new 'cpl                cpl)
 				 (slot-set! new 'slots              slots)
 				 (slot-set! new 'nfields            nfields)
-				 (slot-set! new 'field-initializers (reverse
-																 field-initializers))
+				 (slot-set! new 'field-initialisers (reverse
+																 field-initialisers))
 				 (slot-set! new 'getters-n-setters  getters-n-setters)
 				 new))
 			 ((eq? class <generic>)
@@ -776,7 +776,7 @@
 	 cpl                        ;(class ...) 
 	 slots                      ;((name . options) ...) 
 	 nfields                    ;an integer
-	 field-initializers         ;(proc ...)
+	 field-initialisers         ;(proc ...)
 	 getters-n-setters))        ;((slot-name getter setter) ...)
 ;
 (define getters-n-setters-for-class      ;see lookup-slot-info
@@ -817,7 +817,7 @@
 (slot-set! <class> 'cpl                (list <class> <primitive-object> <top>))
 (slot-set! <class> 'slots              (map list the-slots-of-a-class))
 (slot-set! <class> 'nfields            (length the-slots-of-a-class))
-(slot-set! <class> 'field-initializers (map (lambda (s)
+(slot-set! <class> 'field-initialisers (map (lambda (s)
 															 (lambda () '()))
 														  the-slots-of-a-class))
 (slot-set! <class> 'getters-n-setters  '())
@@ -866,7 +866,7 @@
 ;
 ; The initialization protocol
 ;
-(define initialize (make-generic))
+(define initialise (make-generic))
 
 
 ;
@@ -1019,11 +1019,11 @@
 
 
 
-(add-method initialize
+(add-method initialise
 				(make-method (list <primitive-object>)
 								 (lambda (call-next-method object initargs) object)))
 
-(add-method initialize
+(add-method initialise
 				(make-method (list <class>)
 								 (lambda (call-next-method class initargs)
 									(call-next-method)
@@ -1038,13 +1038,13 @@
 									(slot-set! class 'cpl   (compute-cpl   class))
 									(slot-set! class 'slots (compute-slots class))
 									(let* ((nfields 0)
-											 (field-initializers '())
+											 (field-initialisers '())
 											 (allocator
 											  (lambda (init)
 												 (let ((f nfields))
 													(set! nfields (+ nfields 1))
-													(set! field-initializers
-															(cons init field-initializers))
+													(set! field-initialisers
+															(cons init field-initialisers))
 													(list (lambda (o)   (%instance-ref  o f))
 															(lambda (o n) (%instance-set! o f n))))))
 											 (getters-n-setters
@@ -1055,10 +1055,10 @@
 																									allocator)))
 													 (slot-ref class 'slots))))
 									  (slot-set! class 'nfields nfields)
-									  (slot-set! class 'field-initializers field-initializers)
+									  (slot-set! class 'field-initialisers field-initialisers)
 									  (slot-set! class 'getters-n-setters getters-n-setters)))))
 
-(add-method initialize
+(add-method initialise
 				(make-method (list <generic>)
 								 (lambda (call-next-method generic initargs)
 									(call-next-method)
@@ -1066,7 +1066,7 @@
 									(%set-instance-proc! generic
 																(lambda args (error "Has no methods."))))))
 
-(add-method initialize
+(add-method initialise
 				(make-method (list <method>)
 								 (lambda (call-next-method method initargs)
 									(call-next-method)
@@ -1078,12 +1078,12 @@
 (add-method allocate-instance
 				(make-method (list <class>)
 								 (lambda (call-next-method class)
-									(let* ((field-initializers (slot-ref class 'field-initializers))
+									(let* ((field-initialisers (slot-ref class 'field-initialisers))
 											 (new (%allocate-instance
 													 class
-													 (length field-initializers))))
+													 (length field-initialisers))))
 									  (let loop ((n 0)
-													 (inits field-initializers))
+													 (inits field-initialisers))
 										 (if (pair? inits)
 											  (begin
 												 (%instance-set! new n ((car inits)))
@@ -1094,12 +1094,12 @@
 (add-method allocate-instance
 				(make-method (list <entity-class>)
 								 (lambda (call-next-method class)
-									(let* ((field-initializers (slot-ref class 'field-initializers))
+									(let* ((field-initialisers (slot-ref class 'field-initialisers))
 											 (new (%allocate-entity
 													 class
-													 (length field-initializers))))
+													 (length field-initialisers))))
 									  (let loop ((n 0)
-													 (inits field-initializers))
+													 (inits field-initialisers))
 										 (if (pair? inits)
 											  (begin
 												 (%instance-set! new n ((car inits)))
@@ -1155,7 +1155,7 @@
 (set! make
       (lambda (class . initargs)
 		  (let ((instance (allocate-instance class)))
-			 (initialize instance initargs)
+			 (initialise instance initargs)
 			 instance)))
 
 ;

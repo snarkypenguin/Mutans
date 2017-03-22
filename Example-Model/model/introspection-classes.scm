@@ -33,8 +33,7 @@
 (include "framework")
 
 (define-class <introspection> (inherits-from <agent>)
-				  (state-variables introspection-list
-										 timestep-epsilon))
+  (state-variables introspection-list timestep-epsilon))
 ;-  The End 
 
 

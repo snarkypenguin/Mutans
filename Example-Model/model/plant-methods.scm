@@ -128,10 +128,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 		(- 1.0 (sigmoid* (/ avail need)))))
 
 
-
-
-
-(model-method <simple-plant> (fruit-count self)
+(model-method <plant> (fruit-count self)
 				  (* (slot-ref self 'fruiting-rate
 									(slot-ref self 'mass)
 									(if (slot-ref self 'water-stress-effect)
@@ -141,8 +138,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 				  )
 
 
-
-;;; (agent-initialisation-method <simple-plant> (args) (no-default-values) ;-
+;;; (agent-initialisation-method <plant> (args) (no-default-values) ;-
 ;;;  (set-state-variables self (list 'max-age 37.0 ;-
 ;;; 											'max-mass 300.0 ;-
 ;;; 											'age 12 ;-
@@ -179,8 +175,8 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 ;;;  ) ;-
  
 ;----- (self-assessment)
-(UNFINISHED-BUSINESS "<simple-plant>: This is a placeholder ... it almost certainly needs to change")
-(model-method <simple-plant> (representation-assessment self . args) 
+(UNFINISHED-BUSINESS "<plant>: This is a placeholder ... it almost certainly needs to change")
+(model-method <plant> (representation-assessment self . args) 
 				  (if (null? args) ;; only passed self
 						0
 						(let ((n (car args)) ;; mixing assumption 
@@ -191,10 +187,32 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 
 												 
-(model-method <simple-plant> (plant-radius self)
+(model-method <plant> (plant-radius self)
 				  (plant-mass->radius (slot-ref self 'mass)))
 
-(model-body <simple-plant>
+(define (simple-plant-initfunc self)
+	 (set-state-variables self (list 'reproduction-period 
+												(if #f
+													 (random-real) ;; a probability, or
+													 (+ 30 (random-integer 30)); an interval
+													 )
+												
+												'reproduction-offset (random-integer 20)
+												'reproduction-mechanism #f ;; <fruit> or a
+												;; procedure which performs an update on
+												;; some undefined thing. 
+												))
+
+
+	 (slot-set! self 'mass (* (random-real) (random-real)
+									  (slot-ref self 'max-mass)))
+	 (slot-set! self 'age
+					(* (slot-ref self 'max-age)
+						(/ (slot-ref self 'mass) (slot-ref self 'max-mass)))))
+
+	
+
+(model-body <plant>
 	(kdnl* '(model-bodies plant-running)  (class-name-of self) (name self) "@" t "/" dt)
 
 	;; Calculate water requirements
@@ -271,7 +289,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	  )
 	)
 
-(define simple-plant-arg-order
+(define plant-arg-order
   '(
      lai water-use  
        water-stress-effect reproduction-mass
@@ -281,7 +299,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
        reproduction-offset
        max-age max-mass))
 
-(define (make-simple-plant-xy taxon env loc mass . otherargs)
+(define (make-plant-xy class taxon env loc mass . otherargs)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -296,9 +314,9 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   ;; reproduce -- never fruits
 
   (if (not (null? otherargs))
-		(set! otherargs (arg-pairings simple-plant-arg-order otherargs)))
+		(set! otherargs (arg-pairings plant-arg-order otherargs)))
 
-  (let ((sp (apply create (append (list <simple-plant> taxon 'habitat env
+  (let ((sp (apply create (append (list class taxon 'habitat env
 						  'location loc
 						  'age (+ 8 (random-integer 24))
 						  'mass mass) otherargs)) ))
@@ -306,9 +324,9 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 	 (if (contains? env loc)
 		  sp
-		  (error "location for simple-plant is not in indicated environment" loc env))))
+		  (error "location for plant is not in indicated environment" loc env))))
 
-(define (make-simple-plant taxon env mass . more)
+(define (make-plant class taxon env mass . more)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -323,29 +341,29 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
   ;; reproduce -- never fruits
 
   (if (and (pair? more) (number? (car more)))
-		(set! more (arg-pairings simple-plant-arg-order more)))
+		(set! more (arg-pairings plant-arg-order more)))
 
   (kdnl* '(init plants) "env:" env  "args:"  more)
   (set! more (append (list 'habitat env
 									'location (random-point env)
 									'mass mass) more))
   (kdnl* '(init plants) "->args:"  more)
-  (let ((sp (apply create (cons <simple-plant> taxon more ))))
+  (let ((sp (apply create (cons class (cons taxon more )))))
 	 sp
 	 ))
 
 
 ;--- Only logging methods below
 		 
-(model-method <simple-plant> (map-log-data self logger format caller targets)
+(model-method <plant> (map-log-data self logger format caller targets)
    (let ((file (slot-ref logger 'file)))
-	  (kdnl* '(log-* log-simple-plant)
+	  (kdnl* '(log-* log-plant)
 				"[" (my 'name) ":" (class-name-of self) "]"
 				"in log-data")
 
 	  (for-each
 		(lambda (field)
-		  (kdnl* '(log-* log-simple-plant) "[" (my 'name) ":"
+		  (kdnl* '(log-* log-plant) "[" (my 'name) ":"
 					(class-name-of self) "]" "checking" field)
 		  (if (has-slot? self field)
 				(let ((r (slot-ref self field)))
@@ -406,15 +424,15 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 	  )
 	)
 
-(model-method <simple-plant> (log-data% self logger format caller targets)
+(model-method <plant> (log-data% self logger format caller targets)
     (let ((file (slot-ref logger 'file)))
-		(kdnl* '(log-* log-simple-plant)
+		(kdnl* '(log-* log-plant)
 				 "[" (my 'name) ":" (class-name-of self) "]"
 				 "in log-data")
 
 		(for-each
 		 (lambda (field)
-			(kdnl* '(log-* log-simple-plant) "[" (my 'name) ":"
+			(kdnl* '(log-* log-plant) "[" (my 'name) ":"
 					 (class-name-of self) "]" "checking" field)
 			(if (has-slot? self field)
 				 (let ((r (slot-ref self field)))
@@ -485,21 +503,36 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
  									  									  									  
 
 (model-body <example-plant>
-				(let ((mass (my 'mass))
-						(pkmass (my 'peak-mass)))
-
-				  ;; This comes before death, since plants will often seed/fruit in one last burst
-				  (if (and (>= mass (my' fruiting-mass)) (> fruiting-prob (random-real)))
-						(add-fruit self (my 'cell) (power mass 2/3)))
+				(kdnl* 'model-body "pm 1")
+				(let ((dt (apply min (*parent-bodies '*))))
+				(kdnl* 'model-body "pm 2")
 				  
-				  (if (< mass (* (my 'mort-mass) pkmass))
-						(die self)
-						(begin
-						  (set! mass (grow dt mass))
-						  (set-my! 'mass mass)
-						  (if (> mass pkmass)
-								(set-my! 'peak-kmass mass))
-						  ))))
+				  (if (uninitialised? self 'peak-mass)
+						(set-my! 'peak-mass (my 'mass)))
+
+				  (if (uninitialised? self 'leaf-area)
+						(set-my! 'leaf-area (leaf-area self)))
+
+				  (let ((mass (my 'mass))
+						  (pkmass (my 'peak-mass)))
+
+					 (kdnl* 'model-body "pm 3")
+
+					 ;; This comes before death, since plants will often seed/fruit in one last burst
+					 (if (and (>= mass (my' fruiting-mass)) (> fruiting-prob (random-real)))
+						  (add-fruit self (my 'cell) (power mass 2/3)))
+					 
+					 (if (< mass (* (my 'mort-mass) pkmass))
+						  (die self)
+						  (begin
+							 (set! mass (grow dt mass))
+							 (set-my! 'mass mass)
+							 (if (> mass pkmass)
+								  (set-my! 'peak-kmass mass))
+							 )))
+				(kdnl* 'model-body "pm 4")
+				  dt
+				  ))
 
 (model-method <example-plant> (add-fruit self surface)
 				  (let ((cell (my 'cell))
@@ -509,8 +542,10 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 				  ))
 				
 (model-method <example-plant> (die self)
+				  (kdnl* 'death "<example-plant> dies: mass = " mass ", mort mass = " (* pkmass (my 'mort-mass)))
 				  (set-my! 'agent-state 'dead)
 				  (kernel 'shutdown self))
+
 
 ;; Plants are done.
 

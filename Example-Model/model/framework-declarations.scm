@@ -1,6 +1,16 @@
 (include "framework")
 ;-  Identification and Changes
 
+
+;***** When you add things to this file (or any other *-declarations.scm file)
+;***** you *must* run "make declarations.scm" or a more comprehensive make.
+;*****
+;***** This is because the model includes "declarations.scm" rather than the many
+;***** other *-declaractions.scm files -- "declarations.scm" is filtered to exclude
+;***** duplicate declarations, and this stops methods simply disappearing.
+
+
+
 ;--
 ;	framework-declarations.scm -- Written by Randall Gray 
 
@@ -30,7 +40,7 @@
 (register-unique generic-method compute-methods)
 (register-unique generic-method compute-method-more-specific?)
 (register-unique generic-method compute-apply-methods)
-(register-unique generic-method initialize) ;; we *don't* want to overwrite this!
+(register-unique generic-method initialise) ;; we *don't* want to overwrite this!
 
 (generic-method-register 'add agent-prep 'agent-prep)
 (declare-method adjust-state "adjust the state of an agent: usually used when changing representations")
@@ -42,6 +52,7 @@
 (declare-method agent-shutdown "runs any 'shutdown' code, like closing files")
 (declare-method append-agent! "add an agent in the introspection list")
 (declare-method change-type "change the type (and possibly state-variables) of an agent")
+(declare-method change-taxon "change the taxon, probably trigger a resetting of state-variables")
 (declare-method close-p/n "close a logging port")
 (declare-method comment "reference information for agent")
 (declare-method contains? "predicate which indicates containment")
@@ -77,8 +88,14 @@
 (declare-method map-emit-page "specific for postscript output")
 (declare-method map-log-data "specific for postscript output")
 (declare-method map-log-track-segment "description needed")
-(declare-method map-projection "description needed")
+(declare-method projection-assoc-list "returns the list of available projections")
+(declare-method set-projection-assoc-list! "sets the list of available projections")
+(declare-method projection "returns a projection for a given symbol")
+(declare-method project "projects a datum using the projection for a given symbol")
+(declare-method project-datum "projects a datum using an indicated symbol")
 (declare-method mass "Return the mass of an entity")
+(declare-method map-projection "returns the current default projection")
+(declare-method set-map-projection! "sets the current default projection")
 (declare-method max-bound "list of maxima for the dimensions")
 (declare-method migrate "migrate to a new representation")
 (declare-method migration-test "used by an entity to test if it should change representation")
@@ -94,6 +111,8 @@
 (declare-method pass-resolution "Implements any actions a <monitor> may need")
 (declare-method priority "run priority")
 (declare-method process-agent "called by <monitor>model-body, this processes them")
+(declare-method project-datum "map a point to a new data space")
+(declare-method projection-assoc-list "get a mapping function using a key")
 (declare-method provides "return the list of things the agent provides")
 (declare-method provides? "pass a list of requirements in and return the list of those that this agent provides")
 (declare-method provides! "add to the list of services")
@@ -121,7 +140,7 @@
 (declare-method set-jiggle! "reset the jiggle")
 (declare-method set-kernel! "change the kernel query function")
 (declare-method set-location! "Set the location of an entity")
-(declare-method set-map-projection! "description needed")
+(declare-method set-projection-assoc-list! "description needed")
 (declare-method set-mass! "Set the mass of an entity")
 (declare-method set-migration-test! "set/change the migration test function")
 (declare-method set-name! "Set the unique name")

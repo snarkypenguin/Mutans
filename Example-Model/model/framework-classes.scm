@@ -25,6 +25,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;;; 						 schedule
 ;;; 						 migration-test timestep-schedule counter
 ;;; 						 map-projection
+;;; 						 projection-assoc-list
 ;;; 						 state-flags
 ;;; 						 agent-epsilon
 ;;; 						 agent-schedule
@@ -71,6 +72,10 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;;;(load "monitor-classes.scm")
 ;;;(load "log-classes.scm") ;; These are used to generate output.
 
+(define-class <projection>
+  (inherits-from <object>)
+  (state-variables  projection-assoc-list current-projection map-projection))
+
 (define-class <tracked-agent>
   (inherits-from <agent>)
   (state-variables track tracked-paths track-schedule track-epsilon))
@@ -78,22 +83,22 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;; "tracked-paths" is a list of non-false traces or false
 
 (define-class <thing>
-  (inherits-from <tracked-agent>)
+  (inherits-from <tracked-agent> <projection>)
   (state-variables mass dim location direction speed))
 
 
 (define-class <environment>
-  (inherits-from <agent>)
+  (inherits-from <agent> <projection>)
   (state-variables default-value minv maxv rep)) ;; minv and maxv form a bounding volume in however many dimensions
 
 
 (define-class <blackboard>
-  (inherits-from <agent>)
+  (inherits-from <agent>) ;; 
   (state-variables label message-list))
   
 
 (define-class <model-maintenance>
-  (inherits-from <object>)
+  (inherits-from <projection>) ;; We have <projection> since I'd really rather not have two distinct maintenance classes
   (state-variables maintenance-list I-need))
 ;; I-need is a list of fields which comprise the env-vector, and must be filled in by the
 ;;   agent which is maintaining the reduced model.

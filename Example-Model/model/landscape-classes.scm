@@ -81,11 +81,11 @@ A typical construction of an ecoservice might look like
 	))
 
 
-(define-class <polygon> (inherits-from <object>)
+(define-class <polygon> (inherits-from <projection>) ;; recall, <projection> inherits from object
   (state-variables locus perimeter radius)
   )
 
-(define-class <circle> (inherits-from <object>)
+(define-class <circle> (inherits-from <projection>)
   (state-variables locus perimeter radius)
   )
 
@@ -160,7 +160,7 @@ services must be there or Bad Things Happen.
 
 (define-class <landscape> (inherits-from <environment>)
   (state-variables terrain-function))
-;; terraino-function is a function in x and y that returns a DEM
+;; terrain-function is a function in x and y that returns a DEM
 
 (define-class <habitat> (inherits-from <landscape>)
   (state-variables patch-list dump-times scale internal-runqueue))

@@ -28,9 +28,9 @@ CXXFLAGS = -g
 SCLOS = preamble.scm sort.scm utils.scm sclos+extn.scm framework-declarations.scm framework.scm 
 KERNEL = kdnl.scm kernel.scm
 
-DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm
+DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm log-declarations.scm
 
-DECS = declarations.scm $(DECLARATIONS)
+DECS = declarations.scm framework-declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
 SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm postscript.scm 
@@ -60,8 +60,8 @@ check: checks linecount-nc
 declarations.scm: $(DECLARATIONS) 
 	touch declarations.scm 
 	mv declarations.scm .declarations.scm;
-	touch declarations.scm 
-	cat $(DECS) .declarations.scm | sort -k2 | uniq | egrep -v -e '^;'  > declarations.scm
+	echo '(include "framework")' > declarations.scm
+	cat $(DECLARATIONS) .declarations.scm | sort -k2 | uniq | egrep -v 'include "framework"' | egrep -v -e '^;'  >> declarations.scm
 	@echo ';;; Local Variables:' >> declarations.scm 
 	@echo ';;; mode: scheme' >> declarations.scm
 	@echo ';;; outline-regexp: ";-+"' >> declarations.scm

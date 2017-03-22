@@ -13,14 +13,17 @@
 
 ;-  Code 
 
-(define-class <simple-plant>
+(define-class <plant>
   (inherits-from <model-maintenance> <thing>)
   (state-variables
+	mass  ;; actual mass
+	peak-mass ;; greatest mass attained
 	max-age ;; dies beyond this
 	max-mass ;; unlikely to reach this
 	age ;; age of plant in [0,4)
-	lai ;; leaf area index in (0,10) -- leaf area/area in drip-line
-	water-stress  ;; [0,1]
+	lai ;; leaf area index in (0,10) -- ideal leaf area/area in drip-line
+	leaf-area ;; we need a separate counter since there can be "accidents"
+	water-stress  ;; [0,1]	level of water stress
 	water-use ;; amount of water required for a square metre
 	water-stress-effect ;; True if we factor water stress
 	;; into fruiting
@@ -29,7 +32,7 @@
 	reproduction-offset ;; 
 	reproduction-mechanism ;; <fruit> or (list <agent> method val)
 	fruiting-rate      ;; relative to mass, influenced by
-	;; level of water stress
+
 	seeds-per-fruit
 	habitat            ;; #f or a landscape thing
 	population-switch
@@ -37,25 +40,15 @@
 
 
 (define-class <example-plant>
-  (inherits-from <model-maintenance> <thing>)
+  (inherits-from <plant>)
   (state-variables
 	;;location from <thing> too...
 	cell
-	peak-mass
-	mass
 	fruiting-mass
 	fruiting-prob
-	fruiting-rate
-	seeds-per-fruit
 	seed-queue ;; an array that gets bumped every day...
 	mort-mass
 	mort-prob
-
-
-	;; level of water stress
-	seeds-per-fruit
-	habitat            ;; #f or a landscape thing
-	;; <thing> mass is our mass
 	))
 
 

@@ -1,5 +1,13 @@
 (include "framework")
 ;-  Identification and Changes
+
+;***** When you add things to this file (or any other *-declarations.scm file)
+;***** you *must* run "make declarations.scm" or a more comprehensive make.
+;*****
+;***** This is because the model includes "declarations.scm" rather than the many
+;***** other *-declaractions.scm files -- "declarations.scm" is filtered to exclude
+;***** duplicate declarations, and this stops methods simply disappearing.
+
 ;--
 ;	animal-declarations.scm -- Written by Randall Gray 
 
@@ -14,6 +22,7 @@
 (declare-method set-sex! "set the sex of the animal")
 (declare-method wander-around "Wander around with a bias toward a nomintated point")
 
+(declare-method eat "Eat food ")
 (declare-method die "routine corresponding to the death of an animal (calls shutdown)")
 (declare-method prey-present "returns a list of the animal's prey in a suitable locality")
 (declare-method growth "does the business of growing")

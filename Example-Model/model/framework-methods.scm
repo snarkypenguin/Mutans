@@ -25,6 +25,89 @@
 
 ;(include "heritability")
 
+
+(model-method (<agent>) (load-parameters self taxon #!rest forced)
+				  (call/cc
+					(lambda (exit)
+					  (if (string? taxon) (set! taxon (string->symbol taxon))) ;; symbol comparison is cleaner.
+					  
+					  
+					  (if (and (null? forced) (slot-ref self 'parameters-loaded) (eq? (slot-ref self 'parameters-loaded) (slot-ref self 'taxon)))
+							#t
+							(let* ((tax (slot-ref self 'taxon))
+									 (taxonstr (if (symbol? tax) (symbol->string tax) (exit #f)))
+									 (fname (string-append "parameters/" taxonstr))
+									 (param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
+									 )
+							  (if (null? param-list)
+									#f
+									(begin
+									  (for-each
+										(lambda (setting)
+										  (if (has-slot? self (car setting))
+												(let ((len (length setting))
+														(slot (car setting))
+														(implicit-lists #f)
+														)
+												  (cond
+													((= 1 len) (slot-set! self slot #t))
+													((= 2 len) (slot-set! self slot (cadr setting)))
+													(implicit-lists (slot-set! self slot (cdr setting)))
+													(#t (error "parameter has more than one value!" taxon slot setting))))))
+										param-list)
+									  (slot-set! self 'parameters-loaded taxon)
+									  #t
+									  )
+									)))
+					  )) )
+
+(model-method <agent> (change-taxon self taxon)
+				 (load-parameters self (slot-ref self 'taxon)))
+
+
+;; This is called with a class, a taxon symbol, and a list of initialisation pairs symbol value ...
+;; and an optional, final init function that expects "self"
+(define (create class taxon #!rest overrides)
+  (let* ((A (apply make (list class 'taxon taxon)))
+			(classname (class-name-of class))
+			(I-F #f)
+			(errstr "Overrides can be any of the following forms:
+      '()
+      '(func)
+      '(sym val ...)
+      '(func sym val ...)
+      '(func (sym val ...)))
+  and for convenience
+		'(())
+      '((func))
+      '((sym val ...))
+      '((func sym val ...))"
+					  ))
+	 
+	 (dnl* 'I-F I-F)
+	 (dnl overrides)
+
+	 (for-each (lambda (x) (dnl* "attempting to load" x) (load-parameters A x)) (reverse (class-names-of-supers A)))
+
+
+	 (load-parameters A taxon 'force-load)
+
+	 (if (and (pair? overrides)(pair? (car overrides))(null? (cdr overrides)))
+		  (set! overrides (car overrides)))
+	 
+	 (if (and (pair? overrides)(procedure? (car overrides)))
+		  (begin
+			 (set! I-F (car overrides))
+			 (set! overrides (cdr overrides))))
+
+	 (if (odd? (length overrides)) (error errstr overrides))
+	 
+	 (if (pair? overrides) (set-state-variables A overrides))
+	 (if I-F (I-F A))
+
+	 A))
+		  
+
 ;- Utility functions
 
 (define temporal-fascist #f) ;; This can make things quite picky.
@@ -34,6 +117,17 @@
 (define FirstJiggle 1.0)
 (define LastJiggle 0.0)
 (define DefaultPriority 0)
+
+(define class? class-name-of)
+
+
+(define (dump whatsit)
+  (let* ((C (if (class? whatsit) whatsit (class-of whatsit)))
+			)
+	 (display (class-name-of C))
+	 (display " ")
+	 (pp (dumpslots A))
+	 ))
 
 
 ;; the list representation of a vector from s to d, but smart about <agent>s
@@ -91,9 +185,76 @@
 
 ; none yet
 
-;--- Agent classes
+;--- Methods for <object> classes
 
-;---- <agent>
+;- Utility functions and data
+
+;-- default projections ... mostly used by loggers.
+"These function should be able to take either ordinates (if it merely 
+straightforward scaling) or vectors (for more complex mappings, like LL->xy).
+"
+
+
+
+(define *default-projections*
+  ;; The projections must take whole vectors since we cannot (properly) map
+  ;; geographic ordinates otherwise.  mapf converts an ordinate-wise mapping
+  ;; to a vector function.
+  (list
+	(cons 'I  (lambda (x) x)) ;; The identity mapping
+	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
+	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
+	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
+	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
+	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
+	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
+	))
+
+(define (add-to-*default-projections* p k)
+  (if (not (assoc *default-projections* k))
+		(set! *default-projections* (cons  (cons k p) *default-projections*))))
+
+(define (*projection* ob sym)
+				  (let* ((pal (slot-ref ob sym)))
+					 (if pal
+						  (cdr pal)
+						  (error "There is no projection associated with" sym))))
+
+(model-method <projection> (project-datum self sym datum)
+				  (if (eqv? sym current-projection)
+						((my 'map-projection) datum)
+						(let* ((pal (assoc sym (my projection-assoc-list))))
+						  (if pal
+								((cdr pal) datum)
+								(error "There is no projection associated with" sym)))))
+
+						  
+(model-method <object> (projection-assoc-list self key)
+				  (let ((p (assoc (my 'projection-assoc-list) key)))
+					 (if p (cdr p) #f)))
+
+(model-method (<object> <procedure>) (set-projection-assoc-list! self p k)
+				  (set-my! 'projection-assoc-list (cons (cons k p) (filter (lambda (x) (not (equal? (car x) k))) (my 'projection-assoc-list)))))
+
+(model-method <projection> (map-projection self)
+				  (my 'map-projection))
+
+(model-method <projection> (set-map-projection! self key)
+				  (set-my! 'map-projection (projection self key)))
+
+
+
+;--- kernel Methods for <agent> classes
+
+;--- Fundamental "run" routine -- accepts anything, but fails if it's inappropriate
+
+(model-method (<class>) (run self pt pstop pkernel)
+				  (if (not (isa? self <agent>))
+						(begin (display "Attempt to (run ...) a non-agent\n")
+								 (error "+++Curcurbit Error+++"  
+										  (slot-ref self 'name)))))
+
+;---- <query> 
 
 
 ;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
@@ -137,11 +298,11 @@ commonly viewed as just a simple extension of sclos.
 
 ;;; (agent-initialisation-method <agent> (initargs) '(no-default-values)
 ;;; 				  (kdnl* '(track-init) "<agent> initialise---")
-;;; 				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialized))
+;;; 				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialised))
 
 ;;; 				  ;;(pp args)
 ;;; 				  ;;(dnl "agent")
-;;; 				  (slot-set! self '<agent>-initialized #t)
+;;; 				  (slot-set! self '<agent>-initialised #t)
 
 ;;; 				  (initialise-parent) ;; the only parent is <object>
 
@@ -578,7 +739,7 @@ commonly viewed as just a simple extension of sclos.
   ;;(dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
   (let ((r '())
 		  )
-	 (if (uninitialized? ttr) (set! ttr (list 0)))
+	 (if (uninitialised? ttr) (set! ttr (list 0)))
 	 (set! r (let loop ((l ttr))
 				  (if (or (null? l)
 							 (> tm (car l))
@@ -674,6 +835,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 
 
 (definition-comment 'run
+
 "This is the routine which gives the agents a chance to do their thing. It is 
 also present as an illustration of the low-level way of implementing a method.
 The arguments are 
@@ -685,6 +847,30 @@ The arguments are
 ")
 
 
+;; This is added using the fundamental routine that associates a method with a generic
+;; in SCLOS.
+
+
+(define blue-meanie #f)
+
+;; blue-meanie blocks access to the kernel when the agent is not
+;; currently running.  This is mainly for debugging in restricted
+;; subsets of a model, since it blocks submodels from communicating
+;; with each other.
+
+;; This routine does the running since "run" has fixed up the ticks
+;; It looks like (run-model-body me t dt) in code
+
+;; Generally, model-body methods know about "self" "t" "dt" "kernel"
+;; and all an agents state variables.  The variable all-parent-bodies
+;; is a list of the "model-body" methods for all of its parents,
+;; rather than just the ones that appear first in the inheritance
+;; lists.  This *particular* version of the routine should not call
+;; parent-body.
+
+
+
+;; *** AGENTS RUN HERE ***
 (add-method
  run
  (make-method
@@ -808,9 +994,52 @@ The arguments are
 							 ;;; 				  (run-model-body self t dt)
 							 ;;; 				  dt)))
 							 (let ((m (if (isa? self <agent>)
-											  (run-model-body self t dt)
-											  dt)))
-								(if (not (number? m)) (error 'bummer))
+											  (begin
+												 (run-model-body self t dt) ;;; The model runs before its subsidiaries or components
+											  
+												 ;;  The model returns the amount of time it actually ran for
+												 (kdnl* '(nesting run-model-body) (class-name-of self)
+														  "Running at " t "+" ldt "[" (my 'dt) "]")
+												 (if (< dt 0.0) (error 'bad-dt))
+												 (begin
+													(kdnl* 'track-subjective-times
+															 "[" (my 'name) ":" (class-name-of self) "]"
+															 " running at " (my 'subjective-time) ":" t)
+													
+													(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
+														 (run-subsidiary-agents self t dt run kernel))
+													
+													(if (pair? (my 'maintenance-list))
+														 (let ((ml (my 'maintenance-list)))
+															;; Now run any agent representations which
+															;; have indicated that they need data
+															;; maintained
+															(for-each
+															 (lambda (x)
+																(x t dt self))
+															 ml)
+															))
+
+													;; deal with any changes in the entity's
+													;; representation, or the general configuration of the
+													;; model as a whole
+
+													;; prefix a symbol ('migrate, for
+													;; example) to the return value if it needs to change,
+													;; last bit should be "return"
+													
+													(let ((mtrb ((my 'migration-test) self t dt)))
+													  ;; we don't want to make calls to a closure that has vanished
+													  (if blue-meanie (set-my! 'kernel #f))  
+													  
+													  (if mtrb
+															(if (pair? return)
+																 (cons mtrb return)
+																 (cons mtrb (list dt)))
+															dt))
+													)
+											  dt))))
+								(if (not (number? m)) (error "Did not get a numeric return from run-model-body"  m))
 
 								(set! DT (+ DT m))
 								m))
@@ -833,99 +1062,6 @@ The arguments are
 									(my 'dt)
 									"]")
 						  'ok)))))))))))
-
-
-(define blue-meanie #f)
-
-
-;; This routine does the running since "run" has fixed up the ticks
-;; It looks like (run-model-body me t dt) in code
-(model-method <agent> (run-model-body self t ldt)
-				  (let ((RTN
-							(begin
-							  ;;  The model returns the amount of time it actually ran for
-							  (kdnl* '(nesting run-model-body) (class-name-of self)
-										"Running at " t "+" ldt "[" (my 'dt) "]")
-							  (if (< dt 0.0) (error 'bad-dt))
-
-							  (let* ((return (model-body self t ldt)))
-								 
-								 ;; The model's tick is done now, adjust the
-								 ;; subjective_time to reflect how much time it took
-								 ;; for the tick
-								 (if (number? return) 
-									  ;;(set-my! 'subjective-time (+ t return)) 
-									  ;; Any non-numeric return value indicate a "condition"
-									  ;; which by definition means that no time should
-									  ;; have been used else ... Huston, we have a
-									  ;; problem....
-
-									  (begin
-										 (kdnl* 'model-body  (my 'name)
-												" returned from its model body with " return)
-										 return
-										 ;; Just deal with it.
-										 ))
-
-								 ;; deal with any changes in the entity's
-								 ;; representation, or the general configuration of the
-								 ;; model as a whole
-
-								 ;; prefix a symbol ('migrate, for
-								 ;; example) to the return value if it needs to change,
-								 ;; last bit should be "return"
-								 
-								 (let ((mtrb ((my 'migration-test) self t ldt return)))
-									;; we don't want to make calls to a closure that has vanished
-									(if blue-meanie (set-my! 'kernel #f))  
-
-									(if mtrb
-										 (if (pair? return)
-											  (cons mtrb return)
-											  (cons mtrb (list return)))
-										 return))
-								 )
-							  ))
-						  );; returns the amount of time it ran in the last
-					 ;;(dnl* (my 'name) (my 'type) RTN)
-					 RTN))
-							
-;; tick, some request to the scheduler or an error
-;; condition
-
-
-;; Generally, model-body methods know about "self" "t" "dt" "kernel" and all an agents state variables.
-;; The variable all-parent-bodies is a list of the "model-body" methods for all of
-;; its parents, rather than just the ones that appear first in the inheritance lists.
-;; This *particular* version of the routine should not call parent-body. 
-(model-body <agent>
-				(if #t
-					 (begin
-						(kdnl* 'track-subjective-times
-								 "[" (my 'name) ":" (class-name-of self) "]"
-								 " running at " (my 'subjective-time) ":" t)
-						
-						(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
-							 (run-subsidiary-agents self t dt run kernel))
-
-						(if (pair? (my 'maintenance-list))
-							 (let ((ml (my 'maintenance-list)))
-								;; Now run any agent representations which
-								;; have indicated that they need data
-								;; maintained
-								(for-each
-								 (lambda (x)
-									(x t dt self))
-								 ml)
-								))
-						(skip-parent-body)
-						;; calling skip-parent-body  (or a steady chain of parent-bodies through the classes)
-						;; ensures that the counter gets updated and the "agent-body-ran" flag is set
-						
-						)
-					 dt
-					 )
-				dt)
 
 				
 
@@ -1180,13 +1316,14 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 ;---- environment methods
 
-;;; (default-agent-initialisation <environment>
-;;;   'minv '(-inf.0 -inf.0 -inf.0)
-;;;   'maxv '(+inf.0 +inf.0 +inf.0)
-;;;   'split-flexibly #f
-;;;   'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
-;;;   'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
-;;;   )
+(define (environment-initfunc self)
+  (set-state-variables self
+							  'minv '(-inf.0 -inf.0 -inf.0)
+							  'maxv '(+inf.0 +inf.0 +inf.0)
+							  'split-flexibly #f
+							  'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
+							  'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
+  ))
 
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)

@@ -2,6 +2,14 @@
 ;--
 ;	landscape-declarations.scm -- Written by Randall Gray 
 
+;***** When you add things to this file (or any other *-declarations.scm file)
+;***** you *must* run "make declarations.scm" or a more comprehensive make.
+;*****
+;***** This is because the model includes "declarations.scm" rather than the many
+;***** other *-declaractions.scm files -- "declarations.scm" is filtered to exclude
+;***** duplicate declarations, and this stops methods simply disappearing.
+
+
 ;--- <ecoservice> generics (also <patch>)
 
 (declare-method add! "add!")
@@ -12,12 +20,17 @@
 (declare-method rvalue "returns the r value (sharpness or exponent) of an ecoservice's growth model")
 
 ;--- <boundary>, <circle> and <polygon> generics
+(declare-method minima "returns the minima for the ordinates")
+(declare-method maxima "returns the maxima for the ordinates")
 (declare-method my-rep "returns the underlying agent which defines the domain")
 (declare-method distance-to-boundary "returns the distance to a boundary")
 (declare-method rep "returns the representation object")
 (declare-method centre "returns the centre/centroid of an object")
 (declare-method set-centre! "returns the centre/centroid of an object")
 (declare-method random-point "returns a random point within the object")
+(declare-method radius "inner radius (inscribed circle)")
+(declare-method Radius "outer radius (containing circle)")
+(declare-method set-radius! "sets the radius for circles")
 
 ;--- <patch> generics 
 
@@ -34,8 +47,6 @@
 (declare-method set-services! "set-services!") ;; sets value
 (declare-method distance-to-centre "distance-to-centre")
 (declare-method distance-to-interior "distance-to-interior")
-(declare-method radius "radius")
-(declare-method set-radius! "sets the radius")
 (declare-method capacity "returns the carrying capacity of an ecoservice")
 (declare-method total-capacity "returns the total capacity of all the niches")
 
@@ -66,6 +77,7 @@
 
 (declare-method service-sites "returns the list of patches with particular services")
 (declare-method add-patch "add a patch to a habitat")
+(declare-method add-patches "add a list of patches to a habitat")
 (declare-method remove-patch "remove a patch from a habitat")
 (declare-method patch-list% "return a list of all patches or only the ones with particular services")
 (declare-method aggregate-value "aggregate-value of a services within a nominated circle")

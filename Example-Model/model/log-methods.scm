@@ -25,9 +25,13 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 (model-method <agent> (map-projection self)
+				  (error "Convert to use the projections alist")
  				  (my 'map-projection))
 
-(model-method (<agent> <procedure>) (set-map-projection! self p)
+(model-method (<agent> <procedure>)
+				  (set-map-projection! self p)
+				  (error "Convert to use the projections alist")
+				  (set-map-projection! self p)
 				  (set-my! 'map-projection p))
 
 ;; Logger agents (things that inherit from introspection, really) have

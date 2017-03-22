@@ -5,7 +5,7 @@
 (define currently-loading #f)
 (define true #t)
 (define false #f)
-(define <uninitialized> '<uninitialized> )
+(define <uninitialised> '<uninitialised> )
 
 ;; Registers to associate  classes, methods and objects with their name.
 

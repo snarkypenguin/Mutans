@@ -257,7 +257,7 @@ A typical defns list would be like
 						;;( dnl "Running <diffeq-system> model body")
 
 						(if (not (list? (my 'd/dt-list)))
-							 (abort "This diffeq-system has not been initialized properly: use define-system-dynamics!"))
+							 (abort "This diffeq-system has not been initialised properly: use define-system-dynamics!"))
 						
 						(if (<= dt (slot-ref self 'too-small))
 							 (abort "Bad dt passed to <diffeq-system> model-body"))

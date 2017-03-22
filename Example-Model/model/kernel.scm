@@ -290,6 +290,7 @@
 (define heartbeat 7) ;; heart beat each week
 (define pulse 0) ;; the pulse follows the beat
 
+;; This typically runs the agent at the head of the queue
 (define (queue t stop runqueue . N)
   (set! N (if (null? N) #f (car N)))
 
@@ -477,12 +478,15 @@ since the function saved in the kernel slot captures the agent's closure.
 		 )
 
 		((shutdown)
-		 (shutdown-agents args)
-		 (for-each (lambda (a) (set! Q (excise a Q)) args)) )
+		 (let ((A (if (pair? args) args (list args))))
+			(shutdown-agents A) ;; WAS HAVING ISSUES WITH A SINGLE AGENT BEING PASSED
+			(for-each (lambda (a) (set! Q (excise a Q))) A)
+		 ))
 
 		((remove) ;; expects a list of agents to be removed from the runqueue
-		 (for-each (lambda (a) (set! Q (excise a Q)) args)) 
-		 )
+		 (let ((A (if (pair? args) args (list args))))
+			(for-each (lambda (a) (set! Q (excise a Q))) A)
+		 ))
 		((containing-agents) ;; returns a list of agents which report as containing any of the list of arguments
 		 (filter (lambda (x) (i-contain x args)) Q))
 
@@ -669,11 +673,11 @@ since the function saved in the kernel slot captures the agent's closure.
 	 ;; folks.)
 
 
-	 (lambda (t stop ra-rq . N) ;; This is the function "run-agent"
+	 (lambda (t stop run-agent-runqueue . N) ;; This is the function "run-agent"
 		(set! N (if (null? N) #f (car N)))
 
-		(let* ((lra-rq ra-rq)
-				 (process (if (and (not (null? lra-rq)) (list? lra-rq)) (car lra-rq) #f)) 
+		(let* ((local-run-agent-runqueue run-agent-runqueue)
+				 (process (if (and (not (null? local-run-agent-runqueue)) (list? local-run-agent-runqueue)) (car local-run-agent-runqueue) #f)) 
 				 ;; ... either false or the lambda to run
 				 (agent-state (slot-ref process 'agent-state))
 				 )
@@ -692,10 +696,10 @@ since the function saved in the kernel slot captures the agent's closure.
 
 		  (if process (kdnl* 'running "running" (name process) "at" t))
 
-		  (test-queue-size lra-rq N)
+		  (test-queue-size local-run-agent-runqueue N)
 		  ;; remove the agent's run request from the top of the queue
-		  (set! lra-rq (excise process lra-rq))
-		  (test-queue-size lra-rq N)
+		  (set! local-run-agent-runqueue (excise process local-run-agent-runqueue))
+		  (test-queue-size local-run-agent-runqueue N)
 		  
 		  (kdnl* 'run-agent "In run-agent")
 
@@ -706,7 +710,7 @@ since the function saved in the kernel slot captures the agent's closure.
 		  ;; Here result should be a complex return value, not the
 		  ;; number of ticks used.
 		  (let* ((kernel
-					 (lambda x (apply kernel-call (cons lra-rq (cons process x))))
+					 (lambda x (apply kernel-call (cons local-run-agent-runqueue (cons process x))))
 					 )
 					
 					(result (if (symbol? process) 
@@ -757,8 +761,8 @@ since the function saved in the kernel slot captures the agent's closure.
 			 (let ()
 				(cond
 				 ((eqv? result 'ok)
-				  (set! lra-rq (q-insert lra-rq process Qcmp))
-				  lra-rq)
+				  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+				  local-run-agent-runqueue)
 
 				 ((number? result) 
 				  ;; The result (in this case) is the amount of time used
@@ -767,7 +771,7 @@ since the function saved in the kernel slot captures the agent's closure.
 				  ;; and will re-insert it correctly.  subjective-time is
 				  ;; updated
 				  (abort "(run ...) returned a number rather than a state")
-				  (set! lra-rq (q-insert lra-rq process Qcmp)))
+				  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
 
 				 ((symbol? result) ;;----------------------------------------------
 				  (let ()
@@ -775,9 +779,9 @@ since the function saved in the kernel slot captures the agent's closure.
 
 					 (cond
 					  ((eqv? result 'remove)
-						lra-rq)
+						local-run-agent-runqueue)
 					  (else 
-						(cons result lra-rq)))
+						(cons result local-run-agent-runqueue)))
 					 ))
 				 ((eqv? result #!void)
 				  (let ((s
@@ -789,13 +793,13 @@ since the function saved in the kernel slot captures the agent's closure.
 					 (abort s)
 					 ))
 				 (#t
-				  (set! lra-rq (q-insert lra-rq process Qcmp)))
+				  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
 				 ((list? result)
 				  (case (car result)
 					 
 					 ;; Remove ===============================================================
 					 ('remove
-					  lra-rq
+					  local-run-agent-runqueue
 					  ) ;; end of the migration clause
 
 					 ;; Migrate to a different model representation ==========================
@@ -813,14 +817,14 @@ since the function saved in the kernel slot captures the agent's closure.
 				  ) ; cond clause
 				 )
 				)
-			 (test-queue-size lra-rq N)
+			 (test-queue-size local-run-agent-runqueue N)
 			 (kdnl* 'run-agent "Finished with run-agent" (name process)
 					  "@" (subjective-time process))
 			 ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
 			 ;; One might need to have a method that will take a kernelcall procedure from
 			 ;; another agent if there is out-of-band activity that requires a kernelcall.
 			 ;; This is the conservative option.
-			 lra-rq)
+			 local-run-agent-runqueue)
 		  )
 		)
 	 )

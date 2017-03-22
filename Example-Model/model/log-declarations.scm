@@ -1,6 +1,15 @@
 (include "framework")
 ;-  Identification and Changes
 
+;***** When you add things to this file (or any other *-declarations.scm file)
+;***** you *must* run "make declarations.scm" or a more comprehensive make.
+;*****
+;***** This is because the model includes "declarations.scm" rather than the many
+;***** other *-declaractions.scm files -- "declarations.scm" is filtered to exclude
+;***** duplicate declarations, and this stops methods simply disappearing.
+
+
+
 ;(declare-method introspection-list "return the introspection list")
 ;(declare-method set-introspection-list! "set the list of agents to be examined")
 ;(declare-method introspection-times "return the introspection list")

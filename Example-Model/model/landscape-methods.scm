@@ -315,7 +315,7 @@
 						dt)
 
 (model-method (<environment> <list>) (contains? self loc)
-				  (if (member (my 'rep) '(() #f <uninitialized> <uninitialized>))
+				  (if (member (my 'rep) '(() #f <uninitialised> <uninitialised>))
 						(let ((m (map <= loc (my 'minv)))
 								(M (map <= (my 'maxv) loc)))
 						  (apply andf (append m M)))
@@ -328,7 +328,7 @@
 							(m (list-head (min-bound self) n))
 							(M (list-head (max-bound self) n))
 							(l (list-head loc n)))
-				  (if (member (my 'rep) '(() #f <uninitialized> <uninitialized>))
+				  (if (member (my 'rep) '(() #f <uninitialised> <uninitialised>))
 						(if (null? l)
 							 #f
 							 (apply andf (append (map <= m l)
@@ -711,6 +711,12 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 slots vals))
 				  )
 
+(model-method (<circle>) (minima self)
+				  (map - (my 'locus) (make-list (length (my 'locus)) (my 'radius))))
+
+(model-method (<circle>) (maxima self)
+				  (map + (my 'locus) (make-list (length (my 'locus)) (my 'radius))))
+
 (model-method (<circle> <list>) (contains? self loc)
 				  (<= (distance (my 'locus) loc) (my 'radius)))
 
@@ -718,6 +724,9 @@ When ecoservices are running externally, they maintain a list of agents which wi
 				  (my 'locus))
 
 (model-method (<circle>) (radius self)
+				  (my 'radius))
+
+(model-method (<circle>) (Radius self)
 				  (my 'radius))
 
 (model-method (<circle>) (min-bound self)
@@ -768,13 +777,16 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 slots vals))
 				  )
 
+(model-method (<polygon>) (minima self)
+				  (extremum min (my 'perimeter)))
+
+(model-method (<polygon>) (maxima self)
+				  (extremum max (my 'perimeter)))
+
+
 (model-method (<polygon> <list>) (contains? self loc)
 				  (point-in-polygon loc (my 'perimeter)))
 
-
-(model-method (<polygon>) (radius self)
-				  (max-bound self)
-				  )
 
 (model-method (<polygon> <list>) (distance-to-boundary self loc)
 				  (if (contains? self loc)
@@ -802,6 +814,13 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							 r
 							 (loop ((max r (distance c (car p)))
 									  (cdr p)))))))
+
+(model-method (<polygon>) (Radius self)
+				  (max-bound self)
+				  )
+(model-method (<polygon>) (radius self)
+				  (min-bound self)
+				  )
 
 (model-method (<polygon>) (random-point self)
 					(let* ((peri (my 'perimeter))
@@ -889,7 +908,8 @@ When ecoservices are running externally, they maintain a list of agents which wi
 				  (display (make-string count #\space))
 				  (display "<patch>\n")
 				  (let* ((slots (class-slots-of self))
-							(vals  (map (lambda (x) (slot-ref self x)) slots)))
+							(vals  (map (lambda (x)
+											  (slot-ref self x)) slots)))
 					 (for-each (lambda (x y) 
 									 (if (not (member x '(service-list)))
 										  (begin
@@ -1200,7 +1220,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 (model-method (<patch> <agent> <symbol> <agent>)
 				  (log-data% self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
-						  (p (slot-ref self 'map-projection)))
+						  (p (slot-ref self 'projection-assoc-list)))
 					 (if (or (not p) (null? p)) (set! p (lambda (x) x)))
 					 (kdnl* '(log-* log-patch) "[" (my 'name) ":"
 							  (class-name-of self) "]" "in log-data")
@@ -1361,7 +1381,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 (error "bad boundary class specified in patch-initialiser"
 							  bdry)))
 				  therest)
-		(error (string-append "patches may only be initialized as <patch> or "
+		(error (string-append "patches may only be initialised as <patch> or "
 				 "<dynamic-patch> agents")
 				 clss)
 		))
@@ -1375,6 +1395,16 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;; (apart from the centre and radius or perimeter), and P should be either null
 ;; or a <habitat> like class.
 
+
+;; bounding rectangular volume for the pointset
+
+
+(define (extremum op pointset)
+  (map (lambda (i)
+			(apply op (map (lambda (x) (list-ref x i)) pointset )))
+		 (seq (length (car pointset)))))
+
+
 ;; Returns a list of the form (patchlist patchgrid)
 (define (make-grid cell-class taxon name cell-type n m ll ur #!rest terrain)
   (let* ((nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
@@ -1385,8 +1415,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 			)
 	 
 	 (map-**-ix (lambda (x i)
-					  (dnl "X: " x)
-					  (dnl "I: " i)
 					  (let ((centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
 												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
 							  (box (bbox (list (+ (car ll) (* nscale (car i)))
@@ -1397,21 +1425,38 @@ When ecoservices are running externally, they maintain a list of agents which wi
 															(number->string (cadr i))))
 							  )
 						 
-						 (let* ((cell
+						 (kdnl* 'make-grid "Working " x i " --> "box)
+						 (let* ((minx +nan.0)
+								  (miny +nan.0)
+								  (maxx +nan.0)
+								  (maxy +nan.0)
+								  (mB (extremum min box))
+								  (MB (extremum max box))
+								  (cell
 									(create 
 									 cell-class
 									 taxon
 									 'name pname
 									 'type cell-type
+									 'representation (class-name-of cell-type)
 									 'rep
 									 (create-
 									  <polygon>
 									  'locus centre
-									  'perimeter box ))))
+									  'type '(area tesselation)
+									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
+									  'perimeter box
+									  'minv mB
+									  'maxv MB
+									  'note "generated by make-grid"
+									  'dont-log #f ;; let them be logged by default
+									  ))))
 							
 							(set! patch-list (cons cell patch-list))
-							cell)))
+							cell))
+						 )
 					M)
+	 ;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
 	 (reverse patch-list) 
 	 )
   )
@@ -1516,7 +1561,7 @@ args can be  an update map or an update map and update equations
 (model-method (<dynamic-patch>  <procedure> <symbol> <procedure>)
 				  (log-data% self logger format caller targets)
 				  (let ((file (slot-ref logger 'file))
-						  (p (slot-ref self 'map-projection)))
+						  (p (slot-ref self 'projection-assoc-list)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
 					 (kdnl* '(log-* log-patch) "[" (my 'name) ":"
 							  (class-name-of self) "]" "in log-data")
@@ -1727,8 +1772,27 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<habitat> <patch>) (add-patch self patch) add a
 ;                                                            patch to the habitat
+;; Note that there is an implicit ordering to adding patches and patchlists
 (model-method (<habitat> <patch>) (add-patch self patch)
-				  (set-my! 'patch-list (uniq (cons patch (my 'patch-list)))))
+				  (set-my! 'patch-list (uniq (cons patch (my 'patch-list))))
+				  (let ((minv (apply minima (my 'patchlist)))
+						  (maxv (apply maxima (my 'patchlist)))
+						  )
+					 (set-my 'minv minv)
+					 (set-my 'maxv maxv)
+				  ))
+
+;--- model-method (<habitat> <patch>) (add-patch self patch) add a
+;                                                            patch to the habitat
+;; Note that there is an implicit ordering to adding patches and patchlists
+(model-method (<habitat> <list>) (add-patches self patchlist)
+				  (set-my! 'patch-list (uniq (append  patchlist (my 'patch-list))))
+				  (let ((minv (apply minima (my 'patchlist)))
+						  (maxv (apply maxima (my 'patchlist)))
+						  )
+					 (set-my 'minv minv)
+					 (set-my 'maxv maxv)
+				  ))
 
 ;--- model-method (<habitat> <procedure>) (remove-patch self pfilter)
 ;  keep only patches which match a filter
@@ -1918,7 +1982,7 @@ args can be  an update map or an update map and update equations
 			(locs (centroid (map location plist)))
 			)
 	 (let ((ps (slot-ref logger 'file))
-			 (p (slot-ref self 'map-projection)))
+			 (p (slot-ref self 'projection-assoc-list)))
 		(if (or (not p) (null? p))  (set! p (lambda (x) x)))
 		
 		(ps 'moveto (list (p (car locs)) (p (cadr locs))))
@@ -1940,7 +2004,7 @@ args can be  an update map or an update map and update equations
 (model-method (<habitat> <procedure> <symbol> <procedure>)
 	  (log-data% self logger format caller targets)
 	  (let ((ps (slot-ref logger 'file))
-			  (p (slot-ref self 'map-projection)))
+			  (p (slot-ref self 'projection-assoc-list)))
 		 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
 		 (case format
 			((ps)

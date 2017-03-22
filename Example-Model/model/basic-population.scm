@@ -108,7 +108,7 @@ The usual pattern for a std-d/dt would be
 				(if (zero? nrest)
 
 					 (lambda args (error
-										(string-append "d/dt is uninitialized:"
+										(string-append "d/dt is uninitialised:"
 															" use the 'set-d/dt! call to set it")))
 					 (lambda (t . pvals)
 						;; t is the first element in the list, other

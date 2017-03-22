@@ -46,6 +46,8 @@
 ;;
 ;;invsigmoid(x) =  (log(x) - log(1-x))/(4 * pi) + 0.5
 
+(define (mapf f) (lambda (x) (map f x)))
+
 (define (default-object? x) (equal? x (void)))
 
 ;; So we can load gauss.scm
@@ -329,25 +331,36 @@
 (define (urnd-real m M) (+ m (* (- M m) (randomreal))))
 
 
-(define (nrnd . args)
+(define (nrnd #!rest args)
   (let* ((N (length args))
-			(mean (if (> N 0) (car args) 0))
-			(stddev (if (> N 1) (cadr args) 1))
-			(m (if (> N 1) (cadr args) -inf.0))
-			(M (if (> N 1) (cadr args) +inf.0))
+			(mean (if (>= N 1) (car args) 0))
+			(stddev (if (>= N 2) (cadr args) 1))
+			(m (if (>= N 3) (caddr args) -inf.0))
+			(M (if (>= N 4) (cadddr args) +inf.0))
 			)
 
-	 (let* ((gaussian (lambda ()
-							 (let* ((pi*2 (* (pi) 2))
+	 (let* ((n (+ (* (let* ((pi*2 (* (pi) 2))
 									  (u (random-real))
 									  (v (random-real))
 									  (w (sqrt (* -2.0 (log u)))))
-								(* w (cos (* v pi*2))))))
-			  (p (+ (* (gaussian) stddev) mean)))
-		(if (or (< p m) (< M p))
-			 (apply nrnd (append (list mean var) args))
-			 p))))
+								(* w (cos (* v pi*2))))
+						  stddev) mean)))
+		(if (and (< m n) (< n M)) ;; open interval!
+			 n
+			 (nrnd mean stddev m M)))))
 
+;; NOTE: The mean and stddev are for the related *normal* rng
+(define (lnrnd #!rest args)
+  (let* ((N (length args))
+			(mean (if (>= N 1) (car args) 0))
+			(stddev (if (>= N 2) (cadr args) 1))
+			(m (if (>= N 3) (caddr args) -inf.0))
+			(M (if (>= N 4) (cadddr args) +inf.0))
+			)
+	 (let ((n (exp (nrnd mean stddev))))
+		(if (and (< m n) (< n M))
+			 n
+			 (lnrnd mean stddev m N)))))
 
 ;; this is so we can use gauss.scm for normally distributed random numbers from scmutils
 (define random random-real)

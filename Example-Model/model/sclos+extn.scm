@@ -6,14 +6,12 @@
 
 ;-  Variables/constants both public and static
 
-(define <uninitialized> '<uninitialized>) ;; this ought to be an eigensymbol
+(define <uninitialised> '<uninitialised>) ;; this ought to be an eigensymbol
 (define <nameless> '<nameless>) ;; this ought to be an eigensymbol
 
 ;-  Code 
 
 (include "framework")
-;; sclos.scm is included after the definition of (abstract-register ...) and a few 
-;; instances of registers.
 
 
 ;-- Define abstract-register ... routine to create registers
@@ -166,7 +164,6 @@
 (register-unique class <generic>)
 (register-unique class <method>)
 
-
 ;-- Begin defining the fundamental classes for entities in the models
 
 ;--- objects 
@@ -184,7 +181,7 @@ from object.
 
 (define-class <object>
   (inherits-from <primitive-object>)
-  (state-variables type note map-projection initialized)
+  (state-variables type note <object>-initialised)
   ;; 'note is just explanatory data
   ;; 'map-projection exists to assist projecting data in and out of the object's data-space
   )
@@ -204,7 +201,6 @@ from object.
 						 dt
 						 schedule
 						 migration-test timestep-schedule counter
-						 map-projection
 						 state-flags
 						 agent-epsilon
 						 agent-schedule
@@ -344,11 +340,11 @@ from object.
   (map (lambda (x) (cons x (slot-ref a x))) (class-slots-of a)))
 
 
-;--- (define (uninitialized? x #!rest y)
-(define (uninitialized? x #!rest y)
+;--- (define (uninitialised? x #!rest y)
+(define (uninitialised? x #!rest y)
   (if (null? y)
-		(or (equal? x '<uninitialized>) (eqv? x '<uninitialized>))
-		(uninitialized? (slot-ref x (car y)))))
+		(or (equal? x '<uninitialised>) (eqv? x '<uninitialised>))
+		(uninitialised? (slot-ref x (car y)))))
 
 ;--- (define (nameless? x #!rest y)
 (define (nameless? x #!rest y)
@@ -359,7 +355,7 @@ from object.
 
 ;-- Accessors, predicates 
 ;; These need to preceed framework-classes.
-(add-method initialize (make-method (list <object>)
+(add-method initialise (make-method (list <object>)
 												(lambda (call-next-method self #!rest initargs)
 												  
 												  (if (and (pair? initargs) (null? (cdr initargs)))
@@ -509,25 +505,42 @@ from object.
 						 ((null? classes) (set! n 0) '())
 						 ((equal? classes 'none) #f)
 						 ((equal? classes 'all) classes)
-						 ((or (eq? (car classes) '*) (eq? (car classes) '*)) (set! n #f) '*)
+						 ((equal? classes '*) (set! n #f) '*)
+						 ((and (pair? classes) (or (eq? (car classes) '*) (eq? (car classes) '*))) (set! n #f) '*)
 						 ((number? classes) (set! n (absolute-value classes)) '*)
 						 (#t classes)))
 	 (if classes
 		  (let* ((ml (direction (apply selector (cons classes (cons methd (cons self args))))))
-					;;(brainfart (dnl* "... cpm got " ml))
+					(brainfart (dnl* "... cpm got " ml))
 					(result (map (lambda (x)
 										(if (or (generic-method-register 'rec? x) (method-register 'rec? x) )
 											 (begin 
-												;;(dnl  "applying method " (or (generic-method-register 'rec? x) (method-register 'rec? x) ))
-												(apply apply-method (cons x (cons self args))))))
-									 (if n (list-head ml n) ml)
-									 )))
+												(kdnl* 'model-body "applying method " (or (generic-method-register 'rec? x) (method-register 'rec? x) ))
+												(apply apply-method (cons x (cons self args))))
+											 (kdnl* 'model-body "Did not apply method, it wasn't in the registers")
+											 ))
+									 (if n (list-head ml n) ml) ;; this is the list of methods....
+									 ))
+					)
+			 (kdnl* 'model-body "call-parent-methods returns " result)
 			 result)
+			 
 		  #t
 		  ) ))
 
 (define (call-parents& methd classes self #!rest args)
-  (apply call-parent-methods (append (list base-class->class get-methods classes methd self) args)))
+  (let ((pname (lambda (x)
+					  (cond
+						((class? x) (class-name-of x))
+						((instance? x) (class-name-of (class-of x)))
+						(#t x)))))
+	 (kdnl* 'model-body "cp" (if (pair? classes) (map pname classes) (pname classes)))
+	 (let ((result (apply call-parent-methods (append (list baseclass->class get-methods classes methd self) args))
+						))
+		(kdnl* 'model-body "... yields " result)
+		result)
+))
+
 
 (define (call-initialisers classes self #!rest args)
   (apply call-parent-methods (append (list baseclass->class get-methods classes initialise self) args)))
@@ -581,7 +594,8 @@ from object.
 
 ;--- (define (set-state-variables self arguments)
 (define (set-state-variables self arguments)
-  (if (and (pair? arguments) (even? (length arguments)))
+  (if (not (and (pair? arguments) (even? (length arguments))))
+		(error "Bad state variable list!" (class-name-of (class-of self)) arguments)
 		(let* ((slotnames (class-slots-of self))
 				 (tags (evens arguments))
 				 (vals (odds arguments))
@@ -596,38 +610,38 @@ from object.
 (define (string-tail s n)
   (list->string (reverse (list-head (reverse (string->list s)) n))))
 
-(define (initialize-flag s)
+(define (initialise-flag s)
   (if (string? s)
-		(if (string=? (string-tail s (string-length "initialized")) "initialized")
+		(if (string=? (string-tail s (string-length "initialised")) "initialised")
 			 #f
-			 <uninitialized>)
-		(initialize-flag (object->string s))))
+			 <uninitialised>)
+		(initialise-flag (object->string s))))
 		
 
 ;--- (define (make-object class #!rest initargs)
 (define (make-object class #!rest initargs)
   ;;(dnl "**** entering make-object ****")
+  (error "You need to use create-")
   (let ((instance (if #f
 							 (allocate-instance class)
 							 (apply make (cons class initargs)))))
 	 (for-each (lambda (x) (slot-set! instance x
-												 (initialize-flag x)
+												 (initialise-flag x)
 												 )) (class-slots-of instance))
 	 (slot-set! instance 'type (class-name class)) ;;; This may be replaced by the set-state-variables call and the
 	                                               ;;; initialise call
- 
-	 (if (pair? initargs) (set-state-variables instance initargs))
-	 (object-register 'add instance class)
-
+ 	 (object-register 'add instance class)
+	 (set-state-variables instance initargs)
 	 instance))
 
 
 ;--- (define (make-agent class . initargs)
 
 (define (make-agent class #!rest initargs)
+  (error "You need to use create")
   (let ((instance (apply make-object (cons class initargs))))
 	 (agent-register 'add instance class)
-	 (if (or (eqv? (slot-ref instance 'name) <uninitialized>)
+	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
 				(eqv? (slot-ref instance 'name) <nameless>))
 		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
 	 instance))
@@ -642,7 +656,7 @@ from object.
 ;--- (iflag clss)  constructs the flag indicating a class has had its default initialisation
 (define (iflag clss)
   (cond
-	((string? clss) (string->symbol (string-append clss "-initialized")))
+	((string? clss) (string->symbol (string-append clss "-initialised")))
 	((symbol? clss) (iflag (symbol->string clss)))
 	((class? clss) (iflag (class-name-of clss)))
 	((instance? clss) (iflag (class-of clss)))
@@ -655,7 +669,7 @@ a pretty fundamental part of an object oriented approach to anything, and the in
 of entities within the model isn't really an issue w.r.t. the model at all."
 
 (define (apply-initialisation instance key #!rest verbose)
-  (dnl* "***** apply initialisation for " (class-name-of (class-of instance)) key "****")
+  (kdnl* 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) key "****")
 
   (let ((p (assoc key global-parameter-alist))
 		  (flag (iflag key))
@@ -664,7 +678,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		  (begin
 			 (for-each
 			  (lambda (v) ;; a spec with only one element is implicitly converted to an atom
-				 (dnl "--- processing " v " ---")
+				 (kdnl* '(state-vars initialisation) "--- processing " v " ---")
 				 (let ((np (if (and (pair? (cdr v)) (null? (cddr v)))	(cadr v)	(cdr v))))
 					(slot-set! instance
 								  (car v)
@@ -686,12 +700,13 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 			;(cpl (class-cpl cls))
 			(the-classes (classes-of-supers class))
 			)
+	 (kdnl* 'object-creation "Creating object" (class-name-of class) statevars)
 	 (object-register 'add instance class)
 
 	 ;; Set *all* slots to uninitialised
 	 (for-each
 	  (lambda (x)
-		 (slot-set! instance x (initialize-flag x)))
+		 (slot-set! instance x (initialise-flag x)))
 	  (class-slots-of instance))
 
 	 ;; First load the states of the classes from base->most-refined
@@ -704,6 +719,8 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 			  )
 		 )
 	  (reverse the-classes)) ;; run from most general to most specific
+
+	 (set-state-variables instance statevars)
   instance
   ))
 
@@ -712,18 +729,20 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (create class taxon #!rest statevars)
   (let* ((instance (apply create- (cons class statevars)))
 			)
+	 (kdnl* 'creation "Creating agent" (class-name-of class) taxon statevars)
 	 (agent-register 'add instance class)
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 
 	 (apply-initialisation instance taxon #t)
-	 (slot-set! instance 'initialized #t)
+	 (slot-set! instance 'initialised #t)
 
 	 (dumpslots instance)
 	 
-	 (if (or (eqv? (slot-ref instance 'name) <uninitialized>)
+	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
 				(eqv? (slot-ref instance 'name) <nameless>))
 		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
 
+	 (set-state-variables instance statevars)
 	 instance
 	 )
   )

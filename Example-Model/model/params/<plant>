@@ -1,10 +1,10 @@
 'Parameters
-(define <simple-plant>-parameters
+(define <plant>-parameters
   (list
-	 (list 'note "<simple-plant> is based on data from the One Oak project.")
+	 (list 'note "<plant> is based on data from the One Oak project.")
 	 (list 'dt (* 1 day))
     (list 'type 'plant)
-	 (list 'representation 'simple-individual)
+	 (list 'representation 'individual)
 	 (list 'I-need '(water)) ;; for maintenance ... vector of values/sgetters  passed in, updated passed back
 	 (list 'requires '(water))
 	 (list 'provides '(fruit seeds vegetation))
@@ -35,4 +35,4 @@
 	 ;;    mass, location, habitat, water-*, age, lai
   )
 )
-(set! global-parameter-alist (cons (cons <simple-plant> <simple-plant>-parameters) global-parameter-alist))
+(set! global-parameter-alist (cons (cons <plant> <plant>-parameters) global-parameter-alist))
