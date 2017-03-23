@@ -8,11 +8,11 @@
 	 (list 'representation 'patch+ecoservices)
 	 (list 'I-need '())
 	 (list 'provides '(water fruit seeds vegetation))
-	 (list 'requires '()
+	 (list 'requires '())
     (list 'habitat '<uninitialized>) ;; should be set in the in the create args
-	 (list 'population-switch (/ (* 10000 kg)  hectare)));; if the density is greater than 10000 kg plants in a hectare
+	 (list 'population-switch (/ (* 10000 kg)  hectare));; if the density is greater than 10000 kg plants in a hectare
 	 (list 'maintenance-list '())
     (list 'population-switch #f) ;; not a simple switch 
   )
 )
-(set! global-parameter-alist (cons (cons "ch3cell"c ch3cell-parameters) global-parameter-alist))
+(set! global-parameter-alist (cons (cons "ch3cell" ch3cell-parameters) global-parameter-alist))

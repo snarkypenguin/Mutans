@@ -471,7 +471,7 @@
 									(slot-ref self 'type) ":"
 									(slot-ref self 'representation))))
 				 (set-state-variables self (list 'age #f 'sex #f))
-				 ;; call "parents" last to make the initialization list work
+				 ;; call "parents" last to make the initialisation list work
 				 (set-state-variables self args)
 				 )
 

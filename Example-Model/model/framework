@@ -9,8 +9,6 @@
 ;	History:
 ;
 
-
-;;; #|
 ;;; The code in this file is supposed to make things a little easier.
 
 ;;;
@@ -18,12 +16,36 @@
 ;;;  by Xerox Corp. in 1992. None of the code from sclos.scm has been 
 ;;;  included in the other files which form the modelling framework.
 
+"
+NOTE: The lower case word 'INITIALIZE' and its derivatives have been 
+changed to a lower case 'INITIALISE' in SCLOS.
+There were two reasons:
+    - the debugging got very tedious when trying to use the two
+      forms together (yes, foolish)
+and
+    - my primitive brain rebelled when I tried to adopt the 'z' (OED)
+      form.  Muscle memory being what it is, I again spent far too
+      much time correcting (or uncorrecting) the words. 
+
+I have included normalizing/normalising programs so that future users
+can choose their preferred spelling.  The programs in question are 
+
+	Normalize  ... which converts the code to OED spellings, and 
+   Normalise  ... converts the code to the standard Australian
+                  spelling. 
+
+It is not hard to change it to catch specializer as well. 
+"
+
+
+
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;; |#
 
 
 ;; This should be true if you want UNFINISHED-BUSINESS reported.
@@ -105,16 +127,16 @@
   `(if ,yea-or-nay
 		 ,@body))
 
-(define-macro (code-variants select first second)
+(define-macro (code-variants:use select A B)
   (cond
-	((member select '(first one 1)) `,first)
-	((member select '(second two 2)) `,second)
+	((member select '(first one 1)) `,A)
+	((member select '(second two 2)) `,B)
 	))
 
-(define-macro (code-block-variants select first second)
+(define-macro (code-block-variants:use select A B)
   (cond
-	((member select '(first one 1)) `,@first)
-	((member select '(second two 2)) `,@second)
+	((member select '(first one 1)) `,@A)
+	((member select '(second two 2)) `,@B)
 	))
 
 (define-macro (with-exit name . body)
@@ -222,7 +244,7 @@
 		  (if (and (pair? variables) (not (memq (car variables) '(state-variables no-variables))))
 				(Error "(define-class..) expects (state-variables name1...) or (no-variables)" args))
 		  (let ((V  (append (cdr variables)
-								  	 (if (and #f (not (equal? cname  '<object>)))
+								  	 (if (or #t (and #t (not (equal? cname  '<object>))))
 										  (list (string->symbol (string-append (symbol->string (car args)) "-initialised")))
 										  '())
 								  )))
@@ -359,8 +381,9 @@
 							 )
 						 ))
 			 (if display-expanded-model-methods
-				  (dnl "------------------------------------------------------------")
-				  (pp txt))
+				  (begin
+					 (dnl "------------------------------------------------------------")
+					 (pp txt)))
 
 			 (if display-model-methods (dnl "************************************************************"))
 			 txt)))
@@ -451,8 +474,9 @@ how much time they have actually used."
 					 )
 				 ))
 			 (if display-expanded-model-bodies
-				  (dnl "------------------------------------------------------------")
-				  (pp txt))
+				  (begin
+					 (dnl "------------------------------------------------------------")
+					 (pp txt)))
 
 			 (if display-model-bodies (dnl "************************************************************"))
 

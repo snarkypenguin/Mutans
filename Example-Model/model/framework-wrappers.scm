@@ -7,15 +7,9 @@
 ;		Date: 2016.10.29
 ;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/framework-wrappers.scm
 ;
-;	History:
-;
+;;; This code provides a few convenience functions
 
-;-  Copyright 
 
-;
-;   (C) 2016 Randall Gray
-;   All rights reserved
-;
 
 (include "framework")
 

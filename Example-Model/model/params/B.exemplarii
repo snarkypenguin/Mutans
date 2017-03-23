@@ -16,7 +16,7 @@
 
     (list 'max-age (* 37 years))
     (list 'max-mass (* 150 kg))
-	 (list 'mass '(@ (nrnd 
+	 (list 'mass '(@ (nrnd 15 5 0 )))
     (list 'lai 1.7)
     (list 'water-stress-effect #t) ;; changes fruiting 
     (list 'water-stress 0)
@@ -36,7 +36,7 @@
 	 ;;    mass, location, habitat, water-*, age, lai
   )
 )
-(set! global-parameter-alist (cons (cons "B.exemplarii" <simple-plant>-parameters) global-parameter-alist))
+(set! global-parameter-alist (cons (cons "B.exemplarii" B.exemplarii-parameters) global-parameter-alist))
 
 
 

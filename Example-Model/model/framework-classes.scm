@@ -74,7 +74,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 
 (define-class <projection>
   (inherits-from <object>)
-  (state-variables  projection-assoc-list current-projection map-projection))
+  (state-variables projection-assoc-list current-projection map-projection))
 
 (define-class <tracked-agent>
   (inherits-from <agent>)

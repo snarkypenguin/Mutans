@@ -25,87 +25,12 @@
 
 ;(include "heritability")
 
-
-(model-method (<agent>) (load-parameters self taxon #!rest forced)
-				  (call/cc
-					(lambda (exit)
-					  (if (string? taxon) (set! taxon (string->symbol taxon))) ;; symbol comparison is cleaner.
-					  
-					  
-					  (if (and (null? forced) (slot-ref self 'parameters-loaded) (eq? (slot-ref self 'parameters-loaded) (slot-ref self 'taxon)))
-							#t
-							(let* ((tax (slot-ref self 'taxon))
-									 (taxonstr (if (symbol? tax) (symbol->string tax) (exit #f)))
-									 (fname (string-append "parameters/" taxonstr))
-									 (param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
-									 )
-							  (if (null? param-list)
-									#f
-									(begin
-									  (for-each
-										(lambda (setting)
-										  (if (has-slot? self (car setting))
-												(let ((len (length setting))
-														(slot (car setting))
-														(implicit-lists #f)
-														)
-												  (cond
-													((= 1 len) (slot-set! self slot #t))
-													((= 2 len) (slot-set! self slot (cadr setting)))
-													(implicit-lists (slot-set! self slot (cdr setting)))
-													(#t (error "parameter has more than one value!" taxon slot setting))))))
-										param-list)
-									  (slot-set! self 'parameters-loaded taxon)
-									  #t
-									  )
-									)))
-					  )) )
-
 (model-method <agent> (change-taxon self taxon)
-				 (load-parameters self (slot-ref self 'taxon)))
+				 (apply-parameters self (slot-ref self 'taxon)))
 
 
 ;; This is called with a class, a taxon symbol, and a list of initialisation pairs symbol value ...
 ;; and an optional, final init function that expects "self"
-(define (create class taxon #!rest overrides)
-  (let* ((A (apply make (list class 'taxon taxon)))
-			(classname (class-name-of class))
-			(I-F #f)
-			(errstr "Overrides can be any of the following forms:
-      '()
-      '(func)
-      '(sym val ...)
-      '(func sym val ...)
-      '(func (sym val ...)))
-  and for convenience
-		'(())
-      '((func))
-      '((sym val ...))
-      '((func sym val ...))"
-					  ))
-	 
-	 (dnl* 'I-F I-F)
-	 (dnl overrides)
-
-	 (for-each (lambda (x) (dnl* "attempting to load" x) (load-parameters A x)) (reverse (class-names-of-supers A)))
-
-
-	 (load-parameters A taxon 'force-load)
-
-	 (if (and (pair? overrides)(pair? (car overrides))(null? (cdr overrides)))
-		  (set! overrides (car overrides)))
-	 
-	 (if (and (pair? overrides)(procedure? (car overrides)))
-		  (begin
-			 (set! I-F (car overrides))
-			 (set! overrides (cdr overrides))))
-
-	 (if (odd? (length overrides)) (error errstr overrides))
-	 
-	 (if (pair? overrides) (set-state-variables A overrides))
-	 (if I-F (I-F A))
-
-	 A))
 		  
 
 ;- Utility functions
@@ -334,7 +259,7 @@ commonly viewed as just a simple extension of sclos.
 				  
 ;;; 				  (let ((initslots (evens initargs)))
 ;;; 					 (if (member 'type initslots)
-;;; 						  (load-parameters self (slot-ref self 'type))))
+;;; 						  (apply-parameters self (slot-ref self 'type))))
 ;;; 				  )
 
 
@@ -361,7 +286,7 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method <agent> (change-type self newtype)
-				 (load-parameters self (slot-ref self 'type)))
+				 (apply-parameters self (slot-ref self 'type)))
 
 
 

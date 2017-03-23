@@ -11,4 +11,4 @@
 	(list 'internal-runqueue '()) ;; no internal run-queue by default
   )
 )
-(set! global-parameter-alist (cons (cons <habitat> <habitat>-parameters) global-parameter-alist))
+(set! global-parameter-alist (cons (cons "Parkland" Parkland-parameters) global-parameter-alist))

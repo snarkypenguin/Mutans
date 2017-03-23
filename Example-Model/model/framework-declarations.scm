@@ -51,6 +51,7 @@
 (declare-method add-thing "add a thing to the location tracking system")
 (declare-method agent-shutdown "runs any 'shutdown' code, like closing files")
 (declare-method append-agent! "add an agent in the introspection list")
+(declare-method apply-parameters "load a new parameterisation and type from a file in ./params") ;; Hardcoded at the moment
 (declare-method change-type "change the type (and possibly state-variables) of an agent")
 (declare-method change-taxon "change the taxon, probably trigger a resetting of state-variables")
 (declare-method close-p/n "close a logging port")
@@ -78,7 +79,6 @@
 (declare-method kernel "function which handles kernel queries")
 (declare-method kernel-check "check the ability of the agent to call the kernel")
 (declare-method kquery "Send a query to the kernel")
-(declare-method load-parameters "load a new parameterisation and type from a file in ./params") ;; Hardcoded at the moment
 (declare-method locate "locate something or a list of something (usually other agents)")
 (declare-method location "Return the location of an entity")
 (declare-method distance "Return the distance of a <thing> to a point")

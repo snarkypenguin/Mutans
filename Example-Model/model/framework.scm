@@ -20,27 +20,16 @@
 ;; This is a list of data added by a (definition-comment ...) clause associated with a
 ;; (define...)
 
-(define adjust-grey #t)
 
-(define definition-comments '())
+(define definition-comments '()) ;; collects comments from the code
 
-
-;-- (load-model) loads the file "model.config"
-(definition-comment 'load-model "load the configuration file")
-(define (load-model)
-  (let ((l load)) ;; gets us past the make-bolus filtering
-	 (l "model.config")
-	 )
-  )
-
-(define (no-default-variables) '())
 
 (define (slow-sort lst)
   (let ((<=? (lambda (x y) (string<=? (object->string x) (object->string y)))))
 	 (sort lst <=?)))
 
 
-(define (count-keyed-members lst)
+(define (count-keyed-members lst) ;; used by monitors
   (let* ((slst (slow-sort lst))
 			(keys (uniq (map car slst)))
 			(lslst (map (lambda (k) (filter (lambda (c) (equal? k (car c))) slst)) keys))
@@ -66,74 +55,82 @@
 
 ;--- list of tags for introspection and logging
 
+(define adjust-grey #t) ;; used by agents feeding loggers for generating graphical output
 (define logger-tags '())
-
-(define submodel-register '())
-
-(define (register-submodel tag . filelist)
-  (if (assoc tag submodel-register)
-		(set-cdr! (assoc tag submodel-register)
-					 (append (assoc tag submodel-register) filelist))
-		(set! submodel-register
-				(cons (cons tag filelist) submodel-register)))
-  )
-
-(define (load-submodels)
-  (let ((L load))
-	 "The following code takes the list of registered submodels and loads any files they may be 
-dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
-
-	 (let ((submodel-files
-			  (!filter null? (map	cdr (!filter null? (!filter (lambda (x) (member (car x) logger-tags)) submodel-register))))
-			  ))
-
-		(if (pair? submodel-files)
-			 (begin 
-				;;(dnl "Submodels: " submodel-files)
-				(for-each (if #t
-								  L 
-								  (lambda (x)
-									 (display "loading submodel: ")
-									 (display x)
-									 (newline)
-									 (L x))
-								  )
-							 submodel-files))
-			 (dnl "No submodel files to be loaded"))
+(define (no-default-variables) '()) ;; used to indicate that there are no defaults 
 
 
-;;; loggers get inserted at the head of the queue
 
-		(let ((logger-files
-				 (!filter
-				  null?
-				  (map
-					cdr
-					(!filter
-					 null?
-					 (filter
-					  (lambda (x) (member (car x) logger-tags))
-					  submodel-register))))
-				 ))
 
-		  (if (pair? logger-files)
-				(begin 
-				  ;;(dnl "Loggers: " logger-files)
-				  (for-each (if #t
-									 L 
-									 (lambda (x)
-										;;(display "loading logger: ")
-										;;(display x)
-										;;(newline)
-										(L x))
-									 )
-								logger-files))
-				(dnl "No logger files to be loaded"))
-		  )
-		)
 
-	 )
-  )
+;;; --- The following is deprecated, mainly because it was a complex solution to a simple problem.
+
+;;; (define submodel-register '()) -;
+
+;;; (define (register-submodel tag . filelist) -;
+;;;   (if (assoc tag submodel-register) -;
+;;; 		(set-cdr! (assoc tag submodel-register) -;
+;;; 					 (append (assoc tag submodel-register) filelist)) -;
+;;; 		(set! submodel-register -;
+;;; 				(cons (cons tag filelist) submodel-register))) -;
+;;;   ) -;
+
+;;; (define (load-submodels) -;
+;;;   (let ((L load)) -;
+;;; 	 "The following code takes the list of registered submodels and loads any files they may be  -;
+;;; dependent on.  Loggers must be loaded after the other submodels, so we take two passes." -;
+
+;;; 	 (let ((submodel-files -;
+;;; 			  (!filter null? (map	cdr (!filter null? (!filter (lambda (x) (member (car x) logger-tags)) submodel-register)))) -;
+;;; 			  )) -;
+
+;;; 		(if (pair? submodel-files) -;
+;;; 			 (begin  -;
+;;; 				;;(dnl "Submodels: " submodel-files) -;
+;;; 				(for-each (if #t -;
+;;; 								  L  -;
+;;; 								  (lambda (x) -;
+;;; 									 (display "loading submodel: ") -;
+;;; 									 (display x) -;
+;;; 									 (newline) -;
+;;; 									 (L x)) -;
+;;; 								  ) -;
+;;; 							 submodel-files)) -;
+;;; 			 (dnl "No submodel files to be loaded")) -;
+
+
+;;; ;\;; loggers get inserted at the head of the queue -;
+
+;;; 		(let ((logger-files -;
+;;; 				 (!filter -;
+;;; 				  null? -;
+;;; 				  (map -;
+;;; 					cdr -;
+;;; 					(!filter -;
+;;; 					 null? -;
+;;; 					 (filter -;
+;;; 					  (lambda (x) (member (car x) logger-tags)) -;
+;;; 					  submodel-register)))) -;
+;;; 				 )) -;
+
+;;; 		  (if (pair? logger-files) -;
+;;; 				(begin  -;
+;;; 				  ;;(dnl "Loggers: " logger-files) -;
+;;; 				  (for-each (if #t -;
+;;; 									 L  -;
+;;; 									 (lambda (x) -;
+;;; 										;;(display "loading logger: ") -;
+;;; 										;;(display x) -;
+;;; 										;;(newline) -;
+;;; 										(L x)) -;
+;;; 									 ) -;
+;;; 								logger-files)) -;
+;;; 				(dnl "No logger files to be loaded")) -;
+;;; 		  ) -;
+;;; 		) -;
+
+;;; 	 ) -;
+;;;   ) -;
 
 ;-  The End 
 

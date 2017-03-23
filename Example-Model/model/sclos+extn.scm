@@ -195,6 +195,8 @@ from object.
 						 name ;; Unique id ideally
 						 type ;; categorical classifier, typically the submodel
 						 representation ;; in case a class may actually implement more than one repr.
+						 parameters-loaded
+						 initialised
 						 agent-state
 						 kernel
 						 subjective-time priority jiggle 
@@ -353,7 +355,25 @@ from object.
 		(nameless? (slot-ref x (car y)))))
 
 
-;-- Accessors, predicates 
+;-- Accessors, predicates
+;--- (define (set-state-variables self arguments)
+(define (set-state-variables self arguments)
+  (if (null? arguments)
+		(void)
+		(if (not (and (pair? arguments) (even? (length arguments))))
+			 (error "Bad state variable list!" (class-name-of (class-of self)) arguments)
+			 (cond
+			  ((null? arguments) (void))
+			  ((<= 2 (length arguments))
+				(let ()
+				  (if (has-slot? self (car arguments))
+						(slot-set! self (car arguments) (cadr arguments))
+						(kdnl* 'state-vars-missed (class-name-of (class-of self)) "does not have a slot" (car arguments)))
+				  (set-state-variables self (cddr arguments)))
+				)
+			  (#t (error "The list of initialisers is missing something!" arguments))))))
+
+
 ;; These need to preceed framework-classes.
 (add-method initialise (make-method (list <object>)
 												(lambda (call-next-method self #!rest initargs)
@@ -563,7 +583,7 @@ from object.
 
 ;; Uninitialisable classes/instances
 
-(define *uninitializable*
+(define *uninitialisable*
   (list <top> <primitive-object> <class> <pair> <null> <boolean>
 		  <symbol> <procedure> <number> <vector> <char> <string> <input-port>
 		  <output-port> <procedure-class> <entity-class> <generic> <method>))
@@ -591,21 +611,6 @@ from object.
 	 (string-append name ":" (number->string (**entity-index**)))))
 
 
-
-;--- (define (set-state-variables self arguments)
-(define (set-state-variables self arguments)
-  (if (not (and (pair? arguments) (even? (length arguments))))
-		(error "Bad state variable list!" (class-name-of (class-of self)) arguments)
-		(let* ((slotnames (class-slots-of self))
-				 (tags (evens arguments))
-				 (vals (odds arguments))
-				 )
-		  (for-each (lambda (x y)
-						  (if (memv x slotnames) ;; member using eqv, y'know
-								(slot-set! self x y)
-								))
-						tags vals)))
-  )
 
 (define (string-tail s n)
   (list->string (reverse (list-head (reverse (string->list s)) n))))
@@ -646,12 +651,11 @@ from object.
 		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
 	 instance))
 
-;; (define (check-param-sig filename)
-;;   (let ((not-tilde (not (char=? #\~ (car (reverse (string->list filename))))))
-;; 		  (isparameters (equal? 'Parameters (with-input-from-file filename (lambda () (read))))))
-;; 	 (dnl "not-tilde " not-tilde ", Parameters " isparameters)
-
-;;   (and not-tilde isparameters)))
+(define (check-param-sig filename)
+  (let* ((not-tilde (not (char=? #\~ (car (reverse (string->list filename))))))
+			(key  (with-input-from-file filename (lambda () (read))))
+			(isparameters (equal? (quote (quote Parameters)) key)))
+  (and not-tilde isparameters)))
 
 ;--- (iflag clss)  constructs the flag indicating a class has had its default initialisation
 (define (iflag clss)
@@ -668,30 +672,40 @@ in one of the framework classes.  I have put  it here since object initialisatio
 a pretty fundamental part of an object oriented approach to anything, and the initialisation
 of entities within the model isn't really an issue w.r.t. the model at all."
 
+(define (p-eval k)
+  (cond
+	((and (pair? k) (or (equal? (car k) '@) (eqv? (car k) '@)))
+	 (dnl "EVAL: " (cdr k))
+	 (apply eval (cdr k)))
+	((and (pair? k) (null? (cdr k)))
+	 (car k))
+	(#t k))
+  )
+
 (define (apply-initialisation instance key #!rest verbose)
   (kdnl* 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) key "****")
 
-  (let ((p (assoc key global-parameter-alist))
-		  (flag (iflag key))
-		  )
-	 (if p
-		  (begin
+  (let* ((flag (iflag key))
+			(p (let ((t (assoc key global-parameter-alist)))
+				  (if (and t (pair? t)) (cdr t) t)))
+				
+			(tlist (list-intersection (map car (class-slots (class-of instance)))
+											  (if p (map car  p) '())))
+
+			(p* (if p
+					  (filter (lambda (n) (member (car n) tlist)) p)
+					  #f))
+			)
+
+	 (if p*
+		  (let ((R (map cons (map car p*) (map p-eval (map cadr p*)))))
 			 (for-each
-			  (lambda (v) ;; a spec with only one element is implicitly converted to an atom
-				 (kdnl* '(state-vars initialisation) "--- processing " v " ---")
-				 (let ((np (if (and (pair? (cdr v)) (null? (cddr v)))	(cadr v)	(cdr v))))
-					(slot-set! instance
-								  (car v)
-								  (if (and (pair? np) (or (equal? (car np) '@) (eqv? (car np) '@)))
-										(let () (dnl "EVAL: " (cdr np)) (apply eval (cdr np)))
-										np))))
-			  (cdr p))
-			 (if (and flag (has-slot? instance flag))
-				  (slot-set! instance flag #t))
-			 ))
-	 )
-  )
-  
+			  (lambda (kv)
+				 (slot-set! instance (car kv) (cdr kv))
+				 (kdnl* 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
+				 )
+			  R)))
+	 ))
 
 ;; Both create and create- make <objects> and things derived from <object>
 ;; This version does not apply a taxon specific initialisation
@@ -712,7 +726,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 ;; First load the states of the classes from base->most-refined
 	 (for-each
 	  (lambda (x)
-		 (if (not (member x *uninitializable*))
+		 (if (not (member x *uninitialisable*))
 			  (begin
 				 (apply-initialisation instance x)
 				 (slot-set! instance (iflag x) #t))

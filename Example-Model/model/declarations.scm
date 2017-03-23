@@ -1,6 +1,7 @@
 (include "framework")
 
 		
+(declare-method apply-parameters "load a new parameterisation and type from a file in ./params") ;; Hardcoded at the moment
 (declare-method add! "add!")
 (declare-method add-fruit "adjusts the number of fruit in a cell")
 (declare-method add-patch "add a patch to a habitat")

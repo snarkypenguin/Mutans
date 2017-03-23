@@ -473,7 +473,7 @@
 ;     ALLOCATE-INSTANCE
 ;     INITIALIZE                   (really a base-level generic)
 ;
-;   class initialization
+;   class initialisation
 ;     COMPUTE-CPL
 ;     COMPUTE-SLOTS
 ;     COMPUTE-GETTER-AND-SETTER
@@ -864,7 +864,7 @@
 
 
 ;
-; The initialization protocol
+; The initialisation protocol
 ;
 (define initialise (make-generic))
 
@@ -877,7 +877,7 @@
 
 
 ;
-; The class initialization protocol.
+; The class initialisation protocol.
 ;
 (define compute-cpl   (make-generic))
 (define compute-slots (make-generic))
