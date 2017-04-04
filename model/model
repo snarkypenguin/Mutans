@@ -1,0 +1,215 @@
+; -*- mode: scheme; -*-
+
+;--
+; Test model configuration
+;-  Code 
+
+;(dump wally)(newline)
+;(aborts "Incomplete initialisation is making things fail when it runs")
+
+;- Define the model domain now
+
+;; This loads the framework
+(load "loadem.scm")
+
+;; This should be the first thing in a model configuration file after the framework is loaded.
+(load-parameter-set "params") ;; params is the directory which contains the parameter files
+
+(define start 0) ;; day zero
+;(define end (* 61 days)) ;; end at some day after the start
+(define end (* 6 days))
+
+(if (< end start) (error "The model doesn't work in that direction"))
+
+(define A4domain (list 210 294 80)) ;; (x y z) corresponds to the size of an A4 page
+(define A4domainR (list 294 210 80)) ;; A4 rotated
+(define mA4domain (list 178 250 80)) ;; A4 with margins
+(define mA4domainR (list 250 178 80)) ;; A4 with margins rotated
+(define domain mA4domain)
+
+
+;-- Global data ---------------------------------------------------------
+;========================================================================
+
+(define missing-value 0+1e-347i)
+;; things arrived at by mortality are 
+;; likely to be inexact
+
+(define round 
+  (let ((round round))
+	 (lambda (x)
+		( + (round (real-part x)) (round (imag-part x))))))
+
+(define Q '())  ;; This is the queue which holds the agents
+					 ;; in the simulation
+
+;(define end (* 365.25 32)) ;; simulate 32 years
+;(define end (* 365.25 10)) ;; simulate 10 years
+;(define end (* 365.25 6))  ;; simulate 6 years
+(define end (* 365.25 4))  ;; simulate 4 years
+;(define end (* 365.25 2))  ;; simulate 2 years
+
+;-- Set kernel flags ----------------------------------------------------
+
+;; The kernel will emit messages (with kdnl*) which have a label which
+;; matches something in the kernel-messages list
+
+;(set! kernel-messages (append '(*) kernel-messages))
+
+;; Indicate which agents are "nested"; as an example patches may be
+;; present either as independent things or as components within a
+;; habitat
+
+;(set! nested-agents '(nested-habitat)) ;; No, run simply for the moment
+
+(add-kernel-msg-tag 'introspection)
+(add-kernel-msg-tag 'log-*)
+
+;-- extensions to basic framework (more complex models)  ----------------
+
+;---- Load habitat support code
+
+;;(load "habitat-support.scm")
+
+;- Load the model properly ----------------------------------------------
+
+;-- load specific models ------------------------------------------------
+
+;; (make <landscape> ...)
+;; (make <habitat> ...)
+;; ...
+;(append! Q ...)
+
+
+
+"The following code takes the list of registered submodels and loads any files they may be 
+dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
+
+;--  the cast....
+(dnl "The stage")
+(define N 1) ;; suitable values are 1-8,10,12,14,15,18,20,21,24,28,30,35,36,40,42,56
+(define treecount 1) ;; and      1-3200,1-2500,1-2400,....
+
+;--- First the cells, implemented as patches with water, fruit and seeds variables
+(define patchlist
+  (let* ((csize (/ 5040 N))
+			(grid
+			(make-grid <patch> "ch3cell" "gridcell" 'cell
+						  N N ;; array 
+						  (list (- csize) (- csize)) (list csize csize) ;; geographic ll and ur
+						  (lambda (x y) ;; vertical displacement
+							 (let ((x (/ x 100))
+									 (y (/ y 100)))
+								(* 10 (sqrt (+ (* x x) (* y y))))))))
+		  )
+	 grid))
+
+(dnl "Arden")
+(define trees '())
+(for-each
+ (lambda (c)
+	(set! Q (q-insert Q c Qcmp))
+	(for-each
+	 (lambda (q)
+		(let*  ((t (make-plant <example-plant> "B.exemplarii" c (+ 10 (* 30 (random-real))) ))
+				  )
+		  (slot-set! t 'habitat c)
+		  ;; (slot-set! c ') ;;Does the habitat (patch) need to know of the trees?
+		  (set! Q (q-insert Q t Qcmp))
+		  (set! trees (cons t trees))))
+	 (seq treecount) )
+	)
+ patchlist)
+
+(for-each
+ (lambda (c)
+	(let ((fruit (create <ecoservice> "fruit"
+								'value 0 'patch c 'capacity +inf.0 'do-growth #f
+								'history #t 'symbol 'f 'name "fruit"))
+			
+			(seeds (create <ecoservice> "seeds"
+								'value 0 'patch c 'capacity +inf.0 'do-growth #f
+								'history #t 'symbol 's 'name "seeds"))
+			)
+	  (set! Q (q-insert Q fruit Qcmp))
+	  (set! Q (q-insert Q seeds Qcmp))
+	  
+	  (slot-set! c 'service-list (list fruit seeds))))
+ patchlist)
+
+(dnl "The players: Beasts of the fields")
+
+(dnl "... and those that prey on them")
+
+;; Herbivores and carnivores --------------------------------------------
+
+;; And the audience -----------------------------------------------------
+
+;(define schedtimes (append 
+;						 (cons 0 (seq 6))
+;						 (map (lambda (x) (* 10.0 (1+ x))) (seq 360)))
+;  ) ;; first six days, then on every tenth day from the beginning for 370 days
+
+(define tdlog
+  (create <log-data> "data-logger" 'filename "tree-log" 
+			 'introspection-schedule (seq end)
+			 'variables (list 'name 'subjective-time 'mass)
+			 'introspection-list patchlist
+			 ))
+
+(define pslog
+  (create <log-map> "map-maker" 
+			 'introspection-schedule '(0 1 10 20 30 40 50 60 61)
+			 'introspection-list patchlist
+			 ))
+
+(set! Q (q-insert Q tdlog Qcmp)) ;; these will go in earlier than the others 
+(set! Q (q-insert Q pslog Qcmp)) ;; because they have high priority
+
+;========================================================================
+
+;-- Example code to run things....
+
+;; Run till end without pause.  If you are a penguin, run without paws.
+(define (Doit q) 
+  (if #f
+		(check-service-data-lists service-name-list
+										  service-type-list
+										  service-eqn-sym-list))
+  (prep-agents q start end)
+  (set! q (queue start end q))
+  )
+
+
+(define Dunnit #f)
+(define *dunnit* #f)
+
+(define (doit q . n)
+  (set! Dunnit (lambda () (shutdown-agents q)))
+  (set! n (if (pair? n) (car n) 1))
+  (if (not *dunnit*) (begin (prep-agents q start end) (set! *dunnit* 0)))
+  (set! q (queue *dunnit* (+ *dunnit* n) q))
+  (set! *dunnit* (+ *dunnit* n))
+  )
+
+;;======================================================================
+
+(dnl "Run with (Doit Q) to run from the start to the end\n")
+(dnl "Run with (doit Q n) to run for n days (not necessarily n ticks!)")
+(dnl "             so you can run the next step in a similar fashion\n")
+(dnl "Close up shop with (shutdown-agents Q) -- this closes files and things.")
+
+
+(display "Loaded: ")
+(apply dnl* (map (lambda (x) (slot-ref x 'name)) Q))
+
+;-  The End 
+
+
+;;; Local Variables:
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column:0
+;;; comment-start: ";;; "
+;;; comment-end:"" 
+;;; End:

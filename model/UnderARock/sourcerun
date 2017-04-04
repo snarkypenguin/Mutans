@@ -1,0 +1,3672 @@
+(include "smodel")
+Loading /etc/scheme.rc
+Gambit v4.8.5
+
+> (include "smodel")
+(include "smodel")[18D[18C
+*** WARNING -- Variable "kdnl*" used in module "framework" is undefined
+*** WARNING -- Variable "orf" used in module "framework" is undefined
+*** WARNING -- Variable "andf" used in module "framework-methods" is undefined
+*** WARNING -- Variable "initialize-parent" used in module "framework-methods" is undefined
+*** WARNING -- Variable "interval" used in module "framework-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "framework-methods" is undefined
+*** WARNING -- Variable "orf" used in module "framework-methods" is undefined
+*** WARNING -- Variable "unique" used in module "framework-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "monitor-methods" is undefined
+*** WARNING -- Variable "subject-list" used in module "monitor-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "log-methods" is undefined
+*** WARNING -- Variable "orf" used in module "log-methods" is undefined
+*** WARNING -- Variable "pno" used in module "log-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "log-methods" is undefined
+*** WARNING -- Variable "unique*" used in module "log-methods" is undefined
+*** WARNING -- Variable "andf" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "centroid" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "intersection-of-two-circles" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "list-sym-ref" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "make-list*" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "map-**-ix" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "nested-agents" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "orf" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "overlap-decay" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "pno" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "unique" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "plant-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "plant-methods" is undefined
+*** WARNING -- Variable "aborts" used in module "animal-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "animal-methods" is undefined
+*** WARNING -- Variable "nrandom" used in module "animal-methods" is undefined
+*** WARNING -- Variable "ps" used in module "animal-methods" is undefined
+*** WARNING -- Variable "txyz->xy" used in module "animal-methods" is undefined
+*** WARNING -- Variable "unit" used in module "animal-methods" is undefined
+*** WARNING -- Variable "i-contain" used in module "kernel" is undefined
+(name "kunlun-0,0" type #<procedure #201 <polygon>> rep #<procedure #431>)
+(name "kunlun-0,0" type #<procedure #201 <polygon>> rep #<procedure #431>)
+(name "kunlun-0,1" type #<procedure #201 <polygon>> rep #<procedure #433>)
+(name "kunlun-0,1" type #<procedure #201 <polygon>> rep #<procedure #433>)
+(name "kunlun-0,2" type #<procedure #201 <polygon>> rep #<procedure #435>)
+(name "kunlun-0,2" type #<procedure #201 <polygon>> rep #<procedure #435>)
+(name "kunlun-1,0" type #<procedure #201 <polygon>> rep #<procedure #437>)
+(name "kunlun-1,0" type #<procedure #201 <polygon>> rep #<procedure #437>)
+(name "kunlun-1,1" type #<procedure #201 <polygon>> rep #<procedure #439>)
+(name "kunlun-1,1" type #<procedure #201 <polygon>> rep #<procedure #439>)
+(name "kunlun-1,2" type #<procedure #201 <polygon>> rep #<procedure #441>)
+(name "kunlun-1,2" type #<procedure #201 <polygon>> rep #<procedure #441>)
+(name "kunlun-2,0" type #<procedure #201 <polygon>> rep #<procedure #443>)
+(name "kunlun-2,0" type #<procedure #201 <polygon>> rep #<procedure #443>)
+(name "kunlun-2,1" type #<procedure #201 <polygon>> rep #<procedure #445>)
+(name "kunlun-2,1" type #<procedure #201 <polygon>> rep #<procedure #445>)
+(name "kunlun-2,2" type #<procedure #201 <polygon>> rep #<procedure #447>)
+(name "kunlun-2,2" type #<procedure #201 <polygon>> rep #<procedure #447>)
+Making hay
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #449>
+      patch-list
+      (#<procedure #448>
+       #<procedure #446>
+       #<procedure #444>
+       #<procedure #442>
+       #<procedure #440>
+       #<procedure #438>
+       #<procedure #436>
+       #<procedure #434>
+       #<procedure #432>)
+      type
+      landscape)
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #449>
+      patch-list
+      (#<procedure #448>
+       #<procedure #446>
+       #<procedure #444>
+       #<procedure #442>
+       #<procedure #440>
+       #<procedure #438>
+       #<procedure #436>
+       #<procedure #434>
+       #<procedure #432>)
+      type
+      landscape)
+Made the continent
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #448>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #448>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #448>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #448>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #448>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #448>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #446>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #446>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #446>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #446>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #446>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #446>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #444>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #444>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #444>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #444>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #444>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #444>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #442>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #442>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #442>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #442>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #442>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #442>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #440>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #440>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #440>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #440>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #440>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #440>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #438>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #438>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #438>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #438>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #438>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #438>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #436>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #436>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #436>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #436>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #436>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #436>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #434>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #434>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #434>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #434>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #434>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #434>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #432>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #432>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #432>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #432>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #432>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #432>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+Building the runqueue
+Setting projections
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+> (Doit Q)
+(Doit Q)[8D[8C
+RUNNING
+|Q| = 10
+Prepping from 0 to 1461.
+Dumping
+(kunlun-0,0 kunlun-0,1 kunlun-0,2 kunlun-1,0 kunlun-1,1 kunlun-1,2 kunlun-2,0 kunlun-2,1 Kunlun kunlun-2,2)
+Dumped
+   0  C-c C-c*** INTERRUPTED IN append
+1> ,be
+,be
+0  append                               
+1  append                               
+2  append                               
+3  append                               
+4  append                               
+5  append                               
+6  append                               
+7  append                               
+8  append                               
+9  append                               
+...
+11923 run-agent                         "kernel.scm"@633:20                  (q-insert lra-rq process Qcmp)
+        process == (##lambda args (apply (vector-ref vector 0) args))
+        lra-rq = '(#<procedure #442> #<procedure #444> #<procedure #446> #<procedure #450 habitat> #<procedure #448...
+        N = #f
+11924 queue                             "kernel.scm"@313:14                  (run-agent t stop q-rq)
+        stop == 1461.
+        t = 6.
+        N = #f
+        q-rq = '(#<procedure #440> #<procedure #442> #<procedure #444> #<procedure #446> #<procedure #450 habitat> ...
+11925 Doit                              "model.config"@115:11                (queue start end q)
+        q = '(#<procedure #432> #<procedure #434> #<procedure #436> #<procedure #438> #<procedure #440> #<procedure...
+11926 (interaction)                     (console)@2:1                        (Doit Q)
+1> ,c
+,c
+   7.  C-c C-c*** INTERRUPTED IN append
+1> 
+
+> (exit)
+(exit)[6D[6C
+
+Process scheme finished
+Loading /etc/scheme.rc
+Gambit v4.8.5
+
+> (include "smodel")
+(include "smodel")[18D[18C
+*** ERROR IN "smodel"@27.1 -- Unbound variable: unquote-splicing
+1> 
+
+> (include "smodel")
+(include "smodel")[18D[18C
+*** ERROR IN "smodel"@35.19 -- Datum or EOF expected
+> (include "smodel")
+(include "smodel")[18D[18C
+*** WARNING -- Variable "kdnl*" used in module "framework" is undefined
+*** WARNING -- Variable "orf" used in module "framework" is undefined
+*** WARNING -- Variable "andf" used in module "framework-methods" is undefined
+*** WARNING -- Variable "initialize-parent" used in module "framework-methods" is undefined
+*** WARNING -- Variable "interval" used in module "framework-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "framework-methods" is undefined
+*** WARNING -- Variable "orf" used in module "framework-methods" is undefined
+*** WARNING -- Variable "unique" used in module "framework-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "monitor-methods" is undefined
+*** WARNING -- Variable "subject-list" used in module "monitor-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "log-methods" is undefined
+*** WARNING -- Variable "orf" used in module "log-methods" is undefined
+*** WARNING -- Variable "pno" used in module "log-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "log-methods" is undefined
+*** WARNING -- Variable "unique*" used in module "log-methods" is undefined
+*** WARNING -- Variable "andf" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "centroid" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "intersection-of-two-circles" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "list-sym-ref" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "make-list*" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "map-**-ix" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "nested-agents" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "orf" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "overlap-decay" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "pno" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "unique" used in module "landscape-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "plant-methods" is undefined
+*** WARNING -- Variable "uniq" used in module "plant-methods" is undefined
+*** WARNING -- Variable "aborts" used in module "animal-methods" is undefined
+*** WARNING -- Variable "kdnl*" used in module "animal-methods" is undefined
+*** WARNING -- Variable "nrandom" used in module "animal-methods" is undefined
+*** WARNING -- Variable "ps" used in module "animal-methods" is undefined
+*** WARNING -- Variable "txyz->xy" used in module "animal-methods" is undefined
+*** WARNING -- Variable "unit" used in module "animal-methods" is undefined
+*** WARNING -- Variable "i-contain" used in module "kernel" is undefined
+(name "kunlun-0,0" type #<procedure #201 <polygon>> rep #<procedure #431>)
+(name "kunlun-0,0" type #<procedure #201 <polygon>> rep #<procedure #431>)
+(name "kunlun-0,1" type #<procedure #201 <polygon>> rep #<procedure #433>)
+(name "kunlun-0,1" type #<procedure #201 <polygon>> rep #<procedure #433>)
+(name "kunlun-0,2" type #<procedure #201 <polygon>> rep #<procedure #435>)
+(name "kunlun-0,2" type #<procedure #201 <polygon>> rep #<procedure #435>)
+(name "kunlun-1,0" type #<procedure #201 <polygon>> rep #<procedure #437>)
+(name "kunlun-1,0" type #<procedure #201 <polygon>> rep #<procedure #437>)
+(name "kunlun-1,1" type #<procedure #201 <polygon>> rep #<procedure #439>)
+(name "kunlun-1,1" type #<procedure #201 <polygon>> rep #<procedure #439>)
+(name "kunlun-1,2" type #<procedure #201 <polygon>> rep #<procedure #441>)
+(name "kunlun-1,2" type #<procedure #201 <polygon>> rep #<procedure #441>)
+(name "kunlun-2,0" type #<procedure #201 <polygon>> rep #<procedure #443>)
+(name "kunlun-2,0" type #<procedure #201 <polygon>> rep #<procedure #443>)
+(name "kunlun-2,1" type #<procedure #201 <polygon>> rep #<procedure #445>)
+(name "kunlun-2,1" type #<procedure #201 <polygon>> rep #<procedure #445>)
+(name "kunlun-2,2" type #<procedure #201 <polygon>> rep #<procedure #447>)
+(name "kunlun-2,2" type #<procedure #201 <polygon>> rep #<procedure #447>)
+Making hay
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #449>
+      patch-list
+      (#<procedure #448>
+       #<procedure #446>
+       #<procedure #444>
+       #<procedure #442>
+       #<procedure #440>
+       #<procedure #438>
+       #<procedure #436>
+       #<procedure #434>
+       #<procedure #432>)
+      type
+      landscape)
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #449>
+      patch-list
+      (#<procedure #448>
+       #<procedure #446>
+       #<procedure #444>
+       #<procedure #442>
+       #<procedure #440>
+       #<procedure #438>
+       #<procedure #436>
+       #<procedure #434>
+       #<procedure #432>)
+      type
+      landscape)
+Made the continent
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #448>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #448>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #448>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #448>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #448>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #448>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #446>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #446>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #446>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #446>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #446>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #446>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #444>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #444>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #444>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #444>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #444>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #444>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #442>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #442>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #442>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #442>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #442>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #442>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #440>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #440>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #440>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #440>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #440>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #440>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #438>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #438>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #438>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #438>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #438>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #438>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #436>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #436>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #436>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #436>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #436>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #436>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #434>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #434>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #434>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #434>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #434>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #434>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #432>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #432>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #432>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #432>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #432>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #432>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+Building the runqueue
+Setting projections
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+> (Doit Q)
+(Doit Q)[8D[8C
+RUNNING
+|Q| = 10
+Prepping from 0 to 7
+Dumping
+(kunlun-0,0 kunlun-0,1 kunlun-0,2 kunlun-1,0 kunlun-1,1 kunlun-1,2 kunlun-2,0 kunlun-2,1 Kunlun kunlun-2,2)
+Dumped
+Elapsed cpu time =  110.783322
+> (exit)
+(exit)[6D[6C
+
+Process scheme finished
+Loading /etc/scheme.rc
+Gambit v4.8.5
+
+> (include "smodel")
+(include "smodel")[18D[18C
+*** ERROR IN step, "/usr/share/slib/sort.scm"@119.22 -- Wrong number of arguments passed to procedure
+(abort 'bad-dimensioning-in-identity '#<procedure #2 closure>)
+1> ,be
+,be
+0  step                    "/usr/share/slib/sort.scm"@119:22 (keyer y)
+        x = (lambda args (apply (vector-ref vector 0) args))
+        y = the-id
+        p = '(#<procedure #3 closure> #<procedure #2 closure>)
+        n = 2
+        keyer = identity
+        step = (lambda (n) (cond ((> n 2) (let ((j (quotient n 2))) (let ((a...
+        key-wrap! = (lambda (lst) (cond ((null? lst)) (else (set-car! lst (c...
+        key-unwrap! = (lambda (lst) (cond ((null? lst)) (else (set-car! lst ...
+        seq = '()
+        less? = (lambda (m1 m2) ((compute-method-more-specific? generic) m1 ...
+        key = #f
+1  #<procedure #4>         "sclos.scm"@946:13      ((compute-methods generic...
+        args = '(#<procedure #5 closure> (direct-supers: (#<procedure #6 clo...
+        call-next-method = (lambda () (if (null? tail) (error "No applicable...
+        generic = initialize
+2  make                    "sclos.scm"@1158:5      (initialize instance init...
+        instance = (lambda args (apply (vector-ref vector 0) args))
+        class = <primitive-class>
+        initargs = '(direct-supers: (#<procedure #6 closure>) direct-slots: ())
+3  (interaction)           "framework-classes.scm"@13:24 (make-primitive-class)
+4  ##load                  
+5  ##load                  
+6  (interaction)           "classdecs.scm"@1:1     (load "framework-classes....
+7  ##load                  
+8  ##load                  
+9  (interaction)           "smodel"@39:1           (load "classdecs.scm")
+1> (exit)
+(exit)[6D[6C
+
+Process scheme finished
+Loading /etc/scheme.rc
+Gambit v4.8.5
+
+> (include "smodel")
+(include "smodel")[18D[18C
+(name "kunlun-0,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #426 closure>)
+(name "kunlun-0,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #426 closure>)
+(name "kunlun-0,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #428 closure>)
+(name "kunlun-0,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #428 closure>)
+(name "kunlun-0,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #430 closure>)
+(name "kunlun-0,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #430 closure>)
+(name "kunlun-1,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #432 closure>)
+(name "kunlun-1,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #432 closure>)
+(name "kunlun-1,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #434 closure>)
+(name "kunlun-1,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #434 closure>)
+(name "kunlun-1,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #436 closure>)
+(name "kunlun-1,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #436 closure>)
+(name "kunlun-2,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #438 closure>)
+(name "kunlun-2,0"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #438 closure>)
+(name "kunlun-2,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #440 closure>)
+(name "kunlun-2,1"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #440 closure>)
+(name "kunlun-2,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #442 closure>)
+(name "kunlun-2,2"
+      type
+      #<procedure #200 closure>
+      rep
+      #<procedure #442 closure>)
+Making hay
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #444>
+      patch-list
+      (#<procedure #443 closure>
+       #<procedure #441 closure>
+       #<procedure #439 closure>
+       #<procedure #437 closure>
+       #<procedure #435 closure>
+       #<procedure #433 closure>
+       #<procedure #431 closure>
+       #<procedure #429 closure>
+       #<procedure #427 closure>)
+      type
+      landscape)
+(name "Kunlun"
+      default-value
+      300
+      minv
+      (0 0 300)
+      maxv
+      (210 294 80 900)
+      terrain-function
+      #<procedure #444>
+      patch-list
+      (#<procedure #443 closure>
+       #<procedure #441 closure>
+       #<procedure #439 closure>
+       #<procedure #437 closure>
+       #<procedure #435 closure>
+       #<procedure #433 closure>
+       #<procedure #431 closure>
+       #<procedure #429 closure>
+       #<procedure #427 closure>)
+      type
+      landscape)
+Made the continent
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #443 closure>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #443 closure>
+      value
+      86.72207612688463
+      capacity
+      218.2587808430722
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #443 closure>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #443 closure>
+      value
+      223.02670831269475
+      capacity
+      867.324101596934
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #443 closure>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #443 closure>
+      value
+      511.0347889720546
+      capacity
+      1201.277265854569
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #441 closure>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #441 closure>
+      value
+      81.39004111921614
+      capacity
+      252.68920107450194
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #441 closure>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #441 closure>
+      value
+      229.275773024969
+      capacity
+      868.0331077330947
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #441 closure>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #441 closure>
+      value
+      506.5731754585217
+      capacity
+      1215.9412161455894
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #439 closure>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #439 closure>
+      value
+      85.16556447661422
+      capacity
+      229.4306661397169
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #439 closure>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #439 closure>
+      value
+      227.1633985843479
+      capacity
+      861.1416264170451
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #439 closure>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #439 closure>
+      value
+      501.33302872424713
+      capacity
+      1205.5965827387033
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #437 closure>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #437 closure>
+      value
+      73.85146755704312
+      capacity
+      222.01026494291963
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #437 closure>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #437 closure>
+      value
+      226.23909998818598
+      capacity
+      854.472762429699
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #437 closure>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #437 closure>
+      value
+      502.135338883882
+      capacity
+      1206.6238690693315
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #435 closure>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #435 closure>
+      value
+      63.53567575649837
+      capacity
+      217.97290666177045
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #435 closure>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #435 closure>
+      value
+      216.42366932335386
+      capacity
+      861.0336809565792
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #435 closure>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #435 closure>
+      value
+      506.2711540428922
+      capacity
+      1214.9308243192759
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #433 closure>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #433 closure>
+      value
+      61.22333690348409
+      capacity
+      225.33676338336588
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #433 closure>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #433 closure>
+      value
+      215.6863723510796
+      capacity
+      853.720946894483
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #433 closure>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #433 closure>
+      value
+      509.4213881827073
+      capacity
+      1213.242136301092
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #431 closure>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #431 closure>
+      value
+      85.21769471310091
+      capacity
+      221.49244281426726
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #431 closure>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #431 closure>
+      value
+      212.3126906177587
+      capacity
+      868.90742351784
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #431 closure>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #431 closure>
+      value
+      519.0383027163257
+      capacity
+      1210.1692396875476
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #429 closure>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #429 closure>
+      value
+      72.32544619862288
+      capacity
+      234.7299094572247
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #429 closure>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #429 closure>
+      value
+      225.43381822021544
+      capacity
+      859.7358747741818
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #429 closure>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #429 closure>
+      value
+      522.7770520503695
+      capacity
+      1209.4253490326164
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #427 closure>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Trees"
+      type
+      eqn-based
+      sym
+      t
+      patch
+      #<procedure #427 closure>
+      value
+      90.19186884581781
+      capacity
+      211.8725914781678
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #427 closure>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Fruit"
+      type
+      eqn-based
+      sym
+      f
+      patch
+      #<procedure #427 closure>
+      value
+      215.62827303974908
+      capacity
+      851.3183045764937
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #427 closure>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+(name "Seeds"
+      type
+      eqn-based
+      sym
+      s
+      patch
+      #<procedure #427 closure>
+      value
+      512.9239953346995
+      capacity
+      1207.1730222366723
+      r
+      1.
+      delta-T-max
+      7
+      do-growth
+      #t
+      growth-model
+      sigmoid)
+()
+()
+()
+()
+Building the runqueue
+Setting projections
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+> (Doit Q)
+(Doit Q)[8D[8C
+RUNNING
+|Q| = 10
+Prepping from 0 to 7
+Dumping
+(kunlun-0,0 kunlun-0,1 kunlun-0,2 kunlun-1,0 kunlun-1,1 kunlun-1,2 kunlun-2,0 kunlun-2,1 Kunlun kunlun-2,2)
+Dumped
+Elapsed cpu time =  133.036654
+> 

@@ -1,0 +1,327 @@
+; -*- mode: scheme; -*-
+;-  Identification and Changes
+
+;--
+;	ex.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2016.12.07
+;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/ex.scm
+;
+;	History:
+;
+(load "maths.scm")
+(load "integrate.scm")
+
+(require 'charplot)
+(define charplot:dimensions '(70 220))
+
+;(define char:curves  "*+x@#$%&='")
+(define char:curves  "PFSHJCc*+x@#$")
+
+(define (f  fun data) (let ((fun fun) (data data)) (lambda (x) (fun (list-ref data x)))))
+
+(define end 3000)
+
+(define Kp 25000) ; capacity for plants
+(define KH 0.8) ;; caps at proportion of the biomass of plants
+(define KJ 0.7) ;; caps at proportion of the biomass of fruit
+(define KC 0.3);; caps at proportion of the biomass of juv. Herbivores
+
+
+(define Pg 0.65) ; plant growth ... 0.055 is close to a critical threshhold with no mort or autocompetition
+(define Pd 0.4) ; plant mort
+(define Pf 0.07) ;; ~ kg fruit per kg plant
+(define Px 0.1)  ; competition term ... 0.02 damps things quite a lot
+
+(define Fs 0.1) ;; spoilage  0.1
+(define Sg 0.001) ; seed germination
+(define Sf 1) ;; seeds in each fruit
+(define Sd 0.999) ; seed mortality
+(define Sx 0.4) ;; density attracting predators
+
+(define Hp 0.08) ; herb pred 0.3
+(define Hg 0.001) ; herb growth
+(define Hr 0.025) ; Herb reproduction .8
+(define Hd 0.02) ; Herb death
+(define H_ 1) ;; accelerated starvation .. 3 die for each over
+
+(define Jp 0.2) ;; Hungry Herbies
+(define Jg 0.03) ; Juv Herb growth
+(define Jr 0.03) ; Juv recruitment to adult 
+(define Jd 0.02) ; Juv herb mort
+(define J_ 1) ;; accelerated starvation
+
+(define Cp 0.01) ; Carn pred on Juv Herb 0.01 shows oscillation, 
+(define Cg 0.02) ;; Carn growth
+(define Cr 0.001) ;; adult carn repr. 0.0025 1.0
+(define Cd 0.001) ;; Carn death
+(define C_ 1) ;; accelerated starvation
+
+(define cr 0.03) ;; juv carn recruitment to adult 
+(define cg 0.01) ;; juv carn growth
+(define cd 0.0) ;; juv carn death
+
+(define ZERO 0)
+
+(define Po 20000)			  
+(define Fo 15000)
+(define So 800)
+(define Ho 600)
+(define Jo 180)
+(define Co 50)
+(define co 0)
+
+;(define Po 0)			  
+(define Fo 0)
+(define So 0)
+(define Ho 0)
+(define Jo 0)
+(define Co 0)
+(define co 0)
+
+
+(define (non-negative x) (if (< x 0) 0 x))
+(define (if-present x val) (if (> x 0) val 0))
+
+;(define (non-negative x) (if (< x 0) 0 x))
+;(define (if-present x val) val )
+
+(define (capclip K v)
+  ;;(dnl "(" (+ 1 (non-negative K)) " - " (non-negative v) ")/" (+ 1 (non-negative K)))
+  (/ (- (+ 1 (non-negative K)) (non-negative v)) (+ 1 (non-negative K))))
+
+(define (starve rate pred K food)
+  (let ((S (if (> (non-negative pred) (* K (non-negative food)))
+					(* (- (/ (non-negative pred) rate) (* K (non-negative food))))
+					0)))
+	 (if (positive? S) S 0)))
+
+
+(define dP ;; This is basically dP = Pg*P - Pd + Sg*S
+  (lambda (t P F S H J C c)
+	 (let ((env-limit (capclip Kp P));; capacity limiting factor
+			 (seeds (* Sg (non-negative S)));; Germination of seeds
+			 (competition (non-negative (* Px P)))
+			 (growth (non-negative (* P Pg))) ;; growth of the plants
+			 (mortality Pd)
+			 (predation (non-negative (+ (* Hp H) 0)))
+			 )
+		(+ (* env-limit growth) seeds
+			(if-present (* P growth) (- (+ competition mortality predation))))
+	  )
+	 )
+  )
+
+
+(define dF ;; dF = Pf*P - Fs*F   
+  (lambda (t P F S H J C c)
+	 (let ((growth (non-negative (* Pf P)))
+			 (predation (non-negative (* J Jp)))
+			 (spoilage (non-negative (+ J (* Fs F)))) ;; Things that spoil fruit are transmitted by contact, and juveniles step on them
+			 )
+		(- growth (+ predation (if-present F spoilage)))
+		)
+	 ;;ZERO
+  ))
+
+(define dS (lambda (t P F S H J C c)
+				 (Needs F (-  (* (non-negative F) Sf Jp (non-negative J))
+								  (* Sd S)) ))) ;; High numbers of seed attract birds and insects.... 
+
+
+(define dS     ;; dS = Sf Jp J - Sx S - Sd - Sg
+  (lambda (t P F S H J C c)
+	 (let ((growth (non-negative (* Sf J Jp))) ;; we only count seeds that have passed through J
+			 (predation (non-negative (* Sx S))) ;; density dependent -- high quantities attract predators
+			 (mortality Sd)
+			 (germination Sg))
+
+		(- growth (if-present (* growth S) (+ predation germination mortality)))
+		)
+	 ;;ZERO
+	 )
+  )
+
+(define dH (lambda (t P F S H J C c) ;; dH = Hg Hp P + Jr J - Hd
+				 (let ((growth (* Hg Hp (non-negative P))) ;; growth is proportional to plant mass
+						 (recruitment (* Jr (non-negative J) ))
+						 (mortality Hd)
+						 (starvation (starve H_ (non-negative H) KH P))
+						 )
+
+					(if (positive? starvation)
+						 (* -1  starvation)
+						 (- (+ growth recruitment) (if-present (+ (* growth H) recruitment) mortality))
+						 )
+					)
+				 ;;ZERO
+				 ))
+
+
+(define dJ (lambda (t P F S H J C c) ;; dJ = (Kj F - J)/(Kj F) * (Jg * Jp / (F (1+J))) + H * Hr - C * Cp - Jd
+				 (let ((capacity-wrt-F (or 1.0 (capclip (* KJ (non-negative F)) (non-negative J))))
+						 (growth (* Jg Jp (non-negative F)))
+						 ;;(growth (* Jg Jp (/ F (+ J 1))))
+						 (recruitment (* (non-negative H) Hr))
+						 (predation (* Cp (non-negative C)))
+						 (mortality Jd)
+						 (starvation (starve  J_ (non-negative J) KJ (non-negative F))))
+					(if (positive? starvation)
+						 (- 0 (+ predation starvation))
+						 (- (* capacity-wrt-F (+ growth recruitment)) (+ predation mortality ))
+						 )
+					)
+				 ;;ZERO
+				 ))
+
+(define dJ-
+  (lambda (tp P F S H J C c)
+	 (if (positive? J)
+		  (Needs F (- (* (+ (* Jg Jp F) (* (non-negative H) Hr)))
+						  (+ (* (non-negative C) Cp) Jd)))
+		  0)
+	 )
+  )
+
+(define dC (lambda (t P F S H J C c) ;; dC = (KC J - C)/(JC J) ( (Cg * Cp * J) + (cr* c)) - Cd
+				 (let ((capacity-wrt-J (or 1.0 (capclip (* KC (non-negative J)) (non-negative C))))
+						 (growth (* Cg Cp (non-negative J)))
+						 ;;(growth (* Cg Cp (/ J (+ C 1))))
+						 (recruitment (* (non-negative c) cr))
+						 (mortality Cd)
+						 (starvation (starve  C_ (non-negative C) KC (non-negative J))))
+					(if (positive? starvation)
+						 (- 0 (+ starvation mortality))
+						 (- (* capacity-wrt-J (+ growth recruitment)) (if-present (+ (* growth C) recruitment) (+ mortality)))
+						 )
+					)
+				 ;;ZERO
+				 ))
+
+
+(define dc
+  (lambda (t P F S H J C c)
+	 (let ((birth (* (non-negative C) Cr))
+			 (recruitment cr)
+			 (mortality cd))
+		(- birth (non-negative (+ mortality recruitment))))
+	 ;;ZERO
+	 ))
+
+
+
+
+
+(define (ixin sym lst)
+  (- (length lst) (length (member sym lst))))
+
+
+(define (symbolist #!rest a)
+  (if (pair? a)
+		a
+		(map string->symbol (map list->string (map list (string->list (if (null? a) char:curves (car a))))))))
+
+(define (getix lst #!rest a)
+  (let ((s (apply symbolist a)))
+	 (map (lambda (x) (ixin x s)) lst)))
+
+(define (species-subset sys species-syms #!rest a)
+  (let ((ixs (apply getix (cons species-syms (symbolist a)))))
+  (lambda (x)
+	 (dat (sys x))
+	 (map (lambda (y) (list-ref dat y)) ixs))))
+
+
+(define (plot-species data syms s f)
+  (let* ((c:c char:curves)
+			(c:cs (symbolist char:curves))
+			)
+	 (set! char:curves (apply string-append (map symbol->string syms)))
+	 (plot (species-subset data c:c syms) s f)
+	 (display char:curves)(newline)
+  ))
+
+	 
+(define (subset-species data glst lst) 
+  (let* ((symbols (symbolist glst))
+			(m (length symbols))
+			(I (intersection symbols lst))
+			(ix (getix lst))
+			)
+
+	 (lambda (i)
+		(let ((x (data i)))
+		 (map (lambda (y)
+				  (list-ref x y))
+				ix)
+		 ))
+	 ))
+
+(define (species-subset-list data lst #!rest a) 
+  (let* ((symbols (apply symbolist a))
+			(m (length symbols))
+			(I (intersection symbols lst))
+			(ix (getix lst))
+			)
+
+	 (map
+	  (lambda (x)
+		 (map (lambda (y)
+				  (list-ref x y))
+				ix)
+		 )
+	  data)))
+	 
+(define (species-data-list data lst)
+  (let ((d(species-subset-list data lst)))
+	 (lambda (x)
+		(list-ref d (real->integer (round x))))))
+	 
+(define (N-samples lst) (- (length lst) 1))
+	 
+
+(define sys (rk4* (list dP dF dS dH dJ dC dc) 0 end 4 (list Po Fo So Ho Jo Co co )))
+;                                                            P  F  S  H  J  C  c
+;                                                            *  +  x  @  #  $  %
+
+;(define d10 (map sys (map (lambda (x) (* 10 x)) (seq 500))))
+;;(define d10 (map sys  (seq 3000)))
+
+(define (subplot sys syms stt fin)
+  (let* ((sst (species d syms))
+			(c:c char:curves)
+			)
+	 (set! char:curves (apply string-append (map symbol->string syms)))
+	 (plot sst stt fin)
+	 (set! char:curves c:c)))
+
+
+
+(define (sub-plot-data d syms stt fin)
+  (let* ((sst (species-data-list d syms))
+			(c:c char:curves)
+			)
+	 (set! char:curves (apply string-append (map symbol->string syms)))
+	 (plot sst stt fin)
+	 (set! char:curves c:c)))
+
+(define sys (rk4* (list dP dF dS dH dJ dC dc) 0 end 4 (list Po Fo So Ho Jo Co co )))
+;                                                            P  F  S  H  J  C  c
+;                                                            *  +  x  @  #  $  %
+
+(include "plotting.scm")
+
+
+;(define d10 (map sys (map (lambda (x) (* 10 x)) (seq 500))))
+;;(define d10 (map sys  (seq 3000)))
+
+;-  The End 
+
+
+;;; Local Variables: 
+;;; comment-end: ""
+;;; comment-start: "; "
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column: 0
+;;; End:

@@ -1,8 +1,0 @@
-'Parameters
-(define <blackboard>-parameters
-  (list
-    (list 'label '<uninitialized>)
-    (list 'message-list '())
-  )
-)
-(set! global-parameter-alist (cons (cons <blackboard> <blackboard>-parameters) global-parameter-alist))

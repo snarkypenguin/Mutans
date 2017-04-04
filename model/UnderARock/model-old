@@ -1,0 +1,38 @@
+;-  Identification and Changes
+
+;--
+;	framework -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2012.11.12
+;
+;	History:
+;
+
+
+;;; #|
+;;; The code in this file is supposed to make things a little easier.
+
+;;;
+;;;  This model framework uses SCLOS by Gregor Kiczales, and released
+;;;  by Xerox Corp. in 1992. None of the code from sclos.scm has been 
+;;;  included in the other files which form the modelling framework.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(include "framework")
+
+(load "sclos.o1")
+(load "support.o1")
+(load "classdecs.o1")
+(load "chassis.o1")
+(load "log.o1")
+(load "landscape.o1")
+(load "plant.o1")
+(load "animal.o1")
+(load "kernel.o1")
+(load "model-configuration.scm")
+
+

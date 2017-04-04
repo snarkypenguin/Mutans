@@ -1,0 +1,17 @@
+'Parameters
+(define <simple-animal>-parameters
+  (list
+    ;;(list 'age '<uninitialised>)
+    ;;(list 'sex '<uninitialised>)
+    ;;(list 'habitat '<uninitialised>)
+    ;;(list 'searchradius '<uninitialised>)
+    ;;(list 'foodlist '<uninitialised>)
+    ;;(list 'homelist '<uninitialised>)
+    ;;(list 'breedlist '<uninitialised>)
+    ;;(list 'domain-attraction '<uninitialised>)
+    ;;(list 'food-attraction '<uninitialised>)
+    ;;(list 'nominal-growth-rate '<uninitialised>)
+    ;;(list 'population-switch '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <simple-animal> <simple-animal>-parameters) global-parameter-alist))

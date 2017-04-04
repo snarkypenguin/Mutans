@@ -1,0 +1,9 @@
+'Parameters
+(define <projection>-parameters
+		  (list
+		  	  (list 'projection-assoc-list '($ (list-copy *default-projections*)))
+			  ;; makes a copy so agents can adjust the list themselves
+			  (list 'local->model '($ (cdr (assoc 'I *default-projections*))))     ;; takes model space to local space
+			  (list 'model->local '($ (cdr (assoc 'I *default-projections*))))     ;; takes local space to model space
+))
+(set! global-parameter-alist (cons (cons <projection> <projection>-parameters) global-parameter-alist))

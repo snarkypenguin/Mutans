@@ -1,0 +1,41 @@
+From framework-methods:
+
+initialise -- initialises class/slot variables
+
+run -- runs the agent for a nominated amount of time; there are
+routines so that <objects> and <class>es cannot run
+
+agent-prep -- ensures that its schedule for running is ok, and that
+the agent is flagged as ready to run.
+
+initialize -- sets the basic <agent> class variables so that the agent
+can run in a reasonably way
+
+ ... initialize-parent is passed through in the call chain so that we
+ may initialise the parent state variables *after* the child's
+ "initialise-with-an-s" is called, but before the child's "initialize"
+ is called.  "initialise" is principally for setting default values of
+ the child's state variables, so they are reasonable at the beginning
+ of the initialisation process.
+
+
+----
+
+2016-07-27-11:07:58
+
+I will need
+  IB representations for trees and the two animals (based on animal)
+
+  Population based representations for trees, seeds and fruit
+  at  global and cell-based levels.
+
+  Need a supervisory agent which collects info from the IB animals
+  (number, ages...) as a means of effecting the changes in fruit and seeds.  
+
+
+
+Observations:
+	Fruit decays and the pool of fruit must be replaced by mature trees
+	seeds only happen when animals eat fruit
+	seeds have a constant spoilage rate
+

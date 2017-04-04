@@ -1,0 +1,8 @@
+'Parameters
+(define <object>-parameters
+		  (list
+			  (list 'initialised #f)
+			  (list 'note #f)
+			  (list 'map-projection (lambda (x) x)) ;; Identity mapping
+))
+(set! global-parameter-alist (cons (cons <object> <object>-parameters) global-parameter-alist))

@@ -1,0 +1,8 @@
+'Parameters
+(define <simple-metabolism>-parameters
+  (list
+    ;;(list 'days-of-hunger '<uninitialised>)
+    ;;(list 'hunger-limit '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <simple-metabolism> <simple-metabolism>-parameters) global-parameter-alist))

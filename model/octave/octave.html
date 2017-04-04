@@ -1,0 +1,181 @@
+<title>Octave extension for Chicken, Gambit, and Bigloo Scheme systems</title>
+
+<big>Octave extension for Chicken, Gambit, and Bigloo Scheme</big>
+
+
+<p>This library provides a simple interface for GNU/Octave use in <a
+href="http://www.call-with-current-continuation.org/">Chicken</a>, <a
+href="http://www.iro.umontreal.ca/~gambit/">Gambit</a>, and <a
+href="http://www-sop.inria.fr/mimosa/fp/Bigloo/">Bigloo</a> Scheme
+systems. This library is meant to be used as a graph utility using the
+GNU/Octave interface to gnuplot. Comments and contributions are
+welcomed.</p>
+
+<p><b>NEW!</b> Version 0.6 now supports Bigloo.</p>
+
+<p>Here are some <a
+href="http://carretechnologies.com/scheme/octave/screenshots.html">screenshots</a>.</p>
+
+<p>Download scheme code directly (version 0.6): <a
+href="http://carretechnologies.com/scheme/octave/octave.scm">octave.scm</a></p>
+
+<p>tarball for Gambit and Bigloo (version 0.6): <a
+href="http://carretechnologies.com/scheme/octave/scheme-octave-0.6.tar.gz">scheme-octave-0.6.tar.gz</a></p>
+
+<b>Installation:</b>
+
+<p>With Chicken:
+<pre>
+sudo chicken-setup octave
+</pre>
+</p>
+
+<p>With Gambit:
+<pre>
+tar zxvf scheme-octave-0.6.tar.gz
+cd octave
+make
+</pre>
+</p>
+
+<b>Usage:</b>
+<pre>(load "octave.scm")</pre>
+<p>To start: <pre> (octave:start)</pre></p>
+<p>To stop:  <pre> (octave:stop)</pre></p>
+<p>Examples:
+<pre>
+(octave:start)
+(octave:version)
+(octave:plot '(1 2 3) '(3 2 1))
+(octave:title "Simple plot")
+(octave:xlabel "xbar")
+(octave:ylabel "ybar")
+(octave:grid "on")
+(octave:grid "off")
+(octave:semilogx '(1 2 3) '(3 2 1))
+(octave:title "SemilogX")
+(octave:semilogy '(1 2 3) '(3 2 1))
+(octave:title "SemilogY")
+(octave:figure)
+(octave:loglog '(1 1.5 211.8) '(2 2.3 21.0)  '(1 1.5 222.3) '(1.2 2.4 2222.0))
+(octave:figure)
+(octave:polar (iota 50) (iota 50))
+(octave:title "Rose")
+octave:supported-file-types ;;; to see supported file formats
+(octave:save-plot-to "png" "rose.png")
+(octave:figure)
+(octave:title "Bar")
+(octave:bar (iota 5) (iota 5))
+(octave:figure)
+(octave:title "Mesh 3D")
+(octave:mesh (list (iota 4) (iota 4 2)))
+(octave:figure)
+(octave:title "ImageSC")
+(octave:imagesc (list (iota 4) (iota 4 2)))
+(octave:figure)
+(octave:title "Mesh XYZ")
+(octave:mesh-xyz (iota 3) (iota 2) (list (iota 3) (iota 3)))
+(octave:save-plot-to "postscript" "foo.ps")
+(octave:figure)
+(octave:title "Y Error bars")
+(octave:errorbar (list 1.1 2.1 3.1 4.1) (list 1.1 2.1 3.1 4.1) (list 2 3 4 3))
+(octave:figure)
+(octave:title "Boxes Error bars")
+(octave:errorbar (list 1 2 3 4) (list 2 3 2 3) (list .1 .2 .2 .1) (list .1 .2 .2 .2) (list .2 .1 .2 .2) (list .4 .3 .2 .1) "'#~>'")
+(octave:stop)
+</pre>
+
+<br>
+
+<b>Requirements:</b>
+
+<p>GNU/Octave and gnuplot have to be installed.</p>
+<p>With <a href="http://www.call-with-current-continuation.org/">Chicken</a>
+Scheme, the posix extension is needed:
+
+<pre>(use posix)</pre></p>
+
+<br>
+
+
+<b>Limitations:</b>
+
+<p> This simple GNU/Octave interface has some limitations:
+
+<ul>
+
+<li> We suggest you don't use this module if you want to plot more
+than 10000 points in a graph. Points are passed in a string and the
+pipe is very slow when you send a lot of points. Write a wrapping
+function and subsample your data before plotting if you have more than
+10000 points to plot.
+
+<li> In some cases, like when you try to send 100000 points to a graph
+function, the GNU/Octave process may crash leaving a gnuplot process
+running. If this happens you should kill the gnuplot process manually.
+
+</ul>
+
+</p>
+
+<br>
+
+<b>Version:</b>
+
+<ul>
+
+<li>0.6: Support for Bigloo added. <br>conc and string-intersperse
+renamed octave:conc and octave:string-intersperse to avoid name
+clashes. <br> octave:string-intersperse is now tail-recursive for
+gambit and bigloo.
+
+<li> 0.5: Corrected octave:mesh and octave:mesh-xyz issues in the
+Chicken version.
+
+<li> 0.4: Changed octave:stop. <br>Added octave:stairs and
+octave:errorbar functions.
+
+<li> 0.3: Access to all Octave's supported file types to save the
+current graph. <br>Added octave:legend function. <br>Checks for
+argument lengths in 2d plot functions. <br>Replaced gset with
+__gnuplot_set__ internal Octave function.
+
+<li> 0.2: Added 3d plotting functions (octave:mesh-xyz,
+octave:contour, octave:imagesc) and an interface version
+(octave:version) function.
+
+<li> 0.1: Initial version.
+
+</ul>
+
+<br>
+
+<b>License:</b>
+
+<p> This library is released under the <a href="octave.license">BSD license</a>. </p>
+
+<br>
+
+<b>See also:</b><br>
+
+<ul>
+<li><a href="http://carretechnologies.com/scheme/blas/blas.html">An interface
+to BLAS (Basic Linear Algebra functions) for Gambit</a>.</li> 
+<li><a href="http://carretechnologies.com/scheme/fftw3/fftw3.html">An interface
+to FFTW3 for Gambit</a>.</li> 
+<li><a href="http://carretechnologies.com/scheme/vctlib/">Vctlib, a
+floating point vector and matrix library for Gambit</a>.</li> </ul>
+
+
+
+<b>Contact:</b>
+
+<p> octave@carretechnologies.com</p>
+
+<br><br>
+
+<small>Carré Technologies Inc. <br> Copyright 2006-2008</small>
+
+<br>
+
+<small>Last updated: April 11th 2008</small>

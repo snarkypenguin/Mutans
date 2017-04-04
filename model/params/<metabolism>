@@ -1,0 +1,23 @@
+'Parameters
+(define <metabolism>-parameters
+  (list
+    ;;(list 'stomach-contents '<uninitialised>)
+    ;;(list 'mass '<uninitialised>)
+    ;;(list 'structural-prop '<uninitialised>)
+    ;;(list 'structural-mass '<uninitialised>)
+    ;;(list 'max-consumption-rate '<uninitialised>)
+    ;;(list 'metabolic-rate '<uninitialised>)
+    ;;(list 'starvation-level '<uninitialised>)
+    ;;(list 'gut-size '<uninitialised>)
+    ;;(list 'condition '<uninitialised>)
+    ;;(list 'food->condition-conversion-rate '<uninitialised>)
+    ;;(list 'condition->food-conversion-rate '<uninitialised>)
+    ;;(list 'food->mass-conversion-rate '<uninitialised>)
+    ;;(list 'mass->food-conversion-rate '<uninitialised>)
+    ;;(list 'condition-conversion-rate '<uninitialised>)
+    ;;(list 'mass-conversion-rate '<uninitialised>)
+    ;;(list 'max-condition-rate '<uninitialised>)
+    ;;(list 'max-growth-rate '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <metabolism> <metabolism>-parameters) global-parameter-alist))

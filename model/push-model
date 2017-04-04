@@ -1,0 +1,9 @@
+#!/bin/xs
+
+# This copies the git repo over as well...
+cd /home/randall/Thesis/Example-Model/model
+rsync -auvH * randall@owl:/home/randall/model/
+
+rsync -auvH * rcg@sdf.org:./model/
+
+git push origin

@@ -1,0 +1,21 @@
+'Parameters
+(define <ecoservice>-parameters
+  (list
+    (list 'running-externally #f)
+    (list 'external-rep-list '())
+;	 (list 'dt (* 1 day))
+    ;;(list 'ext-get '<uninitialised>)
+    ;;(list 'ext-set! '<uninitialised>)
+    ;;(list 'name '<uninitialised>)
+    ;;(list 'sym '<uninitialised>)
+    ;;(list 'patch '<uninitialised>)
+    ;;(list 'value 0)
+    ;;(list 'capacity +inf.0)
+    ;;(list 'r '<uninitialised>)
+    (list 'delta-T-max (* 7 days))
+    (list 'do-growth #f)
+	 ;;(list 'growth-model '<uninitialised>)
+    (list 'history '())
+  )
+)
+(set! global-parameter-alist (cons (cons <ecoservice> <ecoservice>-parameters) global-parameter-alist))

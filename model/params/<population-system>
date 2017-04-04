@@ -1,0 +1,14 @@
+'Parameters
+(define <population-system>-parameters
+  (list
+    ;;(list 'patch '<uninitialised>)
+    ;;(list 'value '<uninitialised>)
+    ;;(list 'capacity '<uninitialised>)
+    ;;(list 'r '<uninitialised>)
+    ;;(list 'delta-T-max '<uninitialised>)
+    ;;(list 'do-growth '<uninitialised>)
+    ;;(list 'growth-model '<uninitialised>)
+    ;;(list 'history '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <population-system> <population-system>-parameters) global-parameter-alist))

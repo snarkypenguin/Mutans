@@ -1,0 +1,13 @@
+'Parameters
+(define <log-map>-parameters
+  (list
+  	 (list 'type 'log-map)
+;	 (list 'dt (* 1 day))
+	 (list 'format 'ps)
+    (list 'model->local '($ (cdr (assoc 'postscript *default-projections*))))         ;; takes model space to local space
+	 (list 'local->model '($ (cdr (assoc 'inv-postscript *default-projections*)))) ;; takes local space to model space
+    ;;(list 'ps '<uninitialised>)
+    ;;(list 'png '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <log-map> <log-map>-parameters) global-parameter-alist))

@@ -1,0 +1,22 @@
+Most "initialize" definitions  have a form something like
+
+     (model-method <doodlebug> (initialize self args)
+            (initialise
+               self (list 'state-flags '()
+                          'subjective-time 0.0
+                          'dt 1.0
+                          'jiggle LastJiggle
+                          'priority DefaultPriority
+                          ....
+                          )
+                       )
+
+            (initialize-parent)
+            (initialise self args)
+            )
+
+The call to (initialise self args) initialises the slot-variable/value
+pairs specified in arguments.  It would usually be a conceptual error
+to set a slot-variable in a call to initialise in the first *and*
+second call, but this is not trapped since it can be quite valid.
+

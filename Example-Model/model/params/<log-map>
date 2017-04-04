@@ -1,8 +1,0 @@
-'Parameters
-(define <log-map>-parameters
-  (list
-    (list 'ps '<uninitialized>)
-    (list 'png '<uninitialized>)
-  )
-)
-(set! global-parameter-alist (cons (cons <log-map> <log-map>-parameters) global-parameter-alist))

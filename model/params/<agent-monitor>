@@ -1,0 +1,7 @@
+'Parameters
+(define <agent-monitor>-parameters
+  (list
+    (list 'zones '())
+  )
+)
+(set! global-parameter-alist (cons (cons <agent-monitor> <agent-monitor>-parameters) global-parameter-alist))

@@ -1,0 +1,9 @@
+'Parameters
+(define <snapshot>-parameters
+  (list
+    (list 'type 'snapshot)
+    (list 'lastfile #f)
+    (list 'currentfile #f)
+  )
+)
+(set! global-parameter-alist (cons (cons <snapshot> <snapshot>-parameters) global-parameter-alist))

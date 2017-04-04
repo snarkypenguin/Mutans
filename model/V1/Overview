@@ -1,0 +1,118 @@
+G'day Simon,
+
+Here is an updated update, and an extra improved overview.
+
+
+The code here assumes that you have gambit (4.6.5 is the version I
+have), slib (3.2.2 in gentoo numbering), and the files contained in
+this tar file.
+
+I don't know to what degree you need the things in ./my-etc -- they
+are all "useful bits of code" that I tend to lump into each program.
+I hope that dependencies aren't a problem, and please let me know if
+they are.
+
+
+This framework is much better than before. I've given things
+meaningful names
+
+	  (include "framework")
+
+loads the basic macros which mask some of the administrivia imposed by
+the kernel,
+
+	  (load-model)
+
+loads a number of files to provide the basic model classes
+
+model-configuration.scm            -  This is the "model" which is built 
+                                      with the classes defined in the other
+                                      files....
+
+
+model-parameters.scm               - parameters for the model, usually predation
+
+
+framework                          -  the guts of the interfaces
+											     with the simulation kernel
+
+declarations.scm                   -  this loads the list of generic-methods 
+                                      (cf. *-declarations.scm)
+
+framework-declarations.scm         -  generic-methods for the basic framework
+framework-controls.scm             -  variables that modify output or code 
+                                      paths, mostly
+framework-classes.scm              -  these are the classes that form the 
+                                      basis of the "agent" representation
+framework-methods.scm              -  implementations of <agent>, <thing> and 
+                                      <environment> methods, for example
+
+model-declarations.scm             -  declaration of generic-methods for the 
+                                      basic agent classes
+model-classes.scm                  -  loads the landscape and animal class 
+                                      definitions
+model-methods.scm                  -  method definitions  for the basic agent 
+                                      classes
+
+animal-declarations.scm            -  generic declarations for the animal 
+                                      classes
+animal-classes.scm                 -  class definitions for animals and 
+                                      metabolism representations
+animal-methods.scm                 -  method definitions for animals and 
+                                      metabolism representations
+
+landscape-declarations.scm         -  generic declarations for the landscape/
+                                      habitat classes
+landscape-classes.scm              -  class definitions for landscape/habitat 
+                                      representations
+landscape-methods.scm              -  method definitions for landscape/habitat 
+                                      representations
+
+kernel.scm                         -  simulation kernel -- the "operating 
+                                      system" 
+
+model-declarations.scm,            -  these basically load other files in a  
+model-classes.scm,                    systematic way.
+model-methods.scm
+
+integrate.scm                      -  quadrature routines, n-dim RK4 code
+maths.scm                          -  general maths
+support.scm                        -  helpful routines that get used throughout 
+                                      the code
+sort.scm                           -  sorting routines
+units.scm                          -  unit conversion for time, space
+sclos.scm                          -  underlying object system
+postscript.scm                     -  generates a postscript producing object
+lists.scm                          -  misc list manipulation functions.
+
+
+------------------------------------------------------------------------
+
+A good reading order would be: 
+
+  skim framework.scm
+  look at *-classes.scm
+  read *-methods.scm (particularly animal-methods and landscape-methods)
+
+  look at model-configuration.scm as an example
+
+kernel.scm is where the agents are brought together and the run is
+managed.  There are a still a lot of holes that haven't been plugged
+up yet (no little Dutch boys have appeared in response to the demand,
+so I guess the fundamental premise that demand engenders supply is false).
+
+I am getting "credible" animal-habitat dynamics: the animal runs
+around eating down the supply of foodstufs and moves on to a greener
+side of the fence, and may ultimately return and do it all again.
+
+Currently I am trying to get the "patches" to run with dynamics driven
+by a system of DEs solved over the interval using the rk4* routine
+... stable dynamics.... Yes.  Well.
+
+Hope for better news in the near future,
+
+Randall
+
+
+
+

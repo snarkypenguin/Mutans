@@ -1,0 +1,139 @@
+;-  Identification and Changes
+
+;--
+;	framework -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2012.11.12
+;
+;	History:
+;
+
+
+;;; #|
+;;; The code in this file is supposed to make things a little easier.
+
+;;;
+;;;  This model framework uses SCLOS by Gregor Kiczales, and released
+;;;  by Xerox Corp. in 1992. None of the code from sclos.scm has been 
+;;;  included in the other files which form the modelling framework.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;(include "output-tracker.scm")
+
+(include "framework")
+
+
+(define allsource #t)
+(define allcompiled #f)
+
+(define sclos-ok #f)
+(define support-ok #t)
+(define classdecs-ok #f)
+(define chassis-ok #f)
+(define log-ok #f)
+(define diffeq-ok #t)
+(define landscape-ok #t)
+(define plant-ok #t)
+(define animal-ok #t)
+(define kernel-ok #t)
+
+;; This seems to be pretty reasonable -- all source and all compiled are both slower
+;; support-ok seems to benefit run-time, but slow down configuration ... ish.
+;; (define allsource #f)
+;; (define allcompiled #f)
+
+;; (define sclos-ok #f)
+;; (define support-ok #t)
+;; (define classdecs-ok #f)
+;; (define chassis-ok #f)
+;; (define log-ok #f)
+;; (define diffeq-ok #t)
+;; (define landscape-ok #t)
+;; (define plant-ok #t)
+;; (define animal-ok #t)
+;; (define kernel-ok #t)
+
+
+(if (and (not allsource) (or allcompiled sclos-ok))
+	 (load "sclos.o1")       ; preamble.scm sort.scm utils.scm sclos+extn.scm 
+	 (begin
+		(load "preamble.scm")
+		(load "sort.scm")
+		(load "utils.scm")	 
+		(load "sclos+extn.scm")
+		))
+
+(if (and (not allsource) (or allcompiled support-ok))
+	 (load "support.o1")
+	 (begin
+		(load "units.scm")
+		(load "constants.scm")
+		(load "maths.scm")
+		(load "integrate.scm")
+		(load "matrix.scm")
+		(load "postscript.scm")
+		(load "basic-population.scm")
+		))
+
+(if (and (not allsource) (or allcompiled classdecs-ok))
+	 (load "classdecs.o1")
+	 (begin
+		(load "framework-declarations.scm")
+		(load "framework.scm")
+		(load "framework-classes.scm")
+		(load "introspection-classes.scm")
+		(load "monitor-classes.scm")
+		(load "log-classes.scm")
+		(load "diffeq-classes.scm")
+		(load "landscape-classes.scm")
+		(load "plant-classes.scm")
+		(load "animal-classes.scm")
+
+	 ))
+
+(if (and (not allsource) (or allcompiled chassis-ok))
+	 (load "chassis.o1")
+	 (begin
+		(load "framework-wrappers.scm")
+		(load "declarations.scm")
+		(load "framework-methods.scm")
+		))
+(if (and (not allsource) (or allcompiled log-ok))
+	 (load "mon-log.o1")
+	 (begin
+		(load "introspection-methods.scm")
+		(load "monitor-methods.scm")
+		(load "log-methods.scm")
+		))
+
+(if (and (not allsource) (or allcompiled diffeq-ok))
+	 (load "diffeq.o1")   ; 
+	 (load "diffeq-methods.scm"))
+
+(if (and (not allsource) (or allcompiled landscape-ok))
+	 (load "landscape.o1")   ; 
+	 (load "landscape-methods.scm"))
+
+(if (and (not allsource) (or allcompiled plant-ok))
+	 (load "plant.o1")   ; 
+	 (load "plant-methods.scm"))
+
+(if (and (not allsource) (or allcompiled animal-ok))
+	 (load "animal.o1")   
+	 (load "animal-methods.scm"))
+
+(if (and (not allsource) (or allcompiled kernel-ok))
+	 (load "kernel.o1")
+	 (begin
+		(load "kdnl.scm")
+		(load "kernel.scm")
+		))
+;(output-probe)
+
+(include "model.config")
+
+
+

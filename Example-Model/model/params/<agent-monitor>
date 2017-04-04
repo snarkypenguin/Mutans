@@ -1,8 +1,0 @@
-'Parameters
-(define <agent-monitor>-parameters
-  (list
-    (list 'zones '<uninitialized>)
-    (list 'indicator-function '<uninitialized>)
-  )
-)
-(set! global-parameter-alist (cons (cons <agent-monitor> <agent-monitor>-parameters) global-parameter-alist))

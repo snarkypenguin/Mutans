@@ -1,0 +1,9 @@
+'Parameters
+(define <polygon>-parameters
+  (list
+    ;;(list 'locus '<uninitialised>)
+    ;;(list 'perimeter '<uninitialised>)
+    ;;(list 'radius '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <polygon> <polygon>-parameters) global-parameter-alist))

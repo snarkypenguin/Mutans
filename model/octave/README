@@ -1,0 +1,54 @@
+Octave extension for Chicken and Gambit Scheme
+
+
+This library provides a simple interface for GNU/Octave use in
+Chicken, Gambit, and Bigloo Scheme systems. The interface is meant to
+be used as a graph utility using the GNU/Octave interface to
+gnuplot. Comments and contributions are welcomed.
+
+NEW! Version 0.6 now supports Bigloo.
+
+
+Instructions: 
+
+See octave.html
+
+
+Versions:
+
+0.6: Support for Bigloo added. conc and string-intersperse renamed
+octave:conc and octave:string-intersperse to avoid name
+clashes. octave:string-intersperse is now tail-recursive for gambit
+and bigloo.
+
+0.5: Corrected octave:mesh and octave:mesh-xyz issues in the
+Chicken version.
+
+0.4: Changed octave:stop. Added octave:stairs and octave:errorbar
+functions.
+
+0.3: Access to all Octave's supported file types to save the current
+graph. Added octave:legend function. Checks for argument lengths in 2d
+plot functions. Replaced gset with __gnuplot_set__ internal Octave
+function.
+
+0.2: Added 3d plotting functions (octave:mesh-xyz, octave:contour,
+octave:imagesc) and an interface version (octave:version) function.
+
+0.1: Initial version. Wrapper for most of the Basic Interface  functions.
+
+
+License
+
+This library is released under the BSD license (see file octave.license)
+
+
+Contact:
+
+scheme@carretechnologies.com
+
+Author: Carré Technologies Inc.
+Copyright 2006-2008
+
+
+Last updated: April 11th 2008

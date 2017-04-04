@@ -1,0 +1,9 @@
+'Parameters
+(define <circle>-parameters
+  (list
+    ;;(list 'locus '(0 0))
+    ;;(list 'perimeter '<uninitialised>)
+	 ;;(list 'radius +inf.0)
+  )
+)
+(set! global-parameter-alist (cons (cons <circle> <circle>-parameters) global-parameter-alist))

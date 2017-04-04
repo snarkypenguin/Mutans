@@ -1,0 +1,11 @@
+'Parameters
+(define <thing>-parameters
+  (list
+    ;;(list 'mass '<uninitialised>)
+    ;;(list 'dim '<uninitialised>)
+    ;;(list 'location '<uninitialised>)
+    ;;(list 'direction '<uninitialised>)
+    ;;(list 'speed '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <thing> <thing>-parameters) global-parameter-alist))

@@ -1,0 +1,103 @@
+Gambit v4.8.7
+
+> (load "model")
+params/boik.tgz is not a parameter file: params/boik.tgz
+params/<plant>.~1~ is not a parameter file: params/<plant>.~1~
+creation ==> Creating agent <patch> ch3cell (name gridcell-0,0 type cell representation #f rep #<procedure #2 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-0,1 type cell representation #f rep #<procedure #3 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-0,2 type cell representation #f rep #<procedure #4 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-1,0 type cell representation #f rep #<procedure #5 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-1,1 type cell representation #f rep #<procedure #6 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-1,2 type cell representation #f rep #<procedure #7 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-2,0 type cell representation #f rep #<procedure #8 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-2,1 type cell representation #f rep #<procedure #9 closure>)
+creation ==> Creating agent <patch> ch3cell (name gridcell-2,2 type cell representation #f rep #<procedure #10 closure>)
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-2909.648766277112 -1837.8633349844192) mass 35.72207612688463)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-1946.291109367402 -3217.020128560296) mass 33.4745364083684)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-2532.0557185140415 -2408.0999301943893) mass 10.956474509776267)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-3004.147588289971 240.54129282771373) mass 14.93828167607137)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-2898.8118556684035 172.25343990808256) mass 39.81674362017836)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-3154.145963318264 592.9459374707087) mass 35.54966159964205)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-2263.1640712586523 2497.5559084423885) mass 32.52936579662098)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-3558.985415163675 1467.024336275892) mass 14.181130684370917)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-2742.6304431788467 1949.7296545523611) mass 32.29073764674213)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (140.11538874916755 -2285.5672851665863) mass 33.19442376597788)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (-1091.1994471609326 -3225.1157359276135) mass 38.7746878213098)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (315.80784714036463 -2087.6844411339525) mass 29.488613678522327)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (928.4972595813292 409.69095239781745) mass 13.097002891399107)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (-115.44553209391188 617.0512483331049) mass 28.845747413559693)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (-359.5894022832148 819.1279990548792) mass 22.85146755704313)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (-737.5418023692199 2335.347145644996) mass 31.15629463468429)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (1041.026570958441 2821.766699414578) mass 30.45603339673368)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (1005.3640835722281 2287.6806983346087) mass 13.863932100054313)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (3494.7581083769182 -3183.6408124764657) mass 19.288741928073186)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (1621.6923234313736 -1928.3010816868916) mass 25.050521434868795)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (1889.1506931146941 -3407.1397484943896) mass 37.44759642963765)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (3295.5343089697735 1191.380728736332) mass 17.79882391499248)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (2415.5470324758867 592.1338058923911) mass 38.063227396260785)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (1938.3983680947827 433.82422305537375) mass 36.2556406509069)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (2475.666855587323 1511.0040921459095) mass 23.080902148696513)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (3238.1362888804515 2965.7671272939915) mass 16.021107431126374)
+!
+tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (1271.3957079803356 1853.364612883851) mass 19.80545936374356)
+!
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Loaded: <example-plant>:27 <example-plant>:26 <example-plant>:25 gridcell-2,2 <example-plant>:24 <example-plant>:23 <example-plant>:22 gridcell-2,1 <example-plant>:21 <example-plant>:20 <example-plant>:19 gridcell-2,0 <example-plant>:18 <example-plant>:17 <example-plant>:16 gridcell-1,2 <example-plant>:15 <example-plant>:14 <example-plant>:13 gridcell-1,1 <example-plant>:12 <example-plant>:11 <example-plant>:10 gridcell-1,0 <example-plant>:9 <example-plant>:8 <example-plant>:7 gridcell-0,2 <example-plant>:6 <example-plant>:5 <example-plant>:4 gridcell-0,1 <example-plant>:3 <example-plant>:2 gridcell-0,0 <example-plant>:1
+"/home/randall/Thesis/Example-Model/model/model"
+> (Doit Q)
+running ==> running <example-plant>:27 at 0.
+run-agent ==> In run-agent
+model-body ==> The body for  <example-plant>  is
+((kdnl* 'model-body "pm 1")
+ (let ((dt (apply min (*parent-bodies '*))))
+   (kdnl* 'model-body "pm 2")
+   (if (uninitialised? self 'peak-mass) (set-my! 'peak-mass (my 'mass)))
+   (if (uninitialised? self 'leaf-area) (set-my! 'leaf-area (leaf-area self)))
+   (let ((mass (my 'mass)) (pkmass (my 'peak-mass)))
+     (kdnl* 'model-body "pm 3")
+     (if (and (>= mass (my 'fruiting-mass)) (> fruiting-prob (random-real)))
+         (add-fruit self (my 'cell) (power mass 2/3)))
+     (if (< mass (* (my 'mort-mass) pkmass))
+         (die self)
+         (begin
+           (set! mass (grow dt mass))
+           (set-my! 'mass mass)
+           (if (> mass pkmass) (set-my! 'peak-kmass mass)))))
+   (kdnl* 'model-body "pm 4")
+   dt))
+model-body ==> pm 1
+model-body ==> cp *
+model-body ==> call-parent-methods returns  ()
+*** ERROR IN #<procedure #20>, "plant-methods.scm"@505.1 -- Wrong number of arguments passed to procedure
+(min)
+1> 

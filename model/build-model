@@ -1,0 +1,63 @@
+; -*- mode: scheme; -*-
+
+(define SCLOS '("preamble" "sort" "sclos"))
+(define KERNEL '("utils" "kdnl" "kernel"))
+(define SUPPORT '("units" "constants" "maths" "integrate" "matrix" "postscript" "basic-population"))
+(define CLASSES '("framework" "framework-declarations" "declarations" "framework-classes" "monitor-classes" "log-classes" "landscape-classes" "plant-classes" "animal-classes" ))
+(define FRAMEWORK '("framework-wrappers" "framework-methods"))
+(define LOG '("monitor-methods" "log-methods"))
+(define LANDSCAPE '("landscape-methods"))
+(define PLANT '("plant-methods"))
+(define ANIMAL '("animal-methods"))
+
+(define sharing "-shared")
+;;(define sharing "-bundle")
+
+
+(define (andf #!rest args) (if (null? args) #t (and (car args) (apply andf (cdr args)))))
+
+(define (make-loadable-library lst libname)
+  (let ((first-pass (map
+							(lambda (file) 
+							  (compile-file-to-target file)
+							  )
+							lst
+							)
+						  )
+		  )
+
+	 (display "Processed ") (pp lst)
+	 (if (apply andf first-pass)
+		  (begin
+			 (display "generating c files\n")
+			 (link-flat lst output: (string-append libname ".o1.c") warnings: #f)
+			 (display "compiling library\n")
+			 (system (string-append "gcc " sharing " -fPIC  -D___DYNAMIC "
+											(apply string-append (map (lambda (fn) (string-append fn ".c ")) lst))
+											(string-append libname ".o1.c ")
+											" -o "
+											(string-append libname ".o1"))))
+		  (begin
+			 (display "failed to compile files: ")
+			 (display first-pass)(newline))
+		  )
+	 )
+  )
+
+
+
+
+
+
+
+(define (build)
+  (make-loadable-library SCLOS "sclos-object-system")
+  (make-loadable-library SUPPORT "support")
+  (make-loadable-library CLASSES "classes")
+  (make-loadable-library FRAMEWORK "framework")
+  (make-loadable-library KERNEL "kernel")
+  (make-loadable-library LOG "log")
+  (make-loadable-library LANDSCAPE "landscape")
+  (make-loadable-library PLANT "plant")
+  (make-loadable-library ANIMAL "animal")
+)

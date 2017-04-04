@@ -1,0 +1,10 @@
+(definition-comment 'load-model
+  "This first loads the basic files which build the modelling framework"
+  "and the supporting function libraries.  It then loads the files which"
+  "are specific to a particular model---submodels.scm, kernel.scm and"
+  "mode-configuration.scm.  'submodels.scm' defines the object classes"
+  "which are to be used, 'kernel.scm' contains the code which manages the"
+  "execution loop, and 'model-configuration.scm' actually instantiates"
+  "the entities in the model, configures them, and calls the kernel to"
+  "begin the run.")
+

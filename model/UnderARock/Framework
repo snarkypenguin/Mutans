@@ -1,0 +1,612 @@
+; -*- mode: scheme; -*-
+;-  Identification and Changes
+
+;--
+;	framework -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2012.11.12
+;
+;	History:
+;
+
+
+;;; #|
+;;; The code in this file is supposed to make things a little easier.
+
+;;;
+;;;  This model framework uses SCLOS by Gregor Kiczales, and released
+;;;  by Xerox Corp. in 1992. None of the code from sclos.scm has been 
+;;;  included in the other files which form the modelling framework.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;; |#
+
+;-  Code 
+
+;; See also Kiczales, Gregor; Jim des Rivieres; Daniel G. Bobrow (July
+;; 30, 1991). The Art of the Metaobject Protocol. The MIT . ISBN
+;; 978-0262610742.
+
+
+;; Calls to a closure function are of the form (name t reqvar1 reqvar2 ....)
+;; Note: t is passed in, rather than dt, since we don't want accidental multiple updates
+(define-macro (define-update-closure name class-id svlist reqlist . body)
+  `(define ,name
+	  (let* ((id ,id)
+			  ,@(map (lambda (sv) (list (list sv #f))) ,svlist)
+			  (Reqlist ',reqlist) ;; all possible requirements
+			  (reqlist ',reqlist) ;; current reqlist
+			  (T #f)
+			  (this-continuation
+				(lambda x
+				  (cond
+					((null? x)  ;; the closure with no arguments returns its requirements (which may change through time)
+					 reqlist)
+					((and (= 1 (length x))
+							(symbol? (car x)))
+					 (case (car x)
+						((requirements) reqlist)
+						((all-requirements) Reqlist)
+						((values) #f) ;; cannot ask for values without the class-id
+						((
+						(else (error "bad call to update-closure function" x)))
+					 )
+					((and (= 1 (length x))
+							(symbol? (car x)))
+					 (case (car x)
+						((requirements) reqlist)
+						((all-requirements) Reqlist)
+						((values) #f) ;; cannot ask for values without the class-id
+						(else (error "bad call to update-closure function" x)))
+					 )
+					((number? (car x))
+					 (if (eq? (length (cdr x)) (+ 1 (length reqlist)))
+						  (let* ((dt (if (< T t) (- (car x) T) 0))
+								  )
+							 (let ((result (begin ,@body)))
+								(set! T t)
+								result)
+							 )
+						  (error "Failed to pass in the necessary number of arguments!" x)))
+					))
+					(#t (error "+++Incomprehensible Update+++" x)))))
+			  )
+		 this-continuation))
+  )
+					 
+							
+					 
+
+(define-macro (UNFINISHED-BUSINESS . body)
+  `#!void)
+
+(define-macro (excise-s-expression . body)
+  `#!void)
+
+(define-macro (conditional-load yea-or-nay . body)
+  `(if ,yea-or-nay
+		 ,@body))
+
+(define-macro (code-variants select first second)
+  (cond
+	((member select '(first one 1)) `,first)
+	((member select '(second two 2)) `,second)
+	))
+
+(define-macro (code-block-variants select first second)
+  (cond
+	((member select '(first one 1)) `,@first)
+	((member select '(second two 2)) `,@second)
+	))
+
+(define-macro (with-exit name . body)
+  `(call-with-current-continuation
+    (lambda (,name) ,@body)))
+
+(define-macro (state-variables . lst)
+  (let ((rslt `'(,@lst)))
+	 ;;(pp rslt)
+	 rslt))
+
+(define-macro (no-state-variables . lst)
+  (let ((rslt `'()))
+	 rslt))
+
+;; This makes it clear when classes are defining NO state vars
+
+(define-macro (inherits-from . iflst) `(list ,@iflst))
+
+;; Support for the "isa?" calls and for a mapping from the class
+;; object to a name
+
+;; Remember, if you try to unquote classtype without splicing, the
+;; interpreter tries to evaluate it.
+
+
+;; cpl... class precedence list
+(define-macro (isa? self . classtype)
+  (letrec ((orf (lambda x (if (null? x #f) (or (car x) (apply orf (cdr x)))))))
+	 (let ((txt `(let ((ancestors (class-cpl (class-of ,self))))
+						(if (apply orf
+									  (map (lambda (x) (member x ancestors))
+											 (list ,@classtype))) 
+							 #t #f)
+						)
+					))
+		;;(pp txt) ;; Uncomment to print the constructed code during the startup phase 
+		txt)))
+
+
+
+(define-macro (extend-symbol sym extn)
+  `,(string->symbol (string-append (symbol->string sym) "-" extn)))
+
+
+;;; (define-macro (make-object% class . initargs)
+;;;   `(let ((instance (allocate-instance ,class)))
+;;; 	  (initialise instance ,@initargs)
+;;; 	  instance))
+
+;;; (define-macro (make-agent% class . initargs)
+;;;   `(let ((instance (allocate-instance ,class)))
+;;; 	  (for-each (lambda (x) (slot-set! instance x '<uninitialised>)) (class-slots-of instance))
+;;; 	  (initialise instance ,@initargs)
+;;; 	  instance))
+
+;-  Code 
+
+(define-macro (register regname mname . val)
+  ;;(display (list 'register `,regname `,mname `,val))(newline)
+  (let ((txt
+			(if (not (null? val))
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add ,mname ',mname ,(object->string mname) ,@val)
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add ,mname ',mname  ,(object->string mname))) )
+		  )
+	 ;;(display "register: ") (pp txt)  ;; Uncomment to print the constructed code during the startup phase 
+	 txt))
+
+(define-macro (register-unique regname mname . val)
+  ;;(display (list 'register-unique `,regname `,mname `,val))(newline)
+  (let ((txt
+			(if (not (null? val))
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add-unique ,mname ',mname ,(object->string mname) ,@val)
+				 `(,(string->symbol (string-append (symbol->string regname) "-register")) 'add-unique ,mname ,(object->string mname) ',mname)) )
+		  )
+	 ;;(display "register-unique: ") (pp txt) ;; Uncomment to print the constructed code during the startup phase 
+	 txt))
+
+
+(define-macro (define-class #!rest args)
+  (let ((cname (car args))
+		  (parents (cadr args))
+		  (variables (append (caddr args) (list (string->symbol (string-append (symbol->string (car args)) "-initialised")))))
+		  )
+	 (let ((txt `(define ,cname
+						(let ((,cname (make-class ,parents ,variables)))
+						  (register-unique class ,cname ,cname)
+						  (class-register)
+						  ,cname))))
+		;;(pp txt)
+		txt
+		)))
+
+
+
+(define-macro (declare-method #!rest args)
+  (let ((cname (car args))
+		  (description (cadr args))
+		  )
+	 (let ((txt `(define ,cname
+						(let ((,cname (make-generic)))
+						  (register-unique generic-method ,cname)
+						  (class-register)
+						  ,cname))))
+		;;(pp txt)
+		txt
+		)))
+
+
+
+;;;; NOTE: initialisation takes *only* the self argument and a list of alternating tags and values like: 'name "Wally" 'mass 42 ...
+;; (agent-initialisation-method <wombat> (list 'name "wally" 'mass 42)) body....)
+;; 
+;; madness looks like
+;;;; (<theclass>/(<theclass> <parent>*) (initarg_val*) (objinitarg_val*) body)
+
+
+(define-macro (generic-initialisation-method what #!rest madness)
+  (for-each (lambda (x y)
+				  (display "** ") (display x) (display " **\n")
+				  (pp madness)(newline))
+				(seq (length madness)) madness)
+
+;;;;  (if (< (length madness) 4) ;; was 4
+;;;;		(error "generic-initialisation-method: bad arguments to method call " what madness))
+
+  ;; what is a string like "an object" or "an agent" 
+  (let* (
+			(classlst (if (pair? (car madness))
+							  (car madness)
+							  (list (car madness) *)))
+			(clname (car classlst))
+			(initialise-classes (cadr classlst))
+			(initargs (cadr madness)) ;; set as defaults for each member of the class
+			(mname 'initialise)
+			(object-initargs (caddr madness)) ;; values for the object being instantiated
+			(body (cdddr madness))
+			)
+	 (dnl* "Making an initialiser for" what clname mname)
+
+	 (let ((txt `(let ((M
+							  (if (and #t (not (generic-method-register 'type? ',mname)))
+									(begin
+									  (display (string-append "********* Instantiating " ,what " initialiser ("))
+									  (dnl* ',clname ',mname)
+									  (display " ...) ********* before the method has been declared (no generic-method)\n"))
+									(make-method (list ,clname) ;; make-method returns a function 
+													 (lambda (,(string->symbol
+																	(string-append (symbol->string mname)
+																						"-parent"))
+																 self #!rest ,initargs)
+
+														;;;(if track-initialisations (dnl "Initialising " ,mname " for " (class-name ,mname)))
+														;;(dnl* "INIT: initialising" ,what ,mname (class-name ,clname))
+														(if (and (has-slot? self ',(string->symbol (string-append (symbol->string clname) "-initialised")))
+																	(not (eq? #t (slot-ref self ',(string->symbol (string-append (symbol->string clname) "-initialised")) ))))
+															 (begin
+																(kdnl* 'trace-initialisation-methods "Entering initialisation" (class-name-of self)":" self)
+																;;(dnl* 'trace-initialisation-methods "Entering initialisation" (class-name-of self)":" self)
+																(let ((my (lambda (x) (slot-ref self x)))
+																		(set-my! (lambda (x y)
+																					  (slot-set! self x y)))
+																		(kernel (if (member 'kernel (map car (class-slots (class-of self))))
+																						(slot-ref self 'kernel)
+																						#f))
+																		)
+																  (slot-set! self ',(string->symbol (string-append (symbol->string clname) "-initialised")) #t) ;; We place it here to curtail infinite recursion
+																  
+																  (if (pair? ,object-initargs) (set-state-variables self ,object-initargs) )
+																  (let* ((init-result (call-initialisers (apply list ,initialise-classes self))
+																			(object-result
+																			 (begin
+																				0
+																				(set-state-variables self ,initargs)
+																				,@body))
+																			)
+																	 (kdnl* 'trace-initialisation-methods "Leaving initialisation" (class-name-of self)":" self "with" object-result)
+																	 ;;(dnl* 'trace-initialisation-methods "Leaving initialisation" (class-name-of self)":" self "with" object-result)
+																	 object-result)
+																  ))
+															 0)
+														)
+													 ))
+							  )))
+						(add-method ,mname M)
+						(method-register 'add M ',mname )
+						)
+					))
+		(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
+		txt)))
+
+(define-macro (object-initialisation-method #!rest madness)
+  (let ((txt `(generic-initialisation-method "an object" ,@madness)))
+	 ;;(pp txt)
+	 txt))
+	 
+
+(define-macro (agent-initialisation-method #!rest madness)
+  (display "******** AGENT ********\n")
+  ;;(pp madness)
+  (display "***********************\n")
+  (let ((txt `(generic-initialisation-method "an agent" ,@madness)))
+	 ;;(pp txt)
+	 txt))
+
+
+;; Objects do not chain to their parents on initialising
+(define-macro (default-object-initialisation name #!rest doi-margs)
+  ;;; (let ((txt `(object-initialisation-method (,name  initargs) ,(apply list doi-margs))
+  ;;; 														 (case 'general
+  ;;; 															 ((general) 
+  ;;; 															  (if (pair? ,(apply list doi-margs))
+  ;;; 																	(call-initialisers (filter class? ,(apply list doi-margs)) self)
+  ;;; 																	(call-initialisers * self)
+  ;;; 																	)
+  ;;; 															 (else (initialise-parent)))
+  ;;; 											)))
+
+  (let ((txt `(object-initialisation-method (,name initargs) ,(apply list doi-margs)
+														  (if #f
+																(let ((initialise-classes ,(apply list initialise-classes)))
+																  (call-initialisers 'none self)
+																  )
+																(let ((initialise-classes (if (pair? ,initialise-classes)
+																										,(apply list initialise-classes)
+																										,initialise-classes
+																										))
+																		)
+																  (cond
+																	((pair? initialise-classes) (call-initialisers initialise-classes self))
+																	((class? initialise-classes) (call-initialisers (list initialise-classes) self))
+																	((symbol? initialise-classes) (initialise-parent))
+																	(#t (call-initialisers (list initialise-classes) self))
+																	)
+																  )
+																)
+														  )
+				 )
+		  )
+	 ;;(pp txt)
+	 txt))
+		  
+
+;;; (default-agent-initialisation <class>)
+;;; (default-agent-initialisation <class> ())
+;;; (default-agent-initialisation <class> (<parent> ...))
+;;; (default-agent-initialisation <class> 'var val ...))
+;;; (default-agent-initialisation <class> () 'var val ...)
+;;; (default-agent-initialisation <class> (<parent> ...) 'var val ...)
+
+(define-macro (default-agent-initialisation name #!rest args)
+  (let ((initialise-classes '*)
+		  (dai-margs '())
+		  )
+	 (cond
+	  ((pair? name) (error "Bad name" name))
+	  ((null? args)
+		(set! initialise-classes (list name '*))
+		(set! dai-margs '())
+		)
+	  ((and (null? (car args))
+			  (null? (cdr args)))
+		(set! initialise-classes (list name))
+		(set! dai-margs '())
+		)
+	  ((and (pair? (car args))
+			  (symbol? (caar args)) (not (equal? (caar args) 'quote))
+			  (null? (cdr args)))
+		(set! initialise-classes (append name (car args)))
+		(set! dai-margs '())
+		)
+	  ((and (pair? (car args))
+			  (equal? (caar args) 'quote)
+			  (not (null? (cdr args))))
+		(set! initialise-classes (list name '*))
+		(set! dai-margs args)
+		)
+	  ((and (null? (car args))
+			  (not (null? (cdr args)))
+			  (pair? (cadr args)) (equal? (caadr args) 'quote)
+			  (not (null? (cddr args))))
+		(set! initialise-classes '())
+		(set! dai-margs (cdr args))
+		)
+	  ((and (pair? (car args))
+			  (probe (caadr args))
+			  (symbol? (caar args)) (not (equal? (caar args) 'quote))
+			  (pair? (cdr args))
+			  (symbol? (caadr args)) (equal? (caadr args) 'quote) (not (null? (cddr args))))
+		(set! initialise-classes (car args))
+		(set! dai-margs (cdr args))
+		)
+	  (#t (error "Bad default-agent-initialisation" name args)))
+	 (dnl* "default-agent-initialisation:" args "\nP:" initialise-classes "\nV:" dai-margs)
+	 (let ((txt `(agent-initialisation-method (,name initargs) ,(apply list dai-margs)
+															(let ((initialise-classes (if (pair? ,initialise-classes)
+																									,(apply list initialise-classes)
+																									,initialise-classes
+																									))
+																	)
+															  (cond
+																((pair? initialise-classes) (call-initialisers initialise-classes self))
+																((class? initialise-classes) (call-initialisers (list initialise-classes) self))
+																((symbol? initialise-classes) (initialise-parent))
+																(#t (call-initialisers (list initialise-classes) self))
+																)
+															  )
+															)))
+		;;(pp txt)
+		txt)))
+
+
+;; This works like so:
+;;(model-method <parent1> (methname) body)
+;;(model-method <parent1> (methname arg1 #!rest rest) body)
+;;(model-method <parent1> (methname #!rest rest) body)
+;;(model-method (<parent1>) (methname) body)
+;;(model-method (<parent1>) (methname arg1 arg2) body)
+;;(model-method (<parent1> <parent2>) (methname) body)
+;;(model-method (<parent1> <parent2>) (methname arg1 arg2..) body)
+;;(model-method (<parent1>) (methname arg1 arg2 #!rest rest) body)
+;;(model-method (<parent1> <parent2>) (methname arg1 arg2 #!rest rest) body)
+
+
+;; "(parent-body)" can be used to invoke the parent's body --- sclos
+;; handles any arguments that might be needed: "self" is the name of
+;; the agent within the body code "t" is the current model time dt is
+;; the requested dt the state variables are not directly available --
+;; use "my" or "set-my!", "slot-ref" or "slot-set!"
+
+
+
+;; An object is a discrete component of a model which does not
+;; communicate directly with the kernel -- this means that an object
+;; cannot query the state or garner data from other parts of the model
+;; without cheating.  Objects do *not* have kernel pointers, so the kernel
+;; variable is set to #f.
+
+(define-macro (model-method #!rest madness)
+  ;; Call like (model-method classname (mname * args) #!rest body) where
+  ;; the args doesn't include the call-parent-method and 'self' is
+  ;; the placeholder
+  (case (length madness)
+	 ((0)
+	  (error "model-method: There is nothing here!" madness))
+	 ((1) (error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args and a body, got" (cons 'model-method madness)))
+	 ((2) (error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args and a body, got " (cons 'model-method madness)))
+	 )
+  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+		(error "model-method: bad (mname mm-margs...) in (model-method ...) "
+				 (caadr madness)))
+  (if (not (eq? (cadadr madness) 'self))
+		(error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
+				 (caadr madness)))
+
+  (let ((classlst (if (list? (car madness))
+							 (car madness)
+							 (list (car madness))))
+		  (mname (caadr madness))
+		  (star (cadadr madness))
+		  (mm-margs (cddadr madness))
+		  (body (cddr madness))
+		  )
+
+	 (let ((txt `(let ((M
+							  (if (and #t (not (generic-method-register 'type? ',mname)))
+									(begin
+									  (display "********* Instantiating the method (")
+									  (display ',mname)
+									  (display " ...) ********* before the method has been declared\n"))
+									(make-method (list ,@classlst) ;; make-method returns a function....
+													 (lambda (,(string->symbol
+																	(string-append (symbol->string mname)
+																						"-parent"))
+																 self
+																 ,@mm-margs)
+														(kdnl* 'trace-model-methods "Entering" (class-name-of self)":" self)
+														(let ((my (lambda (x) (slot-ref self x)))
+																(set-my! (lambda (x y)
+																			  (slot-set! self x y)))
+																(kernel (if (member 'kernel (map car (class-slots (class-of self))))
+																				(slot-ref self 'kernel)
+																				#f))
+																)
+														  (let ((mm-result
+																	(begin 
+																	  ,@body) ))
+															 (kdnl* 'trace-model-methods "Leaving" (class-name-of self)":" self "with" mm-result)
+															 mm-result)
+														  )
+														)
+													 ))
+							  ))
+						(add-method ,mname M)
+						(method-register 'add M ',mname )
+						)
+					))
+		;;(pp txt) ;; Uncomment this line to dump the macro to stdout on loading
+		txt)))
+
+
+
+(define-macro (ddefine a b c d)
+  `(begin
+	  (define ,a ,b)
+	  (define ,c ,d)))
+
+
+
+;; "(????-parent)" can be used to invoke the parent methods in the
+;; body, where ???? is the value of methname so for a method called
+;; "grok" you would use "grok-parent" to invoke the parent method
+;; "self" is the name of the agent within the body of the method the
+;; state variables are not available but you can use "my" and
+;; "set-my!" or "slot-ref" and "slot-set!"
+
+
+"*** The only difference between an model-method and a model-method is
+that model-methods do not keep track of a kernel. "
+
+
+
+(define-macro (model-body myclass #!rest body)
+  ;; Call like (method classname (mname args) #!rest body) where the args
+  ;; doesn't include the call-next-method
+  (if (not (symbol? myclass))
+		(aborts "model-body: the class " myclass " should be an atom"))
+  `(add-method
+	 run-model-body
+	 (make-method (list ,myclass)
+					  (lambda (parent-body self t dt)
+						 ;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
+						 (kdnl* 'trace-bodies "Entered" (class-name-of self)":"  self (slot-ref self 'name) "at time" t "+" dt)
+						 (let ((my (lambda (x) (slot-ref self x)))
+								 (set-my! (lambda (x y) (slot-set! self x y)))
+								 (all-parent-bodies (if (slot-ref self 'needs-all-parent-bodies) (get-methods '* run-model-body self t dt) '()))
+								 (kernel (slot-ref self 'kernel))
+								 (skip-parent-body ;; (-: We could probably do this in a snazzy way with call-cc, but then we'd have to explain it :-)
+								  (lambda ()
+									 (set! parent-body (lambda (rslt . args) rslt))
+									 ;; forces any call to parent body to just return the indicated result
+
+									 (if (not (slot-ref self 'agent-body-ran)) ;; we test this so that the counter isn't incremented too often
+										  (begin
+											 (slot-set! self 'counter
+															(+ 1 (slot-ref self 'counter)))
+											 (slot-set! self 'agent-body-ran #t)))
+									 dt) )
+								 )
+							(let ((body-result
+									 (begin
+										,@body
+										)))
+
+							  (if (not (slot-ref self 'agent-body-ran))
+									(begin
+									  (slot-set! self 'counter
+													 (+ 1 (slot-ref self 'counter)))
+									  (slot-set! self 'agent-body-ran #t))
+									)
+							  (kdnl* 'trace-bodies "Leaving" (class-name-of self)":" self "with" body-result)
+							  body-result
+							  )
+							)
+						 )
+					  )
+	 )
+  )
+
+;; like model-body, but chains straight to parent
+(define-macro (use-parent-body myclass) 
+  `(model-body ,myclass (parent-body)))
+
+
+
+(define-macro (sclos-setter myclass variable)
+  (if (or (not (symbol? variable))
+			 (not (symbol? myclass)))
+		(aborts "model-body: the class " myclass " and variable "
+				  variable " must be atoms"))
+  `(add-method ,(string->symbol
+					  (string-append "set-" (symbol->string variable) "!"))
+					(make-method (list ,myclass)
+									 (lambda (self arg)
+										(slot-set! self ',variable arg)))))
+
+(define-macro (sclos-getter myclass variable)
+  (if (or (not (symbol? variable)) (not (symbol? myclass)))
+		(aborts "model-body: the class " myclass " and variable "
+				  variable " must be atoms"))
+  `(add-method ,variable
+					(make-method (list ,myclass) 
+									 (lambda (self)
+										(slot-ref self ',variable)))))
+
+(define-macro (load-config)
+  `( include "model.config"))
+
+
+;-  The End 
+
+
+;;; Local Variables:
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column:0
+;;; comment-start: ";;; "
+;;; comment-end:"" 
+;;; End:

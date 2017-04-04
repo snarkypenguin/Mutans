@@ -1,8 +1,0 @@
-'Parameters
-(define <model-maintenance>-parameters
-  (list
-    (list 'maintenance-list '<uninitialized>)
-    (list 'I-need '<uninitialized>)
-  )
-)
-(set! global-parameter-alist (cons (cons <model-maintenance> <model-maintenance>-parameters) global-parameter-alist))

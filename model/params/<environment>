@@ -1,0 +1,10 @@
+'Parameters
+(define <environment>-parameters
+  (list
+    (list 'default-value 0)
+    (list 'minv '(-inf.0 -inf.0 0)) ;; defaults to an infinite plane
+    (list 'maxv '(+inf.0 +inf.0 0))
+    ;;(list 'rep '<uninitialised>) ;; this will be something like a <polygon> or <circle>
+  )
+)
+(set! global-parameter-alist (cons (cons <environment> <environment>-parameters) global-parameter-alist))

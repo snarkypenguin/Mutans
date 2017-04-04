@@ -1,8 +1,0 @@
-'Parameters
-(define <introspection>-parameters
-  (list
-    (list 'introspection-list '<uninitialized>)
-    (list 'timestep-epsilon '<uninitialized>)
-  )
-)
-(set! global-parameter-alist (cons (cons <introspection> <introspection>-parameters) global-parameter-alist))

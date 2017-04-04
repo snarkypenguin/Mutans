@@ -1,0 +1,52 @@
+'Parameters
+(define <agent>-parameters
+		  (list
+			  (list 'active-subsidiary-agents '())
+			  (list 'agent-body-ran #f)
+			  (list 'agent-epsilon (* 1e-6 seconds))
+			  (list 'agent-schedule '())
+			  (list 'agent-state 'ready-for-prep )
+			  (list 'counter 0)
+			  (list 'subjective-time 0) ;; we assume we start at t=0, but this may not be the case
+			  (list 'dt (* seconds 1.0))
+			  (list 'jiggle 0)
+			  (list 'maintenance-list '()) ;; this is a list of funcs
+			  (list 'map-projection (lambda (x) x))
+			  (list 'migration-test  (lambda args #f)) ;; Don't migrate by default
+			  (list 'name '<nameless>)
+			  (list 'note "")
+			  (list 'priority 0) ;; give no advantage
+			  (list 'state-flags '())
+			  (list 'subjective-time 0.0)
+			  (list 'subsidiary-agents '())
+			  (list 'dont-log
+					  '(ready-for-prep
+						 ;; agent things
+						 agent-body-ran agent-schedule
+						 agent-epsilon local->model model->local counter 
+						 migration-test state-flags
+						 dont-log timestep-schedule kernel
+						 ;; log agent things
+						 introspection-list introspection-schedule
+						 timestep-epsilon 
+						 dims
+						 ;; thing things
+						 ;; environment things
+						 default-value minv maxv 
+						 ;; ecoservice things
+						 plateau-interval growth-rate 
+						 ;; landscape things
+						 service-list service-update-map
+						 update-equations terrain-function
+						 dump-times scale 
+						 log-services-from-patch
+						 log-patches-from-habitat
+						 ;; animal things
+						 domain-attraction food-attraction 
+						 near-food-attraction searchspeed
+						 wanderspeed foragespeed	
+						 movementspeed foodlist homelist
+						 breedlist habitat
+						 ))
+))
+(set! global-parameter-alist (cons (cons <agent> <agent>-parameters) global-parameter-alist))

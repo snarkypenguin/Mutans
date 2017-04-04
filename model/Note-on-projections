@@ -1,0 +1,5 @@
+Submodels are responsible for maintaining and applying projections
+into and out of model space.  The reason for this is that the model
+should not know the inner details of a submodel. By containing that
+knowledge in the submodels we minimise the complexity the model has
+to deal with.

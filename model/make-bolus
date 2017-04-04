@@ -1,0 +1,31 @@
+#!/bin/xs
+
+GSCGCC = /usr/bin/gambcomp-C ## the call for gcc
+GSC = /usr/bin/gambitc
+
+
+p = (constants.scm preamble.scm sort.scm sclos.scm framework.config kdnl.scm utils.scm framework units.scm maths.scm integrate.scm \
+  matrix.scm postscript.scm basic-population.scm framework.scm framework-classes.scm framework-declarations.scm \
+  declarations.scm log-classes.scm landscape-classes.scm animal-classes.scm plant-classes.scm kernel.scm \
+  framework-wrappers.scm framework-controls.scm framework-methods.scm log-methods.scm landscape-methods.scm \
+  plant-methods.scm animal-methods.scm)
+
+bolus = model-bolus.scm
+
+cat $p | fgrep -v '(include ' | fgrep -v '(load ' > $bolus
+
+cat <<EOT >> $bolus
+(load "model.config")
+(Doit Q)
+EOT
+echo Compiling $bolus
+CFLAGS =  -O1 -U___SINGLE_HOST
+$GSC -f -cc-options '-O1 -U___SINGLE_HOST' -warnings -verbose -o run-model  -exe $bolus
+
+
+
+
+
+
+
+

@@ -1,0 +1,13 @@
+'Parameters
+(define <animal>-parameters
+  (list
+    (list 'current-interest '())
+	 ;;(list 'movementspeed '<uninitialised>)
+    ;;(list 'searchspeed '<uninitialised>)
+    ;;(list 'foragespeed '<uninitialised>)
+    ;;(list 'wanderspeed '<uninitialised>)
+    ;;(list 'objective '<uninitialised>)
+    ;;(list 'near-food-attraction '<uninitialised>)
+  )
+)
+(set! global-parameter-alist (cons (cons <animal> <animal>-parameters) global-parameter-alist))
