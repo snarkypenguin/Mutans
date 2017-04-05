@@ -1,0 +1,17 @@
+'Parameters
+
+(define data-logger-parameters
+  (list
+	(list 'format 'text)
+	(list 'filename "data") ;; the time is inserted between the "filename" and the "filetype"
+	(list 'filetype ".dat")
+  )
+)
+(set! global-parameter-alist (cons (cons "data-logger" data-logger-parameters) global-parameter-alist))
+
+
+
+
+
+
+

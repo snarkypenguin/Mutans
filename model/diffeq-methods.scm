@@ -26,13 +26,13 @@
 ;; 	  (list 'type 'diffeq
 ;; 			  'dont-log '(ready-for-prep
 ;; 							  ;; agent things
-;; 							  agent-body-ran agent-schedule
+;; 							  agent-body-ran
 ;; 							  agent-epsilon counter 
 ;; 							  migration-test state-flags
 ;; 							  dont-log timestep-schedule kernel
 							  
 ;; 							  ;; log agent things
-;; 							  introspection-list introspection-schedule
+;; 							  introspection-list
 ;; 							  timestep-epsilon 
 
 ;; 							  dims ;; thing things

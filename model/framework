@@ -388,7 +388,7 @@ It is not hard to change it to catch specializer as well.
 													 )
 											  ;; provides ,mname-parents for arbitrary sets .. may be called more than once, and with different sets of parents
 											  
-											  (kdnl* 'trace-model-methods "Entering" ',mname (class-name-of self)":" (if (agent? self) (slot-ref self 'name) "<object>"))
+											  (kdnl* 'trace-model-methods "Entering" ',mname (class-name-of (class-of self))":" (if (agent? self) (slot-ref self 'name) "<object>"))
 											  ;; this provides the setter and getter for this entities variables (they can be passed about too)
 											  (let ((my (lambda (x) (slot-ref self x)))
 													  (set-my! (lambda (x y)
@@ -402,7 +402,7 @@ It is not hard to change it to catch specializer as well.
 														  (begin
 															 dt ;; If there is no body, then we just assume that doing nothing is easy.
 															 ,@body) ))
-													(kdnl* 'trace-model-methods "Leaving" ',mname (class-name-of self)":" (if (agent? self) (slot-ref self 'name) "<object>") "with" mm-result)
+													(kdnl* 'trace-model-methods "Leaving" ',mname (class-name-of (class-of self))":" (if (agent? self) (slot-ref self 'name) "<object>") "with" mm-result)
 													mm-result)
 												 )
 											  )

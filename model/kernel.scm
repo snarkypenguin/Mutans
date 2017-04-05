@@ -162,21 +162,34 @@
 
 (define (interval t ddt stopat tlist)
   ;; tlist is a sorted queue of times to run
+  (kdnl* 'kernel-scaffolding "Called interval, T =" t ", ddt =" ddt ", stops at" stopat ", tlist:" tlist)
   (if (< (- stopat t) ddt)
 		(set! ddt (- stopat t)))
 
+  ;; This could (and should) be a lot simpler.
+
   (cond
-	((null? tlist)	
+	((or (not tlist) (null? tlist)) ;; treat a false tlist as equivalent to '()
+	 (kdnl* 'kernel-scaffolding "no tlist")
 	 ddt)
 	((and (list? tlist) 
 			(number? (car tlist))
 			(= (car tlist) t)
 			)
+	 (kdnl* 'kernel-scaffolding "t == (car tlist)")
+	 (if (pair? (cdr tlist)) ;; if there is a ttr in the tlist which is closer than t+ddt...
+		  (let ((p (- (cadr tlist) t)))
+			 (< p ddt)
+			 (kdnl* 'kernel-scaffolding "(cadr tlist) < t+ddt")
+		  (set! ddt p)))
 	 ddt)
 	((and (list? tlist) 
 			(number? (car tlist))
 			)
-	 (- (car tlist) t))
+	 (let ((dt (- (car tlist) t)))
+		(if (< dt ddt)
+			 dt
+			 ddt)))
 	(else 'bad-time-to-run)))
 
 
@@ -201,10 +214,9 @@
 				 (H<o (cmp H! ob))
 				 (o<H (cmp ob H!))
 				 )
-		  (dnl* "INSERT " (slot-ref ob 'name) (slot-ref ob 'subjective-time))
-		  (break)
 		  (cond
 			((= m M) m) ;; Must be so
+			((and (= (+ m 1) M) o<M) M)
 			(o<m m) ;; off the edge
 			(M<o (+ 1 M)) ;; off the other edge
 			((not (or o<m m<o)) m) ;; must be equal

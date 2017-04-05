@@ -371,13 +371,11 @@ When ecoservices are running externally, they maintain a list of agents which wi
 (UNFINISHED-BUSINESS "This should probably have bits disabled when there are active-subsidiary-agents")
 (model-body <ecoservice>
 						(kdnl* '(model-bodies ecoservice-running) (class-name-of self) (my 'name)  "@"  t)
-						;;;(dnl* 'b1)
 						(let ((h (slot-ref self 'history)))
 						  (if h
 								(slot-set! self 'history
 											  (cons (cons t (my 'value)) h)))
 						  )
-						;;;(dnl* 'b2)
 						
 
 						(if (and (my 'do-growth)
@@ -386,7 +384,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							 ;; Otherwise, it may be suppressed for other reasons, in dynamic-patches,
 							 ;; for example
 							 (begin
-								;;;(dnl "Running <ecoservice> model body for "
 								;;;     (my 'name))
 								(let* ((capacity (my 'capacity))
 										 (value  (my 'value))
@@ -423,8 +420,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 											(#t
 											 value)))
 										 )
-								  ;;(dnl* (name (my 'patch)) "/" (my 'name)
-								  ;;      "value =" value "| newvalue =" newvalue)
 								  
 								  (set-my! 'value  newvalue)
 								  )
@@ -537,7 +532,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 				  (my 'capacity))
 
 (model-method (<ecoservice>) (set-value! self val)
-				  ;;(dnl* "Setting" (name self) "from" (my 'value) "to" val)
 				  (set-my! 'value val)
 				  (let ((asa (my 'active-subsidiary-agents)))
 					 (if (pair? asa) 
@@ -874,7 +868,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;;  'default-value +nan.0
 ;;  'minv '(-inf.0 -inf.0)
 ;;  'maxv '(+inf.0 +inf.0)
-;;  'needs-parent-bodies #t)
 
 ;;; (model-method <patch>  (initialise self args)
 ;;; 				  (if (and (pair? args) (pair? (car args)) (= (length args) 1))
@@ -1255,7 +1248,6 @@ When ecoservices are running externally, they maintain a list of agents which wi
 													 slist))
 
 							(crop-caption file p self)
-							(dnl* "past crop caption")
 							))
 
 

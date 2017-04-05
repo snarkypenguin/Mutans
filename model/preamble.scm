@@ -6,6 +6,7 @@
 (define true #t)
 (define false #f)
 (define <uninitialised> '<uninitialised> )
+(define <nameless> '<nameless> )
 
 ;; Registers to associate  classes, methods and objects with their name.
 

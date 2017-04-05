@@ -22,7 +22,6 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;;; 						 kernel
 ;;; 						 subjective-time priority jiggle 
 ;;; 						 dt
-;;; 						 schedule
 ;;; 						 migration-test timestep-schedule counter
 ;;; 						 projection-assoc-list local-projection inv-local-projection
 ;;; 						 state-flags
@@ -54,8 +53,8 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;; priority is an integer, the higher the integer the greater the
 ;; priority.  The default value is zero jiggle is a real number in (0,
 ;; 1).  Setting jiggle to values outside that domain suppresses the
-;; the randomisation of the jiggle.  If an agent has a schedule, then
-;; the schedule WILL be used in determining the next dt.
+;; the randomisation of the jiggle.  If an agent has a timestep-schedule,
+;; then it WILL be used in determining the next dt.
 
 ;; name is a string
 ;; representation is a symbol
@@ -72,7 +71,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;;;(load "log-classes.scm") ;; These are used to generate output.
 
 (define-class <projection>
-  (inherits-from <object>)
+  (inherits-from <primitive-object>)
   (state-variables projection-assoc-list
 						 local->model model->local
 						 ))
@@ -107,7 +106,7 @@ direction"
   
 
 (define-class <model-maintenance>
-  (inherits-from <projection>) ;; We have <projection> since I'd really rather not have two distinct maintenance classes
+  (inherits-from <object>) ;; We have <projection> since I'd really rather not have two distinct maintenance classes
   (state-variables maintenance-list I-need))
 ;; I-need is a list of fields which comprise the env-vector, and must be filled in by the
 ;;   agent which is maintaining the reduced model.

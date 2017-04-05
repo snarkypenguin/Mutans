@@ -125,10 +125,10 @@
 	(if (uninitialised? (my 'mass))
 		 (error "Mass not initialised for a <plant>" (name self)))
 
-	(if (uninitialised? self 'peak-mass)
+	(if (uninitialised#? self 'peak-mass)
 		 (set-my! 'peak-mass (my 'mass)))
 
-	(if (uninitialised? self 'leaf-area)
+	(if (uninitialised#? self 'leaf-area)
 		 (set-my! 'leaf-area (leaf-area self)))
 
 	
@@ -412,10 +412,10 @@
 ;;; 									  ) ;-
  									  									  									  
 (model-body <example-plant>
-				(if (uninitialised? self 'peak-mass)
+				(if (uninitialised#? self 'peak-mass)
 					 (set-my! 'peak-mass (my 'mass)))
 
-				(if (uninitialised? self 'leaf-area)
+				(if (uninitialised#? self 'leaf-area)
 					 (set-my! 'leaf-area (leaf-area self)))
 
 				(kdnl* 'model-body "example-plant 1")

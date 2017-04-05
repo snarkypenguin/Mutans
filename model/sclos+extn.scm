@@ -1,11 +1,267 @@
+; -*- mode: scheme; -*-
+;-  Identification and Changes
+
+;--
+;	sclos+extn.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2016.11.26
+;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/sclos-extn.scm
+;
+;	History:
+;
+
+;-  Copyright 
+
+;
+;   (C) 2016 Randall Gray
+;   All rights reserved
+;
+
+;-  Discussion 
+
+;-  Configuration stuff 
+
+;-  Included files 
+
+;-  Variables/constants both public and static
+
+;--    Static data
+
+;--    Public data 
+
+;-  Code 
+
+(include "framework")
+;; sclos.scm is included after the definition of (abstract-register ...) and a few 
+;; instances of registers.
+
+(define eval-marker '$)
+
+
+;-- Define abstract-register ... routine to create registers
+
+;; Registers to associate  classes, methods and objects with their name.
+(define (abstract-register thingtype thingname . unique-names)
+  (letrec ((register '())
+  			  (bind-string-to-closure (lambda x x))
+			  )
+	 (lambda args
+		(if (null? args)
+			 (list-copy register)
+			 (letrec ((cmd (car args))
+						 (opts (if (null? (cdr args)) #f (cdr args))))
+
+				(if (and #f opts) (dnl* "TOME:" unique-names cmd opts (assq (car opts) register)))
+
+				(if (and  unique-names (eqv? cmd 'add) opts (assq (car opts) register))
+					 (dnl* unique-names "Attempting to re-register a " thingtype "/" thingname ":" args)
+					 )
+				(cond
+				 ((not (symbol? cmd))
+				  (abort "+++DIVISION BY DRIED FROG IN THE CARD CATALOG+++" cmd))
+				 ((eqv? cmd 'help)
+				  (dnl* "'help")
+				  (dnl* "passing no arguments or 'get returns a copy of the register")
+				  (dnl* "'reg returns the register")
+				  (dnl* "'flush or 'clear  sets the register to null")
+				  (dnl* "'dump prints the register")
+				  (dnl* "'add" thingtype (string-append thingtype "name") "description")
+				  (dnl* "'add-unique" thingtype (string-append thingtype "name") "description")
+				  (dnl* "'name?" thingtype "- not" thingname)
+				  (dnl* "'type?" thingname)
+				  (dnl* "'rec/name" thingtype)
+				  (dnl* "'rec/type" thingtype)
+				  (dnl* "'rec?" thingname thingtype "or the print string")
+				  )
+
+				 ((eqv? cmd 'reg) register)
+				 ((eqv? cmd 'get)
+				  (list-copy register)
+				  )
+
+				 ((member cmd '(flush clear))
+				  (set! register '()))
+
+
+				 ((eqv? cmd 'dump)
+				  (for-each pp register)
+				  )
+
+				 ((eqv? cmd 'add-unique)
+				  (bind-string-to-closure (car opts))
+				  (if (not (assq (car opts) register))
+						(set! register ;; save things as lists
+								(acons (car opts) (cdr opts) register)))
+				  (car opts)
+				  )
+
+				 ((eqv? cmd 'add)
+				  (bind-string-to-closure (car opts))
+				  (set! register ;; save things as lists
+						  (acons (car opts) (cdr opts) register))
+				  (car opts)
+				  )
+
+				 ((and (member cmd '(name? name)) opts)
+				  (let ((a (assq (car opts) register)))
+					 (and a (cadr a))))
+
+				 ((and (member cmd '(rec? record?)) opts)
+				  (let ((a (filter (lambda (x) (or (eqv? (car x) (car opts))
+															  (string=? (object->string (car x))(object->string (car opts)))
+															  (string=? (object->string (cdr x)) (object->string (car opts)))
+															  )) register)))
+					 (if (null? a) #f a)) )
+
+				 ((and (member cmd '(rec/type record-by-type rec-by-type rb-type)) opts)
+				  (let ((a (assq (car opts) register)))
+					 a))
+
+				 ((and (member cmd '(type? type)) opts)
+				  (let ((a (filter (lambda (x)
+											(eqv? (car opts) (cadr x)))
+										 register)))
+					 a
+					 ))
+
+				 ((and (member cmd '(rec/type record-by-name rec-by-name rb-name)) opts)
+				  (let ((a (filter (lambda (x)
+											(eqv? (car opts) (cadr x)))
+										 register)))
+					 (and a (car a))))
+
+				 (else
+				  (dnl* "Called a " thingtype "/" thingname "register with " cmd )
+				  
+				  (pp (cdr args))
+				  (display "... Didn't really work, was that a real command?\n")
+				  (error "\n\n+++BANANA UNDERFLOW ERROR+++\n" args))
+				 )
+				)
+			 )
+		)
+	 )
+  )
+
+;-- define class-register generic-method-register method-register object-register and agent-register
+
+;; classes ought to be unique
+(define class-register (abstract-register "class" "class-name" #t))
+
+;; We can (must) have many methods of the same name, like "dump"
+(define generic-method-register (abstract-register "generic-method" "generic-method-name" #t))
+(define method-register (abstract-register "method" "method-name"))
+(define object-register (abstract-register "object" "object-name"))
+(define agent-register (abstract-register "agent" "agent-name"))
+
+;; make missing classes
+
+;; This comes here since we might want the registers available for sclos.scm
+(include "sclos.scm")
+
+(define-class <list>
+  (inherits-from <pair>)
+  (no-state-variables)
+  )
+
+(define-class <integer>
+  (inherits-from <number>)
+  (no-state-variables)
+  )
+(define-class <rational>
+  (inherits-from <number>)
+  (no-state-variables)
+  )
+(define-class <real>
+  (inherits-from <number>)
+  (no-state-variables)
+  )
+(define-class <complex>
+  (inherits-from <number>)
+  (no-state-variables)
+  )
+
+;-- include a bunch of things in the class register
+
+;; Finally register sclos classes and the basic extensions
+(register-unique class <pair>)
+(register-unique class <list>);
+(register-unique class <null>)
+(register-unique class <boolean>)
+(register-unique class <integer>);
+(register-unique class <rational>);
+(register-unique class <real>);
+(register-unique class <complex>);
+(register-unique class <symbol>)
+(register-unique class <procedure>)
+(register-unique class <number>)
+(register-unique class <vector>)
+(register-unique class <char>)
+(register-unique class <string>)
+(register-unique class <input-port>)
+(register-unique class <output-port>)
+(register-unique class <class>)
+(register-unique class <top>)
+(register-unique class <primitive-object>)
+(register-unique class <procedure-class>)
+(register-unique class <entity-class>)
+(register-unique class <generic>)
+(register-unique class <method>)
+
+
+
+
+;-- Begin defining the fundamental classes for entities in the models
+
+;--- objects 
+
+"<primitive-object> is a (the?) basic class for SCLOS -- the name was
+changed so we could use <object> as the basic entity in the framework.
+An <object> knows very little about the modelling framework, and has no
+implicit connections to any of the other model classes; thus, it has
+no inherent representation of time or space, nor of inter-entity
+communication (without cheating)."
+
+(define-class <object>
+  (inherits-from <primitive-object>)
+  (state-variables note map-projection)
+  ;; 'note is just explanatory data
+  ;; 'map-projection exists to assist projecting data in and out of the object's data-space
+  )
+
+;--- agents
+
+(define-class <agent>
+  (inherits-from <object>)
+  (state-variables name type representation agent-state
+						 note
+						 kernel
+						 subjective-time priority jiggle 
+						 dt
+						 migration-test timestep-schedule counter
+						 map-projection
+						 state-flags
+						 agent-epsilon
+						 dont-log
+						 agent-body-ran
+
+						 ;; a list of things the agent "provides"
+						 provides 
+						 ;; a list of things the agent "requires"
+						 requires
+
+						 ;; acting as a kernel for others
+						 suspended-at
+						 subsidiary-agents active-subsidiary-agents
+
+						 ;;
+						 maintenance-list
+						 initialised
+						 )
+	)
+
 
 ;;-- This returns the parents of an instance or class
-
-"
-The strategy is to check the car of each list against its presence in
-any following list --- if it is found, it isn't an immediate parent and 
-can be dropped.
-"
 
 (define (parent-classes x)
   (define (c*tst x y)
@@ -28,6 +284,112 @@ can be dropped.
 		 (#t (loop (cdr C) (cons (caar C) actual-parents))))))
   )
 
+;-- Routines to interrogate or identify entities
+
+;--- (define (class-slots-of x)
+(define (class-slots-of x)
+  (letrec ((orf (lambda y
+					  (cond
+						((null? y) #f)
+						((car y) #t)
+						(#t (apply orf (cdr y))))) ))
+	 (cond
+	  ((isa? x <primitive-object>) (map (lambda (x) (if (pair? x) (car x) x)) (class-slots (class-of x))))
+	  ((isa? x <generic>) (map (lambda (x) (if (pair? x) (car x) x)) (append (class-slots (class-of x)) (class-slots x))))
+	  ((isa? x <class>) (map (lambda (x) (if (pair? x) (car x) x)) (append (class-slots (class-of x)) (class-slots x))))
+	  (#t '())
+	  )
+	 ))
+
+
+(define general-class-of
+  (let* ((primitive-class-of class-of)
+			(co (lambda (x)
+					(cond ;; these are carefully ordered!
+					 ((list? x)        <list>)
+					 ((integer? x)     <integer>) 
+					 ((rational? x)    <rational>)
+					 ((real? x)        <real>)
+					 ((complex? x)     <complex>)
+					 (#t (primitive-class-of x))))))
+	 (set! class-of co)))
+			
+
+
+
+;--- (define (dumpslots ent)
+(define (dumpslots ent)
+  (let ((s (class-slots-of ent))
+		  )
+	 (if (member 'dont-log s)
+		  (let ((dont (slot-ref ent 'dont-log)))
+			 (map (lambda (x)
+					  (list x (slot-ref ent x)))
+					(!filter (lambda (y) (member y dont)) s)))
+		  (map (lambda (x)
+					(list x (slot-ref ent x)))
+				 s))))
+
+(define (class-name-of q)
+  (class-register 'name? q))
+
+(define (class-name-of-instance q)
+  (class-register 'name? (class-of q)))
+
+
+(define class-name class-name-of)
+
+;--- (define (class-names-of-supers x)
+(define (class-names-of-supers x)
+  (map class-name-of (class-cpl (class-of x))))
+
+;--- (define (primitive-object? a)
+(define (primitive-object? a)
+  (and (%instance? a) #t))
+
+;--- (define (instance? a)
+(define (instance? a)
+  (and (%instance? a) #t))
+
+
+;;; Not really useful....
+;; (define (standard-type? x #!rest lst)
+;;   (set! lst (if (pair? lst) (car lst) lst))
+;;   (let ((gambit-type-predicates
+;; 			(list pair? symbol? number? string? vector? port? char? continuation?
+;; 					null? readtable? boolean? symbol? box? procedure?
+;; 					keyword? uninterned-symbol? uninterned-keyword? thread-group?
+;; 					condition-variable? mutex? thread? table? will? random-source?
+;; 					#f)
+;; 			))
+	 
+;;   (cond
+;; 	((null? lst) (standard-type? x gambit-type-predicates))
+;; 	((and (pair? lst) (null? (cdr lst))) ((car lst) x))
+;; 	(#t
+;; 	 (or ((car lst) x) (standard-type? x (cdr lst))))
+;; 	)))
+
+;--- (class? a) ... not perfect, but close enough
+(define (class? a)
+  (if (member a (list <top> <class> <procedure-class> <entity-class>))
+		#t
+		(and (equal? (class-slots-of a) '(direct-supers direct-slots cpl slots nfields field-initialisers getters-n-setters))))
+)
+
+
+;--- (define (object? a)
+(define (object? a)
+  (and (%instance? a) (isa? a <object>) #t))
+
+;--- (define (agent? a)
+(define (agent? a)
+  (and (%instance? a) (isa? a <agent>) #t))
+
+;--- (define (has-slot? a k)
+(define (has-slot? a k) 
+  (member k (class-slots-of a)))
+
 (define (parent-classes? x)
   (map class-name-of (parent-classes x)))
 
@@ -44,6 +406,13 @@ can be dropped.
 (define (uninitialised? x #!rest y)
   (if (object? x) (uninitialised? (slot-ref x (car y)))
 		(if (null? y)  (or (eq? x '<uninitialised>)(eqv? x <uninitialised>))
+			 (and (uninitialised? x)
+					(apply uninitialised? y)))))
+
+;--- (define (uninitialised? x #!rest y)
+(define (uninitialised#? x #!rest y)
+  (if (object? x) (uninitialised? (slot-ref x (car y)))
+		(if (null? y)  (or (not x) (eq? x '<uninitialised>)(eqv? x <uninitialised>))
 			 (and (uninitialised? x)
 					(apply uninitialised? y)))))
 
@@ -161,7 +530,7 @@ of this-agent and its parents (but not *grandparents...).
 				 (l lst))
 	 (if (null? l)
 		  (reverse r)
-		  (if (memq (car l) r)
+		  (if (member (car l) r)
 				(loop r (cdr l))
 				(loop (cons (car l) r) (cdr l))))))
 
@@ -205,7 +574,7 @@ of this-agent and its parents (but not *grandparents...).
 			  ((primitive-object? class-restriction) ;; single class
 				
 				(let ((theirs (apply compute-methods (cons methd (cons (allocate-instance class-restriction) args)))))
-				  (filter (lambda (x) (memq x theirs)) mine)))
+				  (filter (lambda (x) (member x theirs)) mine)))
 			  (#t mine)
 			  ))
 		  )
@@ -278,9 +647,11 @@ of this-agent and its parents (but not *grandparents...).
 ;; Uninitialisable classes/instances
 
 (define *uninitialisable*
-  (list <top> <primitive-object> <class> <pair> <null> <boolean>
-		  <symbol> <procedure> <number> <vector> <char> <string> <input-port>
-		  <output-port> <procedure-class> <entity-class> <generic> <method>))
+  (list <top> <class> <procedure-class> <entity-class> <generic>
+		  <method> <generic> <primitive-object> <class> <pair>
+		  <vector> <string> <list> <input-port> <output-port>
+		  <null> <boolean> <symbol> <procedure> <number> <char> 
+		  ))
 										
 (define global-parameter-alist '())
 (define **entity-index**
@@ -309,15 +680,23 @@ of this-agent and its parents (but not *grandparents...).
 (define (string-tail s n)
   (list->string (reverse (list-head (reverse (string->list s)) n))))
 
-(define (initialise-flag s)
+(define (uninitialise-flag s)
   (if (string? s)
 		(if (string=? (string-tail s (string-length "initialised")) "initialised")
 			 #f
 			 <uninitialised>)
-		(initialise-flag (object->string s))))
+		(uninitialise-flag (object->string s))))
 		
-
-
+;--- (iflag clss)  constructs the flag indicating a class has had its default initialisation
+(define (iflag clss)
+  (cond
+	((string? clss) (string->symbol (string-append clss "-initialised")))
+	((symbol? clss) (iflag (symbol->string clss)))
+	((instance? clss) (iflag (class-name-of clss)))
+	((class? clss) (iflag (class-name-of clss)))
+	((instance? clss) (iflag (class-of clss)))
+	(#t #f)))
+  
 ;--- (define (make-object class #!rest initargs)
 (define (make-object class #!rest initargs)
   ;;(dnl "**** entering make-object ****")
@@ -327,7 +706,7 @@ of this-agent and its parents (but not *grandparents...).
 							 (apply make (cons class (initargs))))))
 	 (for-each (lambda (x)
 					 (slot-set! instance x
-									(initialise-flag x)
+									(uninitialise-flag x)
 									)) (class-slots-of instance))
 	 (slot-set! instance 'type (class-name class)) ;;; This may be replaced by the set-state-variables call and the
 	                                               ;;; initialise call
@@ -353,15 +732,6 @@ of this-agent and its parents (but not *grandparents...).
 			(isparameters (equal? (quote (quote Parameters)) key)))
   (and not-tilde isparameters)))
 
-;--- (iflag clss)  constructs the flag indicating a class has had its default initialisation
-(define (iflag clss)
-  (cond
-	((string? clss) (string->symbol (string-append clss "-initialised")))
-	((symbol? clss) (iflag (symbol->string clss)))
-	((class? clss) (iflag (class-name-of clss)))
-	((instance? clss) (iflag (class-of clss)))
-	(#t #f)))
-  
 ;--- (apply-initialisation instance key #!rest verbose)  loads parameters from the global-parameter list
 "Arguably, this whole initialisation thing might be considered part of the 'model' and sit 
 in one of the framework classes.  I have put  it here since object initialisation is really
@@ -381,7 +751,6 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (apply-initialisation instance key #!rest verbose)
   (kdnl* 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) "with a key" key "****")
 
-  
   (let* ((flag (iflag key))
 			(p (let ((t (assoc key global-parameter-alist)))
 				  (if (and t (pair? t)) (cdr t) t)))
@@ -394,11 +763,10 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 					  #f))
 			)
 
-	 (kdnl* 'initialisation 'p: p)
+	 (kdnl* 'initialisation 'key: flag)
+	 (kdnl* 'initialisation 'p: p )
 	 (kdnl* 'initialisation 'tlist: tlist)
 	 (kdnl* 'initialisation 'p*: p*)
-
-
 
 	 (if p*
 		  (let ((R (map cons (map car p*) (map p-eval (map cadr p*)))))
@@ -409,7 +777,9 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 				 (kdnl* 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
 				 )
 			  R)))
-	 ))
+	 )
+  	 (kdnl* 'initialisation "... ok")
+	 )
 
 
 (define alort #f)
@@ -419,9 +789,9 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (create- class #!rest statevars)
   (kdnl* '(object-creation initialisation) "Creating object" (class-name-of class) statevars)
   (let* ((instance (allocate-instance  class))
-;(cpl (class-cpl cls))
-			(the-classes (class-cpl class))
+			(the-classes (!filter (lambda (x) (member x *uninitialisable*))  (class-cpl class)))
 			)
+	 (kdnl* 'creation-classes "CPL: " (map class-name-of the-classes))
 	 (set! alort instance)
 	 (set! clort the-classes)
 	 
@@ -433,22 +803,30 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 ;; Set *all* slots to uninitialised
 	 (for-each
 	  (lambda (x)
-		 (kdnl* 'initialisation-U-- 'uninitialise x)
-		 (slot-set! instance x (initialise-flag x)))
+		 (let ((flag x))
+			(kdnl* 'initialisation-U-- 'uninitialise x)
+			(slot-set! instance x (uninitialise-flag flag))))
 	  (class-slots-of instance))
 
 	 ;; First load the states of the classes from base->most-refined
 	 (for-each
 	  (lambda (x)
 		 (kdnl* 'initialisation-CLASS--  "looking at " (class-name-of x))
-
-		 (let ((can-do (not (member x *uninitialisable*))))
-			(kdnl* 'initialisation-CLASS--  (if can-do "" "NOT") "applying initialisation for [" (class-name-of x) "]")
-			(if can-do
+		 (let ()
+			(kdnl* 'initialisation-CLASS--  "assessing initialisation for [" (class-name-of x) "]")
+			(if (member x *uninitialisable*)
+				 (kdnl* 'initialisation-CLASS--  "skipping" (class-name-of x))
 				 (begin
+					(kdnl* 'initialisation-CLASS-- "Working on" (class-name-of x))
 					(set-state-variables instance (initialisation-defaults-for class)) ;; these are the state set by a (default-initialisation <class>) clause
 					(apply-initialisation instance x)                         ;; these come from the parameter files
-					(slot-set! instance (iflag x) #t))))
+					(kdnl* 'initialisation-CLASS--  " ... flagging ..." (class-name-of x) (iflag x))
+					(slot-set! instance (iflag (class-name-of x)) #t)
+					(kdnl* 'initialisation-CLASS--  "finished" (class-name-of x))
+					)
+				 )
+			)
+		 (kdnl* 'initialisation-CLASS--  "initialisation for [" (class-name-of x) "] ok")
 		 )
 	  (reverse the-classes)) ;; run from most general to most specific
 
@@ -456,8 +834,6 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (if (kdnl*? 'initialisation) (dumpslots instance))
   instance
   ))
-
-
 
 (define (create class taxon #!rest statevars)
   (let* ((instance (apply create- (cons class statevars)))

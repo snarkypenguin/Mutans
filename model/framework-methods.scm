@@ -364,8 +364,11 @@ commonly viewed as just a simple extension of sclos.
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
 				  (kdnl* 'prep (slot-ref self 'name) "entered prep: " start end)
-				  (slot-set! self 'timestep-schedule
-								 (unique (sort (slot-ref self 'timestep-schedule) <)))
+				  (if (slot-ref-self 'timestep-schedule)
+						(slot-set! self 'timestep-schedule
+									  (unique (sort (slot-ref self 'timestep-schedule) <)))
+						(slot-set! self 'timestep-schedule '()))
+
 				  ;; ensures no duplicate entries
 				  (if (eq? (slot-ref self 'agent-state) 'ready-for-prep)
 						(slot-set! self 'agent-state 'ready-to-run)
@@ -696,6 +699,8 @@ commonly viewed as just a simple extension of sclos.
   "remove stale times in the time-to-run queue")
 (define (prune-local-time-queue tm ttr)
   ;;(dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
+  (if (not ttr) (set! ttr '()))
+
   (let ((r '())
 		  )
 	 (if (uninitialised? ttr) (set! ttr (list 0)))

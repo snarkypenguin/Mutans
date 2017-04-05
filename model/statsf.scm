@@ -8,48 +8,52 @@
     ISBN 1 921061 80 4 (pbk)
     ISBN 1 921061 82 0 (pdf)
 
-  This subset of code makes use of components which were written by
-  other researchers, notably,
-"
+  It was derived from code written many years before to refresh my
+  familiarity with scheme.
+
+  For efficiency, the code makes use of components which were written
+  by other researchers, notably, wt.scm, which provides code to support
+  weight balanced trees was written by Stephen Adams. The copyright,
+  conditions of use code and documentation are all contained in the file
+  ./wt/wt.scm."
 
 (load "wt/wt.scm")
-" wt.scm, which provides code to support weight balanced trees was
-  written by Stephen Adams. The copyright, conditions of use code and
-  documentation are all contained in the file ./wt/wt.scm.
+"
+  and  
 
-  and  "
-
-(load "irregex/irregex.scm")
-" The irregular expression parsing library, Irregex.scm by Alex Shinn.
+  The irregular expression parsing library, Irregex.scm by Alex Shinn.
   The copyright, conditions of use, code and documentation may be found
   in the directory ./irregex/.
 "
+(load "irregex/irregex.scm")
 
-;; The statsf program takes data in in the (intensely parochial) TBL format 
-;; namely
-"
+
+" The statsf program takes data in in the (intensely parochial) TBL format 
+  namely
+
 TBL
 type1 _ type2 _ ...
-datum ...
-datum ...
+datum1 datum2...
+datum1 ...
 .
 .
 .
+
+
+  Fields and data columns are space separated.  There is no mechanism
+  for including a space in a character string field.
+
+  Fieldnames are strings of nonspace characters (typically alphanums)
+
+  Types can be
+  C -- character (string)
+  I -- integer
+  F -- float
+  N -- number (most generic)
+  T -- time
+  H -- histogram (a set of numbers separated by commas) ** NOT supported
+       in this program 
 "
-
-;; Fields and data columns are space separated.  There is no mechanism
-;; for including a space in a character string field.
-
-;; Fieldnames are strings of nonspace characters (typically alphanums)
-
-;; Types can be
-;; C -- character (string)
-;; I -- integer
-;; F -- float
-;; N -- number (most generic)
-;; T -- time
-;; H -- histogram (a set of numbers separated by commas) ** NOT supported
-;;      in this program **
 
 
 

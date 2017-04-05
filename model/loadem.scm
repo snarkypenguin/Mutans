@@ -21,8 +21,8 @@
 
 ;; The kernel alway comes last.
 (load "kernel.scm")
-(load "model-flags.scm")
-(load "parameters.scm")
+(load "model-flags.scm") ;; Flags for kdnl/kdnl*? messages/code and other global flags
+(load "parameters.scm") ;; code to handle the parameter files 
 
 ;-  The End 
 

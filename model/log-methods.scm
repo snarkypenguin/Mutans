@@ -41,13 +41,13 @@ close pages and emit 'showpage' for postscript stuff.
 ;; 				 'show-field-name #f 'preamble-state '()
 ;; 				 'dont-log '(ready-for-prep
 ;; 								 ;; agent things
-;; 								 agent-body-ran agent-schedule
+;; 								 agent-body-ran 
 ;; 								 agent-epsilon local-projection inv-local-projection counter 
 ;; 								 migration-test state-flags
 ;; 								 dont-log timestep-schedule kernel
 								 
 ;; 								 ;; log agent things
-;; 								 introspection-list introspection-schedule
+;; 								 introspection-list
 ;; 								 timestep-epsilon 
 
 ;; 								 dims ;; thing things
@@ -497,13 +497,9 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 (model-method (<log-data> <log-introspection> <symbol>) (page-preamble self logger format)
-				  (dnl 'AA)
 				  (kdnl* 'log-issues "In: log-data preamble filename " (my 'filename) "and file" (my 'file))
 
 				  (page-preamble-parent) ;; opens the file
-
-				  (dnl 'AB)
-				  
 
 				  (kdnl* 'log-issues "In: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
 
@@ -513,7 +509,6 @@ close pages and emit 'showpage' for postscript stuff.
 						(abort "Serious problems getting an output port for "
 								 (my 'name)))
 
-				  (dnl 'AC)
 
 				  (let ((il (my-list self))
 						  (file (my 'file))
@@ -522,10 +517,8 @@ close pages and emit 'showpage' for postscript stuff.
 						  )
 					 (case format
 						((ps)
-						 (dnl "Aa")
 						 #f)
 						(else
-						 (dnl "Ab")
 						 
 						 (if (not (member 'header (my 'preamble-state)))
 							  (begin
@@ -573,7 +566,6 @@ close pages and emit 'showpage' for postscript stuff.
 						 )
 						)
 					 )
-				  (dnl 'AD)
 				  
 				  (kdnl* 'logfile-issues "Out: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
 				  
