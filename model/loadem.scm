@@ -6,7 +6,10 @@
 
 ;; Must happen before framework  or they have no effect
 
-(for-each load (map sym->scm '(preamble sort utils kdnl model-flags sclos)))
+(load "preamble.scm")
+;(load 'print-loading)
+
+(for-each load (map sym->scm '(papersizes sort wildmatch utils wildmatch tree-ring kdebug model-flags sclos)))
 (include "framework") ;; must come before sclos+extn.scm
 
 (for-each load (map sym->scm '(sclos+extn units constants maths)))
@@ -21,7 +24,7 @@
 
 ;; The kernel alway comes last.
 (load "kernel.scm")
-(load "model-flags.scm") ;; Flags for kdnl/kdnl*? messages/code and other global flags
+(load "model-flags.scm") ;; Flags for kdebug/kdebug? messages/code and other global flags
 (load "parameters.scm") ;; code to handle the parameter files 
 
 ;-  The End 

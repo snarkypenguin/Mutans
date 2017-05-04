@@ -5,7 +5,7 @@
   (list
 	(list 'format 'ps)
 	(list 'filename "map") ;; the time is inserted between the "filename" and the "filetype"
-	(list 'filetype ".ps")
+	(list 'filetype "ps")
   )
 )
 (set! global-parameter-alist (cons (cons "map-maker" map-maker-parameters) global-parameter-alist))

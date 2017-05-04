@@ -1,6 +1,8 @@
 'Parameters
 (define <logfile>-parameters
-  (list
-  )
+	(list
+	 (list 'format 'text)
+	 (list 'file-type "data")
+	)
 )
 (set! global-parameter-alist (cons (cons <logfile> <logfile>-parameters) global-parameter-alist))

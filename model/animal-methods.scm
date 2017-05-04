@@ -53,12 +53,12 @@
 
 
 (model-body <metabolism> ;; A thing with metabolism *must* have mass
-						(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
+						(kdebug '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
 
 						(call-next-parent-body)
 
 						(if (not (number? (my 'mass)))
-							 (kdnl* 'stomach (my 'name) "is dead, long live the King"))
+							 (kdebug 'stomach (my 'name) "is dead, long live the King"))
 
 						(if (number? (my 'mass))
 							 (let* ((struct-mass (my 'structural-mass))
@@ -103,13 +103,13 @@
 								;; mass and cost are set to false when the
 								;; organism is dead
 
-								(kdnl* 'stomach "Metabolism: cost =" cost
+								(kdebug 'stomach "Metabolism: cost =" cost
 										 "stomach-contents =" stomach-cont)
 
 								(if cost 
 									 (begin ;; deal with metabolic costs
 
-										(kdnl* 'metabolism "D0   stomach ="
+										(kdebug 'metabolism "D0   stomach ="
 												 stomach-cont "| condition =" condn
 												 "| mass =" mass "|=| cost = " cost)
 
@@ -119,7 +119,7 @@
 										  (set! cost (max (- dc) 0.0))
 										  )
 
-										(kdnl* 'metabolism "D1   stomach =" stomach-cont
+										(kdebug 'metabolism "D1   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
@@ -133,7 +133,7 @@
 																	(/ cc
 																		cond->food-conv-rate)))))
 										
-										(kdnl* 'metabolism "D2   stomach =" stomach-cont
+										(kdebug 'metabolism "D2   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
@@ -148,7 +148,7 @@
 																	  mass->food-conv-rate)))))
 										
 										
-										(kdnl* 'metabolism "D3   stomach =" stomach-cont
+										(kdebug 'metabolism "D3   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
@@ -164,7 +164,7 @@
 								(if (and mass (> stomach-cont 0.0))
 									 (begin ;; Growth and condition updates
 
-										(kdnl* 'metabolism "G0   stomach =" stomach-cont
+										(kdebug 'metabolism "G0   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
@@ -173,7 +173,7 @@
 												 (mg (* mgr dt))
 												 (delta-m (min mm mg))
 												 )
-										  (kdnl* 'metabolism "g0a          mm =" mm
+										  (kdebug 'metabolism "g0a          mm =" mm
 													" | mg =" mg " | delta-m =" delta-m)
 										  
 										  (set! mass (max 0.0 (+ mass delta-m)))
@@ -181,11 +181,11 @@
 												  (max 0.0
 														 (- stomach-cont
 															 (* delta-m food->mass-conv-rate))))
-										  (kdnl* 'metabolism "g0b          mm ="
+										  (kdebug 'metabolism "g0b          mm ="
 													mm" | mg =" mg " | delta-m =" delta-m)
 										  )
 
-										(kdnl* 'metabolism "G1   stomach =" stomach-cont
+										(kdebug 'metabolism "G1   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
@@ -195,7 +195,7 @@
 												 (delta-m (min mm mg))
 												 )
 										  
-										  (kdnl* 'metabolism "g1a          mm =" mm
+										  (kdebug 'metabolism "g1a          mm =" mm
 													" | mg =" mg " | delta-m =" delta-m)
 										  (set! condn (max 0.0 (+ condn delta-m)))
 										  (set! stomach-cont
@@ -203,17 +203,17 @@
 														 (- stomach-cont
 															 (* delta-m
 																 food->cond-conv-rate))))
-										  (kdnl* 'metabolism "g1b          mm ="
+										  (kdebug 'metabolism "g1b          mm ="
 													mm" | mg =" mg " | delta-m =" delta-m)
 										  )
 
-										(kdnl* 'metabolism "G2   stomach =" stomach-cont
+										(kdebug 'metabolism "G2   stomach =" stomach-cont
 												 "| condition =" condn "| mass =" mass
 												 "|=| cost = " cost)
 
 										))
 								
-								(kdnl* 'metabolism "X stomach =" stomach-cont
+								(kdebug 'metabolism "X stomach =" stomach-cont
 										 "| condition ="
 										 condn "| mass =" mass "|=| cost = " cost)
 
@@ -357,7 +357,8 @@
 
 (model-method (<simple-animal> <log-introspection> <symbol>) (map-log-data self logger format targets)
 				  (error "Get the projections right here")
-				  (let ((ps (slot-ref logger 'file))
+	  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+ 			  (let ((ps (slot-ref logger 'file))
 						  (p (get-model->local logger)))
 					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
 
@@ -378,31 +379,33 @@
 										(loop n (1+ k) (cdr tr))))))
 						)
 					 #t)
-				  )
+					 'boink?
+				  ))
 				  
 (model-method (<simple-animal> <log-introspection> <symbol>) (log-data self logger format  targets)
 				  (error "Get the projections right here")
-				  (let ((file (slot-ref logger 'file))
-						  (p (get-model->local logger)))
-					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						(let ((file (slot-ref logger 'file))
+								(p (get-model->local logger)))
+						  (if (or (not p) (null? p))  (set! p (lambda (x) x)))
 
-					 (kdnl* '(log-* log-animal) ":" targets)
-					 (case format
-						((ps)
-						 (map-log-data self logger format  targets p file)
-						 )
-						(else 
-						 (log-data-parent))
+						  (kdebug '(log-* log-animal) ":" targets)
+						  (case format
+							 ((ps)
+							  (map-log-data self logger format  targets p file)
+							  )
+							 (else 
+							  (log-data-parent))
+							 )
+
+						  (if (and (assoc 'track-segments
+												(my 'state-flags))
+									  (state-flag self 'track-segments))
+								(new-track! self))
+						  
+						  )
 						)
-
-					 (if (and (assoc 'track-segments
-										  (my 'state-flags))
-								 (state-flag self 'track-segments))
-						  (new-track! self))
-					 
-					 )
 				  )
-
 
 (model-method (<simple-animal> <number> <pair> <number> <number>)
 				  (wander-around self dt point attr speed) ;;
@@ -465,20 +468,20 @@
 
 
 (model-body <simple-animal>
-				(kdnl* '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
+				(kdebug '(model-bodies animal-running)  (class-name-of self) (name self) "@" t "/" dt)
 				(let ((dt/2 (/ dt 2.0))
 						(SQRT (lambda (x) (if (>= x 0) (sqrt x) 
 													 (if #t
 														  (begin 
-															 (kdnl* 'math-error "SQRT got a value of " x)
+															 (kdebug 'math-error "SQRT got a value of " x)
 															 0)
 														  (abort "I see ... a rhinoceros ...")
 														  )) ) )
 						)
-				  (kdnl* 'animal-running "[" (my 'name)
+				  (kdebug 'animal-running "[" (my 'name)
 							":" (class-name-of self) "]"
 							" at " t "+" dt)
-				  (kdnl* "******" 'running (my 'name)
+				  (kdebug "******" 'running (my 'name)
 							" the " (my 'representation)
 							" is running" "******")
 				  (set-my! 'age (+ (my 'age) dt/2))
@@ -505,7 +508,7 @@
 							(initial-subjective-time (my 'subjective-time))
 							)
 
-					 (kdnl* 'stomach "[" (my 'name) ":" (class-name-of self)
+					 (kdebug 'stomach "[" (my 'name) ":" (class-name-of self)
 							  "]" "===> stomach =" stomach-cont "| condition ="
 							  condition "| mass =" mass)
 
@@ -514,7 +517,7 @@
 							 (let ((focus ((my 'current-interest) self
 												(my 'age) t dt condition stomach-cont guts))
 									 )
-								(kdnl* 'focus "[" (my 'name) ":"
+								(kdebug 'focus "[" (my 'name) ":"
 										 (class-name-of self) "]" " in now focussed on " focus)
 
 								(cond
@@ -529,7 +532,7 @@
 								  )
 
 								 ((eq? focus 'hungry)
-								  (kdnl* 'debugging-eating "[" (my 'name)
+								  (kdebug 'debugging-eating "[" (my 'name)
 											":" (class-name-of self) "]" "hungry")
 
 								  (let* ((foodsites
@@ -551,7 +554,7 @@
 											(fooddata (sort (map cons foodvalue foodsites)
 																 (lambda (x y) (> (car x) (car y)))))
 											)
-									 (kdnl* "Food ranks" "[" (my 'name) ":"
+									 (kdebug "Food ranks" "[" (my 'name) ":"
 											  (class-name-of self) "]"
 											  (map (lambda (x)
 														(cons (car x)
@@ -562,7 +565,7 @@
 
 									 (if (zero? (length fooddata))
 										  (begin ;; No food possible ... 
-											 (kdnl* 'debugging-eating "[" (my 'name)
+											 (kdebug 'debugging-eating "[" (my 'name)
 													  ":" (class-name-of self) "]" "Hunting")
 											 (wander-around self dt
 																 (map (lambda (x) (/ x 2.0)) domain)
@@ -571,12 +574,12 @@
 										  (let ((target (cdar fooddata)))
 											 (if (contains? target (location self))
 												  (begin
-													 (kdnl* 'debugging-eating "[" (my 'name) ":"
+													 (kdebug 'debugging-eating "[" (my 'name) ":"
 															  (class-name-of self) "]"
 															  "Reading the menu")
 													 (let* ((TV (value target foodlist))
 															  (ate #f))
-														(kdnl* 'debugging-eating "[" (my 'name) ":"
+														(kdebug 'debugging-eating "[" (my 'name) ":"
 																 (class-name-of self) "]"
 																 "ordering the lot ("
 																 (value target foodlist) "/"
@@ -590,11 +593,11 @@
 																	  (/ (SQRT prop) (1+ prop)))))
 														  (set! ate (eat self available-food dt))
 														  )
-														(kdnl* 'debugging-eating "[" (my 'name) ":"
+														(kdebug 'debugging-eating "[" (my 'name) ":"
 																 (class-name-of self) "]" "removing "
 																 ate " from the patch ...")
 														(scale! target foodlist (- 1.0 (/ ate TV)))
-														(kdnl* 'debugging-eating "[" (my 'name) ":"
+														(kdebug 'debugging-eating "[" (my 'name) ":"
 																 (class-name-of self) "]" "done.")
 														)
 													 (wander-around self dt (location target)
@@ -602,7 +605,7 @@
 																		 'foragespeed)
 													 )
 												  (begin
-													 (kdnl* 'debugging-eating "[" (my 'name) ":"
+													 (kdebug 'debugging-eating "[" (my 'name) ":"
 															  (class-name-of self) "]"
 															  "move toward the food source")
 													 (wander-around self dt (location target)
@@ -626,7 +629,7 @@
 							 (set-my! 'objective (if (null? objective) #f objective))
 							 (set-my! 'age (+ (my 'age) dt/2))
 							 
-							 ;;(track-locus self t (my 'location)) ;;
+							 ;;(track-location self t (my 'location)) ;;
 							 ;;even if they aren't moving ::
 							 ;;automatically done in <thing>
 							 )

@@ -32,7 +32,7 @@
 ;; 							  dont-log timestep-schedule kernel
 							  
 ;; 							  ;; log agent things
-;; 							  introspection-list
+;; 							  introspection-targets
 ;; 							  timestep-epsilon 
 
 ;; 							  dims ;; thing things
@@ -240,7 +240,7 @@ A typical defns list would be like
 
 ;---  model-body <diffeq-system
 (model-body <diffeq-system>
-						(kdnl* '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
+						(kdebug '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
 
  						;; Ok, I need to be able to refer to service
 						;; directly (names) and to classes (types). Type

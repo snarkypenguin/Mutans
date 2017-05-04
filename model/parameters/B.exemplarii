@@ -31,15 +31,23 @@
 	 ;;(list 'age '<uninitialised>) ;; derive from mass
 	 ;;(list 'leaf-area '<uninitialised>) ;; derive from mass : real leaf area
     (list 'reproduction-mass (* 18 kg))
-    (list 'reproduction-period 0) ;; continuous
+    (list 'reproduction-period 1) ;; continuous
     (list 'reproduction-offset 0)
     ;;(list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
-    (list 'fruiting-rate (/ 0.1 (* 10 kg)))
+    (list 'fruiting-rate (/ 2 (* 10 kg)))
     (list 'seeds-per-fruit 60)
 	 (list 'speed 0)
 	 (list 'direction '(0 0))
 	 ;; The following should be passed in the initialisation:
 	 ;;    mass, location, habitat, water-*, age, lai
+
+	 ;; Fruit is added by the trees
+	 (list 'fruit-decay -1e-5) ;; 220000 -> ~5100 in 90 days   ;; Not used directly by the trees.
+
+	 ;; seeds are added by juvenile herbivores
+	 (list 'seed-decay -6e-6) ;; 2000 -> ~100 in 7 days        ;; Not used directly by the trees.
+
+
   )
 )
 (set! global-parameter-alist (cons (cons "B.exemplarii" B.exemplarii-parameters) global-parameter-alist))

@@ -48,21 +48,21 @@
 
 ;-  Code 
 
-(define (dnl . lst) 
-  (if (pair? lst)
-		(begin
-		  (display (car lst))
-		  (if (pair? (cdr lst)) 
-				(for-each display (cdr lst)))))
-  (newline))
+;;; (define (dnl . lst)  ***
+;;;   (if (pair? lst) ***
+;;; 		(begin ***
+;;; 		  (display (car lst)) ***
+;;; 		  (if (pair? (cdr lst))  ***
+;;; 				(for-each display (cdr lst))))) ***
+;;;   (newline)) ***
 
-(define (dnl* . lst) 
-  (if (pair? lst)
-		(begin
-		  (display (car lst))
-		  (if (pair? (cdr lst)) 
-				(display (string-append (map (lambda (x) (string-append " " (object->string x))) (cdr lst)))))))
-  (newline))
+;;; (define (dnl* . lst)  ***
+;;;   (if (pair? lst) ***
+;;; 		(begin ***
+;;; 		  (display (car lst)) ***
+;;; 		  (if (pair? (cdr lst))  ***
+;;; 				(display (string-append (map (lambda (x) (string-append " " (object->string x))) (cdr lst))))))) ***
+;;;   (newline)) ***
 
 (define (tail l n)
   (list-tail l (- (length l) n)))
@@ -214,7 +214,9 @@
 													 (#t
 													  (if (and (pair? string) (pair? pattern) (not (char= (car pattern) (car string))))
 															#f
-															(simple-wildmatch (cdr pattern) (cdr string))
+															(if (pair? string)
+																 (simple-wildmatch (cdr pattern) (cdr string))
+																 (null? (cdr pattern)))
 															))
 													 
 													 ))

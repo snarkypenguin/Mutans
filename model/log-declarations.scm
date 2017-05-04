@@ -10,8 +10,8 @@
 
 
 
-;(declare-method introspection-list "return the introspection list")
-;(declare-method set-introspection-list! "set the list of agents to be examined")
+;(declare-method introspection-targets "return the introspection list")
+;(declare-method set-introspection-targets! "set the list of agents to be examined")
 ;(declare-method introspection-times "return the introspection list")
 ;(declare-method set-introspection-times! "set the list of agents to be examined")
 ;(declare-method page-preamble "open files & such")

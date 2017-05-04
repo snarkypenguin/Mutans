@@ -46,9 +46,6 @@
   (map I->E (map (lambda (x) (/ x res)) (map - xy m))))
 
 
-(define (make-box ll ur)
-  (list ll (list (car ll) (cadr ur)) ur (list (cadr ll) (car ur)) ll))
-
 ;;(define (logistic-growth  dt domain 0  value capacity  rvalue)
 
 ;(define service? (make-generic))
@@ -59,7 +56,6 @@
 ;(define services (make-generic)) ;; returns value
 ;(define set-services! (make-generic)) ;; sets value
 ;(define value (make-generic))      -- defined for environment
-;(define add-to-value (make-generic))      -- defined for environment
 ;(define set-value! (make-generic)) -- defined for environment
 
 ;--- oriented toward habitats, patches  and ecoservices
@@ -148,6 +144,7 @@
 
 (define print-environment-data
   (lambda (ps p x n ns loc rad)
+	 (ps 'comment "in print-environment-data")
 	 (ps 'moveto (map p (map + (list-head loc 2)
 									 (map p (list (* 1.0 rad)
 													  (* (- (/ ns 2.0) n) 1.0))))))
@@ -159,9 +156,10 @@
 
 
 (define (crop-caption ps p x #!rest pt)
+	 (ps 'comment "in crop-caption")
 	 (if (null? pt) (set! pt 10) (set! pt (car pt)))
-	 (let ((loc ((mapf p) (list-head (location x) 2)))
-			 (rad (car (p (list (radius x))))))
+	 (let ((loc (p (list-head (location x) 2)))
+			 (rad (car (p (make-list 2 (radius x))))))
 		(ps 'moveto (map - loc
 							  (list (* 0.5 rad)  (* -1 (+ 5 (* 1 rad) )))))
 		(ps 'Helvetica pt)
@@ -342,7 +340,14 @@
 (model-method (<environment>) (random-point self) ;; returns a random location in the environment
 				   ;;(let ((n (my 'minv)))
 				  ;;  (map + (map * (map random-real n) (map - (my 'maxv) (my 'minv))) (my 'minv)))
-				  (random-location (my 'minv) (my 'maxv)))
+				  (if #f
+						(random-location (my 'minv) (my 'maxv))
+						(let ((theta (* 2 (acos -1)))
+								;(r (random-real) (/ + (radius self) (Radius self)))
+								(r (* (random-real)  (radius self)))
+						  )
+						  (list (* r (cos theta)) (* r (sin theta)))
+				  )))
 
 ;-- <ecoservice> methods and bodies
 
@@ -359,8 +364,9 @@ insertion in the queue is not prescribed. The best way of dealing with
 this situation would be to ensure that the timestep associated with
 ecoservices is half (or less) of the timestep of the patch.
 
-When ecoservices are running externally, they maintain a list of agents which will respond to 
-
+When ecoservices are running externally, they maintain a list of
+agents which will respond to kernel calls, or they will work via calls 
+via their containing patch.
 ")
 
 
@@ -370,7 +376,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 (UNFINISHED-BUSINESS "This should probably have bits disabled when there are active-subsidiary-agents")
 (model-body <ecoservice>
-						(kdnl* '(model-bodies ecoservice-running) (class-name-of self) (my 'name)  "@"  t)
+						(kdebug '(model-bodies ecoservice-running) (cnc self) (my 'name)  "@"  t)
 						(let ((h (slot-ref self 'history)))
 						  (if h
 								(slot-set! self 'history
@@ -407,7 +413,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 										 (newvalue 
 										  (cond
 											((procedure? ecoserv-growth)
-											 (growth-model t dt value))
+											 (ecoserv-growth t dt value))
 											((eqv? ecoserv-growth 'sigmoid)
 											 (let* (;; This is a logistic update
 													  (ipt (/ value capacity)) 
@@ -503,6 +509,14 @@ When ecoservices are running externally, they maintain a list of agents which wi
 	  (#t (error "bad request to external ecoservice agent"))))
   )
 
+(define (ext-add!-func self v)
+  (lambda (other)
+	 (cond
+	  ((eqv? (slot-ref other 'sym) (slot-ref self 'sym)) (add! other v))
+	  (#f 0)
+	  (#t (error "bad request to external ecoservice agent"))))
+  )
+
 (model-method (<ecoservice>) (symbol self)
 				  (slot-ref self 'sym))
 
@@ -543,6 +557,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							  asa))
 						  ))
 				  )
+
 
 (model-method (<ecoservice>) (growth-model self)
 				  (my 'growth-model))
@@ -591,84 +606,94 @@ When ecoservices are running externally, they maintain a list of agents which wi
 (model-method <ecoservice> (location self)
 				  (location (my 'patch)))
 
-(model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets args)
-				  (let ((f (if (pair? args) (car args) #f))
-						  (p (if (and (pair? args)
-										  (pair? (cdr args)))
-									(cadr args)
-									#f)))
-					 (let ((file (slot-ref logger 'file)))
-						(kdnl* '(log-* log-ecoservice)
-								 "[" (my 'name) ":" (class-name-of self) "]"
-								 "in log-data")
-						(let ((leading-entry #f))
-						  (for-each
-							(lambda (field)
-							  (kdnl* '(log-* log-ecoservice) "[" (my 'name) ":"
-										(class-name-of self) "]" "checking" field)
-							  (if (has-slot? self field)
-									(let ((r (slot-ref self field)))
-									  (case format
-										 ((ps)
-										  (file 'show (string-append
-															(if (string? r)
-																 r
-																 (object->string r)) " "))
-										  )
+(model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
+				  (let (;;(f (if (pair? args) (car args) #f))
+						  ;;(p (if (and (pair? args)
+							;;			  (pair? (cdr args)))
+							;;		(cadr args)
+						  ;;		#f))
+						  )
+					 (kdebug '(log-horrible-screaming ecoservice log-ecoservice) (cnc self) (cnc format) (cnc (my 'name)))
+					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						  (let ((file (slot-ref logger 'file)))
+							 (kdebug '(log-* log-ecoservice)
+										 "[" (my 'name) ":" (cnc self) "]"
+										 "in log-data")
+							 (let ((leading-entry #f))
+								(for-each
+								 (lambda (field)
+									(kdebug '(log-* log-ecoservice) "[" (my 'name) ":"
+												(cnc self) "]" "checking" field)
+									(if (has-slot? self field)
+										 (let ((r (slot-ref self field)))
+
+											(case format
+											  ((ps)
+												(file 'show (string-append
+																 (if (string? r)
+																	  r
+																	  (object->string r)) " "))
+												)
 ;								 ((dump)
 ;								  (with-output-to-port file
 ;										(lambda ()
 ;										  (dump self))))
 
-										 ((text table dump)
-										  (let ((show-field-name
-													(slot-ref logger 'show-field-name))
-												  (missing-val
-													(slot-ref logger 'missing-val))
-												  )
-											 (if show-field-name
-												  (begin
-													 (if leading-entry 
-														  (display " " file)
-														  (set! leading-entry #t))
-													 (display field file)))
-											 
-											 (let ((val (if (eqv? field 'name) 
-																 (if (slot-ref self 'patch)
-																	  (string-append
-																		(slot-ref
-																		 (slot-ref self 'patch)
-																		 'name) ":" (name self))
-																	  (name self))
-																 (if (has-slot? self field)
-																	  (slot-ref self field)
-																	  (slot-ref logger
-																					'missing-val)))))
-												(if leading-entry 
-													 (display " " file)
-													 (set! leading-entry #t))
-												(display val file))
-											 )
-										  )
-
-										 (else
-										  (kdnl* '(log-* log-ecoservice)
-													"[" (my 'name) ":" (class-name-of self) "]"
-													"Ignoring " field " because I don't have it")
-										  'ignore-unhandled-format)))
-									(begin
-									  (kdnl* '(log-* log-ecoservice)
-												"[" (my 'name) ":" (class-name-of self) "]"
-												"no service" field)
-									  #f)))
-							(uniq (if #t
-										 targets
-										 (filter (not-member (slot-ref logger 'dont-log))
-													targets)))
-							)
-						  (newline file)
+											  ((text table dump)
+												(let ((S (with-output-to-string '()
+																						  (lambda ()
+																							 (let ((show-field-name
+																									  (slot-ref logger 'show-field-name))
+																									 (missing-val
+																									  (slot-ref logger 'missing-val))
+																									 )
+																								(if show-field-name
+																									 (begin
+																										(if leading-entry 
+																											 (display " ")
+																											 (set! leading-entry #t))
+																										(display field)))
+																								
+																								(let ((val (if (eqv? field 'name) 
+																													(if (slot-ref self 'patch)
+																														 (string-append
+																														  (slot-ref
+																															(slot-ref self 'patch)
+																															'name) ":" (name self))
+																														 (name self))
+																													(if (has-slot? self field)
+																														 (slot-ref self field)
+																														 (slot-ref logger
+																																	  'missing-val)))))
+																								  (if leading-entry 
+																										(display " " file)
+																										(set! leading-entry #t))
+																								  (display val))
+																								)
+																							 )
+																						  )))
+												  
+												  (display S file)))
+											  (else
+												(kdebug '(log-* log-ecoservice)
+															"[" (my 'name) ":" (cnc self) "]"
+															"Ignoring " field " because I don't have it")
+												'ignore-unhandled-format)))
+										 (begin
+											(kdebug '(log-* log-ecoservice)
+														"[" (my 'name) ":" (cnc self) "]"
+														"no service" field)
+											#f)))
+								 (uniq (if #t
+											  targets
+											  (filter (not-member (slot-ref logger 'dont-log))
+														 targets)))
+								 )
+								(newline file)
+								)
+							 )
 						  )
-						))
+					 )
 				  )
 
 
@@ -685,7 +710,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 							)))
 
 (define (make-crop-circle centre radius . n) ;; (-: make-patch-circle might be more appropriate, but not as much fun :-)
-  (create- <circle> 'type 'area 'locus centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
+  (create- <circle> 'type 'area 'location centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
   )
 
 ;(model-method (<circle>) (dump self)
@@ -708,16 +733,16 @@ When ecoservices are running externally, they maintain a list of agents which wi
 				  )
 
 (model-method (<circle>) (minima self)
-				  (map - (my 'locus) (make-list (length (my 'locus)) (my 'radius))))
+				  (map - (my 'location) (make-list (length (my 'location)) (my 'radius))))
 
 (model-method (<circle>) (maxima self)
-				  (map + (my 'locus) (make-list (length (my 'locus)) (my 'radius))))
+				  (map + (my 'location) (make-list (length (my 'location)) (my 'radius))))
 
 (model-method (<circle> <list>) (contains? self loc)
-				  (<= (distance (my 'locus) loc) (my 'radius)))
+				  (<= (distance (my 'location) loc) (my 'radius)))
 
 (model-method (<circle>) (centre self)
-				  (my 'locus))
+				  (my 'location))
 
 (model-method (<circle>) (radius self)
 				  (my 'radius))
@@ -734,10 +759,10 @@ When ecoservices are running externally, they maintain a list of agents which wi
 (model-method (<circle> <list>) (distance-to-boundary self loc)
 				  (if (contains? self loc)
 						0
-						(- (distance loc (my 'locus)) (my 'radius))))
+						(- (distance loc (my 'location)) (my 'radius))))
 
 (model-method (<circle>) (random-point self)
-					(let ((c (my 'locus))
+					(let ((c (my 'location))
 							(r (my 'radius)))
 					  (map (lambda (x)
 								(+ x (* r
@@ -745,15 +770,19 @@ When ecoservices are running externally, they maintain a list of agents which wi
 										 (* 2.0 (random-real))
 										 1.0)))) c)))
 
+(model-method (<circle>) (perimeter self #!optional n)
+				  (if (not (integer? n)) (set! n 120))
+				  (make-circle-perimeter (my 'location) (my 'radius) n))
 
+				  
 ;--- <polygon>
 
 ;;(default-object-initialisation <polygon>)
 
-(define (make-polygon centre polygon)
+(define (make-polygon centre polygon #!optional is-relative)
   (if (not (eqv? (car polygon) (car (reverse polygon))))
 		(set! polygon (append polygon (list (car polygon)))))
-  (create- <polygon> 'type 'area 'locus centre 'perimeter (list-copy polygon)))
+  (create- <polygon> 'type 'area 'location centre 'perimeter (list-copy polygon) 'is-relative is-relative))
 
 ;(model-method (<polygon>) (dump self)
 ;					(dump% self 0))
@@ -773,44 +802,77 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 slots vals))
 				  )
 
+;; uses the point-in-polygon routine found in maths.scm
+(model-method (<polygon> <list>) (contains? self loc)
+				  (point-in-polygon loc (perimeter self)))
+
+;; NOTE that this returns a negative number if the point is in the interior of the polygon.
+(model-method (<polygon> <list>) (distance-to-boundary self point) ;; This is 2d only...
+				  (let* ((x0 (car point))
+							(y0 (cadr point))
+							(P (perimeter self))
+							(R (let loop ((p P) (r '()))
+								  (if (or (null? (cdr p)) (null? p))
+										(apply max r)
+										(let ((x1 (car (car p)))
+												(y1 (cadr (car p)))
+												(x2 (car (cadr p)))
+												(y2 (cadr (cadr p))))
+										  (loop (cdr p)
+												  (cons (/ (+ (* (- y2 y1) x0) (* (- x1 x2) y0) (* x2 y1))
+															  (sqrt (+ (sqr (- y2 y1)) (sqr (- x2 x1)))))
+														  r))))))
+							)
+					 (if (contains? self point) (- R) R)))
+
+(model-method (<polygon>) (centre self)
+				  ;; This is a *very* simplistic "centre" which may lie
+				  ;; outside the perimeter in convex polygons.
+				  (let* ((p (perimeter self))
+							(P (if (equal? (car p) (car (reverse p))) (cdr p) p))) ;; handle closed polygons.
+					 (map (lambda (x) (/ x (length P))) (apply map + P))))
+
+(model-method (<polygon>) (perimeter self #!optional drop-closing-point)
+				  (let* ((c (my 'location))
+							(p (if (my 'is-relative)
+									 (map (lambda (ord) (map + ord c)) (my 'perimeter))
+									 (my 'perimeter)))
+							)
+					 (if (and drop-closing-point (equal? (car p) (car (reverse p)))) (cdr p) p))) ;; handle closed polygons.
+
 (model-method (<polygon>) (minima self)
-				  (extremum min (my 'perimeter)))
+				  (extremum min (perimeter self)))
 
 (model-method (<polygon>) (maxima self)
-				  (extremum max (my 'perimeter)))
+				  (extremum max (perimeter self)))
 
-
-(model-method (<polygon> <list>) (contains? self loc)
-				  (point-in-polygon loc (my 'perimeter)))
-
-
-(model-method (<polygon> <list>) (distance-to-boundary self loc)
-				  (if (contains? self loc)
-						0
-						(distance-to-boundary loc (my 'perimeter))))
 
 (model-method (<polygon>) (min-bound self)
-				  (let ((c (my 'locus)))
+				  (let ((c (my 'location)))
 					 (apply min (map (lambda (p)
 											 (distance c p))
-										  (my 'perimeter)))))
+										  (perimeter self)))))
 
 
 (model-method (<polygon>) (max-bound self)
-				  (let ((c (my 'locus)))
+				  (let ((c (my 'location)))
 					 (apply max (map (lambda (p)
 											 (distance c p))
-										  (my 'perimeter)))))
+										  (perimeter self)))))
+
 
 (model-method (<polygon>) (Radius self)
 				  (max-bound self)
 				  )
+
 (model-method (<polygon>) (radius self)
-				  (min-bound self)
-				  )
+				  ;;(min-bound self)
+				  (magnitude (distance-to-boundary self (my 'location))))
+
+					 
 
 (model-method (<polygon>) (random-point self)
-					(let* ((peri (my 'perimeter))
+					(let* ((peri (perimeter self))
 							 (minx (apply min (map car peri)))
 							 (maxx (apply max (map car peri)))
 							 (dx (- maxx minx))
@@ -827,6 +889,15 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 ;-- <patch> methods and bodies
 ;; 
+
+
+(model-method (<patch>) (perimeter self #!optional passing-argument)
+				  (perimeter (my 'rep) passing-argument))
+
+(model-method (<patch>) (centre self)
+				  (centre (my 'rep)))
+
+
 (define (make-boundary rep centre arg)
   (let ((rep-class (case rep
 							((circle) <circle>)
@@ -836,24 +907,22 @@ When ecoservices are running externally, they maintain a list of agents which wi
 	 (let ((M (create- rep-class 'type 'area)))
 		(case rep
 		  ((circle)
-			(slot-set! M 'rep (create- <circle> 'type 'area 'locus centre 'radius arg))
-
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
+			(slot-set! M 'rep (create- <circle> 'type 'area 'location centre 'radius arg))
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
 											'perimeter (list-copy arg)))
-			
 			)
 
 		  ((polygon absolute-polygon)
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
 													 'perimeter (list-copy arg)))
-			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep))
-			))
+			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep)))
+			)
 
 		  ((relative-polygon)
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'locus centre
-											'perimeter (translate-trace centre arg)))
-			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep))
-			))
+			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
+											'perimeter (list-copy arg) 'is-relative #t))
+			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep)))
+			)
 
 		  (else (error "Bad representation specified for a boundary" rep)))))
   )
@@ -913,16 +982,16 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 (model-method (<patch> <polygon> <list>) (install-boundary self bdry centre)
 				  (set-my! 'rep bdry)
-				  (slot-set! bdry 'locus centre)
+				  (slot-set! bdry 'location centre)
 				  )
 
 (model-method (<patch> <circle> <list>) (install-boundary self bdry centre)
 				  (set-my! 'rep bdry)
-				  (slot-set! bdry 'locus centre)
+				  (slot-set! bdry 'location centre)
 				  )
 
 (model-method <patch> (location self)
-				  (slot-ref (my 'rep) 'locus))
+				  (slot-ref (my 'rep) 'location))
 
 ;--- (service?...) queries if a service is present
 (model-method (<patch> <symbol>) (service? self sym)
@@ -957,20 +1026,18 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 ;--- (distance-to-centre...) returns the distance to the centre of the patch
 (model-method (<patch> <list>) (distance-to-centre self loc)
-				  (let ((sqr (lambda (x) (* x x))))
-					 (sqrt (apply + (map sqr (map - (list-head
-																(slot-ref (my 'rep) 'locus) 2)
-															(list-head loc 2)))))))
+				  (sqrt (apply + (map sqr (map - (list-head
+															 (slot-ref (my 'rep) 'location) 2)
+															(list-head loc 2))))))
 
 ;--- (distance-to-interior...) returns the distance to the boundary of
 ;the patch (more expensive than the dist to centre)
 (model-method (<patch> <list>) (distance-to-interior self loc)
-				  (let* ((sqr (lambda (x) (* x x)))
-							(R (- (sqrt (apply
+				  (let* ((R (- (sqrt (apply
 											 + (map sqr
 													  (map -
 															 (list-head
-															  (slot-ref (my 'rep) 'locus) 2)
+															  (slot-ref (my 'rep) 'location) 2)
 															 (list-head loc 2)))))
 									(my 'radius)))
 							)
@@ -979,17 +1046,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 ;--- (contains?...) predicate to indicate if something is in the patch
 
 (model-method <patch> (contains? self bit)
-				  (if (null? bit) 
-						(abort "Missing argument to contains?")
-						(set! bit (car bit)))
-				  (cond
-					((pair? bit)
-					 (let ((R (distance-to-interior self bit)))
-						(zero? R)))
-					((isa? bit <thing>)
-					 (let ((R (distance-to-interior self (location bit))))
-						(zero? R)))
-					(else #f)))
+				  (contains? (slot-ref self 'rep) bit))
 
 ;;(model-method (<patch> <thing>) (contains? self entity)
 ;;				  (contains? (location entity))
@@ -1005,7 +1062,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 					 (if (null? ss)
 						  S
 						  (filter
-							(lambda (x) (or (member (sym x) ss) (member (name x) ss)))
+							(lambda (x) (or (member (symbol x) ss) (member (name x) ss)))
 							S))))
 
 
@@ -1022,6 +1079,11 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 (model-method (<patch>) (radius self)
 				  (radius (my 'rep)))
+
+
+(model-method (<patch>) (Radius self)
+				  (Radius (my 'rep)))
+
 
 (model-method (<patch> <symbol>) (value self servlist)
 				  (set! servlist (list servlist))
@@ -1184,7 +1246,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 ;--- model-body <patch>
 (model-body <patch>
-						(kdnl* '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
+						(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
 
 						;;(dnl* (slot-ref self 'name))
 
@@ -1207,67 +1269,79 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
 (model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (kdnl* 'log-horrible-screaming (map cnc (list self logger format  targets)) 'format: format)
-				  (let ((file (slot-ref logger 'file))
-						  (p (composite-projection (slot-ref self 'local->model)
-															(slot-ref logger 'model->local)))
-						  )
-					 (if (not (procedure? p)) (set! p (lambda (x) x)))
-					 (kdnl* '(log-* log-patch) "[" (my 'name) ":"
-							  (class-name-of self) "]" "in log-data")
-					 
-					 (case format
-						((ps)
-						 (let* ((symlist (services self))
-								  (name (slot-ref self 'name))
-								  (R (car (p (list (radius self)))))
-								  (L (p (list-head (location self) 2)))
-								  (slist (slot-ref self 'service-list))
-								  (n (+ 1 (length slist))) ;; slist is
-								  ;; becoming
-								  ;; circular??
-								  ;; ....******
-								  (ns (length slist))
-								  (mm-xoffset 2)
-								  (mm-yoffset 2)
+				  (kdebug '(log-horrible-screaming ecoservice) (map cnc (list self logger format  targets)) 'format: format)
+				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						(let ((file (slot-ref logger 'file))
+								(p (composite-prj_src->dest self logger))
+								)
+						  (if (not (procedure? p)) (set! p (lambda (x) x)))
+						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
+									  (cnc self) "]" "in log-data")
+						  
+						  (case format
+							 ((ps)
+							  (let* ((symlist (services self))
+										(name (slot-ref self 'name))
+										(R (car (p (make-list 2 (radius self)))))
+										   ;; this will fail if the projection is not a linear-map
+										(L (p (list-head (location self) 2)))
+										(slist (slot-ref self 'service-list))
+										(n (+ 1 (length slist))) ;; slist is
+										;; becoming
+										;; circular??
+										;; ....******
+										(ns (length slist))
+										(mm-xoffset 2)
+										(mm-yoffset 2)
+										)
+								 (file 'comment "in log-data for <patch>")
+								 
+								 (if adjust-grey (file 'setgray PATCHGREY))
+								 (cond
+								  ((or (isa? (my 'rep) <circle>)
+										 (isa? (my 'rep) <polygon>))
+									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep))))
+									(adjusted-plot-polygon file 0.7 0.0 #f
+																  (composite-prj_src->dest
+																	self logger)
+																  (perimeter (my 'rep))))
+								  (#t (error "Bad representation for output" (cnc (my 'rep)))) 
 								  )
-							
-							(if adjust-grey (file 'setgray PATCHGREY))
-							(ps-circle file  R L 0.7 0.0)
+								 
+								 (file 'moveto (p (map + L
+															  (list (+ mm-xoffset
+																		  (* 0.2 R))
+																	  (+ mm-yoffset
+																		  (/ ns 2.0)))
+															  )))
+								 (file 'show-table (map
+														  (lambda (x) (string-append
+																			(slot-ref x 'name)
+																			": " (pno (value x))))
+														  slist))
 
-							(file 'moveto (p (map + L
-														 (list (+ mm-xoffset
-																	 (* 1.05 R))
-																 (+ mm-yoffset
-																	 (/ ns 2.0)))
-														 )))
-							(file 'show-table (map
-													 (lambda (x) (string-append
-																	  (slot-ref x 'name)
-																	  ": " (pno (value x))))
-													 slist))
-
-							(crop-caption file p self)
-							))
+								 (crop-caption file p self)
+								 ))
 
 
-						;;((text table dump)
-						;; (log-data-parent)
-						;; )
-						(else
-						 (display (my 'name) file)
-						 (for-each 
-						  (lambda (x)
-							 (display " " file)
-							 (if (agent? x)
-								  (display (value x))
-								  (display x)))
-						  (map (lambda (x) (value x)) (my 'service-list)))
-						 (newline file)
-						 ;;(log-data-parent)	
-						 )
+							 ;;((text table dump)
+							 ;; (log-data-parent)
+							 ;; )
+							 (else
+							  (display (my 'name) file)
+							  (for-each 
+								(lambda (x)
+								  (display " " file)
+								  (if (agent? x)
+										(display (value x))
+										(display x)))
+								(map (lambda (x) (value x)) (my 'service-list)))
+							  (newline file)
+							  ;;(log-data-parent)	
+							  )
+							 )
+						  )
 						)
-					 )
 				  )
 
 
@@ -1358,11 +1432,11 @@ When ecoservices are running externally, they maintain a list of agents which wi
 				  (cond
 					((eq? bdry <circle>)
 					 (list 'rep (create- <circle> 'name name 
-											'locus centre 'radius radius)
+											'location centre 'radius radius)
 							 ))
 					((eq? bdry <polygon>)
 					 (let ((p (list 'rep (create- <polygon> 'name name 
-											'locus centre 'perimeter (list-copy box))
+											'location centre 'perimeter (list-copy box))
 										 )))
 						;(dump (cadr p))
 						p))
@@ -1395,12 +1469,14 @@ When ecoservices are running externally, they maintain a list of agents which wi
 
 
 ;; Returns a list of the form (patchlist patchgrid)
-(define (make-grid cell-class taxon name cell-type n m ll ur #!rest terrain)
+(define (make-grid cell-class taxon name cell-type n m ll ur #!rest extras)
   (let* ((nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
 			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 n))))
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
+			(terrain (if (pair? extras) (car extras)))
+			(statevars (if (pair? extras) (cdr extras)))
 			)
 	 
 	 (map-**-ix (lambda (x i)
@@ -1414,7 +1490,7 @@ When ecoservices are running externally, they maintain a list of agents which wi
 															(number->string (cadr i))))
 							  )
 						 
-						 (kdnl* 'make-grid "Working " x i " --> "box)
+						 (kdebug 'make-grid "Working " x i " --> "box)
 						 (let* ((minx +nan.0)
 								  (miny +nan.0)
 								  (maxx +nan.0)
@@ -1427,11 +1503,11 @@ When ecoservices are running externally, they maintain a list of agents which wi
 									 taxon
 									 'name pname
 									 'type cell-type
-									 'representation (class-name-of cell-type)
+									 'representation (cnc cell-type)
 									 'rep
 									 (create-
 									  <polygon>
-									  'locus centre
+									  'location centre
 									  'type '(area tesselation)
 									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
 									  'perimeter box
@@ -1440,7 +1516,9 @@ When ecoservices are running externally, they maintain a list of agents which wi
 									  'note "generated by make-grid"
 									  'dont-log #f ;; let them be logged by default
 									  ))))
-							
+							(if (pair? statevars) (set-state-variables cell statevars))
+							;; so we can adjust things like dt.
+
 							(set! patch-list (cons cell patch-list))
 							cell))
 						 )
@@ -1547,55 +1625,57 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <procedure> <symbol> <procedure>)(log-data self logger format  targets)
 (model-method (<dynamic-patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (let ((file (slot-ref logger 'file))
-						  (p (slot-ref self 'projection-assoc-list)))
-					 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
-					 (kdnl* '(log-* log-patch) "[" (my 'name) ":"
-							  (class-name-of self) "]" "in log-data")
-					 
-					 (case format
-						((ps)
-						 (let* ((symlist (services self))
-								  (name (slot-ref self 'name))
-								  )
+				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						(let ((file (slot-ref logger 'file))
+								(p (slot-ref self 'projection-assoc-list)))
+						  (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
+									  (cnc self) "]" "in log-data")
+						  
+						  (case format
+							 ((ps)
+							  (let* ((symlist (services self))
+										(name (slot-ref self 'name))
+										)
 
-							(if adjust-grey (file 'setgray PATCHGREY))
-							(ps-circle file  (p (list (radius self)))
-										  (p (list-head (location self) 2)) 0.7 0.0)
+								 (if adjust-grey (file 'setgray PATCHGREY))
+								 (ps-circle file  (p (list (radius self)))
+												(p (list-head (location self) 2)) 0.7 0.0)
 
 
-							(let* ((slist (slot-ref self 'service-list))
-									 (n (+ 1 (length slist))) ;; slist is becoming circular?? ....******
-									 (ns (length slist))
-									 (loc (location self))
-									 (rad (radius self))
-									 (mm-xoffset 2)
-									 (mm-yoffset 2)
-									 )
-							  (file 'moveto (map p (map + 
-																 (list-head loc 2) 
-																 (list (+ mm-xoffset (* 1.05 rad))
-																		 (+ mm-yoffset (/ ns 2.0)))
-																 )))
-							  (file 'show-table
-									  (map
-										(lambda (x) (string-append
-														 (slot-ref x 'name)
-														 ": "
-														 (pno (value x))))
-										slist))
+								 (let* ((slist (slot-ref self 'service-list))
+										  (n (+ 1 (length slist))) ;; slist is becoming circular?? ....******
+										  (ns (length slist))
+										  (loc (location self))
+										  (rad (radius self))
+										  (mm-xoffset 2)
+										  (mm-yoffset 2)
+										  )
+									(file 'moveto (map p (map + 
+																	  (list-head loc 2) 
+																	  (list (+ mm-xoffset (* 1.05 rad))
+																			  (+ mm-yoffset (/ ns 2.0)))
+																	  )))
+									(file 'show-table
+											(map
+											 (lambda (x) (string-append
+															  (slot-ref x 'name)
+															  ": "
+															  (pno (value x))))
+											 slist))
+									)
+								 (crop-caption file p self)
+								 )
 							  )
-							(crop-caption file p self)
-							)
-						 )
 
-						;;((text table dump)
-						;; (log-data-parent)
-						;; )
-						(else
-						 (log-data-parent))
+							 ;;((text table dump)
+							 ;; (log-data-parent)
+							 ;; )
+							 (else
+							  (log-data-parent))
+							 )
+						  )
 						)
-					 )
 				  )
 
 ;--- model-method <dynamic-patch> (enable-service-growth! self service-name)
@@ -1644,14 +1724,14 @@ args can be  an update map or an update map and update equations
 
 ;; This is to keep the "run" chain consistent
 (model-body <landscape>
-						(kdnl* '(model-bodies landscape-running nested-habitat)  (class-name-of self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
+						(kdebug '(model-bodies landscape-running nested-habitat)  (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
 						(call-next-parent-body) ;; chain to <environment>
-						(kdnl* '(nested-habitat)  "after parent body ->" (class-name-of self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
+						(kdebug '(nested-habitat)  "after parent body ->" (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
 						dt
 						)
 
 ;;(model-body <landscape> 
-;;						(kdnl* 'running (my 'name) ":" (my 'representation) " is running")
+;;						(kdebug 'running (my 'name) ":" (my 'representation) " is running")
 ;;						(for-each (lambda (x)
 ;;										(run-model-body x t dt))
 ;;									 (my 'patch-list))
@@ -1962,56 +2042,59 @@ args can be  an update map or an update map and update equations
 
 ;--- (<habitat> <procedure>) (map-log-data self logger format targets)
 (model-method (<habitat> <log-introspection> <symbol> <list>) (map-log-data self logger format  targets)
-  (let* ((symlist (services self))
-			(name (slot-ref self 'name))
-			(plist (slot-ref self 'patch-list))
-			(locs (centroid (map location plist)))
-			)
-	 (let ((ps (slot-ref logger 'file))
-			 (p (slot-ref self 'projection-assoc-list)))
-		(if (or (not p) (null? p))  (set! p (lambda (x) x)))
-		
-		(ps 'moveto (list (p (car locs)) (p (cadr locs))))
-		(if adjust-grey (ps 'setgray HABITATGREY))
-		(ps 'Helvetica 12)
-		(ps 'show (string-append (slot-ref self 'name)))								  
-		
-		(let ((subs (slot-ref self 'active-subsidiary-agents)))
-		  (if (pair? subs)
-				 (for-each (lambda (lpch)
-							 (ps 'Helvetica 7)
-							 (map-log-data lpch format targets p ps)
-							 )
-							  subs))))
-	 
-		))
+				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						(let* ((symlist (services self))
+								 (name (slot-ref self 'name))
+								 (plist (slot-ref self 'patch-list))
+								 (locs (centroid (map location plist)))
+								 )
+						  (let ((ps (slot-ref logger 'file))
+								  (p (slot-ref self 'projection-assoc-list)))
+							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+							 
+							 (ps 'moveto (list (p (car locs)) (p (cadr locs))))
+							 (if adjust-grey (ps 'setgray HABITATGREY))
+							 (ps 'Helvetica 12)
+							 (ps 'show (string-append (slot-ref self 'name)))								  
+							 
+							 (let ((subs (slot-ref self 'active-subsidiary-agents)))
+								(if (pair? subs)
+									 (for-each (lambda (lpch)
+													 (ps 'Helvetica 7)
+													 (map-log-data lpch format targets p ps)
+													 )
+												  subs))))
+						  
+						  )))
 
 ;--- (<habitat> <procedure>...) (log-data self logger format  targets)
 (model-method (<habitat> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-	  (let ((ps (slot-ref logger 'file))
-			  (p (slot-ref self 'projection-assoc-list)))
-		 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
-		 (case format
-			((ps)
+				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						(let ((ps (slot-ref logger 'file))
+								(p (slot-ref self 'projection-assoc-list)))
+						  (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+						  (case format
+							 ((ps)
 
-			 (map-log-data self logger format targets p ps)
-			 (let ((subs (slot-ref self 'active-subsidiary-agents)))
-				  (for-each (lambda (lpch)
-								  (log-data lpch logger format targets ps p)
-								  )
-								(my 'patch-list)))
-			 )
-			((dump)
-			 (with-output-to-port
-				  (lambda ()
-					 (dump self))))
+							  (map-log-data self logger format targets p ps)
+							  (let ((subs (slot-ref self 'active-subsidiary-agents)))
+								 (for-each (lambda (lpch)
+												 (log-data lpch logger format targets ps p)
+												 )
+											  (my 'patch-list)))
+							  )
+							 ((dump)
+							  (with-output-to-port
+									(lambda ()
+									  (dump self))))
 
-			((text table)
-			 (log-data-parent)
+							 ((text table)
+							  (log-data-parent)
 
-			 ))
-		 )
-	  )
+							  ))
+						  )
+						)
+				  )
 
 ;--- model-method (<habitat>) (spatial-scale self)
 (model-method (<habitat>) (spatial-scale self)
@@ -2053,7 +2136,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-body <habitat>
 (model-body <habitat*>
-	(kdnl* '(model-bodies habitat-running) (class-name-of self) (name self) "@" t)
+	(kdebug '(model-bodies habitat-running) (cnc self) (name self) "@" t)
 	(call-next-parent-body)
 
 	(let ((gp (my 'global-patch)))

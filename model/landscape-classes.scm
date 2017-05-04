@@ -82,14 +82,14 @@ A typical construction of an ecoservice might look like
 
 
 (define-class <polygon> (inherits-from <projection>) ;; recall, <projection> inherits from object
-  (state-variables locus perimeter radius)
+  (state-variables location perimeter is-relative radius)
   )
 
 (define-class <circle> (inherits-from <projection>)
-  (state-variables locus perimeter radius)
+  (state-variables location perimeter radius)
   )
 
-(define-class <patch> (inherits-from  <environment>)
+(define-class <patch> (inherits-from  <environment> <projection>)
   (state-variables service-list))
 ;; This one needs a 'rep set (which is what <environment> provides
 

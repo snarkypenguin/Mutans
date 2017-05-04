@@ -1,7 +1,7 @@
-; -*- mode: scheme; -*-
+!; -*- mode: scheme; -*-
 
 (define SCLOS '("preamble" "sort" "sclos"))
-(define KERNEL '("utils" "kdnl" "kernel"))
+(define KERNEL '("utils" "kdebug" "kernel"))
 (define SUPPORT '("units" "constants" "maths" "integrate" "matrix" "postscript" "basic-population"))
 (define CLASSES '("framework" "framework-declarations" "declarations" "framework-classes" "monitor-classes" "log-classes" "landscape-classes" "plant-classes" "animal-classes" ))
 (define FRAMEWORK '("framework-wrappers" "framework-methods"))

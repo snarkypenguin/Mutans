@@ -56,9 +56,6 @@ datum1 ...
 "
 
 
-
-
-
 (define (twist args)
   (let loop ((a args)
 				 )
@@ -66,10 +63,16 @@ datum1 ...
 		  '()
 		  (cons (map car a) (loop (map cdr a))))))
 
-(define (map* op . l)
+(define (map% op . l)
   (map (lambda (x) 
 			(apply op x)) (twist l))
   )
+
+(define (mapop op)
+  (lambda (d m) (map% - d m) )
+  )
+
+
 
 ; (apply map + l1*) takes '((1 2 3) (4 5 6)) -> '(5 7 9)
 ;
@@ -788,10 +791,6 @@ Examples:
 			(#t #f) ) 
 
 		  ))))
-
-(define (mapop op)
-  (lambda (d m) (map* - d m) )
-  )
 
 
 ;  (1- (length (let ((m (member sle (reverse (map car lst))) ) )

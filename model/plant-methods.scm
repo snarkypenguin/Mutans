@@ -67,6 +67,27 @@
 ;;; 					(/ (slot-ref self 'mass) (slot-ref self 'max-mass)))) ;-
 ;;;  ) ;-
  
+
+(model-method (<plant> <procedure>) (ps-dump self ps)
+				  (let ((ms->ps (let ((p (assoc 'model->ps *default-projections*))) (if p (cdr p) (error "bad projection to ps"))))
+						  )
+					 
+					 (dnl* "In plant ps-dump")
+					 (ps 'moveto (ms->ps (local->model self (my 'location))))
+					 (ps 'show-table
+						  (list (string-append "<plant>" (name self))
+								  (string-append "mass =" (number->string (my 'mass)))
+								  (string-append "radius =" (number->string (plant-radius self)))
+								  ))
+					 (dnl 'bork)
+					 (ps 'moveto (ms->ps (local->model self (my 'location))))
+					 (dnl 'Bork)
+					 (adjusted-plot-polygon ps 0.4 0.5 #f (lambda (x) x)
+													(map ms->ps (make-circle-perimeter (my 'location) (* 250 (plant-radius self)))))
+				  (dnl* "leaving plant ps-dump")
+				  ))
+
+
 ;----- (self-assessment)
 (UNFINISHED-BUSINESS "<plant>: This is a placeholder ... it almost certainly needs to change")
 (model-method <plant> (representation-assessment self . args) 
@@ -106,7 +127,7 @@
 	
 
 (model-body <plant>
-	(kdnl* '(trace-bodies plant-running)  (class-name-of self) (name self) "@" t "/" dt)
+	(kdebug '(trace-bodies plant-running)  (class-name-of self) (name self) "@" t "/" dt)
 
 	;; Calculate water requirements
 	;;-- This is somewhat inaccurate in that each individual draws
@@ -120,7 +141,7 @@
 
 	(UNFINISHED-BUSINESS "Need to update the water ecoservice")
 
-	(kdnl* 'model-body (name self) "plant 1")
+	(kdebug 'model-body (name self) "plant 1")
 
 	(if (uninitialised? (my 'mass))
 		 (error "Mass not initialised for a <plant>" (name self)))
@@ -132,7 +153,7 @@
 		 (set-my! 'leaf-area (leaf-area self)))
 
 	
-	(kdnl* 'model-body "plant 0")
+	(kdebug 'model-body "plant 0")
 
 	(call-next-parent-body)
 
@@ -149,8 +170,7 @@
 			 (age '?)
 			 (mass '?)
 			 )
-	  (dnl "Woof!")
-	  (kdnl* 'model-body "plant 2")
+	  (kdebug 'model-body "plant 2")
 	 
 	  
 	  ;; 150 * (1-exp(0.2*ln(1-x)))
@@ -164,11 +184,10 @@
 
 	  (set! waterstress (water-stress-level available-water waterneeds))
 
-	  (kdnl* 'model-body "plant 3")
-
+	  (kdebug 'model-body "plant 3")
 	  (cond	;; determine if the plant dies this step
-		((or (>=  age (* years (my 'max-age))) (> mass (my 'max-mass)))
-		 (if halting-problem (error "Nothing to see here. Move along"))
+		((>=  age (* years (my 'max-age)))
+		 ;;(if halting-problem (error "Nothing to see here. Move along"))
 		 'remove) ;; it's a stick, plant dies here.
 
 		;; determine if the plant fruits or grows this step (not both)
@@ -185,7 +204,7 @@
 						 )
 				  (set-value! here 'f (+ current-fruit num-fruit))
 				  )
-				(kdnl* 'model-body "plant 4a")
+				(kdebug 'model-body "plant 4a")
 				
 				dt)
 		(#t ;; grow (or not)
@@ -194,7 +213,7 @@
 			  (slot-set! self 'mass (+ mass (* dt (my 'growth-rate)))) ;; linear growth
 			  )
 		 
-		 (kdnl* 'model-body "plant 4b")
+		 (kdebug 'model-body "plant 4b")
 		 dt)
 		)
 	  ))
@@ -209,7 +228,35 @@
        reproduction-offset
        max-age max-mass))
 
-(define (make-plant-xy class taxon env loc mass . otherargs)
+(define% (make-plant class taxon env mass #!rest more)
+  ;; otherargs is either a std init list, or a list of
+  ;; numbers in the order:
+  ;;   lai water-use  
+  ;;     water-stress-effect reproduction-mass
+  ;;     reproduction-mechanism
+  ;;     fruiting-rate seeds-per-fruit
+  ;;     reproduction-period
+  ;;     reproduction-offset
+  ;;     max-age max-mass
+
+  ;; If no reproduction-mechanism is specified, the plant does not
+  ;; reproduce -- never fruits
+
+  (if (and (pair? more) (number? (car more)))
+		(set! more (arg-pairings plant-arg-order more)))
+
+  (kdebug '(init plants) "env:" env  "args:"  more)
+  (set! more (append (list 'habitat env
+									'location (random-point env)
+									'mass mass) more))
+  (kdebug '(init plants) "->args:"  more)
+  (let ((sp (apply create (cons class (cons taxon more )))))
+	 sp
+	 ))
+
+
+
+(define% (make-plant-xy class taxon env loc mass . otherargs)
   ;; otherargs is either a std init list, or a list of
   ;; numbers in the order:
   ;;   lai water-use  
@@ -236,172 +283,183 @@
 		  sp
 		  (error "location for plant is not in indicated environment" loc env))))
 
-(define (make-plant class taxon env mass . more)
-  ;; otherargs is either a std init list, or a list of
-  ;; numbers in the order:
-  ;;   lai water-use  
-  ;;     water-stress-effect reproduction-mass
-  ;;     reproduction-mechanism
-  ;;     fruiting-rate seeds-per-fruit
-  ;;     reproduction-period
-  ;;     reproduction-offset
-  ;;     max-age max-mass
-
-  ;; If no reproduction-mechanism is specified, the plant does not
-  ;; reproduce -- never fruits
-
-  (if (and (pair? more) (number? (car more)))
-		(set! more (arg-pairings plant-arg-order more)))
-
-  (kdnl* '(init plants) "env:" env  "args:"  more)
-  (set! more (append (list 'habitat env
-									'location (random-point env)
-									'mass mass) more))
-  (kdnl* '(init plants) "->args:"  more)
-  (let ((sp (apply create (cons class (cons taxon more )))))
-	 sp
-	 ))
-
 
 ;--- Only logging methods below
 		 
-(model-method (<plant> <log-introspection> <symbol> <list>) (map-log-data self logger format targets)
-   (let ((file (slot-ref logger 'file)))
-	  (kdnl* '(log-* log-plant)
-				"[" (my 'name) ":" (class-name-of self) "]"
-				"in log-data")
+;;; (model-method (<plant> <log-introspection> <symbol> <list>) (map-log-data self logger fmt targets)
+;;; 				  (let ((file (slot-ref logger 'file))
+;;; 						  (leading-entry #f)
+;;; 						  (needs-newline #f)
+;;; 						  )
+;;; 					 (display kdebug (list 'PSsst 'log-* 'log-plant (my 'name) (my 'taxon))
+;;; 								"<plant>:map-log-data --- Entering [" (my 'name) ":" (class-name-of self) "]"
+;;; 								"in log-data")
 
-	  (for-each
-		(lambda (field)
-		  (kdnl* '(log-* log-plant) "[" (my 'name) ":"
-					(class-name-of self) "]" "checking" field)
-		  (if (has-slot? self field)
-				(let ((r (slot-ref self field)))
-				  (case format
-					 ((ps)
-					  (file 'show (string-append
-										(if (string? r)
-											 r
-											 (object->string r)) " "))
-					  )
-					 ((text table dump)
-					  (let ((show-field-name
-								(slot-ref logger 'show-field-name))
-							  (missing-val
-								(slot-ref logger 'missing-val))
-							  )
-						 (if show-field-name
-							  (begin
+;;; 					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+;;; 						  (for-each
+;;; 							(lambda (field)
+;;; 							  (if (has-slot? self field)
+;;; 									(letrec ((r (slot-ref self field)))
+;;; 									  #t
+
+;;; 									  (case fmt
+;;; 										 ((ps)
+;;; 										  ;;							(set! needs-newline #t)
+;;; 										  (file 'show (string-append
+;;; 															(if (string? r)
+;;; 																 r
+;;; 																 (object->string r)) " "))
+;;; 										  )
+;;; 										 ((text table dump)
+;;; 										  (let ((show-field-name
+;;; 													(slot-ref logger 'show-field-name))
+;;; 												  (missing-val
+;;; 													(slot-ref logger 'missing-val))
+;;; 												  )
+;;; 											 (if show-field-name
+;;; 												  (begin
+;;; 													 (set! needs-newline #t)
+;;; 													 (if leading-entry
+;;; 														  (display " " file)
+;;; 														  (set! leading-entry #t))
+;;; 													 (set! needs-newline #t)
+;;; 													 (display field file)))
+											 
+;;; 											 (let ((val (if (eqv? field 'name) 
+;;; 																 (if (slot-ref self 'habitat)
+;;; 																	  (string-append
+;;; 																		(slot-ref (slot-ref self 'habitat) 'name) ":" (name self))
+;;; 																	  (name self))
+;;; 																 (if (has-slot? self field)
+;;; 																	  (slot-ref self field)
+;;; 																	  (slot-ref logger 'missing-val)))))
+;;; 												(if leading-entry 
+;;; 													 (display " " file)
+;;; 													 (set! leading-entry #t))
+;;; 												(set! needs-newline #t)
+;;; 												(display val file))
+;;; 											 )
+;;; 										  )
+
+;;; 										 (else
+;;; 										  (kdebug '(log-* log-ecoservice)
+;;; 													 "<plant>:log-data [" (my 'name) ":" (class-name-of self) "]"
+;;; 													 "Ignoring " field " because I don't have it")
+;;; 										  'ignore-unhandled-format)))						 (begin
+;;; 																										(kdebug '(log-* log-ecoservice)
+;;; 																												  "<plant>:log-data [" (my 'name) ":" (class-name-of self) "]"
+;;; 																												  "no service" field)
+;;; 																										#f)))
+;;; 							(uniq (if #t
+;;; 										 targets
+;;; 										 (filter (not-memq (slot-ref logger 'dont-log)) targets)))
+;;; 							)
+;;; 						  (void))
+
+;;; 					 (if needs-newline (newline file))
+
+;;; 					 (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
+;;; 								"<plant>:map-log-data --- Leaving [" (my 'name) ":" (class-name-of self) "]"
+;;; 								"in log-data")
+;;; 					 )	
+;;; 				  )
+
+(model-method (<plant> <log-introspection> <symbol> <list>)
+				  (log-data self logger fmt targets)
+	(let ((file (slot-ref logger 'file))
+			(leading-entry #f)
+			(needs-newline #f)
+			)
+		(kdebug '(log-horrible-screaming log-plant (my 'name) (my 'taxon))
+				 "<plant>:log-data Entering [" (my 'name) ":" (cnc self) "]"
+				 "in log-data")
+
+;		(write fmt)(dnl* " ..." (cnc self) (cnc logger) " ... NARP.")
+		
+		(if (emit-and-record-if-absent logger self (my 'subjective-time))
+			 (for-each
+			  (lambda (field)
+;				 (dnl* "ERRRRR," field)
+				 (kdebug '(log-* log-plant) "[" (my 'name) ":"
+							(class-name-of self) "]" "checking" field)
+				 (if (has-slot? self field)
+					  (letrec ((r (slot-ref self field)))
+						 #t
+
+						 (case fmt
+							((ps)
+							 (adjusted-plot-polygon file 0.4 0.0 #f
+															(composite-prj_src->dest
+															 self logger)
+															(make-circle-perimeter
+															 (my 'location) (plant-radius self)))
+;							(set! needs-newline #t)
+;							(file 'show (string-append
+;											 (if (string? r)
+;												  r
+;												  (object->string r)) " "))
+;							(dnl* "YARP.")
+;							(log-map-circle logger
+;												 (local->model (my 'location))
+;												 (car (local->model
+;														 (make-list (length (my 'location)) (plant-mass->radius (my 'mass)))))
+;												 #t
+;												 'black)
+							)
+						  ((text table dump)
+							(let ((show-field-name
+									 (slot-ref logger 'show-field-name))
+									(missing-val
+									 (slot-ref logger 'missing-val))
+									)
+							  (if show-field-name
+									(begin
+									  (set! needs-newline #t)
+									  (if leading-entry
+											(display " " file)
+											(set! leading-entry #t))
+									  (set! needs-newline #t)
+									  (display field file)))
+							  
+							  (let ((val (if (eqv? field 'name) 
+												  (if (slot-ref self 'habitat)
+														(string-append
+														 (slot-ref (slot-ref self 'habitat) 'name) ":" (name self))
+														(name self))
+												  (if (has-slot? self field)
+														(slot-ref self field)
+														(slot-ref logger 'missing-val)))))
 								 (if leading-entry 
 									  (display " " file)
 									  (set! leading-entry #t))
-								 (display field file)))
-						 
-						 (let ((val (if (eqv? field 'name) 
-											 (if (slot-ref self 'patch)
-												  (string-append
-													(slot-ref
-													 (slot-ref self 'patch)
-													 'name) ":" (name self))
-												  (name self))
-											 (if (has-slot? self field)
-												  (slot-ref self field)
-												  (slot-ref logger
-																'missing-val)))))
-							(if leading-entry 
-								 (display " " file)
-								 (set! leading-entry #t))
-							(display val file))
-						 )
-					  )
+								 (set! needs-newline #t)
+								 (display val file))
+							  )
+							)
 
-					 (else
-					  (kdnl* '(log-* log-ecoservice)
-								"[" (my 'name) ":" (class-name-of self) "]"
-								"Ignoring " field " because I don't have it")
-					  'ignore-unhandled-format)))
-				(begin
-				  (kdnl* '(log-* log-ecoservice)
-							"[" (my 'name) ":" (class-name-of self) "]"
-							"no service" field)
-				  #f)))
-		(uniq (if #t
-					 targets
-					 (filter (not-member (slot-ref logger 'dont-log))
-								targets)))
+						  (else
+							(kdebug '(log-* log-ecoservice)
+										"<plant>:log-data [" (my 'name) ":" (class-name-of self) "]"
+										"Ignoring " field " because I don't have it")
+							'ignore-unhandled-format)))						 (begin
+							(kdebug '(log-* log-ecoservice)
+									  "<plant>:log-data [" (my 'name) ":" (class-name-of self) "]"
+									  "no service" field)
+							#f)))
+				 (uniq (if #t
+							  targets
+							  (filter (not-memq (slot-ref logger 'dont-log)) targets)))
+			  )
+			 (void))
+
+		(if needs-newline (newline file))
+
+		(kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
+					"<plant>:log-data --- Leaving [" (my 'name) ":" (class-name-of self) "]"
+					"in log-data")
 		)
-	  (newline file)
-	  )
 	)
 
-(model-method (<plant> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-    (let ((file (slot-ref logger 'file)))
-		(kdnl* '(log-* log-plant)
-				 "[" (my 'name) ":" (class-name-of self) "]"
-				 "in log-data")
-
-		(for-each
-		 (lambda (field)
-			(kdnl* '(log-* log-plant) "[" (my 'name) ":"
-					 (class-name-of self) "]" "checking" field)
-			(if (has-slot? self field)
-				 (let ((r (slot-ref self field)))
-					(case format
-					  ((ps)
-						(file 'show (string-append
-										 (if (string? r)
-											  r
-											  (object->string r)) " "))
-						)
-					  ((text table dump)
-						(let ((show-field-name
-								 (slot-ref logger 'show-field-name))
-								(missing-val
-								 (slot-ref logger 'missing-val))
-								)
-						  (if show-field-name
-								(begin
-								  (if leading-entry 
-										(display " " file)
-										(set! leading-entry #t))
-								  (display field file)))
-						  
-						  (let ((val (if (eqv? field 'name) 
-											  (if (slot-ref self 'patch)
-													(string-append
-													 (slot-ref
-													  (slot-ref self 'patch)
-													  'name) ":" (name self))
-													(name self))
-											  (if (has-slot? self field)
-													(slot-ref self field)
-													(slot-ref logger
-																 'missing-val)))))
-							 (if leading-entry 
-								  (display " " file)
-								  (set! leading-entry #t))
-							 (display val file))
-						  )
-						)
-
-					  (else
-						(kdnl* '(log-* log-ecoservice)
-								 "[" (my 'name) ":" (class-name-of self) "]"
-								 "Ignoring " field " because I don't have it")
-						'ignore-unhandled-format)))
-				 (begin
-					(kdnl* '(log-* log-ecoservice)
-							 "[" (my 'name) ":" (class-name-of self) "]"
-							 "no service" field)
-					#f)))
-		 (uniq (if #t
-					  targets
-					  (filter (not-memq (slot-ref logger 'dont-log))
-								 targets)))
-		 )
-		(newline file)
-		)
-	 )
 
 (UNFINISHED-BUSINESS "Need to flesh this out a bit")
 
@@ -418,42 +476,41 @@
 				(if (uninitialised#? self 'leaf-area)
 					 (set-my! 'leaf-area (leaf-area self)))
 
-				(kdnl* 'model-body "example-plant 1")
-
 				(call-next-parent-body)
 
 				(let ((mass (my 'mass))
+						(age (my 'age))
 						(pkmass (my 'peak-mass)))
 
-				  (kdnl* 'model-body "example-plant 2")
-
+				  (let ((draw (random-real)))
 				  ;; This comes before death, since plants will often seed/fruit in one last burst
-				  (if (and (>= mass (my 'fruiting-mass))
-							  (> (my 'fruiting-prob) (random-real)))
-						(add-fruit self (my 'cell) (power mass 2/3)))
+					 (if (and (>= mass (my 'fruiting-mass))
+								 (> (my 'fruiting-prob) draw))
+						  (add-fruit self (power mass 2/3)))
+					 )
 				  
-				  (if (< mass (* (my 'mort-mass) pkmass))
-						(die self)
+				  (if (> age (my 'max-age))
+						(die self) ;; too old.
 						(begin
 						  ;;(set! mass (grow dt mass))
 						  (set-my! 'mass mass)
 						  (if (> mass pkmass)
 								(set-my! 'peak-mass mass))
 						  )))
-				(kdnl* 'model-body "example-plant 3")
 				dt
 				)
 
 
-(model-method <example-plant> (add-fruit self surface)
+(model-method <example-plant> (add-fruit self fruiting-area)
+				  (dnl* (name self) "is adding fruit!")
 				  (let ((cell (my 'cell))
 						  (spot (my 'location))
 						  )
-					 (kernel 'add-fruit cell (* (my 'fruiting-rate) surface))
+					 (add-value! cell (* (my 'fruiting-rate) fruiting-area))
 				  ))
 				
 (model-method <example-plant> (die self)
-				  (kdnl* 'death "<example-plant> dies: mass = " mass ", mort mass = " (* pkmass (my 'mort-mass)))
+				  (kdebug 'death "<example-plant> dies: mass = " mass ", mort mass = " (* pkmass (my 'mort-mass)))
 				  (set-my! 'agent-state 'dead)
 				  (kernel 'shutdown self))
 

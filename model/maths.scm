@@ -28,6 +28,62 @@
 
 ;(load "constants.scm")
 
+(define _tau_ (* 2.0 (acos -1.0)))
+
+(define maths-dnl*
+  (lambda X
+	 (let ((out (if (and (pair? X) (port? (car (reverse X))))
+						 (car (reverse X))
+						 (current-output-port)))
+			 (x (if (and (pair? X) (port? (car (reverse X))))
+						 (reverse (cdr (reverse X)))
+						 X)))
+	 
+		(if (and (pair? x) (null? (cdr x)))
+			 (display (car x) out)
+			 (begin
+				(display (car x) out)
+				(for-each
+				 (lambda (bit)
+					(display " " out)
+					(display bit out)
+					)
+				 (cdr x))))
+			 (newline out)
+		)))
+
+
+(define (sequence n #!optional func)
+  (define (seq k)
+	 (if (zero? k) '() (cons k (seq (- k 1)))))
+  (if (or (not (integer? n)) (negative? n))
+		(error "Argument to sequence must be a non-negative integer" n)
+		(if func
+			 (map func (reverse (seq n)))
+			 (reverse (seq n)))))
+			 
+
+(define (maths-make-list n . init)
+  (if (<= n 0) 
+		'()
+		(if (null? init)
+			 (cons '() (maths-make-list (- n 1)))
+			 (cons (car init) (maths-make-list (- n 1) (car init))))))
+		
+
+;; These are identical to filter and !filter
+
+(define (select selector lst)
+  (if (pair? lst)
+		(if (selector (car lst))
+			 (cons (car lst) (select selector (cdr lst)))
+			 (select selector (cdr lst)))
+		lst))
+
+;; (!select selector lst) -- returns a list of those elements which fail the selector
+(define (!select selector lst)
+  (select (lambda x (not (apply selector x))) lst))
+
 ;;# sigmoid: x is in [0,1], l governs how sharp the transition is and off shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and off = 0.0
 ;;# the value of the function at -0.5 is ~0.002 
@@ -46,26 +102,64 @@
 ;;
 ;;invsigmoid(x) =  (log(x) - log(1-x))/(4 * pi) + 0.5
 
-(define (mapf f) (lambda (x)
-						 (if (list? x)
-							  (f x)
-							  (map f x))))
+;; returns the elements with "even" indices
+;; (evens '(a b c d)) => (a c)
+(define (even-indices* lst)
+  (map (lambda (x) (list-ref lst x)) (filter even? (sequence (length lst)))))
+
+;; returns the elements with "odd" indices
+;; (odds '(a b c d e) => (b d)
+(define (odd-indicess* lst)
+  (map (lambda (x) (list-ref lst x)) (filter odd? (sequence (length lst)))))
+
+;; These are faster, but not robust w.r.t. line length
+(define (even-indices lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (even-indicess (cddr lst)) '()))))
+(define (odd-indicess lst) (if (null? lst) '() (if (pair? (cdr lst)) (even-indices (cdr lst)) '())))
+
+(define (N<= n)
+  (define (rsequence n) (if (<= n 0) '() (cons (- n 1) (rsequence (- n 1)))))
+  (if (< n 0) (map - (rsequence (- n))) (reverse (rsequence n))))
+
+
+(define (integer-divisors n)
+ (select integer? (map (lambda (x) (/ n (+ x 1))) (reverse (N<= n)))))
+		  
+
+;; Mapf creates a function which will use a function of one variable to
+;; construct a function that takes a list of values  (or a list of lists of ... values)
+;; which are all mapped as though they were the sole argument of the base function
+
+(define mapf (letrec
+					  ((mapf (lambda (f)
+								  (lambda (x) 
+									 (cond
+									  ((not (list? x)) (f x))
+									  ((not (list? (car x))) (map f x))
+									  ((list? x) (map (mapf f) x))
+									  (#t x))))))
+						mapf))
+					
+						 
+
+
+
+
 
 (define (default-object? x) (equal? x (void)))
 
 ;; So we can load gauss.scm
 (define-macro (define* func-template . body)
   (let* ((fname (car func-template))
-			(optionalix (map (lambda (x y) (cons x y)) (cdr func-template) (seq (length (cdr func-template)))))
+			(optionalix (map (lambda (x y) (cons x y)) (cdr func-template) (sequence (length (cdr func-template)))))
 			(oix (assoc '#:optional optionalix))
 			(normalargs (if oix (map car (list-head optionalix (cdr oix))) optionalix))
 			(optarg (if oix (list-ref optionalix (+ (cdr oix) 1)) (void))))
-	 (dnl* 'Func func-template)
-	 (dnl* 'fname fname)
-	 (dnl* 'optionalix optionalix )
-	 (dnl* 'oix oix)
-	 (dnl* 'normalargs normalargs)
-	 (dnl* 'optarg optarg)
+	 (maths-dnl* 'Func func-template)
+	 (maths-dnl* 'fname fname)
+	 (maths-dnl* 'optionalix optionalix )
+	 (maths-dnl* 'oix oix)
+	 (maths-dnl* 'normalargs normalargs)
+	 (maths-dnl* 'optarg optarg)
 
 	 (let ((txt `(define (,fname ,@normalargs #!rest ,optarg)
 						(if (null? ,optarg) (set! ,optarg (void)) (set! ,optarg (car ,optarg)))
@@ -179,10 +273,10 @@
       (* x x)))
 
 (define-macro (sum mn mx lmbda)
-  `(apply + (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(+ 1 mx) ,mn))))))
+  `(apply + (map ,lmbda (map (lambda (x) (+ ,mn x)) (sequence (- ,(+ 1 mx) ,mn))))))
 
 (define-macro (prod mn mx lmbda)
-  `(apply * (map ,lmbda (map (lambda (x) (+ ,mn x)) (seq (- ,(+ 1 mx) ,mn))))))
+  `(apply * (map ,lmbda (map (lambda (x) (+ ,mn x)) (sequence (- ,(+ 1 mx) ,mn))))))
 
 
 
@@ -193,14 +287,14 @@
 
 (define (v-length a) ;; general
   (if (number? a)
-		(abs a)
+		(magnitude a)
 		(if (plist? a) 
 			 (sqrt (norm a))
 			 'bad-argument)))
 
 ;;(define (distance u v)
 ;;  (cond
-;;	((and (number? u) (number? v)) (abs (- u v)))
+;;	((and (number? u) (number? v)) (magnitude (- u v)))
 ;;	((and (= (length u) (length v)) (apply andf (map number? (append u v))))
 ;;		(let ((sqr (lambda (x) (* x x))))
 ;;		  (sqrt (apply + (map sqr (map - u v))))))
@@ -208,7 +302,7 @@
 
 (define (distance p q) ;; general
   (if (and (number? p) (number? q))
-		(abs (- p q))
+		(magnitude (- p q))
 		(let ()
 		  (if (number? p) (set! p (list p)))
 		  (if (number? q) (set! q (list q)))
@@ -221,17 +315,19 @@
 	  ((and (number? p1) (number? p2))
 		(op p1 p2))
 	  ((and (number? p1) (list? p2))
-		(list-operator op (make-list (length p2) p1) p2))
-;		(map (lambda (x) (list-operator op p1 x)) p2))
+		;;(list-operator op (make-list (length p2) p1) p2	)
+		(map (lambda (x) (list-operator op p1 x)) p2)
+		)
 	  ((and (list? p1) (list? p2) (= (length p1) (length p2)))
 		(map op p1 p2))
 	  ((and (number? p2) (list? p1))
-		(list-operator op p1 (make-list (length p1) p2)))
-;		(map (lambda (x) (list-operator op x p2)) p1))
+		;(list-operator op p1 (make-list (length p1) p2))
+		(map (lambda (x) (list-operator op x p2)) p1)
+		)
 	  (else 
-		(dnl "list-operator is confused!")
-		(dnl "... p1 = " p1)
-		(dnl "... p2 = " p2)
+		(maths-dnl* "list-operator is confused!")
+		(maths-dnl* "... p1 =" p1)
+		(maths-dnl* "... p2 =" p2)
 		#f)
 	  )
 	 )
@@ -364,6 +460,70 @@
 		(if (and (< m n) (< n M))
 			 n
 			 (lnrnd mean stddev m N)))))
+
+(define (proportion v #!rest interval)
+  (set! interval (cond
+						((null? interval) (error "Missing interval in call to proportion"))
+						((and (not (pair? (car interval))) (null? (cddr interval))) interval)
+						((and (null? (cddar interval))) (car interval))
+						(#t (error "bad arguments to (proportion ...)" v interval))))
+  (/ (- v (car interval)) (- (cadr interval) (car interval))))
+		  
+
+
+(define (make-pprocess meany)
+  (let* ((halfway-point (lambda (m M) (inexact->exact (truncate (/ (+ (max  m M) (min m M)) 2)))))
+			(mean #f)
+			(debug #f)
+			(init (lambda (imean)
+					  (set! mean imean)
+					  ))
+			)
+	 (letrec ((pprng% (lambda args
+							  (if debug
+									(maths-dnl* "Entering pprng% with: " args))
+							  (cond
+								((null? args)
+								 (let loop-while-zero ((y (random-real)))
+															  (if (zero? y)
+																	(loop-while-zero (random-real))
+																	(* -1 mean (log (- 1 y)))
+																	))
+								 )
+								
+								((eq? (car args) 'debug) (set! debug #t))
+								((eq? (car args) 'no-debug) (set! debug #f))
+								((eq? (car args) 'toggle-debug) (set! debug (not debug)))
+								((eq? (car args) 'mean) mean)
+								((and (pair? (cdr args)) (eq? (car args) 'init)) (init (cadr args)))
+								((integer? (car args)) (map (lambda (x) (pprng%)) (sequence (abs (car args)))))
+								(#t (error "Inappropriate arguments" args))
+								)
+							  ))
+				 )
+		(pprng% 'init meany)
+		pprng%)
+	 ))
+
+
+(define (pprnd mean)
+  (let loop-while-zero ((y (random-real)))
+	 (if (zero? y)
+		  (loop-while-zero (random-real))
+		  (* -1 mean (log (- 1 y)))
+		  ))
+  )
+
+
+(define (random-cluster pnt rnglist count)
+  (let* ((p pnt)
+			(n count)
+			(rnglist rnglist)
+			(p* (maths-make-list n p))
+			(n* (map (lambda (x) (x n)) rnglist))
+			)
+	 (map (lambda (a b) (map + a b)) p* (apply map list n*))
+	 ))
 
 ;; this is so we can use gauss.scm for normally distributed random numbers from scmutils
 (define random random-real)
@@ -596,7 +756,7 @@
 			  )
 			pwl)
 		  x))
-	  (map (lambda (x) (+ x 1)) (seq (- (length (car pwl)) 1)))))
+	  (map (lambda (x) (+ x 1)) (sequence (- (length (car pwl)) 1)))))
 	((<= x (caar pwl)) (cadar pwl))
 	((null? (cdr pwl)) (cadar pwl))
 	((< x (caadr pwl)) 
@@ -614,7 +774,7 @@
 							  (/ (* 1.0 n) (* 1.0 d))))))
 			  )
 
-		(if (< (abs (- b a)) 1e-80)
+		(if (< (magnitude (- b a)) 1e-80)
 				(/ (+ m M) 2.0)
 				(+ (* (// (- x a)
 							 (- b a))

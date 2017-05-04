@@ -119,7 +119,8 @@
 				(#t (error "Bad jiggle in Qcmp"))
 				)
 			  )))
-	 ))
+	 )
+  )
 
 
 (definition-comment 'map-q "applies a query function (like 'subjective-time') to members of a runqueue, q")
@@ -162,7 +163,7 @@
 
 (define (interval t ddt stopat tlist)
   ;; tlist is a sorted queue of times to run
-  (kdnl* 'kernel-scaffolding "Called interval, T =" t ", ddt =" ddt ", stops at" stopat ", tlist:" tlist)
+  (kdebug 'kernel-scaffolding "Called interval, T =" t ", ddt =" ddt ", stops at" stopat ", tlist:" tlist)
   (if (< (- stopat t) ddt)
 		(set! ddt (- stopat t)))
 
@@ -170,17 +171,17 @@
 
   (cond
 	((or (not tlist) (null? tlist)) ;; treat a false tlist as equivalent to '()
-	 (kdnl* 'kernel-scaffolding "no tlist")
+	 (kdebug 'kernel-scaffolding "no tlist")
 	 ddt)
 	((and (list? tlist) 
 			(number? (car tlist))
 			(= (car tlist) t)
 			)
-	 (kdnl* 'kernel-scaffolding "t == (car tlist)")
+	 (kdebug 'kernel-scaffolding "t == (car tlist)")
 	 (if (pair? (cdr tlist)) ;; if there is a ttr in the tlist which is closer than t+ddt...
 		  (let ((p (- (cadr tlist) t)))
 			 (< p ddt)
-			 (kdnl* 'kernel-scaffolding "(cadr tlist) < t+ddt")
+			 (kdebug 'kernel-scaffolding "(cadr tlist) < t+ddt")
 		  (set! ddt p)))
 	 ddt)
 	((and (list? tlist) 
@@ -193,15 +194,15 @@
 	(else 'bad-time-to-run)))
 
 
+
 (definition-comment 'insert@ "Returns the index AT which to insert")
 (define (insert@ lst ob cmp) 
   (cond
 	((null? lst) 0)
 	((null? (cdr lst)) 1)	 ;; Singleton.
 	(#t
-	 (let insert-loop  ((m 0)
-							  (M (- (length lst) 1)))
-		(kdnl* 'queue-insertion (name ob)"at time" (slot-ref ob 'subjective-time) ": m =" m "M =" M)
+	 (let insert-loop  ((m 0) (M (- (length lst) 1)))
+		;;(kdebug 'queue-insertion (name ob)"at time" (slot-ref ob 'subjective-time) ": m =" m "M =" M)
 
 		(let* ((m! (list-ref lst m))
 				 (M! (list-ref lst M))
@@ -231,40 +232,67 @@
 (definition-comment 'q-insert
   "inserts a run record in the right place in the queue Q")
 (define kernel-time 0)
+
+;; This returns the queue, and it must be called using the global variable Q like so: (set! Q (q-insert Q ...))
 (define (q-insert Q rec reccmp)
-  (let ((lQ (length Q)))
-	 (if (isa? rec <agent>)
-		  (let ((j (slot-ref rec 'jiggle))
-				  (call-starts (cpu-time))
-				  )
-			 (if (pair? Q) (set! Q (excise rec Q)))
-			 
-			 (if (number? j)
-				  (if (and (positive? j) (< j 1.0))
-						(set-jiggle! rec (abs (random-real)))
-						)
-				  (begin
-					 (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
-			 (if (or (< lQ 2) (sorted? Q reccmp))
-				  (let ((ix (insert@ Q rec reccmp)))
-					 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-					 (if (> ix lQ)
-						  (append Q (list rec))
-						  (append (list-head Q ix) (list rec) (list-tail Q ix)))
+  (if (not (isa? rec <agent>))
+		(error "Passed a non-agent to q-insert" rec)
+		(let ((j (slot-ref rec 'jiggle))
+				)
+		  (if (pair? Q) (set! Q (excise rec Q)))
+		  
+		  (if (or (eq? j #t) (number? j))
+				(if (or (boolean? j) (and (positive? j) (< j 1.0)))
+					 (set-jiggle! rec (abs (random-real)))
 					 )
-				  (begin
-					 (let* ((f (append Q (list rec)))
-							  (sf (sort f reccmp))
-							  )
-						(set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-						sf))
+				(begin
+				  (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
+		  
+		  (let ((ix (insert@ Q rec reccmp)))
+			 (if (number? ix)
+				  (append (list-head Q ix) (cons rec (list-tail Q ix)))
+				  (error "bad return from insert@" ix))))))
+
+
+
+(define (q-mis-insert Q rec reccmp)
+  (error "This is probably buggered")
+  (if (eq? (slot-ref rec 'agent-state) 'ready-for-prep)
+		(cons rec Q)
+		(let ((lQ (length Q)))
+		  (if (isa? rec <agent>)
+				(let ((j (slot-ref rec 'jiggle))
+						(call-starts (cpu-time))
+						)
+				  (if (pair? Q) (set! Q (excise rec Q)))
+				  
+				  (if (or (eq? j #t) (number? j))
+						(if (or (boolean? j) (and (positive? j) (< j 1.0)))
+							 (set-jiggle! rec (abs (random-real)))
+							 )
+						(begin
+						  (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
+				  (if (or (< lQ 2) (sorted? Q reccmp))
+						(let ((ix (insert@ Q rec reccmp)))
+						  (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
+						  (if (> ix lQ)
+								(append Q (list rec))
+								(append (list-head Q ix) (list rec) (list-tail Q ix)))
+						  )
+						(begin
+						  (let* ((f (append Q (list rec)))
+									(sf (sort f reccmp))
+									)
+							 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
+							 sf))
+						)
 				  )
-			 )
-		  (begin
-			 (dnl* "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
-			 (kdnl* 'error "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
-			 Q)
-		  )))
+				(begin
+				  (dnl* "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+				  (kdebug 'error "The item:" rec "was passed to be inserted into the runqueue.  Dropping it.")
+				  Q)
+				)))
+  )
 
 
 
@@ -301,30 +329,33 @@
   "The queue doesn't (and *shouldn't*) care at all about how much"
   "time the agents used.")
 
-(define heartbeat 7) ;; heart beat each week
-(define pulse 0) ;; the pulse follows the beat
+(define indicate-progress #f)
+;; If set to #f nothing is printed out to indicate progress
+;; set to -1 (or any negative number) to make it chatter
 
 ;; This typically runs the agent at the head of the queue
 (define (queue t stop runqueue . N)
+  (if (eq? indicate-progress #t) (set! indicate-progress -1))
   (set! N (if (null? N) #f (car N)))
 
-  (let loop ((q-rq runqueue))
+  (let loop ((q-rq runqueue)
+				 )
 	 (if (pair? ACQ)
 		  (begin
 			 (set! q-rq (sort (append q-rq ACQ) Qcmp))
 			 (set! ACQ '())
-		  ))
-
-	 (if heartbeat
-		  (if (<= pulse t)
-				(display "=")
-				(let ((k (+ 4 heartbeat)))
-				  (set! pulse (+ pulse heartbeat))
-				  (display (make-string k #\space))
-				  (display t)
-				  (display "\r"))
-				)
-		  )o
+			 ))
+	 (if (and indicate-progress (number? indicate-progress) (> t indicate-progress))
+		  (begin
+			 (set! indicate-progress t)
+			 (display "t = ")
+			 (display  (subjective-time (car q-rq)))
+			 (display " ")
+			 (display (string-append (number->string (round (* 100 (/ (subjective-time (car q-rq)) end)))) "%"))
+			 (newline)
+			 )
+		  )
+	 
 	 (cond
 	  ((terminating-condition-test q-rq)
 		(list 'terminated q-rq))
@@ -437,14 +468,30 @@
 If the tag is a string it is silently converted to a symbol, *and* the argument is 
 to the query is *NOT* unwrapped --- if args end up of the form ((....)), it stays that way!
 
-Calling it directly from the repl might look like: 
+Agents have a wrapper for this function--- kernel --- which makes calls simpler.  Using this 
+wrapper from the repl might look like
 
 > ((slot-ref (car Q) 'kernel) 'check)
 
-since the function saved in the kernel slot captures the agent's closure.
+though in the agent's code it would look like
+        (kernel 'check)
+)
+
+since the function saved in the kernel slot captures the agent's closure.  More often it
+will be invoked within an agents model-body like
+   ...
+	(for-each forage-if-coincident (kernel 'providers? 'vegetation))
+   ...
+or something like that.
+
+
+NOTE PARTICULARLY: if the flag blue-meanie is set, agents can only access the kernel while 
+their model-body is running.  
 ")
 
-(define (kernel-call Q client query #!optional args)
+(define (kernel-call Q client query #!rest args)
+  (if (null? args) (set! args #f))
+  
   (if (string? query)
 		(set! query (string->symbol query))
 		(if (and (pair? args) (null? (cdr args)) (pair? (car args)) (= 1 (length args)))
@@ -456,6 +503,10 @@ since the function saved in the kernel slot captures the agent's closure.
 		  (filter query Q) ;; *can* return itself ... monitors can monitor monitors
 		  ))
 	
+	;; The format expected is (kernel /target-agent/ /target-agent-class/  /method/ args....)
+	((and args (pair? args) (isa?  query (car args)))
+	 (apply (cadr args) (cons query (cddr query))))
+
    ((symbol? query)
     (case query
 		((runqueue)
@@ -468,7 +519,7 @@ since the function saved in the kernel slot captures the agent's closure.
 		 ;; (kernel-call Q caller 'acquire host-agent active? agent-list)
 		 (let ((okQ (filter (lambda (x) (isa? x <agent>)) (caddr args))))
 			(apply acquire-agents args)
-		 ))
+			))
 
 		((check)
 		 (list client 'mate))
@@ -483,7 +534,10 @@ since the function saved in the kernel slot captures the agent's closure.
 							(or (eqv? xtype type)
 								 (and (string? type)
 										(string? xtype)
-										(string=? type xtype)))))
+										(string=? type xtype))
+								 (and (procedure? type)
+										(type x))
+								 )))
 					  Q)))
 
 		((locate)
@@ -498,12 +552,12 @@ since the function saved in the kernel slot captures the agent's closure.
 		 (let ((A (if (pair? args) args (list args))))
 			(shutdown-agents A) ;; WAS HAVING ISSUES WITH A SINGLE AGENT BEING PASSED
 			(for-each (lambda (a) (set! Q (excise a Q))) A)
-		 ))
+			))
 
 		((remove) ;; expects a list of agents to be removed from the runqueue
 		 (let ((A (if (pair? args) args (list args))))
 			(for-each (lambda (a) (set! Q (excise a Q))) A)
-		 ))
+			))
 		((containing-agents) ;; returns a list of agents which report as containing any of the list of arguments
 		 (filter (lambda (x) (i-contain x args)) Q))
 
@@ -523,6 +577,11 @@ since the function saved in the kernel slot captures the agent's closure.
 		((set-resource-value!) ;; sets the value of a resource from a nominated agent
 		 (if (apply provides? args)
 			  (or (apply set-value! args) #t)
+			  #f))
+
+		((add-resource-value!) ;; adds to the value of a resource from a nominated agent
+		 (if (apply provides? args)
+			  (or (apply add-value! args) #t)
 			  #f))
 
 		((agent-count) (length Q))
@@ -597,25 +656,28 @@ since the function saved in the kernel slot captures the agent's closure.
 (define boink 'undone)
 
 (define (prep-activate pa-rq q-entry)
-  (kdnl* 'prep "Prepping, in lambda")
+  (kdebug 'prep "Prepping, in lambda")
   (set! boink q-entry)
   (if (isa? q-entry <agent>)
 		(let ((kernel (lambda x (apply kernel-call (cons pq-rq (cons q-entry x )))))
 				)
-		  (kdnl* 'prep "Prepping in apply" (name q-entry))
+		  (kdebug 'prep "Prepping in apply" (name q-entry))
 		  (slot-set! q-entry 'agent-state 'ready-to-run)
 		  ;;(agent-prep q-entry start end)
 		  )
-		(and (kdnl* 'complaint q-entry "is not an agent: cannot prep") #f)
+		(and (kdebug 'complaint q-entry "is not an agent: cannot prep") #f)
 		)
   )
 
 (define (prep-agents Q start end)
-  (kdnl* 'prep "Prepping from" start "to" end "    with" Q)
+  (kdebug 'prep "Prepping from" start "to" end "    with" Q)
+  (set! Q (sort Q Qcmp))
+  (kdebug 'prep "sorted queue")
+  
   ;;  (dnl* "Prepping from" start "to" end)
 ;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
   
-  (map (lambda (x) (prep-activate Q x)) Q)
+  (for-each (lambda (x) (prep-activate Q x)) Q)
   )
 
 (definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
@@ -710,14 +772,14 @@ since the function saved in the kernel slot captures the agent's closure.
 						  (symbol->string (class-name-of process)) ":"(name process)
 						  " when it is in the state " (object->string agent-state))))
 
-		  (if process (kdnl* 'running "running" (name process) "at" t))
+		  (if process (kdebug 'running "running" (name process) "at" t))
 
 		  (test-queue-size local-run-agent-runqueue N)
 		  ;; remove the agent's run request from the top of the queue
 		  (set! local-run-agent-runqueue (excise process local-run-agent-runqueue))
 		  (test-queue-size local-run-agent-runqueue N)
 		  
-		  (kdnl* 'run-agent "In run-agent")
+		  (kdebug 'run-agent "In run-agent")
 
 		  (slot-set! process 'agent-body-ran #f) ;; Mark things as not
 		  ;; having run through
@@ -742,11 +804,11 @@ since the function saved in the kernel slot captures the agent's closure.
 										 ;; agent, run the agent
 										 (if (isa? process <agent>) ;; equivalent to (member <agent> (class-cpl (class-of process)))
 											  (let ((r (run process t stop kernel))) ;; (run ...) is in framework-methods.scm
-												 (if (or lookit-running-names (kdnl*? 'timing))
+												 (if (or lookit-running-names (kdebug? 'timing))
 													  (dnl* (slot-ref process 'name)
 															  (slot-ref process 'subjective-time)
 															  r))
-												 (kdnl* 'run-agent "finished running "
+												 (kdebug 'run-agent "finished running "
 														(name process) "@"
 														(slot-ref process 'subjective-time) "+" r)
 												 r)
@@ -829,7 +891,7 @@ since the function saved in the kernel slot captures the agent's closure.
 				 )
 				)
 			 (test-queue-size local-run-agent-runqueue N)
-			 (kdnl* 'run-agent "Finished with run-agent" (name process)
+			 (kdebug 'run-agent "Finished with run-agent" (name process)
 					  "@" (slot-ref process 'subjective-time))
 			 ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
 			 ;; One might need to have a method that will take a kernelcall procedure from

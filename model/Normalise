@@ -22,7 +22,7 @@
 "domain.scm" "framework-classes.scm" "framework-declarations.scm"
 "framework-flags.scm" "framework-methods.scm" "framework.scm"
 "framework-wrappers.scm" "generate-param-file.scm" "integrate.scm"
-"introspection-classes.scm" "introspection-methods.scm" "kdnl.scm"
+"introspection-classes.scm" "introspection-methods.scm" "kdebug.scm"
 "kernel.scm" "landscape-classes.scm" "landscape-declarations.scm"
 "landscape-methods.scm" "landscape-notes.scm" "loadem.scm"
 "load-parameters.scm" "log-classes.scm" "log-declarations.scm"

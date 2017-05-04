@@ -1,5 +1,4 @@
 ; -*- mode: scheme; -*-
-
 ;--
 ; Test model configuration
 ;-  Code 
@@ -7,54 +6,98 @@
 ;(dump wally)(newline)
 ;(aborts "Incomplete initialisation is making things fail when it runs")
 
-;- Define the model domain now
 
 ;; This loads the framework
+;;(include "framework") ;; this is for the time-probe macros
 (load "loadem.scm")
 
-;; This should be the first thing in a model configuration file after the framework is loaded.
-(load-parameter-set "params") ;; params is the directory which contains the parameter files
+;-- Configure the informational output (e.g. for debugging)
+
+
+(kdebug-production! #t) ;; bypass all kdebug messages (they can be slow to process)
+
+(set! indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
+
+(clear-kdebug-msg-tags)
+;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
+;(define kdebug kdebug?)        ;; We might later convert it to a macro that just "disappears"
+
+;(add-kdebug-msg-tag 'logger-redundancy-check)
+;(add-kdebug-msg-tag 'B.exemplarii)
+;(add-kdebug-msg-tag 'fruit)
+;(add-kdebug-msg-tag 'seeds)
+;(add-kdebug-msg-tag 'run)
+(add-kdebug-msg-tag 'PSsst)
+;(debugkdebug #t)
+;(debugkdebug #f)
+
+(kdebug-message-state #f)
+
+
+;; This needs to be done before we start loading agent into things,
+;; else they may set up their filenames incorrectly
+(set! time-field-width 8)
+;; defaults to 8, needs to be 12 to accomodate 3000 years from t = 0sec
+
+
+;- =================  Define the model domain now =======================
+;========================================================================
+
+"The model domain must be defined before the model itself is loaded."
+
+
+;-- First do time
 
 (define start 0) ;; day zero
+;(define end (* 12 days)) ;; of christmas y'know
+;(define end (* 480 days)) ;; 
+(define end (* 6 weeks)) ;; 
 ;(define end (* 61 days)) ;; end at some day after the start
-(define end (* 6 days))
+;(define end (* 365.25 32)) ;; simulate 32 years
+;(define end (* 365.25 10)) ;; simulate 10 years
+;(define end (* 365.25 6))  ;; simulate 6 years
+;(define end (* 365.25 4))  ;; simulate 4 years
+;(define end (* 365.25 2))  ;; simulate 2 years
 
-(if (< end start) (error "The model doesn't work in that direction"))
+(if (< end start)
+	 (error "The model doesn't work in that direction")
+	 (dnl* "***** Running from" start "to" end))
 
-(define A4domain (list 210 294 80)) ;; (x y z) corresponds to the size of an A4 page
-(define A4domainR (list 294 210 80)) ;; A4 rotated
-(define mA4domain (list 178 250 80)) ;; A4 with margins
-(define mA4domainR (list 250 178 80)) ;; A4 with margins rotated
-(define domain mA4domain)
 
+;-- Now space
+
+(set-model-domain '(-5040 -5040 -100) '(5040 5040 3000) isoA4)
+                  ;; ll ur optional-pagesize
+;(set-model-domain '(-5040 -5040 -100) '(5040 5040 3000) isoA4r)
+;; rotated
+
+
+;-- --------------- Load parameters from the parameters directory -------
+
+;; This should be the first thing in a model configuration file after
+;; the framework is loaded.
+(load-parameter-set "parameters") ;; params is the directory which
+											 ;; contains the parameter files
 
 ;-- Global data ---------------------------------------------------------
 ;========================================================================
+
+(set! default-margins 10) ;; this is for "map" output and is always in mm
+
 
 (define missing-value 0+1e-347i)
 ;; things arrived at by mortality are 
 ;; likely to be inexact
 
-(define round 
-  (let ((round round))
-	 (lambda (x)
-		( + (round (real-part x)) (round (imag-part x))))))
-
 (define Q '())  ;; This is the queue which holds the agents
 					 ;; in the simulation
 
-;(define end (* 365.25 32)) ;; simulate 32 years
-;(define end (* 365.25 10)) ;; simulate 10 years
-;(define end (* 365.25 6))  ;; simulate 6 years
-(define end (* 365.25 4))  ;; simulate 4 years
-;(define end (* 365.25 2))  ;; simulate 2 years
-
 ;-- Set kernel flags ----------------------------------------------------
 
-;; The kernel will emit messages (with kdnl*) which have a label which
-;; matches something in the kernel-messages list
+;; The kernel will emit messages (with kdebug) which have a label which
+;; matches something in the kdebug-messages list
 
-;(set! kernel-messages (append '(*) kernel-messages))
+;(set! kdebug-messages (append '(*) kdebug-messages))
 
 ;; Indicate which agents are "nested"; as an example patches may be
 ;; present either as independent things or as components within a
@@ -62,122 +105,37 @@
 
 ;(set! nested-agents '(nested-habitat)) ;; No, run simply for the moment
 
-(add-kernel-msg-tag 'introspection)
-(add-kernel-msg-tag 'log-*)
-
-;-- extensions to basic framework (more complex models)  ----------------
-
-;---- Load habitat support code
-
-;;(load "habitat-support.scm")
-
-;- Load the model properly ----------------------------------------------
-
-;-- load specific models ------------------------------------------------
-
-;; (make <landscape> ...)
-;; (make <habitat> ...)
-;; ...
-;(append! Q ...)
+;(add-kdebug-msg-tag 'introspection)
+;(add-kdebug-msg-tag 'log-*)
 
 
+;-- load the specific model configuration ------------------------------------------------
 
 "The following code takes the list of registered submodels and loads any files they may be 
 dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
 
-;--  the cast....
-(dnl "The stage")
-(define N 1) ;; suitable values are 1-8,10,12,14,15,18,20,21,24,28,30,35,36,40,42,56
-(define treecount 1) ;; and      1-3200,1-2500,1-2400,....
+(load "specific-model.scm")					 
 
-;--- First the cells, implemented as patches with water, fruit and seeds variables
-(define patchlist
-  (let* ((csize (/ 5040 N))
-			(grid
-			(make-grid <patch> "ch3cell" "gridcell" 'cell
-						  N N ;; array 
-						  (list (- csize) (- csize)) (list csize csize) ;; geographic ll and ur
-						  (lambda (x y) ;; vertical displacement
-							 (let ((x (/ x 100))
-									 (y (/ y 100)))
-								(* 10 (sqrt (+ (* x x) (* y y))))))))
-		  )
-	 grid))
 
-(dnl "Arden")
-(define trees '())
-(for-each
- (lambda (c)
-	(set! Q (q-insert Q c Qcmp))
-	(for-each
-	 (lambda (q)
-		(let*  ((t (make-plant <example-plant> "B.exemplarii" c (+ 10 (* 30 (random-real))) ))
-				  )
-		  (slot-set! t 'habitat c)
-		  ;; (slot-set! c ') ;;Does the habitat (patch) need to know of the trees?
-		  (set! Q (q-insert Q t Qcmp))
-		  (set! trees (cons t trees))))
-	 (seq treecount) )
-	)
- patchlist)
-
-(for-each
- (lambda (c)
-	(let ((fruit (create <ecoservice> "fruit"
-								'value 0 'patch c 'capacity +inf.0 'do-growth #f
-								'history #t 'symbol 'f 'name "fruit"))
-			
-			(seeds (create <ecoservice> "seeds"
-								'value 0 'patch c 'capacity +inf.0 'do-growth #f
-								'history #t 'symbol 's 'name "seeds"))
-			)
-	  (set! Q (q-insert Q fruit Qcmp))
-	  (set! Q (q-insert Q seeds Qcmp))
-	  
-	  (slot-set! c 'service-list (list fruit seeds))))
- patchlist)
-
-(dnl "The players: Beasts of the fields")
-
-(dnl "... and those that prey on them")
-
-;; Herbivores and carnivores --------------------------------------------
-
-;; And the audience -----------------------------------------------------
-
-;(define schedtimes (append 
-;						 (cons 0 (seq 6))
-;						 (map (lambda (x) (* 10.0 (1+ x))) (seq 360)))
-;  ) ;; first six days, then on every tenth day from the beginning for 370 days
-
-(define tdlog
-  (create <log-data> "data-logger" 'filename "tree-log" 
-			 'introspection-schedule (seq end)
-			 'variables (list 'name 'subjective-time 'mass)
-			 'introspection-list patchlist
-			 ))
-
-(define pslog
-  (create <log-map> "map-maker" 
-			 'introspection-schedule '(0 1 10 20 30 40 50 60 61)
-			 'introspection-list patchlist
-			 ))
-
-(set! Q (q-insert Q tdlog Qcmp)) ;; these will go in earlier than the others 
-(set! Q (q-insert Q pslog Qcmp)) ;; because they have high priority
-
-;========================================================================
-
-;-- Example code to run things....
 
 ;; Run till end without pause.  If you are a penguin, run without paws.
-(define (Doit q) 
-  (if #f
-		(check-service-data-lists service-name-list
-										  service-type-list
-										  service-eqn-sym-list))
-  (prep-agents q start end)
-  (set! q (queue start end q))
+(define (Doit q)
+  (display "Ok.\n")
+  (let ((state (kdebug-message-state)))
+	 (kdebug-message-state #t)
+
+	 (if #f
+		  (check-service-data-lists service-name-list
+											 service-type-list
+											 service-eqn-sym-list))
+	 (dnl* "Prepping")
+	 (prep-agents q start end)
+	 (dnl* "Running")
+	 (set! q (queue start end q))
+	 (kdebug-message-state state)
+	 
+	 (dnl* "Remember to run (shutdown-agents Q)")
+	 )
   )
 
 

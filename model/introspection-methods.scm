@@ -37,7 +37,7 @@
 ;;  (set-state-variables
 ;;   self (list 'type 'introspection
 ;; 				 'priority introspection-priority
-;; 				 'jiggle 0 'introspection-list '() 
+;; 				 'jiggle 0 'introspection-targets '() 
 ;; 				 'timestep-epsilon 1e-6 'file #f
 ;; 				 'dont-log '(ready-for-prep
 ;; 								 ;; agent things
@@ -47,7 +47,7 @@
 ;; 								 dont-log timestep-schedule kernel
 								 
 ;; 								 ;; log agent things
-;; 								 introspection-list
+;; 								 introspection-targets
 ;; 								 timestep-epsilon 
 
 ;; 								 dims ;; thing things
@@ -88,9 +88,10 @@
 					 )
 
 (model-body <introspection>
-				(kdnl* '(introspection-trace)
+				(kdebug '(introspection-trace)
 						 "[" (my 'name) ":" (class-name-of self) "]"
 						 "Introspection: model-body")
+
 
 				(let ((sched (my 'timestep-schedule))
 						)
@@ -99,9 +100,9 @@
 									(- (car sched) t)
 									dt))
 
-				  (kdnl* '(introspection-trace)
-							"      list:     " (my 'introspection-list))
-				  (kdnl* '(introspection-trace)
+				  (kdebug '(introspection-trace)
+							"      list:     " (my 'introspection-targets))
+				  (kdebug '(introspection-trace)
 							"      schedule: "
 							(list-head (my 'timestep-schedule) 3)
 							(if (> (length (my 'timestep-schedule)) 3)
@@ -117,21 +118,21 @@
   (filter (lambda (x) (not (equal? #!void x))) lst))
 
 (model-method (<introspection> <agent>) (insert-agent! self target)
-				  (set-my! 'introspection-list (exclude-voids  (cons target
-																 (my 'introspection-list)))))
+				  (set-my! 'introspection-targets (exclude-voids  (cons target
+																 (my 'introspection-targets)))))
 
 (model-method (<introspection> <agent>) (append-agent! self target)
 				  (if (not (equal? target #!void))
-						(set-my! 'introspection-list (exclude-voids (append (my 'introspection-list)
+						(set-my! 'introspection-targets (exclude-voids (append (my 'introspection-targets)
 																		 (list target))))))
 
-(model-method <introspection> (introspection-list self)
-				  (my 'introspection-list))
+(model-method <introspection> (introspection-targets self)
+				  (my 'introspection-targets))
 (model-method <introspection> (introspection-times self)
 				  (my 'timestep-schedule))
 
-(model-method (<introspection> <list>) (set-introspection-list! self lst)
-				  (set-my! 'introspection-list (exclude-voids lst)))
+(model-method (<introspection> <list>) (set-introspection-targets! self lst)
+				  (set-my! 'introspection-targets (exclude-voids lst)))
 (model-method (<introspection> <list>) (set-introspection-times! self lst)
 				  (set-my! 'timestep-schedule (exclude-voids lst)))
 

@@ -22,6 +22,34 @@
 ;; Important routines which I Really Ought to Know ;;
 ;;---------------------------------------------------
 
+;; cpl... class precedence list
+;;; (define-macro (isa? self . classtype)
+;;;   (letrec ((orf (lambda x (if (null? x #f) (or (car x) (apply orf (cdr x)))))))
+;;; 	 (let ((txt `(let ((ancestors (class-cpl (class-of ,self))))
+;;; 						(if (apply orf
+;;;  									  (map (lambda (x) (member x ancestors))
+;;;  											 (list ,@classtype))) 
+;;;  							 #t #f)
+;;;  						)
+;;;  					))
+;;;  		;;(pp txt) ;; Uncomment to print the constructed code during the startup phase 
+;;;  		txt)))
+
+
+(model-method (<agent>) (pp-a self)
+				  (dnl* "(" (cnc self) (name self) (slot-ref self 'note))
+				  (dnl* "  priority:" (slot-ref self 'priority) "initialised:" (slot-ref self 'initialised))
+				  (dnl* "  subjective-time:" (slot-ref self 'subjective-time) "dt:" dt)
+				  )
+
+(define (isa? me #!rest classes)
+  (let loop ((cpl (class-cpl (class-of me)))
+				 (cllist classes))
+	 (cond
+	  ((or (null? cpl) (null? cllist)) #f)
+	  ((memv (car cllist) cpl) #t)
+	  (#t (loop cpl (cdr cllist))))))
+
 
 ;(include "heritability")
 
@@ -49,7 +77,7 @@
 			)
 	 (display (class-name-of C))
 	 (display " ")
-	 (pp (dumpslots A))
+	 (pp (dumpslots C))
 	 ))
 
 
@@ -116,36 +144,35 @@
 ;-- default projections ... mostly used by loggers.
 "These function should be able to take either ordinates (if it merely 
 straightforward scaling) or vectors (for more complex mappings, like LL->xy).
+
+The default list of projections and the following functions (amongst
+others) are defined in framework.scm:
+
+(composite-prj_src->dest self src dest)
+   -- returns a projection that applies dest after src
+
+(linear2d:model-space->output-space m-domain o-domain)
+   -- makes a linear mapping function, each of the args is a rectangular 
+      bounding box (ll ur). This mapping fits the o-domain by contraction.
+
+(define (bilinear2d:model-space->output-space m-domain o-domain)
+   -- makes a bilinear mapping function, each of the args is a rectangular 
+      bounding box (ll ur). This mapping fits the o-domain by using 
+      different scales for the axes
+
+(define (map:domain-to-postscript model-domain papersize margin #!rest use-bilinear-map)
+  -- Defaults to a regular scale.
+  -- margin will be in mm, if margin is a pair, the car is side
+  -- margins and the cadr is the top and bottom length
+
 "
 
+(model-method (<projection> <procedure>) (ps-dump self ps) 
+				  (dnl "In projection ps-dump")
+				  (ps 'show-table
+						(list "<projection>")))
+				  
 
-
-(define *default-projections*
-  ;; The projections must take whole vectors since we cannot (properly) map
-  ;; geographic ordinates otherwise.  mapf converts an ordinate-wise mapping
-  ;; to a vector function.
-  (list
-	(cons 'I  (lambda (x) x)) ;; The identity mapping
-	(cons 'postscript (mapf mm->points)) ;; defined in postscript.scm
-	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
-	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
-	(cons 'inv-postscript (mapf points->mm)) ;; defined in postscript.scm
-	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
-	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
-	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
-	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
-	))
-
-(define (add-ps-projection key model-domain #!rest margin)
-  (set! margin (if (null? margin) 5 (car margin)))
-  (let ((ps (map:domain-to-postscript model-domain margin)))
-	 (add-to-*default-projections* ps key)))
-
-(define (add-to-*default-projections* p k)
-  (if (not (assoc k *default-projections*))
-		(set! *default-projections* (cons  (cons k p) *default-projections*))
-		(error "Projection already exists" k)
-		)) 
 
 (model-method <projection> (projection-assoc-list self key)
 				  (let ((p (assoc (my 'projection-assoc-list) key)))
@@ -171,34 +198,80 @@ straightforward scaling) or vectors (for more complex mappings, like LL->xy).
 
 
 ;-- projection routines that actually map things into different spaces
-(model-method (<projection> <list>) (local->model locus)
-				  (let ((p (my 'local->model)))
-					 (if p (p locus)
-							  locus)))
 
-(model-method (<projection> <list>) (model->local locus)
+(model-method (<projection> <projection> <projection>) (composite-prj_src->dest self src dest)
+;  (dnl* (cnc submodel1) (cnc submodel2))
+
+  (let ((l->m (get-local->model src))
+		  (m->l (get-model->local dest))
+		  )
+	 (lambda (x) 
+		(m->l (l->m x)))))
+
+(model-method (<projection> <projection>) (composite-prj_src->dest self dest)
+;  (dnl* (cnc submodel1) (cnc submodel2))
+
+  (let ((l->m (get-local->model self))
+		  (m->l (get-model->local dest))
+		  )
+	 (lambda (x) 
+		(m->l (l->m x)))))
+
+(model-method (<projection> <list>) (local->model self location)
+				  (let ((p (my 'local->model)))
+					 (if (symbol? p)
+						  (begin
+							 (set! p (get-projection self p))
+							 (set-my! 'local->model p))
+						  (if p
+								(p location)
+								location))))
+
+(model-method (<projection> <list>) (model->local self location)
 				  (let ((p (my 'model->local)))
-					 (if p (p locus)
-							  locus)))
+					 (if (symbol? p)
+						  (begin
+							 (set! p (get-projection self p))
+							 (set-my! 'model->local p))
+					 (if p (p location)
+							  location))))
 
 
 ;-- setters and getters for the inverse projection (into the submodel's space)
 
 ;-- get the projection that goes from model space to local space
 (model-method <projection> (get-model->local self)
-				  ;;(error "Convert to use the projections alist")
- 				  ;;(my 'local-projection)
-				  (my 'model->local)
+				  (let ((p (my 'model->local)))
+					 (if (not (procedure? p))
+						  (begin
+							 (set! p (get-projection self p))
+							 (set-my! 'model->local p)))
+					 p)
 				  )
+
 ;-- get the projection that goes from local space to model space
 (model-method <projection> (get-local->model self)
- 				  ;;(my 'inv-local-projection)
-				  (my 'local->model)
+				  (let ((p (my 'local->model)))
+					 (if (not (procedure? p))
+						  (begin
+							 (set! p (get-projection self p))
+							 (set-my! 'local->model p)))
+					 p)
 				  )
 
 ;-- get an arbitrary projection
 (model-method (<projection> <symbol>) (get-projection self key)
-				  (assoc key (my 'projection-assoc-list)))
+				  (let* ((pal (slot-ref self 'projection-assoc-list))
+							(projections*
+							 (if (or (not pal) (uninitialised? pal))
+								  (let ((lc (list-copy *default-projections*)))
+									 (slot-set! self 'projection-assoc-list lc)
+									 (set! pal lc)
+									 lc)
+								  pal))
+							)
+					 (let ((p (assoc key projections*)))
+						(if p (cdr p) (mapf (lambda (x) (dnl "missing projection: " key) x) )))))
 
 
 ;-- set the projection that goes from model space to local space
@@ -216,6 +289,11 @@ straightforward scaling) or vectors (for more complex mappings, like LL->xy).
 						  (error "Projection not found in projection-assoc-list" key))))
 
 ;--- kernel Methods for <agent> classes
+
+(model-method (<agent> <procedure>) (ps-dump self ps)
+				  (dnl "in agent ps-dump")
+				  #t
+				  )
 
 ;---- <query> 
 
@@ -245,7 +323,8 @@ straightforward scaling) or vectors (for more complex mappings, like LL->xy).
 				  (if (not (isa? self <agent>))
 						(begin (display "Attempt to (run ...) a non-agent\n")
 								 (error "+++Curcurbit Error+++"  
-										  (slot-ref self 'name)))))
+										  (slot-ref self 'name)))
+						))
 
 
 ;--- Agent classes
@@ -261,7 +340,7 @@ commonly viewed as just a simple extension of sclos.
 
 
 ;;; (agent-initialisation-method <agent> (initargs) '(no-default-values)
-;;; 				  (kdnl* '(track-init) "<agent> initialise---")
+;;; 				  (kdebug '(track-init) "<agent> initialise---")
 ;;; 				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialised))
 
 ;;; 				  ;;(pp args)
@@ -323,6 +402,18 @@ commonly viewed as just a simple extension of sclos.
 ;;; ;;; 					  param-list)))
 
 
+(model-method (<thing> <procedure>) (ps-dump self ps)
+				  (dnl "in thing ps-dump")
+				  (ps 'moveto ((cdr (assoc 'ps->model *default-projections*))(local->model (location self))))
+				  (ps 'show-table
+						(list (string-append "<thing>" (name self))
+								(string-append "mass =" (number->string (my 'mass)))
+								(string-append "location =" (number->string (my 'location)))
+								(string-append "speed =" (number->string (my 'speed)))
+								(string-append "direction =" (number->string (my 'direction)))
+								))
+				  (ps-dump-parent))
+
 (model-method <agent> (change-type self newtype)
 				 (apply-parameters self (slot-ref self 'type)))
 
@@ -363,7 +454,7 @@ commonly viewed as just a simple extension of sclos.
 
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
-				  (kdnl* 'prep (slot-ref self 'name) "entered prep: " start end)
+				  (kdebug 'prep (slot-ref self 'name) "entered prep: " start end)
 				  (if (slot-ref-self 'timestep-schedule)
 						(slot-set! self 'timestep-schedule
 									  (unique (sort (slot-ref self 'timestep-schedule) <)))
@@ -419,7 +510,7 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method (<agent> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-				  (kdnl* '(log-* log-data)
+				  (kdebug '(log-* log-data)
 							(name self)
 							"[" (my 'name) ":"
 							(class-name-of self) "]" "in <agent>:log-data")
@@ -441,7 +532,7 @@ commonly viewed as just a simple extension of sclos.
 						 
 						 (cond
 						  ((has-slot? self field)
-							(kdnl* '(log-* log-data logging-debug)      
+							(kdebug '(log-* log-data logging-debug)      
 									 "  " (name self) (class-name-of self)
 									 "Dumping " field "=" (if (has-slot? self field)
 																	  (slot-ref self field)
@@ -452,7 +543,7 @@ commonly viewed as just a simple extension of sclos.
 							(display (slot-ref self field) file)
 							)
 						  ((member field (extra-variable-list self))
-							(kdnl* '(log-* log-data logging-debug)
+							(kdebug '(log-* log-data logging-debug)
 									 "  " (name self) (class-name-of self)
 									 "Dumping extra " field "="
 									 (extra-variable self field))
@@ -502,6 +593,28 @@ commonly viewed as just a simple extension of sclos.
 				  (if (string? n)
 						(set-my! self 'name n)
 						(error "agent:set-name! -- arg is not a string")))
+
+;----- (taxon) 
+
+(model-method (<agent>) (taxon self)
+				  (let ((n (slot-ref self 'taxon)))
+					 n
+					 ))
+
+;(model-method <agent> (taxon self)
+;				  (my 'taxon))
+
+;; (add-method taxon
+;; 				(make-method (list <agent>)
+;; 								 (lambda (taxon-parent self)
+;; 									(slot-ref self 'taxon))))
+
+;----- (set-taxon!) 
+
+(model-method (<agent> <string>) (set-taxon! self n)
+				  (if (string? n)
+						(set-my! self 'taxon n)
+						(error "agent:set-taxon! -- arg is not a string")))
 
 
 
@@ -699,20 +812,15 @@ commonly viewed as just a simple extension of sclos.
   "remove stale times in the time-to-run queue")
 (define (prune-local-time-queue tm ttr)
   ;;(dnl* 'PRUNE-LOCAL-TIME-QUEUE tm ttr)
-  (if (not ttr) (set! ttr '()))
-
-  (let ((r '())
-		  )
-	 (if (uninitialised? ttr) (set! ttr (list 0)))
-	 (set! r (let loop ((l ttr))
-				  (if (or (null? l)
-							 (> tm (car l))
-							 )
-						l
-						(loop (cdr l)))))
-;	 (set! kernel-time (+ kernel-time (- (cpu-time) call-starts)))
-	 r )
-  )
+  (kdebug 'timestep-schedule "prune-local-time-queue enters with: " tm "--" ttr)
+  (if (not ttr)
+		(set! ttr '())
+		(if (uninitialised? ttr) (set! ttr (list 0)))
+		)
+  (let ((r (filter (lambda (x) (> x tm)) ttr)))
+	 (kdebug 'timestep-schedule "prune-local-time-queue leaves with: " tm "--" ttr)
+	 r)
+)
 
 (define ACTIVE #t)
 (define INACTIVE #f)
@@ -841,13 +949,20 @@ The arguments are
  (make-method
   (list <agent>)
   (lambda (run-parent self T pstop pkernel)
-	 (kdnl* 'bigseparatorfor-run "###################################################################################")
-	 (kdnl* 'bigseparatorfor-run "## Running"  (name self) "in " T pstop "with" (slot-ref self 'timestep-schedule) "pending\n")
-	 (kdnl* 'bigseparatorfor-run "##       @"  (subjective-time self) "+" (slot-ref self 'dt))
+	 (kdebug 'bigseparatorfor-run "###################################################################################")
+	 (kdebug 'bigseparatorfor-run "## Running"  (name self) "in " T pstop "with" (slot-ref self 'timestep-schedule) "pending\n")
+	 (kdebug 'bigseparatorfor-run "##       @"  (subjective-time self) "+" (slot-ref self 'dt))
 	 (let ((my (lambda (x) (slot-ref self x)))
 			 (set-my! (lambda (x y) (slot-set! self x y)))
 			 (kernel (slot-ref self 'kernel)))
-		(kdnl* 'run-model-body "<agent>" (class-name-of self))
+
+;;		(if (has-slot? self 'introspection-targets)
+;;			 (slot-set! self 'introspection-targets (pkernel 'find-agents (slot-ref self 'introspection-selector))))
+
+		;;(set-kernel! self pkernel)
+		(kdebug 'run-model-body "<agent>" (class-name-of self))
+		(kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
+		;;(dnl* (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
 		(let ((t T))
 		  (let ((stop pstop))
 			 (let ((kernel pkernel))
@@ -859,20 +974,25 @@ The arguments are
 								 (my 'timestep-schedule))))
 				  (let ((dt (interval t (slot-ref self 'dt) stop ttr)))
 					 (let ((subj-time (my 'subjective-time)))
+						(if (<= (+ t dt) subj-time)
+							 (error "Trying to go back in time" (cnc (class-of self)) (slot-ref self 'name) (slot-ref self 'taxon) '@ t "+" dt "with a subjective time of" subj-time)
+							 (kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "... running from" t "to" (+ t dt) ", a step of" dt)
+							 )
+
 						(let ((DT 0))
 						  (set-my! 'kernel kernel)
 						  (cond
 							((< subj-time t)
 							 (if temporal-fascist
 								  (begin
-									 (kdnl* 'temporal-check "[" (my 'name) ":"(class-name-of self) "]"
+									 (kdebug 'temporal-check "[" (my 'name) ":"(class-name-of self) "]"
 											  "a/an" (my 'representation)
 											  "is lost in time at" subj-time "or" t)
 									 'missing-time)
 								  ((letrec
 										 ((loop-through-time
 											(lambda (st ddt)
-											  (kdnl* 'passing-control-to-model
+											  (kdebug 'passing-control-to-model
 														"["(my 'name)":"(class-name-of self)"]"
 														"Passing control to the model at" t 
 														"for" (if (< st t)
@@ -923,8 +1043,8 @@ The arguments are
 															  dt)))
 													 (#t #!void))
 													((or (symbol? m) (list? m))
-													 (kdnl* 'run-trap "BORK!!!" m))
-													(#t (kdnl* 'run-trap "BORK!!!" m)))
+													 (kdebug 'run-trap "BORK!!!" m))
+													(#t (kdebug 'run-trap "BORK!!!" m)))
 												  (#t #!void))
 
 												 m))
@@ -933,7 +1053,7 @@ The arguments are
 									subj-time
 									(min (- t subj-time) (my 'dt)))))
 							((and (> dt 0.) (>= subj-time (+ t dt)))
-							 (kdnl* 'temporal-check "["
+							 (kdebug 'temporal-check "["
 									  (my 'name)
 									  ":"
 									  (class-name-of self)
@@ -949,7 +1069,7 @@ The arguments are
 									  dt)
 							 'back-to-the-future)
 							(#t
-							 (kdnl* 'passing-control-to-model
+							 (kdebug 'passing-control-to-model
 									  "["
 									  (my 'name)
 									  ":"
@@ -968,11 +1088,11 @@ The arguments are
 												 (run-model-body self t dt) ;;; The model runs before its subsidiaries or components
 											  
 												 ;;  The model returns the amount of time it actually ran for
-												 (kdnl* '(nesting run-model-body) (class-name-of self)
+												 (kdebug '(nesting run-model-body) (class-name-of self)
 														  "Running at " t "+" dt "[" (my 'dt) "]")
 												 (if (< dt 0.0) (error 'bad-dt))
 												 (begin
-													(kdnl* 'track-subjective-times
+													(kdebug 'track-subjective-times
 															 "[" (my 'name) ":" (class-name-of self) "]"
 															 " running at " (my 'subjective-time) ":" t)
 													
@@ -1018,22 +1138,22 @@ The arguments are
 								(and (dnl "*******************************")
 									  (error "BAD TICK")))
 
-						  (kdnl* 'trace-time-update "SUBJECTIVE TIME FOR" (name self) "IS" (slot-ref self 'subjective-time) "; t =" t "DT =" DT "; dt =" dt)
-						  (kdnl* 'trace-time-update "has-slot? subjective-time" (has-slot? self 'subjective-time))
+						  (kdebug 'trace-time-update "SUBJECTIVE TIME FOR" (name self) "IS" (slot-ref self 'subjective-time) "; t =" t "DT =" DT "; dt =" dt)
+						  (kdebug 'trace-time-update "has-slot? subjective-time" (has-slot? self 'subjective-time))
 
 
 						  (if (has-slot? self 'subjective-time) ;; Anything (<agent> or otherwise) should have its time updated
 								(begin
-								  (kdnl* 'trace-time-update "UPDATING...")
+								  (kdebug 'trace-time-update "UPDATING...")
 								(slot-set!
 								 self 'subjective-time
 								 (+ DT (my 'subjective-time)))
-								(kdnl* 'trace-time-update "..." (slot-ref self 'subjective-time))
+								(kdebug 'trace-time-update "..." (slot-ref self 'subjective-time))
 								))
 
 						  (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
 
-						  (kdnl* '(nesting run)
+						  (kdebug '(nesting run)
 									(class-name-of self)
 									(name self)
 									"Leaving run after a tick of "
@@ -1043,7 +1163,8 @@ The arguments are
 									"["
 									(my 'dt)
 									"]")
-						  'ok)))))))))
+						  'ok)))))))
+		))
   ))
 
 				
@@ -1066,7 +1187,7 @@ The arguments are
 				  (for-each (lambda (x) 
 								  (if (< (slot-ref x 'subjective-time) (+ t dt))
 										(run x t (+ t dt) kernel)
-										(kdnl* 'info "run-agents: skipping" (name x)))
+										(kdebug 'info "run-agents: skipping" (name x)))
 								  )
 								agentlist
 								)
@@ -1091,7 +1212,7 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;---- <blackboard> methods
 
 ;;; (agent-initialisation-method <blackboard> (args) (no-default-values)
-;;; 				  (kdnl* '(track-init) "<blackboard> initialise---")
+;;; 				  (kdebug '(track-init) "<blackboard> initialise---")
 ;;; 				  ;;(pp args)
 ;;; 				  ;;(dnl "variable")
 ;;; 				  (set-state-variables ;; We set some reasonable default values for
@@ -1154,7 +1275,7 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;;   'track-epsilon 1e-6))
 
 
-(model-method (<tracked-agent> <number> <pair>) (track-locus! self t loc)
+(model-method (<tracked-agent> <number> <pair>) (track-location! self t loc)
 					 (set-my! 'track
 								 (cons t (map 
 								 (if tr 
@@ -1188,7 +1309,7 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 
 (model-body <tracked-agent>
-				(track-locus! self t (my 'location)) ;; even if they
+				(track-location! self t (my 'location)) ;; even if they
 				;; aren't
 				;; moving
 				(call-next-parent-body)

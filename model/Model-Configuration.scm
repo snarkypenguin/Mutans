@@ -71,10 +71,10 @@
 
 ;-- Set kernel flags ---------------------------------------------------------
 
-;; The kernel will emit messages (with kdnl*) which have a label which
-;; matches something in the kernel-messages list
+;; The kernel will emit messages (with kdebug) which have a label which
+;; matches something in the kdebug-messages list
 
-;(set! kernel-messages (append '(*) kernel-messages))
+;(set! kdebug-messages (append '(*) kdebug-messages))
 
 ;; Indicate which agents are "nested"; as an example patches may be
 ;; present either as independent things or as components within a
@@ -82,8 +82,8 @@
 
 ;(set! nested-agents '(nested-habitat)) ;; No, each patch does its own thing....
 
-(add-kernel-msg-tag 'introspection)
-(add-kernel-msg-tag 'log-*)
+(add-kdebug-msg-tag 'introspection)
+(add-kdebug-msg-tag 'log-*)
 
 ;; options include focus stomach hunger-proximity eating log animal-running
 
@@ -232,9 +232,9 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (for-each iQ (slot-ref habitat  'patch-list)) ;; and its subsidiary agents
 
 
-;; An introspection-list is a list of agents to be examined by a logging agent (in this case "logger")
-;;(set-introspection-list! psdumper (list-copy Q))
-(set-introspection-list! logger (list-copy (service-list habitat)))
+;; An introspection-targets is a list of agents to be examined by a logging agent (in this case "logger")
+;;(set-introspection-targets! psdumper (list-copy Q))
+(set-introspection-targets! logger (list-copy (service-list habitat)))
 
 
 ;; Tell each agent what spatial ordinate system their output should be in (if we don't do this,

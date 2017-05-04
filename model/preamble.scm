@@ -10,7 +10,6 @@
 
 ;; Registers to associate  classes, methods and objects with their name.
 
-
 (define overdue-loans '())
 
 (define original-display display)
@@ -25,6 +24,14 @@
 ;(set! display fake-display)
 ;(set! newline fake-newline)
 ;(set! ednl fake-ednl)
+
+(define warn <uninitialised>)
+(define (warning-log #!rest args)
+  (if (eqv? warn <uninitialised>)
+		(set! warn (open-output-file "warning.log"))
+		(display "Unable to open warning log\n"))
+  (display args warn)
+  (newline warn))
 
 
 (define getenv (let ((ge getenv))

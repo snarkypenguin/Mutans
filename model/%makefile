@@ -27,7 +27,7 @@ KERNEL = kernel.scm
 # BEGIN REWRITE GROUP
 SUPPORT = utils.scm units.scm maths.scm integrate.scm matrix.scm postscript.scm basic-population.scm
 CLASSDECS = log-classes.scm log-declarations.scm landscape-classes.scm landscape-declarations.scm plant-classes.scm plant-declarations.scm animal-classes.scm animal-declarations.scm 
-CHASSIS = kdnl.scm framework.scm framework-wrappers.scm framework-controls.scm framework-methods.scm
+CHASSIS = kdebug.scm framework.scm framework-wrappers.scm framework-controls.scm framework-methods.scm
 LOG = log-methods.scm
 LANDSCAPE =  landscape-methods.scm
 PLANT = plant-methods.scm

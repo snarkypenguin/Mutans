@@ -2,13 +2,14 @@
 (define <introspection>-parameters
   (list
     (list 'introspection-priority 10000) ;; must be high to keep loggers and monitors to the front of the queue
+	 (list 'dt (* 1 day)) ;; introspection agents are usually driven by a specified schedule
     (list 'timestep-epsilon 1e-6)
 	 (list 'format 'text)
 	 (list 'missing-val "NoData")
 	 (list 'show-field-name #f)
 	 (list 'preamble-state '())
 	 (list 'variables-may-be-set #t)
-    ;;(list 'introspection-list '<uninitialised>)
+	 (list 'report-time-register #f) ;; It may be that not all introspection agents need the time register
   )
 )
 (set! global-parameter-alist (cons (cons <introspection> <introspection>-parameters) global-parameter-alist))

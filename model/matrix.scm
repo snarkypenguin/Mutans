@@ -1,4 +1,4 @@
-(define matrhix-doco
+(define matrix-doco
 "
 
 These matrices are indexed from 1.  At the moment there is no way to augment

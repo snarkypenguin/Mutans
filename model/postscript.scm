@@ -116,7 +116,7 @@
 	((number? ix)
 	 (list-set! lst ix vv))
 	((= (length ix) 1)
-	 (dnl "unit list")
+	 ;;(dnl "unit list")
 	 (list-set! lst (car ix) vv))
 	(else
 	 (let ((tv (ps-list-ref* lst ix)))
@@ -265,6 +265,7 @@
 (define sl '())
 (define isl '())
 
+;; This constructs a sequence from 0 to len-1 and applies proc to each element
 (define (list-tabulate len proc)
   (do ((i (- len 1) (- i 1))
        (ans '() (cons (proc i) ans)))
@@ -305,14 +306,17 @@
 
 
 (define (adjusted-plot-polygon ps width greyvalue open-path project-point-fn point-list)
+;;  (display "Wakawackawaka!\n")
   (let ((plot (if project-point-fn (map project-point-fn point-list) point-list)))
-;(pp plot)
+;   (pp plot)
+;   (display "With... a banana!\n")
 	 (plot-polygon ps width greyvalue plot open-path)))
 
 (define (adjusted-plot-filled-polygon ps width bordervalue interiorvalue project-point-fn point-list)
   (let ((plot (if project-point-fn (map project-point-fn point-list) point-list)))
 ;(pp plot)
 	 (plot-filled-polygon ps width bordervalue interiorvalue plot)))
+
 
 ;; These are support routines that get called both here and from functions in other files.....
 
@@ -374,7 +378,8 @@
 
     (define (ps-display thing)
       (display thing file)
-      (display "\n" file))
+      (display "\n" file)
+		)
 
     (define (ps-1-arg command arg)
       (display arg file)
@@ -558,6 +563,15 @@
 	 (define (currentpoint)
 		(ps-display "currentpoint"))
 
+	 (define (ps-comment #!rest args)
+		(ps-display "%%\n%%")
+		(for-each
+		 (lambda (x)
+			(ps-display (string-append "%%   " (make-it-a-string x))))
+		 args)
+		(ps-display "%%\n%%")
+		)
+	 
 	 (define (stringwidth s)
 		(show s)
 		(ps-display string-width))
@@ -770,9 +784,11 @@
 								(display "\n" file)
 								(close-output-port file))
 
+							  ((eq? cmd 'display) (apply ps-display args))
 							  ((eq? cmd 'postscript) (apply ps-display args))
 							  ((eq? cmd 'comment) 
-								(apply ps-display (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n")))
+								(apply ps-comment args)
+								;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
 								)
 
 							  ((eq? cmd 'set-font) (apply font args))

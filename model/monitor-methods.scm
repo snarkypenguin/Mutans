@@ -45,7 +45,7 @@ changes, we hope not too many.
 				  ;; primarily used to construct a tree to represent the configuration's suitability 
 				  ;; and interdependencies.
 				  ;; The "trunk" of the tree is constructed here, agents may populate the leaves
-				  (kdnl* "Processing" (slot-ref subject 'name) "at" t "+" dt)
+				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
 				  (let ((status ((my 'trigger-selector) subject)))
 					 (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))))
 				  #t)
@@ -55,13 +55,13 @@ changes, we hope not too many.
 				  (for-each
 					(lambda (subject)
 					  (resolve-agent self subject-list args)
-					  (kdnl* "Tidying up" (slot-ref subject 'name) "at" t "+" dt))
+					  (kdebug "Tidying up" (slot-ref subject 'name) "at" t "+" dt))
 					subject-list)
 				  #t)
 
 ;--- model-body
 (model-body <monitor>
-				(kdnl* '(monitor-bodies model-bodies) "In" (class-name-of self))
+				(kdebug '(monitor-bodies model-bodies) "In" (class-name-of self))
 				;; pass-preparation is subclass specific
 				(pass-preparation self (unique (append (slot-ref self 'target-list) (slot-ref self 'specific-agents))) '())
 				(for-each

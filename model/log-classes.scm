@@ -17,10 +17,11 @@
 (define logger-tags '())
 
 (define-class <log-introspection> (inherits-from <introspection>  <projection>)
-				  (state-variables file filename filetype format variables
+				  (state-variables file filename filetype filename-timescale format variables
 										 variables-may-be-set missing-val show-field-name
-										 preamble-state introspection-list
-										 timestep-epsilon))
+										 preamble-state introspection-targets
+										 report-time-table
+										 ))
 ;;- file is the output handle
 ;;  if filename is not a string, things go to stdout
 ;-  if append-time is not false it must either be true or the size of
@@ -32,8 +33,9 @@
 
 
 (define-class <logfile> (inherits-from <log-introspection>)
-										(state-variables)
-										)
+  (state-variables)
+  
+  )
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout
 ;;- if append-time is not false it must either be true or the size of
@@ -57,30 +59,34 @@
 
 
 (define-class <log-map> (inherits-from <snapshot>)
-										(state-variables ps png))
-;; ps and png indicate whether the files should be left on disk at the
-;; end of the step
+										(state-variables))
+
 
 (define-class <log-data> (inherits-from <logfile>)
 										 (state-variables)
 										 )
 
-;;- projections is an association list of slot-names and the projection
-;;  functions to apply before output
-;;- Data is generated using
-;;
-;;(define-class <log-agent-table> (inherits-from <log-data>)
-;;												  (state-variables target-agent))
+;; Ultimately, there will be a <log-movie> which inherits from <log-data> 
+;; but generates images (frames) like <log-map> for a movie-loop either 
+;; in something like a gif or mpeg format.
 
 ;;- projections is an association list of slot-names and the projection
 ;;  functions to apply before output
 ;;- Data is generated using
+;;
 
 ;;(define-class <log-table> (inherits-from <log-data>)
 ;;										  (state-variables))
 ;;- projections is an association list of slot-names and the
 ;;  projection functions to apply before output
-;;- Data is generated using 
+
+
+;;(define-class <log-agent-table> (inherits-from <log-data>)
+;;												  (state-variables target-agent))
+
+;;- projections is an association list of slot-names and the projection
+;;  functions to apply before output
+
 
 ;;(define-class <log-agent-table*> (inherits-from <log-agent-table>)
 ;;													(state-variables))
@@ -89,7 +95,7 @@
 ;;  class entity being output
 ;;- projections is an association list of slot-names and the
 ;;  projection functions to apply before output
-;;- Data is generated using 
+
 
 ;;(define-class <log-table*> (inherits-from <log-table>)
 ;;											(state-variables))
@@ -98,7 +104,6 @@
 ;;  entity being output
 ;;- projections is an association list of slot-names and the
 ;;  projection functions to apply before output
-;;- Data is generated using 
 
 ;-  The End 
 

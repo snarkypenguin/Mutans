@@ -52,7 +52,7 @@
 				 (inner-estimate (+ left-estimate right-estimate))
 				 ;;				 (delta (/ (- inner-estimate estimate) 15))
 				 )
-		  (if (or (<= k 0) (<= (abs (- inner-estimate estimate)) (* 15 eps)))
+		  (if (or (<= k 0) (<= (magnitude (- inner-estimate estimate)) (* 15 eps)))
 				(+ inner-estimate (/ (- inner-estimate estimate) 15))
 				(+ (inner-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc (1- k))
 					(inner-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb (1- k))
@@ -156,7 +156,7 @@
   (if (not a) (#f 'this))
   (if (not b) (#f 'that))
   
-  (if (< eps 0) (set! eps (abs eps)))
+  (if (< eps 0) (set! eps (magnitude eps)))
   (if (<< b a) 
 		(- (inner-general-adaptive-integrate f b a eps k << ** // ++ -- k))
 		(let* ((h (v-length (-- b a)))
@@ -174,9 +174,9 @@
 ;		  (mdnl "(inner-general-adaptive-integrate f" a b eps estimate fa fc fb k ")")
 ;		  (mdnl "inner estimate =" inner-estimate)
 ;		  (mdnl "k =" k)
-;		  (mdnl "(abs (- inner-estimate estimate)) =" (abs (- inner-estimate estimate)))
+;		  (mdnl "(magnitude (- inner-estimate estimate)) =" (magnitude (- inner-estimate estimate)))
 ;		  (mdnl "(* 15 eps) =" (* 15 eps))
-		  (if (or (<= k 0) (<= (abs (- inner-estimate estimate)) (* 15 eps)))
+		  (if (or (<= k 0) (<= (magnitude (- inner-estimate estimate)) (* 15 eps)))
 				(+ inner-estimate (/ (- inner-estimate estimate) 15))
 				(+ (inner-general-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc << ** // ++ -- (1- k))
 					(inner-general-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb << ** // ++ -- (1- k))
@@ -205,7 +205,7 @@
 ;	 (->list a)
 ;	 (->list b)
 
-	 (if (< eps 0) (set! eps (abs eps)))
+	 (if (< eps 0) (set! eps (magnitude eps)))
 
 	 (if (<< b a)
 		  (- 0 (general-adaptive-integrate f b a eps swap-order mult div add sub k))
@@ -634,7 +634,7 @@ compared to the librcg version in C
 (define (rk4* F a b ss Xo . ZT) ;; F is a list of functions, say dy/dt dx/dt, and dz/dt, where each is in terms of t, x, y, z
                                 ;; and the initial values of x, y, and z are specified in Xo.  rk4* returns
                                 ;; a vector function with the values of x, y and z over the domain t in [a,b].
-  (if (< (abs ss) 1e-12) 
+  (if (< (magnitude ss) 1e-12) 
 		(abort "bad step size in rk4*"))
 
   (set! ZT (if (null? ZT) #f (car ZT)))
@@ -648,7 +648,7 @@ compared to the librcg version in C
 	 (letrec ((rk4i
 				  (lambda args
 ;;					 (dnl "RK4I ËNTRY:  " args)
-					 (if (< (abs h) 1e-12) 
+					 (if (< (magnitude h) 1e-12) 
 						  (abort "bad step size in rk4*/rk4i"))
 					 (let* ((t (car args))
 							 (funcs (cdr args))
@@ -941,37 +941,37 @@ The first row of coefficients gives the fourth-order accurate method, and the se
 							  (num (let loop ((v V) (v* V*) (worst 0) (target #f))
 										(cond
 										 ((null? v) target)
-										 ((zero? (abs (- (car v) (car v*))))
+										 ((zero? (magnitude (- (car v) (car v*))))
 										  (loop (cdr v) (cdr v*) worst target))
 										 ((> 
-											(/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))
+											(/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))
 											worst)
 										  
-										  (loop (cdr v) (cdr v*) (/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))  (abs (- (car v) (car v*))))) 
+										  (loop (cdr v) (cdr v*) (/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))  (magnitude (- (car v) (car v*))))) 
 										 (else (loop (cdr v) (cdr v*) worst target)))))
 
 
 							  (den (let loop ((v V) (v* V*) (worst 0) (target #f))
 										(cond
 										 ((null? v) target)
-										 ((zero? (abs (- (car v) (car v*))))
+										 ((zero? (magnitude (- (car v) (car v*))))
 										  (loop (cdr v) (cdr v*) worst target))
 										 ((> 
-											(/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))
+											(/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))
 											worst)
 										  
-										  (loop (cdr v) (cdr v*) (/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))  (/ (+ (abs (car v)) (abs (car v*))) 2)))
+										  (loop (cdr v) (cdr v*) (/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))  (/ (+ (magnitude (car v)) (magnitude (car v*))) 2)))
 										 (else (loop (cdr v) (cdr v*) worst target)))))
 
 							  (err (let loop ((v V) (v* V*) (worst 0))
 										(cond
 										 ((null? v) worst)
-										 ((zero? (abs (- (car v) (car v*))))
+										 ((zero? (magnitude (- (car v) (car v*))))
 										  (loop (cdr v) (cdr v*) worst))
 										 ((> 
-											(/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))
+											(/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))
 											worst)
-										  (loop (cdr v) (cdr v*) (/ (abs (- (car v) (car v*))) (/ (+ (abs (car v)) (abs (car v*))) 2))))
+										  (loop (cdr v) (cdr v*) (/ (magnitude (- (car v) (car v*))) (/ (+ (magnitude (car v)) (magnitude (car v*))) 2))))
 										 (else (loop (cdr v) (cdr v*) worst)))))
 
 							  (nstep (cond 

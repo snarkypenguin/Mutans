@@ -2,7 +2,7 @@
 (define <log-data>-parameters
   (list
     (list 'type 'log-data)
-;	 (list 'dt (* 1 day))
+	 (list 'filetype ".data")
 	 (list 'format 'text)
     (list 'local->model '($ (cdr (assoc 'I *default-projections*))))         ;; takes model space to local space
 	 (list 'model->local '($ (cdr (assoc 'I *default-projections*)))) ;; takes local space to model space

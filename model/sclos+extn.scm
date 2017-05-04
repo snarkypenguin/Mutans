@@ -224,22 +224,20 @@ communication (without cheating)."
 
 (define-class <object>
   (inherits-from <primitive-object>)
-  (state-variables note map-projection)
+  (state-variables note)
   ;; 'note is just explanatory data
-  ;; 'map-projection exists to assist projecting data in and out of the object's data-space
   )
 
 ;--- agents
 
 (define-class <agent>
-  (inherits-from <object>)
-  (state-variables name type representation agent-state
+  (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
+  (state-variables name taxon type representation agent-state
 						 note
 						 kernel
 						 subjective-time priority jiggle 
 						 dt
 						 migration-test timestep-schedule counter
-						 map-projection
 						 state-flags
 						 agent-epsilon
 						 dont-log
@@ -436,7 +434,7 @@ communication (without cheating)."
 				(let ()
 				  (if (has-slot? self (car arguments))
 						(slot-set! self (car arguments) (cadr arguments))
-						(kdnl* 'state-vars-missed (class-name-of (class-of self)) "does not have a slot" (car arguments)))
+						(kdebug 'state-vars-missed (class-name-of (class-of self)) "does not have a slot" (car arguments)))
 				  (set-state-variables self (cddr arguments)))
 				)
 			  (#t (error "The list of initialisers is missing something!" arguments))))))
@@ -557,7 +555,7 @@ of this-agent and its parents (but not *grandparents...).
 
 ;--- (get-methods class-restriction methd self #!rest args(define (get-methods class-restriction methd self #!rest args) ;; if class-restriction is null return all methods, else restrict to list
 (define (get-methods class-restriction methd self #!rest args) ;; if class-restriction is null return all methods, else restrict to list
-  (kdnl* 'get-methods class-restriction)
+  (kdebug 'get-methods class-restriction)
   (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
   (set! class-restriction (if (procedure? class-restriction) (list class-restriction) class-restriction))
 
@@ -601,16 +599,16 @@ of this-agent and its parents (but not *grandparents...).
 									(method-register 'rec? x)
 									)
 							  (begin 
-								 (kdnl* 'model-body "applying method " (or (generic-method-register 'rec? x) (method-register 'rec? x) ))
+								 (kdebug 'model-body "applying method " (or (generic-method-register 'rec? x) (method-register 'rec? x) ))
 								 (apply apply-method (cons x (cons self args))))
 							  (begin
-								 (kdnl* 'model-body "Did not apply method, it wasn't in the registers")
+								 (kdebug 'model-body "Did not apply method, it wasn't in the registers")
 								 #f)
 							  )
 						 )
 					  classes)
 					  ))
-			 (kdnl* 'model-body "call-parent-methods returns " result)
+			 (kdebug 'model-body "call-parent-methods returns " result)
 			 result)
 		  #t
 		  ) )
@@ -623,11 +621,11 @@ of this-agent and its parents (but not *grandparents...).
 						((class? x) (class-name-of x))
 						((instance? x) (class-name-of (class-of x)))
 						(#t x)))))
-	 (kdnl* 'model-body "calling parents" (if (pair? classes) (map pname classes) (pname classes)))
+	 (kdebug 'model-body "calling parents" (if (pair? classes) (map pname classes) (pname classes)))
 	 (let ((result
 			  (call-parent-methods classes methd self args)
 						))
-		(kdnl* 'model-method "... yields " result)
+		(kdebug 'model-method "... yields " result)
 		result)
 ))
 
@@ -741,45 +739,109 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (p-eval k)
   (cond
 	((and (pair? k) (or (eqv? (car k) eval-marker) (equal? (car k) eval-marker)))
-	 (kdnl* 'state-vars-eval "EVAL: " (cdr k))
+	 (kdebug 'state-vars-eval "EVAL: " (cdr k))
 	 (apply eval (cdr k)))
 	((and (pair? k) (null? (cdr k)))
 	 (car k))
 	(#t k))
   )
 
+(define (void? x) (eqv? x (void)))
+
 (define (apply-initialisation instance key #!rest verbose)
-  (kdnl* 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) "with a key" key "****")
+  (kdebug 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) "with a key" (if (class? key) (class-name-of key) key) "****")
 
   (let* ((flag (iflag key))
 			(p (let ((t (assoc key global-parameter-alist)))
-				  (if (and t (pair? t)) (cdr t) t)))
+				  (cond
+					((eqv? t (void)) #f)
+					((and (pair? t) (pair? (cdr t))) (if (void? (cadr t)) #f (cdr t)))
+					((pair? t) #f)
+					(#t t))))
 				
 			(tlist (list-intersection (map car (class-slots (class-of instance)))
-											  (if p (map car  p) '())))
+											  (if (or (not p) (eqv? p (void)))
+													'()
+													(map car  p))))
 
 			(p* (if p
 					  (filter (lambda (n) (member (car n) tlist)) p)
 					  #f))
 			)
 
-	 (kdnl* 'initialisation 'key: flag)
-	 (kdnl* 'initialisation 'p: p )
-	 (kdnl* 'initialisation 'tlist: tlist)
-	 (kdnl* 'initialisation 'p*: p*)
+	 (kdebug 'initialisation 'key: flag)
+	 (kdebug 'initialisation 'p: p )
+	 (kdebug 'initialisation 'tlist: tlist)
+	 (kdebug 'initialisation 'p*: p*)
 
 	 (if p*
 		  (let ((R (map cons (map car p*) (map p-eval (map cadr p*)))))
 			 (for-each
 			  (lambda (kv)
-				 (kdnl* 'initialisation 'kv: kv)
+				 (kdebug 'initialisation 'kv: kv)
 				 (slot-set! instance (car kv) (cdr kv))
-				 (kdnl* 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
+				 (kdebug 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
 				 )
 			  R)))
 	 )
-  	 (kdnl* 'initialisation "... ok")
+  	 (kdebug 'initialisation "... ok")
 	 )
+
+
+;; This returns a list of the form (key ...) where the "value" is
+;; often a list containing a single number.
+(define (parameter-lookup class taxon key)
+  (let ((the-classes (!filter (lambda (x) (member x *uninitialisable*)) (class-cpl class)))
+		  (returnval #f))
+	 (for-each
+	  (lambda (x)
+		 (if (member x *uninitialisable*)
+			  (let* ((clst (assoc class global-parameter-alist))
+						(v (if clst (assoc key (cdr clst)) (void)))
+						)
+				 (if (not (void? v))
+					  (set! returnval v))))
+		 )
+	  (reverse the-classes))
+	 (let* ((tlst (assoc taxon global-parameter-alist))
+			  (v (if tlst (assoc key (cdr tlst)) (void))))
+		
+		(if (not (void? v))
+			 (set! returnval v)
+			 ))
+	 returnval))
+
+(define (boolean-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (boolean? (cadr r)))
+		  (cadr r)
+		  #f)))
+(define (numeric-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (number? (cadr r)))
+		  (cadr r)
+		  #f)))
+
+(define (string-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (string? (cadr r)))
+		  (cadr r)
+		  #f)))
+
+(define (symbol-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (symbol? (cadr r)))
+		  (cadr r)
+		  #f)))
+
+(define (list-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (list? (cadr r)))
+		  (cadr r)
+		  #f)))
+
+
+
 
 
 (define alort #f)
@@ -787,16 +849,16 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 ;; Both create and create- make <objects> and things derived from <object>
 ;; This version does not apply a taxon specific initialisation
 (define (create- class #!rest statevars)
-  (kdnl* '(object-creation initialisation) "Creating object" (class-name-of class) statevars)
+  (kdebug '(object-creation initialisation) "Creating object" (class-name-of class) statevars)
   (let* ((instance (allocate-instance  class))
 			(the-classes (!filter (lambda (x) (member x *uninitialisable*))  (class-cpl class)))
 			)
-	 (kdnl* 'creation-classes "CPL: " (map class-name-of the-classes))
+	 (kdebug 'creation-classes "CPL: " (map class-name-of the-classes))
 	 (set! alort instance)
 	 (set! clort the-classes)
 	 
-	 (kdnl* 'initialisation-C-- (class-name-of (class-of alort)))
-	 (kdnl* 'initialisation-P-- (map class-name-of the-classes))
+	 (kdebug 'initialisation-C-- (class-name-of (class-of alort)))
+	 (kdebug 'initialisation-P-- (map class-name-of the-classes))
 
 	 (object-register 'add instance class)
 
@@ -804,41 +866,41 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (for-each
 	  (lambda (x)
 		 (let ((flag x))
-			(kdnl* 'initialisation-U-- 'uninitialise x)
+			(kdebug 'initialisation-U-- 'uninitialise x)
 			(slot-set! instance x (uninitialise-flag flag))))
 	  (class-slots-of instance))
 
 	 ;; First load the states of the classes from base->most-refined
 	 (for-each
 	  (lambda (x)
-		 (kdnl* 'initialisation-CLASS--  "looking at " (class-name-of x))
+		 (kdebug 'initialisation-CLASS--  "looking at " (class-name-of x))
 		 (let ()
-			(kdnl* 'initialisation-CLASS--  "assessing initialisation for [" (class-name-of x) "]")
+			(kdebug 'initialisation-CLASS--  "assessing initialisation for [" (class-name-of x) "]")
 			(if (member x *uninitialisable*)
-				 (kdnl* 'initialisation-CLASS--  "skipping" (class-name-of x))
+				 (kdebug 'initialisation-CLASS--  "skipping" (class-name-of x))
 				 (begin
-					(kdnl* 'initialisation-CLASS-- "Working on" (class-name-of x))
+					(kdebug 'initialisation-CLASS-- "Working on" (class-name-of x))
 					(set-state-variables instance (initialisation-defaults-for class)) ;; these are the state set by a (default-initialisation <class>) clause
 					(apply-initialisation instance x)                         ;; these come from the parameter files
-					(kdnl* 'initialisation-CLASS--  " ... flagging ..." (class-name-of x) (iflag x))
+					(kdebug 'initialisation-CLASS--  " ... flagging ..." (class-name-of x) (iflag x))
 					(slot-set! instance (iflag (class-name-of x)) #t)
-					(kdnl* 'initialisation-CLASS--  "finished" (class-name-of x))
+					(kdebug 'initialisation-CLASS--  "finished" (class-name-of x))
 					)
 				 )
 			)
-		 (kdnl* 'initialisation-CLASS--  "initialisation for [" (class-name-of x) "] ok")
+		 (kdebug 'initialisation-CLASS--  "initialisation for [" (class-name-of x) "] ok")
 		 )
 	  (reverse the-classes)) ;; run from most general to most specific
 
 	 (set-state-variables instance statevars) ;; these come from the create call...
-	 (if (kdnl*? 'initialisation) (dumpslots instance))
+	 (if (kdebug? 'initialisation) (dumpslots instance))
   instance
   ))
 
 (define (create class taxon #!rest statevars)
   (let* ((instance (apply create- (cons class statevars)))
 			)
-	 (kdnl* '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
+	 (kdebug '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
 	 (agent-register 'add instance class)
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 

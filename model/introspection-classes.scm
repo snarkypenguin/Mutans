@@ -33,7 +33,13 @@
 (include "framework")
 
 (define-class <introspection> (inherits-from <agent>)
-  (state-variables introspection-list timestep-epsilon))
+  (state-variables introspection-targets ;; agents if the selector is false, otherwise classes, strings or lists
+						 timestep-epsilon
+						 ))
+
+;; introspection-targets is either a list of agents or a selector function which is
+;; used with filter and the runqueue.
+
 ;-  The End 
 
 

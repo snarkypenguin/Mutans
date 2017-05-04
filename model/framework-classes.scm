@@ -97,7 +97,8 @@ direction"
 
 (define-class <environment>
   (inherits-from <agent> <projection>)
-  (state-variables default-value minv maxv rep)) ;; minv and maxv form a bounding volume in however many dimensions
+  (state-variables default-value minv maxv inner-radius outer-radius rep)) ;; minv and maxv form a bounding volume in however many dimensions
+
 
 
 (define-class <blackboard>

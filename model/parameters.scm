@@ -31,14 +31,14 @@
 
 (define (load-parameter-set parameter-dir)
   (let ((pd (open-directory parameter-dir)))
-	 (kdnl* 'parameter-load "Loading parameters from" parameter-dir)
+	 (kdebug 'parameter-load "Loading parameters from" parameter-dir)
 	 (if (port? pd)
 		  (for-each
 			(lambda (fn)
 			  (let ((fn (string-append parameter-dir "/" fn)))
 				 (if (check-param-sig fn)
 					  (begin
-						 (kdnl* 'loading "Loading " fn)
+						 (kdebug 'loading "Loading " fn)
 						 (load fn))
 					  (dnl* fn "is not a parameter file:" fn)
 					  )))

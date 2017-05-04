@@ -104,7 +104,7 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 
 (define (plant-mass->height m) ;; given mass
   (power m 1/3))
- ;; h = m^{1/3}
+` ;; h = m^{1/3}
 
 (define (plant-height->mass h) ;; given height
   (power h 3))
