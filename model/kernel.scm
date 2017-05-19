@@ -70,6 +70,7 @@
 
 (define ACQ '()) ;; queue of things to insert before the next agent runs
 
+(define terminated-agents '())
 
 (define (terminating-condition-test . args)
   #f)
@@ -338,6 +339,7 @@
   (if (eq? indicate-progress #t) (set! indicate-progress -1))
   (set! N (if (null? N) #f (car N)))
 
+  (start-timer 'queue)
   (let loop ((q-rq runqueue)
 				 )
 	 (if (pair? ACQ)
@@ -364,17 +366,28 @@
 	  ((and (list? q-rq) (symbol? (car q-rq)))
 		q-rq)
 	  ((file-exists? "halt")
+		(stop-timer 'queue)
 		(delete-file "halt")
 		(shutdown-agents q-rq)
 		q-rq)
 	  ((and (< t stop) (running-queue q-rq stop))
 		(set! t (apply min (map-q subjective-time q-rq)))
 		(test-queue-size q-rq N)
-		(set! q-rq (run-agent t stop q-rq))
-		(test-queue-size q-rq N)
-		(loop q-rq))
+		(if (memq (slot-ref (car q-rq) 'agent-state) '(dead terminated))
+			 (begin
+				(dnl* "Terminating" (name (car q-rq))  (slot-ref (car q-rq) 'agent-state))
+				(set! terminated-agents (cons (car q-rq) terminated-agents))
+				(loop (cdr q-rq)))
+			 (begin
+				(stop-timer 'queue)
+				(set! q-rq (run-agent t stop q-rq))
+				(start-timer 'queue)
+				(test-queue-size q-rq N)
+				(loop q-rq)))
+		)
 	  )
 	 )
+  	(stop-timer 'queue)
   )
 
 (definition-comment 'convert-params "converts the parameter vector 'params' to reflect a new representation")
@@ -746,10 +759,9 @@ their model-body is running.
   "handles special requests from the agent like mutation and spawning."
   "subjective time is set in  (run ...)")
 (define run-agent
-  (let ((populist '())) ;; Remember the population list across
-	 ;; invocations ... (equiv to a "static" in C,
-	 ;; folks.)
-
+  (let ((populist '())
+		  )
+	 ;; Remember the population list across invocations ... (equiv to a "static" in C, folks.)
 
 	 (lambda (t stop run-agent-runqueue . N) ;; This is the function "run-agent"
 		(set! N (if (null? N) #f (car N)))
@@ -759,18 +771,17 @@ their model-body is running.
 				 ;; ... either false or the lambda to run
 				 (agent-state (slot-ref process 'agent-state))
 				 )
-
-		  (or (eqv? agent-state 'running)
-				(eqv? agent-state 'ready-to-run)
-				(and (eqv? agent-state 'ready-for-prep)
-					  (abort (string-append
-								 "Attempted to run " 
-								 (symbol->string (class-name-of process)) ":"
-								 (name process) " before it has been prepped")))
-				(abort (string-append
-						  "Attempted to run " 
-						  (symbol->string (class-name-of process)) ":"(name process)
-						  " when it is in the state " (object->string agent-state))))
+				(or (eqv? agent-state 'running)
+					 (eqv? agent-state 'ready-to-run)
+					 (and (eqv? agent-state 'ready-for-prep)
+							(abort (string-append
+									  "Attempted to run " 
+									  (cnc process)) ":"
+									  (name process) " before it has been prepped"))
+					 (abort (string-append
+								"Attempted to run " 
+								(cnc process) ":"(name process)
+								" when it is in the state " (object->string agent-state))))
 
 		  (if process (kdebug 'running "running" (name process) "at" t))
 
@@ -781,9 +792,8 @@ their model-body is running.
 		  
 		  (kdebug 'run-agent "In run-agent")
 
-		  (slot-set! process 'agent-body-ran #f) ;; Mark things as not
-		  ;; having run through
-		  ;; the body list
+		  (slot-set! process 'agent-body-ran #f)
+		  ;; Mark things as not having run through the body list
 		  
 		  ;; Here result should be a complex return value, not the
 		  ;; number of ticks used.
@@ -831,6 +841,7 @@ their model-body is running.
 						"check that there is a call like (call-next-parent-body).")
 					  )
 					 'missed-model-body))
+
 			 (let ()
 				(cond
 				 ((eqv? result 'ok)
