@@ -2,11 +2,12 @@
 (define <log-introspection>-parameters
   (list
 	 (list 'report-time-register '($ (make-table))) ;; This is done on a by/agent basis for obvious reasons
-	 (list 'type 'logger)
+	 ;;(list 'type 'logger)
 	 (list 'dt (* 1 day))
     ;;(list 'file '<uninitialised>)
     (list 'filename #f)
     (list 'filetype #f)
+	 (list 'filename-timescale #f)
     (list 'format 'text)
     (list 'variables '())
     (list 'variables-may-be-set '#t)

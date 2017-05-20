@@ -16,10 +16,14 @@
 (define-class <plant>
   (inherits-from <model-maintenance> <thing>)
   (state-variables
+	omega-ind ;; individual mortality
 	mass  ;; actual mass
 	peak-mass ;; greatest mass attained
 	max-age ;; dies beyond this
+	age-at-max-mass ;; beyond this age mass will not increase
 	max-mass ;; unlikely to reach this
+	mass-at-age ;; function which returns mass given age
+	age-at-mass ;; function generated from mass-at-age, max-mass and age-at-max-mass
 	age ;; age of plant in [0,4)
 	lai ;; leaf area index in (0,10) -- ideal leaf area/area in drip-line
 	leaf-area ;; we need a separate counter since there can be "accidents"
@@ -29,10 +33,15 @@
 	;; into fruiting
 	reproduction-mass ;; how big it must be...
 	reproduction-period ;; how long between reproductions
-	reproduction-offset ;; 
+	reproduction-offset ;;
 	reproduction-mechanism ;; <fruit> or (list <agent> method val)
-	fruiting-rate      ;; relative to mass, influenced by
+	fruiting-probability ;; probability at each opportunity
+	fruiting-mass ;; minimum mass for fruit production
+	fruiting-rate      ;; relative to surface area, influenced by
+
 	growth-rate        ;; 
+	forage-damage ;; to be subtracted from the canopy when calculating leaf-area
+	regrowth-rate ;; proportion of total leaf area regenerated per time period
 
 	seeds-per-fruit
 	habitat            ;; #f or a patch/landscape/habitat thing
@@ -44,10 +53,8 @@
   (inherits-from <plant>)
   (state-variables
 	;;location from <thing> too...
-	cell
 	fruiting-mass
 	fruiting-prob
-	seed-queue ;; an array that gets bumped every day...
 	mort-mass
 	mort-prob
 	))

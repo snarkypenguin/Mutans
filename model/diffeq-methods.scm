@@ -240,7 +240,7 @@ A typical defns list would be like
 
 ;---  model-body <diffeq-system
 (model-body <diffeq-system>
-						(kdebug '(model-bodies patch-running)"In " (class-name-of self) (name self) "@" t)
+						(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
 
  						;; Ok, I need to be able to refer to service
 						;; directly (names) and to classes (types). Type
@@ -297,7 +297,7 @@ A typical defns list would be like
 									  (my 'variable-names) deltas domains))
 								  )
 
-								(error (symbol->string (class-name-of self))
+								(error (cnc self)
 										 " either has no variable names defined, or has strayed out of its domain!"
 										 (map cons (my 'variable-names) var-values))
 										 

@@ -31,7 +31,12 @@
 
 ;;(adaptive-integrate function lowerbound upperbound  tolerance maxdepth)
 
+(define ($1- x) (- x 1))
+
 (define (differential F x . eps)
+  (error "Use differential"))
+
+(define (derivative F x . eps)
   (let* ((eps (if (null? eps) 1e-8 (car eps)))
 			(q (/ (- (F (+ x eps)) (F (- x eps))) (* 2 eps))))
 	 q))
@@ -54,8 +59,8 @@
 				 )
 		  (if (or (<= k 0) (<= (magnitude (- inner-estimate estimate)) (* 15 eps)))
 				(+ inner-estimate (/ (- inner-estimate estimate) 15))
-				(+ (inner-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc (1- k))
-					(inner-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb (1- k))
+				(+ (inner-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc ($1- k))
+					(inner-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb ($1- k))
 					)))))
 
 (define (adaptive-integrate f a b eps . k)
@@ -178,8 +183,8 @@
 ;		  (mdnl "(* 15 eps) =" (* 15 eps))
 		  (if (or (<= k 0) (<= (magnitude (- inner-estimate estimate)) (* 15 eps)))
 				(+ inner-estimate (/ (- inner-estimate estimate) 15))
-				(+ (inner-general-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc << ** // ++ -- (1- k))
-					(inner-general-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb << ** // ++ -- (1- k))
+				(+ (inner-general-adaptive-integrate f a c (/ eps 2) left-estimate fa fd fc << ** // ++ -- ($1- k))
+					(inner-general-adaptive-integrate f c b (/ eps 2) right-estimate fc fe fb << ** // ++ -- ($1- k))
 					)
 				)
 		  )
@@ -476,6 +481,8 @@ compared to the librcg version in C
 ;; where (lambda (t x y)  y) is d sin/dx and (lambda (t x y) (- x)) is d cos/dx, the domain 
 ;; of the resulting functions is [0,2pi] we have a step of 0.01 and the initial values are 
 ;; 0 and 1 for sin and cos
+;; t runs from a to b with a step size of ss
+;; X0 and Y0 are the initial values of f and g respectively
 
 (define (rk4-2d f g a b ss X0 Y0) 
   (if (not (procedure? f))
@@ -496,7 +503,7 @@ compared to the librcg version in C
 							  (l1 (g t x y))
 
 							  (k2 (f t+h/2 (+ x (* k1 h/2)) (+ y (* l1 h/2))))
-							  (l2 (g t+h/2 (+ x (* k1 h/2)) (+ y (* l1 h/2))))
+ 							  (l2 (g t+h/2 (+ x (* k1 h/2)) (+ y (* l1 h/2))))
 
 							  (k3 (f t+h/2 (+ x (* k2 h/2)) (+ y (* l2 h/2))))
 							  (l3 (g t+h/2 (+ x (* k2 h/2)) (+ y (* l2 h/2))))

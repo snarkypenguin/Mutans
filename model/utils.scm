@@ -1052,17 +1052,16 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
 
 
+;; used in constructing filenames with sequence numbers
 (define (pno n . k)
-  (let ((n (number->string (/ (truncate (* 100.0 n)) 100.0))
-			  ))
+  (let* ((ns (number->string (/ (truncate (* 100.0 n)) 100.0)))
+			(rs (reverse (string->list ns)))
+			(n (list->string (reverse (if (eq? (car rs) #\.) (cdr rs) rs))))
+			)
+
 	 (if (null? k)
 		  n
 		  (string-append (make-string (- (car k) (string-length n)) #\0) n))))
-
-
-
-
-
 
 
 (define (string-contains? str . targets) ;; (string-contains? "The quick brown fox" "ox" "hen") ==> #t (string-contains? "The quick brown fox" "oxo" "hen") ==> #f

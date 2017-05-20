@@ -164,9 +164,13 @@
 							  (list (* 0.5 rad)  (* -1 (+ 5 (* 1 rad) )))))
 		(ps 'Helvetica pt)
 		(if adjust-grey (ps 'setgray PATCHGREY))
-		(ps 'show-right (string-append
-							  (slot-ref x 'name) " at "
-							  (number->string (slot-ref x 'subjective-time))))
+		(if #f
+			 (ps 'show-right (string-append
+									(slot-ref x 'name) " at "
+									(number->string (slot-ref x 'subjective-time))))
+			 (ps 'show (string-append
+							(slot-ref x 'name) " at "
+							(number->string (slot-ref x 'subjective-time)))))
 		)
 	 )
 
@@ -439,13 +443,28 @@ via their containing patch.
 
 ;; 
 (define (simple-ecoservice taxon N n V C r maxdt growing? growthmodel . P) 
-  (if (pair? P) (set! P (car P)))
-  
+  (if (pair? P)
+		(set! P (car P))
+		(dnl* "No patch specified for" taxon))
+		
+  (if (not (and (string? taxon)(string? N) (symbol? n) (number? V) (number? C) (number? r) (number? maxdt) (boolean? growing?) (or (symbol? growthmodel) (procedure? growthmodel))))
+			  (error "Type error in call to simple-ecosystem: "
+						(cond
+						 ((not (string? taxon))  (string-append "taxon " (object->string taxon)))
+						 ((not (string? N))  (string-append "N " (object->string N)))
+						 ((not (symbol? n))  (string-append "n " (object->string n)))
+						 ((not (number? V))  (string-append "V " (object->string V)))
+						 ((not (number? C))  (string-append "C " (object->string C)))
+						 ((not (number? r))  (string-append "r " (object->string r)))
+						 ((not (number? maxdt))  (string-append "maxdt " (object->string maxdt)))
+						 ((not (boolean? growing?)) (string-append "growing?" (object->string growing?)))
+						 ((not (or (null? growthmodel) (symbol? growthmodel) (procedure? growthmodel))) "growthmodel")
+						 (#t "please check the arguments")))
+			  )
+    
   (let ((A (create <ecoservice> taxon
-							  'name N
+							  'name (strsub N " " "_")
 							  ;; string corresponding to its name, like "Vulpes lagopus"
-							  'type n
-							  ;;eg 'eqn-based
 							  'sym n
 							  ;; 'Vl perhaps
 							  'value V
@@ -633,6 +652,7 @@ via their containing patch.
 																 (if (string? r)
 																	  r
 																	  (object->string r)) " "))
+												(dnl* "SHOWING " r)
 												)
 ;								 ((dump)
 ;								  (with-output-to-port file
@@ -658,7 +678,7 @@ via their containing patch.
 																													(if (slot-ref self 'patch)
 																														 (string-append
 																														  (slot-ref
-																															(slot-ref self 'patch)
+																															(slot-ref self 'patch) 
 																															'name) ":" (name self))
 																														 (name self))
 																													(if (has-slot? self field)
@@ -710,7 +730,7 @@ via their containing patch.
 							)))
 
 (define (make-crop-circle centre radius . n) ;; (-: make-patch-circle might be more appropriate, but not as much fun :-)
-  (create- <circle> 'type 'area 'location centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
+  (create- <circle> 'location centre 'radius radius 'perimeter (Circle centre radius (if (or (null? n) (not (and (integer? (car n)) (> (car n) 2)))) 12  (car n))))
   )
 
 ;(model-method (<circle>) (dump self)
@@ -782,7 +802,7 @@ via their containing patch.
 (define (make-polygon centre polygon #!optional is-relative)
   (if (not (eqv? (car polygon) (car (reverse polygon))))
 		(set! polygon (append polygon (list (car polygon)))))
-  (create- <polygon> 'type 'area 'location centre 'perimeter (list-copy polygon) 'is-relative is-relative))
+  (create- <polygon> 'location centre 'perimeter (list-copy polygon) 'is-relative is-relative))
 
 ;(model-method (<polygon>) (dump self)
 ;					(dump% self 0))
@@ -904,22 +924,22 @@ via their containing patch.
 							((polygon relative-polygon) <polygon>)
 							(else 'bad))))
 
-	 (let ((M (create- rep-class 'type 'area)))
+	 (let ((M (create- rep-class )))
 		(case rep
 		  ((circle)
-			(slot-set! M 'rep (create- <circle> 'type 'area 'location centre 'radius arg))
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
+			(slot-set! M 'rep (create- <circle> 'location centre 'radius arg))
+			(slot-set! M 'rep (create- <polygon> 'location centre
 											'perimeter (list-copy arg)))
 			)
 
 		  ((polygon absolute-polygon)
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
+			(slot-set! M 'rep (create- <polygon> 'location centre
 													 'perimeter (list-copy arg)))
 			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep)))
 			)
 
 		  ((relative-polygon)
-			(slot-set! M 'rep (create- <polygon> 'type 'area 'location centre
+			(slot-set! M 'rep (create- <polygon> 'location centre
 											'perimeter (list-copy arg) 'is-relative #t))
 			(slot-set! (slot-ref M 'rep) 'radius (max-bound (slot-ref M 'rep)))
 			)
@@ -1294,13 +1314,13 @@ via their containing patch.
 										(mm-xoffset 2)
 										(mm-yoffset 2)
 										)
-								 (file 'comment "in log-data for <patch>")
+								 (file 'comment (string-append "in log-data for <patch> " (object->string (my 'name))))
 								 
 								 (if adjust-grey (file 'setgray PATCHGREY))
 								 (cond
 								  ((or (isa? (my 'rep) <circle>)
 										 (isa? (my 'rep) <polygon>))
-									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep))))
+									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
 									(adjusted-plot-polygon file 0.7 0.0 #f
 																  (composite-prj_src->dest
 																	self logger)
@@ -1502,13 +1522,11 @@ via their containing patch.
 									 cell-class
 									 taxon
 									 'name pname
-									 'type cell-type
 									 'representation (cnc cell-type)
 									 'rep
 									 (create-
 									  <polygon>
 									  'location centre
-									  'type '(area tesselation)
 									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
 									  'perimeter box
 									  'minv mB
@@ -1751,11 +1769,9 @@ args can be  an update map or an update map and update equations
 							 )
   ;;(dnl* "Making hay")
   (let* ((H (create <habitat*> taxon 'name name 'default-value default-ht
-								'type 'habitat
 						'minv (car domain) 'maxv (cadr domain)
 						'terrain-function terrain-function
 						'patch-list patch-list
-						'type 'landscape
 						)			
 				)
 			)

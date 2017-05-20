@@ -3,9 +3,6 @@
 
 (define (stopit #!rest args) (void))
 
-(define (cnc a) (class-name-of (class-of a)))
-(define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
-
 (define DONT-FILTER-TARGET-VARIABLES #t)
 
 
@@ -23,69 +20,6 @@ close pages and emit 'showpage' for postscript stuff.
 (define introspection-priority 10000)
 
 
-(define (*is-class? targetclass #!rest plural)
-  ;; this odd way of specifying arguments  ensures at last one arg
-  (let ((targets (cons targetclass plural))) 
-	 (lambda (x)
-		(if (eq? x 'inspect)
-			 ;;(dnl* "targetclass =" targetclass ": plural =" plural ": targets =" targets)
-			 (list targets)
-			 (apply orf (map (lambda (target) (isa? x target)) targets)))
-		)))
-
-
-"Examples might be
-    (*is-class? <fish>)
-    (*is-class? <fish> <mollusc> <amphipod> <monkey>)
-"
-
-(define (*has-slot? slot)
-  (let ((slot slot))
-	 (lambda (x) 
-		(if (list? slot)
-			 (apply orf (map (lambda (y) (has-slot? x y)) slot))
-			 (has-slot? x slot)))))
-
-
-(define (*has-slot-value? slot v)
-  (let ((slot slot)
-		  (v v))
-	 (cond
-	  ((procedure? v) ;; v is a predicate function
-		(lambda (x) (if (not (has-slot? x slot))
-							 #f
-							 (v x))))
-	  ((list? v)
-		(lambda (x) (if (not (has-slot? x slot))
-							 #f
-							 (eqv? v x))))
-	
-	  (#t 	 (lambda (x) (if (not (has-slot? x slot))
-									  #f
-									  (eq? v x)))))))
-"Examples might be 
-   (*has-slot-value 'age (lambda (age) (and (<= 7 age) (<= age 20))))
-   (*has-slot-value 'reproductive-state '(adolescent adult post-breeding))
-   (*has-slot-value 'water-stressed #t)
-
-If the agent does not possess the slot, it cannot have the indicated property
-and so it is excluded.
-"
-
-
-(define (*is-taxon? targettaxa #!rest cmp)
-	 (lambda (x)
-		(let* ((c (if (null? cmp) '() (car cmp)))
-				 (cmpop (cond
-						  ((null? c) string=?)
-						  ((eq? c 'ci) string-ci-?)
-						  ((eq? c 'wild) wildmatch)
-						  ((eq? c 'wild-ci) wildmatch-ci)
-						  (#t eqv?))))
-		(if (list? targettaxa)
-			 (apply orf (map (lambda (y) (cmpop y (slot-ref x 'taxon))) targettaxa))
-			 (cmpop targettaxa (slot-ref x 'taxon))))))
-
 ;;Examples might be
 ;;    (*is-taxon? "Thunnus*" 'wild)
 ;;    (*is-taxon? "Red VW-microbus" 'ci)
@@ -93,12 +27,16 @@ and so it is excluded.
 
 
 (define (introspection-filename filename filetype filename-timescale #!optional time)
+  ;; filename will be the first part of the  filename
+  ;; the type will correspond to the last component, such as "ps", "data", or "tbl"
+  ;; the filename-timescale will be a number of seconds which  the time variable will be divided by, such as 'days'
   (let ((field-width 12)) ;; this may need to be increased 
 	 (if (string? filename)
 		  (if time
-				(string-append filename "-" (pno (inexact->exact (/ time filename-timesscale)) 12) "." filetype) 
+				(string-append filename "-" (pno (inexact->exact (/ time filename-timescale)) 12) "." filetype) 
 				(string-append filename "." filetype))
 		  #f)))
+
 
 
 
@@ -157,12 +95,15 @@ and so it is excluded.
 
 (model-body% <log-introspection>
 		(kdebug '(log-* introspection-trace)
-				  "[" (my 'name) ":" (class-name-of self) "]"
+				  "[" (my 'name) ":" (cnc self) "]"
 				  "Introspection: model-body")
+
+		(if (uninitialised? (my 'filename-timescale))
+			 (set-my! 'filename-timescale 6))
 
 		(if (uninitialised? (my 'report-time-table))
 					 (begin
-						;;a(warning-log (dnl* "A" (class-name-of (class-of self)) " had trouble setting up its report-time-table."))
+						;;a(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
 						(slot-set! self 'report-time-table (make-table))))
 
 				(let ((sched (my 'timestep-schedule))
@@ -242,22 +183,27 @@ and so it is excluded.
 				  (let* ((tbl (my 'report-time-table))
 							(rec (table-ref tbl agent #f))
 							)
+					 ;(dnl* (name self) "looking at" (name agent) "rec:" rec "tbl:" tbl )
 					 (if (kdebug? 'logger-redundancy-check)
 						  (begin
 							 (dnl "LOGGER TIME CHECK: record for " (name agent) ":" (slot-ref agent 'subjective-time) " returns " rec)
-							 (dnl* "   logger is currently examining the time" t)
-							 ))
+							 ;;(dnl* "   logger is currently examining the time" rec "<" t)
+							 )
+						  )
 
 
 					 (if (or (not rec) (and (number? t) (< rec t)))
 						  	(begin
 							  (table-set! tbl agent t)
+							  ;(dnl* "      returning #t")
 							  #t)
-							#f)))
+							(begin
+							  ;(dnl* "      returning #f")
+							  #f))))
 								
 (model-method (<log-introspection>) (emit-page self)
 				  (kdebug '(log-* introspection-trace)
-							"[" (my 'name) ":" (class-name-of self) "]"
+							"[" (my 'name) ":" (cnc self) "]"
 							"Introspection: emit-page")
 				  (kdebug '(log-*) (my-list self))				  
 				  (let ((format (my 'format)))
@@ -301,7 +247,7 @@ and so it is excluded.
 
 (model-method <snapshot> (page-preamble self logger format)
 				  (kdebug '(introspection snapshot)"[" (my 'name) ":"
-							(class-name-of self) "]" "<snapshot> is preparing to dump")
+							(cnc self) "]" "<snapshot> is preparing to dump")
 				  (let ((filename (my 'filename))
 						  (filetype (my 'filetype))
 						  (file (my 'file))
@@ -323,7 +269,7 @@ and so it is excluded.
 					  )
 
 					 (kdebug '(introspection logfile) "[" (my 'name) ":"
-							  (class-name-of self) "]" "is opening a log file" "(" filename ")")
+							  (cnc self) "]" "is opening a log file" "(" filename ")")
 
 					 ;; Open a new file
 					 (cond
@@ -332,7 +278,7 @@ and so it is excluded.
 																	 (my 'filetype)
  																	 (my 'filename-timescale) t))) ;; t is time
 						  (kdebug '(introspection snapshot) "[" (my 'name) ":"
-									(class-name-of self) "]" "opening" fn)
+									(cnc self) "]" "opening" fn)
 						  (set-my! 'lastfile (my 'currentfile))
 						  (set-my! 'currentfile fn)
 						  (if (or (not (string? fn) (not fn) (zero? (string-length fn))))
@@ -342,13 +288,13 @@ and so it is excluded.
 					  ((memq file (list (current-output-port) (current-error-port)))
 						;; do nothing really
 						(kdebug '(introspection snapshot) "[" (my 'name) ":"
-								 (class-name-of self) "]"
+								 (cnc self) "]"
 								 "is writing to stdout or stderr")
 						#!void
 						)
 					  (else 
 						(kdebug '(introspection  snapshot) "[" (my 'name) ":"
-								 (class-name-of self) "]" " "
+								 (cnc self) "]" " "
 								 "has hit page-preamble with a file that is still open."
 								 "\nThis is an error.\nClosing the file ("
 								 (my 'lastfile) ") and continuing.")
@@ -368,7 +314,7 @@ and so it is excluded.
 					 (set-my! 'file file)
 
 					 (kdebug '(introspection logfile) "[" (my 'name) ":"
-							  (class-name-of self) "]" "opened" file)
+							  (cnc self) "]" "opened" file)
 					 )
 				  )
 
@@ -378,7 +324,7 @@ and so it is excluded.
 																	 (current-error-port)))))
 						  (begin
 							 (kdebug '(introspection snapshot) "[" (my 'name) ":"
-									  (class-name-of self) "]"
+									  (cnc self) "]"
 									  "is closing the output port")
 							 (close-output-port file)
 							 (set-my! 'file #f)))))
@@ -425,25 +371,32 @@ and so it is excluded.
 
 ;---- log-map methods (inherits from <snapshot>)
  
+
+;;(model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
+;;				  (log-map-circle self ms:location radius mark-centre colour)
+;;				  (let* ((location (model->local self ms:location))
+;;							(radius (car (make-list (length location) radius)))
+;;							(col (colour-mapping colour))
+;;							(ps (my 'file))
+;;							)
+;;					 (dnl* "THIS IS BROKEN)
+;;					 (if mark-centre
+;;						  (begin
+;;							 (ps 'comment (string-append "log-map-circle at " (object->string ms:location) " " (number->string radius) " r."))
+;;							 (ps-circle ps (* 0.01 radius) location map:lightwidth col)
+;;							 ;(ps-circle ps (* 0.05 radius) location map:lightwidth col)
+;;							 (ps-circle ps (* 0.3 radius) location map:lightwidth col)
+;;							 (ps-circle ps (* 0.5 radius) location map:lightwidth col)
+;;							 (ps-circle ps (* 0.7 radius) location map:lightwidth col)
+;;							 ;(ps-circle ps (* 0.95 radius) location map:lightwidth col)
+;;							 ))
+;;					 
+;;					 (ps-circle ps (* 0.7 radius) location map:linewidth 0)))
+
 (model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
 				  (log-map-circle self ms:location radius mark-centre colour)
-				  (let* ((location (model->local self ms:location))
-							(radius (car (make-list (length location) radius)))
-							(col (colour-mapping colour))
-							(ps (my 'file))
-							)
-					 (if mark-centre
-						  (begin
-							 (ps 'comment (string-append "log-map-circle at " (object->string ms:location) " " (number->string radius) " r."))
-							 (ps-circle ps (* 0.01 radius) location map:lightwidth col)
-							 ;(ps-circle ps (* 0.05 radius) location map:lightwidth col)
-							 (ps-circle ps (* 0.3 radius) location map:lightwidth col)
-							 (ps-circle ps (* 0.5 radius) location map:lightwidth col)
-							 (ps-circle ps (* 0.7 radius) location map:lightwidth col)
-							 ;(ps-circle ps (* 0.95 radius) location map:lightwidth col)
-							 ))
-					 
-					 (ps-circle ps (* 0.7 radius) location map:linewidth 0)))
+				  #f)
+
 
 (model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
 				  (log-map-polygon self ms:perimeter mark-centre colour)
@@ -462,26 +415,14 @@ and so it is excluded.
 				  ;; This *must* replace it's parent from <snapshot> since
 				  ;; it doesn't work with a traditional port
 				  (kdebug '(log-* log-map) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "in page-preamble")
+							(cnc self) "]" "in page-preamble")
 				  (let ((filename (my 'filename))
 						  (filetype (my 'filetype))
 						  (file (my 'file))
 						  (t (my 'subjective-time))
 						  )
 
-					 (cond
-					  ((eqv? format 'png)
-						(error "<log-map> only supports postscript at the moment"))
-					  ((eqv? format 'svg)
-						(error "<log-map> only supports postscript at the moment"))
-					  ((eqv? format 'gif)
-						(error "<log-movie> isn't implemented yet"))
-					  ((eqv? format 'mpg)
-						(error "<log-movie> isn't implemented yet"))
-						
-					  ((not (member format '(ps))) ;; svg png
-						(error "Currently <log-map> only supports postscript." format))
-					  
+					 (cond ;; Check for error conditions
 					  ((not (or (not filename) (string? filename)))
 						(error (string-append (my 'name) " has a filename which is "
 													 "neither false, nor a string.")))
@@ -493,16 +434,38 @@ and so it is excluded.
 					  ((not (number? t))
 						(error (string-append (my 'name) " has a subjective time "
 													 "which is not a number.")))
+					  ;; The following are specific to the "map" classes
+					  ((eqv? format 'png)
+						(error "<log-map> only supports postscript at the moment"))
+
+					  ((eqv? format 'svg)
+						(error "<log-map> only supports postscript at the moment"))
+
+					  ((eqv? format 'gif)
+						(error "<log-movie> isn't implemented yet"))
+
+					  ((eqv? format 'mpg)
+						(error "<log-movie> isn't implemented yet"))
+
+					  ((not (member format '(ps))) ;; svg png
+						(error "Currently <log-map> only supports postscript." format))
 					  )
 
 					 ;; Open a new file
 					 (cond
+					  ((memq file (list (current-output-port) (current-error-port)))
+						;; do nothing really
+						(kdebug '(introspection log-map) "[" (my 'name) ":"
+								 (cnc self) "]" "has nothing to do")
+						#!void
+						)
 					  ((not (output-port? file))
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (class-name-of self) "]" "<log-map>" "is preparing to dump")
+								 (cnc self) "]" "<log-map>" "is preparing to dump")
 						
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype) t)))
+						(let ((fn (if (number? (my 'filename-timescale))
+										  (introspection-filename (my 'filename) (my 'filetype) (my 'filename-timescale) t)
+										  (introspection-filename (my 'filename) (my 'filetype) t))))
 						  (set-my! 'lastfile (my 'currentfile))
 						  (set-my! 'currentfile fn)
 						  (if (not fn)
@@ -512,17 +475,11 @@ and so it is excluded.
 									 (set! file (make-ps fn '(Helvetica)))))
 						  )
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (class-name-of self) "]" "returning from preamble")
-						)
-					  ((memq file (list (current-output-port) (current-error-port)))
-						;; do nothing really
-						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (class-name-of self) "]" "has nothing to do")
-						#!void
+								 (cnc self) "]" "returning from preamble")
 						)
 					  (else 
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (class-name-of self) "]"
+								 (cnc self) "]"
 								 " Good, we've hit page-preamble with a file "
 								 "that is still open.\nClosing the file (" 
 								 (my 'lastfile) ") and opening a new one.")
@@ -539,13 +496,15 @@ and so it is excluded.
 						  )
 						)
 					  )
+
+
 					 (set-my! 'file file)))
 
 (model-method (<log-map> <log-introspection> <symbol>) (page-epilogue self logger format)
 				  ;; This *must* replace it's parent from <snapshot> since
 				  ;; it doesn't work with a traditional port
 				  (kdebug '(log-* log-map) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "has page-epilogue")
+							(cnc self) "]" "has page-epilogue")
 				  (let ((file (my 'file))
 						  (name (my 'currentfile)))
 					 (if file
@@ -561,8 +520,8 @@ and so it is excluded.
 				  (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
 				  (lambda (target)	
 					 (kdebug '(log-* log-map) (name self) "[" (my 'name)
-							  ":" (class-name-of self) "]" "in log-data"
-							  (class-name-of target) (slot-ref target 'name))
+							  ":" (cnc self) "]" "in log-data"
+							  (cnc target) (slot-ref target 'name))
 
 					 (let* ((name (slot-ref target 'name))
 							  (p (slot-ref self 'local-projection))
@@ -582,7 +541,7 @@ and so it is excluded.
 
 (model-method <logfile> (page-preamble self logger format)
 				  (kdebug '(introspection logfile) "[" (my 'name) ":"
-							(class-name-of self) "]" "<logfile> is preparing to dump, file is currently" (my 'filename) (my 'file))
+							(cnc self) "]" "<logfile> is preparing to dump, file is currently" (my 'filename) (my 'file))
 
 				  (let ((filename (my 'filename))
 						  (file (my 'file))
@@ -597,18 +556,19 @@ and so it is excluded.
 					 (if (or (uninitialised? file) (not file))
 						  (begin
 							 (kdebug '(introspection logfile) "[" (my 'name) ":"
-									  (class-name-of self) "]" "is opening a log file" "(" filename ")")
+									  (cnc self) "]" "is opening a log file" "(" filename ")")
 							 (if (kdebug? '(introspection logfile))
 								  (if (or (not filename) (not (string? filename)) (zero? (string-length filename)))
 										(dnl* "opening current output port" (not filename) (string? filename) (zero? (string-length filename)))
-										(dnl* "opening " filename)))
+										(dnl* "opening " filename))
+								  )
 								  
 							 (if (or (not filename) (not (string? filename)) (zero? (string-length filename)))
 								  (set! file (current-output-port))
 								  (set! file (open-output-file filename))
 							 )
 							 (kdebug '(introspection logfile) "[" (my 'name) ":"
-									  (class-name-of self) "]" "opened" file)
+									  (cnc self) "]" "opened" file)
 							 )
 						  )
 					 (kdebug 'logfile-issues "Mid: logfile preamble filename " (my 'filename) "and file" (my 'file)"/"file)
@@ -620,7 +580,7 @@ and so it is excluded.
 (model-method <logfile> (page-epilogue self logger format)
 				  (kdebug 'logfile-issues "In: logfile epilogue filename " (my 'filename) "and file" (my 'file))
 				  (kdebug '(introspection logfile) "[" (my 'name) ":"
-							(class-name-of self) "]" "has finished a dump")
+							(cnc self) "]" "has finished a dump")
 				  (kdebug 'logfile-issues "Out: logfile epilogue filename " (my 'filename) "and file" (my 'file))
 				  #!void)
 
@@ -634,14 +594,14 @@ and so it is excluded.
 				  ;; This opens the output file on initialisation.
 				  (agent-prep-parent self start end) ;; parents should prep first
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "in agent-prep")
+							(cnc self) "]" "in agent-prep")
 				  
 				  (let ((filename (my 'filename))
 						  (filetype (my 'filetype)))
 					 (if (string? (my 'filename))
 						  (begin
 							 (kdebug '(log-* log-data) (name self) "[" (my 'name)
-									  ":" (class-name-of self) "]" "opening "
+									  ":" (cnc self) "]" "opening "
 									  (introspection-filename filename
 																	  (if filetype filetype "")))
 							 (set-my! 'file
@@ -653,7 +613,7 @@ and so it is excluded.
 							 (current-output-port))
 						  (begin
 							 (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-									  (class-name-of self) "]"
+									  (cnc self) "]"
 									  "using stdout as the output file " )
 							 (set-my! 'file (current-output-port))
 							 )
@@ -674,7 +634,7 @@ and so it is excluded.
 
 (model-method <log-data> (agent-shutdown self #!rest args)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "in agent-shutdown")
+							(cnc self) "]" "in agent-shutdown")
 				  (if (and (my 'file) (output-port? (my 'file))
 							  (not (memq (my 'file)
 											 (list (current-output-port)
@@ -762,7 +722,7 @@ and so it is excluded.
 (model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)
 				  ;; (error "(-: Oops, really ought to never get here. :-)")
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "in log-data")
+							(cnc self) "]" "in log-data")
 				  (let ((file (my 'file))
 						  (show-field-name (my 'show-field-name))
 						  (subjects (my-list self))
@@ -811,7 +771,7 @@ and so it is excluded.
 
 (model-method (<log-data> <log-introspection> <symbol>) (page-epilogue self logger format)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(class-name-of self) "]" "in page-epilogue")
+							(cnc self) "]" "in page-epilogue")
 				  (let ((ml (my-list self)))
 					 (if (and (pair? ml)
 								 (pair? (cdr ml)))

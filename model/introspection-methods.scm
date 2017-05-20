@@ -89,7 +89,7 @@
 
 (model-body <introspection>
 				(kdebug '(introspection-trace)
-						 "[" (my 'name) ":" (class-name-of self) "]"
+						 "[" (my 'name) ":" (cnc self) "]"
 						 "Introspection: model-body")
 
 

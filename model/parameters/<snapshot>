@@ -4,6 +4,7 @@
     (list 'type 'snapshot)
     (list 'lastfile #f)
     (list 'currentfile #f)
+	 (list 'filename-timescale days)
   )
 )
 (set! global-parameter-alist (cons (cons <snapshot> <snapshot>-parameters) global-parameter-alist))

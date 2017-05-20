@@ -116,15 +116,15 @@ differential equations which stand in the place of the simpler
 representation of patches with ecoservices.
 
 A straightforward instantiation of a <dynamic-patch> might look like
-  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 'type 
-                  'patch 'representation 'patch 
+  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 
+                  'representation 'patch 
                   'do-growth #f 'do-dynamics #t
                   'population-definitions 
 						  (list (list \"plants\" 'plant dplant/dt) 
                          ... (list \"spiders\" spider dspider/dt)) ))
 or 
-  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 'type 
-          'patch 'representation 'patch 
+  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 
+          'representation 'patch 
           'do-growth #f 'do-dynamics #t
           'population-names 
             '(\"plants\" \"seeds\" \"aphids\" \"ants\" \"spiders\")
@@ -148,7 +148,7 @@ answers, y'know.
 NOTE: update values are calculated by lambdas which take the set of
 values associated with the services present in the patch.  The
 nominated services are listed in the service-indices list either
-categorically (the types) and strings (the names).  The types are the
+categorically (the symbols) and strings (the names).  The types are the
 aggregate values of the names -- if you want to deal with a named
 entity separately, the update equation must explicitly remove it. They
 will be of the form (lambda (t ...) ...)  and *all* of the indicated

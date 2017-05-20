@@ -53,6 +53,25 @@
 		)))
 
 
+(define (find-preimage x f m M #!optional epsilon) ;;; requires a monotonic function f
+  ;; f is a monotonic function, x is a value (f a), a \in \[m, M\]
+  (if (not epsilon)
+		(set! epsilon 1e-6))
+
+  (let ((c (/ (+ m M) 2)))
+	 (cond
+	  ((< M m) (find-preimage x f M m epsilon)) ;;; requires a monotonic function f
+	  ((< x (f m)) (dnl* "(find-preimage" x f m M ") off the end on the left" x (f m)))
+	  ((> x (f M)) (dnl* "(find-preimage" x f m M ") off the end on the right" x (f M)p))
+	  ((and (<= (f m) x) (<= x (f M)) (< (abs (- M m)) epsilon))
+		(/ (+ M m) 2))
+	  ((<= (f c) x)
+		(find-preimage x f c M))
+	  ((<= x (f c))
+		(find-preimage x f m c))
+	  (#t (dnl*  "Oops, we have x =" x "m =" m "f(m) =" (f m) "c = " c "f(c) = " (f c) "M =" M "f(M) =" (f M))
+		(error "Klein Landscape Error")))))
+
 (define (sequence n #!optional func)
   (define (seq k)
 	 (if (zero? k) '() (cons k (seq (- k 1)))))
@@ -171,6 +190,15 @@
 
 
 (define-macro (pi) `,(* 4 (atan 1)))
+
+;; returns a decay function which has a coefficient of N and a decay lambda L
+;; 
+(define (exp-decay-func N L)
+  (lambda (t) (* N (exp (* -1 L t)))))
+
+(define (edf t) (exp (* t (/ -1. .1610)))) ;; (edf 1) = 0.0020
+
+
 
 ;;# general-sigmoid: x is in [0,1], lmb governs how sharp the transition is and phi shifts it to 
 ;;# one side or the other of the y axis.  Organised so that if l == 1 and phi = 0.0

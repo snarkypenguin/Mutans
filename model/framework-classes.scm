@@ -17,7 +17,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 
 ;;; (define-class <agent>
 ;;;   (inherits-from <object>)
-;;;   (state-variables name taxon type representation agent-state
+;;;   (state-variables name taxon representation agent-state
 ;;; 						 note
 ;;; 						 kernel
 ;;; 						 subjective-time priority jiggle 

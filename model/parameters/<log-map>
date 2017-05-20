@@ -2,7 +2,7 @@
 
 (define <log-map>-parameters
   (list
-  	 (list 'type 'log-map)
+  	 (list 'type 'log-data)
 	 (list 'format 'ps)
 	 (list 'file-type "ps")
     (list 'model->local '($ (cdr (assoc 'model->ps *default-projections*)))) ;; Takes model space to ps page

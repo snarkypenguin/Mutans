@@ -108,18 +108,63 @@
 (define-class <example-animal>
   (inherits-from <animal>)
   (state-variables
-	mass peak-mass sated-quantity-prop mort-prob age cell
-	crowded-level
+	cell
+	age
+	mass
+
+	age-at-mass ;; Necessary for initialisation
+	mass-at-age ;; Necessary for initialisation
+	
+	peak-mass
+	omega-ind ;; individual mortality
+	omega-hunger ;;; starvation time, $\Omega_{H}$ or $\Omega_{J}$ 
+
+	max-satiety ;; maximum number of satiety points
+	satiety     ;; current number of satiety points
+	satiety-rate ;; how fast we lose our satiety
+	sated-quantity  ;; the number of points that indicate satiety
+	sated-time      ;; how long the organism has been sated -- negative numbers correspond to "not sated"
+
+	time-spent-hungry
+
+	prey-list
+	forage-ct
+
+	reproduction-age
 	reproduction-mass
 	reproduction-prob
 	reproduction-delay
 	reproduction-ct
-	prey-list
-	eat-limit forage-ct
+	crowded-level
 	migrate-param
-	sated-time hunger-time hunger-moving-average
-	seed-lag-list* ;; time triggered, first el in each element is time to deposit seeds
 	))
+
+
+(define-class <jherb>
+  (inherits-from <example-animal>)
+  (state-variables
+  	adult-diet-mass ;;  when mass is over this value, they can eat trees as well
+	seedcount       ;;  just makes things a little quicker
+	seed-lag-list*  ;; time triggered, first el in each element is time to deposit seeds
+	tree-satiety-rate ;; how much needs to be eaten for one satiety point
+	fruit-satiety-rate ;; how many need to be eaten for one satiety point
+	))
+
+(define-class <aherb>
+  (inherits-from <example-animal>
+	tree-satiety-rate ;; how much needs to be eaten for one satiety point
+					  ))
+
+;;; These are implemented only as an ecoservice
+;(define-class <jcarn>
+;  (inherits-from <example-animal>
+;					  ))
+
+
+(define-class <acarn>
+  (inherits-from <example-animal>
+					  ))
+
 
 
 ;-  The End 

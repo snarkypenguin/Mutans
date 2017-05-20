@@ -61,7 +61,7 @@ changes, we hope not too many.
 
 ;--- model-body
 (model-body <monitor>
-				(kdebug '(monitor-bodies model-bodies) "In" (class-name-of self))
+				(kdebug '(monitor-bodies model-bodies) "In" (cnc self))
 				;; pass-preparation is subclass specific
 				(pass-preparation self (unique (append (slot-ref self 'target-list) (slot-ref self 'specific-agents))) '())
 				(for-each

@@ -138,11 +138,11 @@
 			 (if (pair? (cdr dims))
 				  (set! defval (cadr dims)))
 
-			  (set! dims (car dims))))
+			 (set! dims (car dims))))
 
-		  (if (null? (cdr dims))
-				(make-list (car dims) defval)
-				(map (lambda (x) (ps-make-list* (cdr dims) defval)) (make-list (car dims) )))))
+	 (if (null? (cdr dims))
+		  (make-list (car dims) defval)
+		  (map (lambda (x) (ps-make-list* (cdr dims) defval)) (make-list (car dims) )))))
 
 (define (ps-simple-list? l)	
   (apply ps-andf (map atom? l)))
@@ -209,7 +209,7 @@
 ;;; (define (point-in-polygon p poly)
 ;;;   (if (or? (null? p) (null? poly) (< (length poly) 3)) 
 ;;; 		#f
-		
+
 ;;; 		(let ((ptail (car (reverse poly))))
 ;;; 		  (if (not (equal? (car poly) ptail))
 ;;; 				(set! poly (append poly (list (car poly)))))))
@@ -306,7 +306,7 @@
 
 
 (define (adjusted-plot-polygon ps width greyvalue open-path project-point-fn point-list)
-;;  (display "Wakawackawaka!\n")
+  ;;  (display "Wakawackawaka!\n")
   (let ((plot (if project-point-fn (map project-point-fn point-list) point-list)))
 ;   (pp plot)
 ;   (display "With... a banana!\n")
@@ -362,7 +362,7 @@
 				 (times-roman 12)
 				 (ps 'linewidth 0.2)))
 	 ((2)  (apply ps (cons  'font  args))
-	  				 (apply ps (cons 'linewidth args)))
+	  (apply ps (cons 'linewidth args)))
 	 (else (error "Too many arguments to set-linewidth" args))))
 
 
@@ -489,7 +489,8 @@
 			 (map (lambda (x) 
 					  (display x file) 
 					  (display " " file)) fonts)
-			 (display fonts file))
+			 (display fonts file)
+			 )
       (display "\n" file)
       
       (ps-display "%%Pages: (atend)\n")
@@ -602,14 +603,19 @@
       (ps-1-arg "setlinewidth" weight))
     
     (define (setgray weight)
-      (ps-1-arg "setgray" weight))
+		(let* ((weight (cond
+							((number? weight) weight)
+							((and (list? weight) (= (length weight) 3))
+							 (apply + (map * weight '(0.2989 0.5870 0.1140))))
+							(#t (error "Bad argument to setgray" weight)))))
+		  (ps-1-arg "setgray" weight)))
     
     (define (setrgb r g b)
       (ps-3-arg "setrgbcolor" r g b))
 
     (define (sethsv h s v)
       (ps-3-arg "sethsvcolor" h s v))
-	     
+	 
     (define (stroke)
       (ps-display "stroke"))
     
@@ -788,7 +794,7 @@
 							  ((eq? cmd 'postscript) (apply ps-display args))
 							  ((eq? cmd 'comment) 
 								(apply ps-comment args)
-								;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
+;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
 								)
 
 							  ((eq? cmd 'set-font) (apply font args))

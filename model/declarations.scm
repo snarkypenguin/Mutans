@@ -1,6 +1,6 @@
 (include "framework")
 
-		
+(declare-method actual-leaf-area "actual-leaf-area returns the leaf area less any damage")		
 (declare-method add! "add!")
 (declare-method add-fruit "adjusts the number of fruit in a cell")
 (declare-method add-patch! "add a patch to a habitat")
@@ -25,8 +25,8 @@
 (declare-method distance-to-boundary "returns the distance to a boundary")
 (declare-method distance-to-centre "distance-to-centre")
 (declare-method distance-to-interior "distance-to-interior")
+(declare-method do-fruiting "fruit and add them to the environment")
 (declare-method eat "add food to the stomach, process food from the stomach, grow, return the amount eaten")
-(declare-method eat "Eat food ")
 (declare-method emit-and-record-if-absent "registers an agent and its subjective time with a logger")
 (declare-method enable-all-service-growth! "enables the service level growth model for the dynamic-patch")
 (declare-method enable-growth! "disables the growth model for the ecoservice/patch/etc")
@@ -38,6 +38,7 @@
 (declare-method get-projection "returns a projection from an agent's list of projections")
 (declare-method growth "does the business of growing")
 (declare-method growth-model "returns the growth model for the ecoservice/patch/...")
+(declare-method growth-rate "returns the growth rate for an animal (<jherb>, etc)")
 (declare-method install-boundary "set/reset the boundary for a patch")
 (declare-method local->model "return the function for projecting a submodels ords into modelspace")
 (declare-method log-map-circle "routine to plot a circle for things like trees....")

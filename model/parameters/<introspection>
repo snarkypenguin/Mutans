@@ -1,7 +1,7 @@
 'Parameters
 (define <introspection>-parameters
   (list
-    (list 'introspection-priority 10000) ;; must be high to keep loggers and monitors to the front of the queue
+    (list 'introspection-priority 10000) ;; must be high to keep loggers and monitors toward the front of the queue
 	 (list 'dt (* 1 day)) ;; introspection agents are usually driven by a specified schedule
     (list 'timestep-epsilon 1e-6)
 	 (list 'format 'text)

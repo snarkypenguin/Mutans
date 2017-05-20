@@ -31,6 +31,15 @@
 
 ;-  Code 
 
+(load "/usr/share/slib/gambit.init")
+(require 'charplot)
+(load "maths.scm")
+(load "integrate.scm")
+;(define M (rk4 (lambda (t y) (* 1e-6 (sqr (- 1 (/ y 150 )))) ) 0 (* 37 366 days) day 1))
+;(plot M 0 (* 37 366 days))
+;(histobins (map (lambda (x) (pprnd 20)) (seq 3000))) 90)
+
+
 (define (ixin sym lst)
   (- (length lst) (length (member sym lst))))
 

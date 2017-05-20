@@ -75,7 +75,7 @@
 (define (dump whatsit)
   (let* ((C (if (class? whatsit) whatsit (class-of whatsit)))
 			)
-	 (display (class-name-of C))
+	 (display (cnc C))
 	 (display " ")
 	 (pp (dumpslots C))
 	 ))
@@ -217,75 +217,108 @@ others) are defined in framework.scm:
 	 (lambda (x) 
 		(m->l (l->m x)))))
 
-(model-method (<projection> <list>) (local->model self location)
-				  (let ((p (my 'local->model)))
-					 (if (symbol? p)
-						  (begin
-							 (set! p (get-projection self p))
-							 (set-my! 'local->model p))
-						  (if p
-								(p location)
-								location))))
+(define (local->model self location)
+  (let ((p (slot-ref self 'local->model)))
+	 (if (and (pair? p) (procedure? (cdr p)))
+		  (begin
+			 (slot-set! self 'local->model (cdr p))
+			 (model->local self location))
+		  (begin
+			 (cond
+			  ((symbol? p)
+				(set! p (get-projection self p))
+				(slot-set! self 'local->model p))
+			  ((and (pair? p) (eq? (car p) 'local->model))
+				(set! p (cdr p)))
+			  ((not (procedure? p))
+				(error "Something very bad has happened in the local->model projection code" p)))
+		  
+			 (if p
+				  (p location)
+				  location)))))
 
-(model-method (<projection> <list>) (model->local self location)
-				  (let ((p (my 'model->local)))
-					 (if (symbol? p)
-						  (begin
-							 (set! p (get-projection self p))
-							 (set-my! 'model->local p))
-					 (if p (p location)
-							  location))))
+(define (model->local self location)
+  (let ((p (slot-ref self 'model->local)))
+	 (if (and (pair? p) (procedure? (cdr p)))
+		  (begin
+			 (slot-set! self 'model->local (cdr p))
+			 (model->local self location))
+		  (begin
+			 (cond
+			  ((symbol? p)
+				(set! p (get-projection self p))
+				(slot-set! self 'model->local p))
+			  ((and (pair? p) (eq? (car p) 'model->local))
+				(set! p (cdr p)))
+			  ((not (procedure? p))
+				(error "Something very bad has happened in the model->local projection code" p)))
+		  
+			 (if p (p location)
+				  location)))))
 
 
 ;-- setters and getters for the inverse projection (into the submodel's space)
 
 ;-- get the projection that goes from model space to local space
-(model-method <projection> (get-model->local self)
-				  (let ((p (my 'model->local)))
-					 (if (not (procedure? p))
-						  (begin
-							 (set! p (get-projection self p))
-							 (set-my! 'model->local p)))
-					 p)
-				  )
+(define (get-model->local self)
+  (let ((p (slot-ref self 'model->local)))
+	 
+	 (if (and (pair? p)
+				 ;;(eq? (car p) 'model->local)
+				 )
+		  (set! p (cdr p)))
+	 (if (not (procedure? p))
+		  (begin
+			 (set! p (get-projection self p))
+			 (slot-set! self 'model->local p)))
+	 p)
+  )
 
 ;-- get the projection that goes from local space to model space
-(model-method <projection> (get-local->model self)
-				  (let ((p (my 'local->model)))
+(define (get-local->model self)
+				  (let ((p (slot-ref self 'local->model)))
+					 (if (and (pair? p)
+								 ;;(eq? (car p) 'local->model)
+								 )
+						  (set! p (cdr p)))
 					 (if (not (procedure? p))
 						  (begin
 							 (set! p (get-projection self p))
-							 (set-my! 'local->model p)))
+							 (slot-set! self 'local->model p)))
 					 p)
 				  )
 
 ;-- get an arbitrary projection
-(model-method (<projection> <symbol>) (get-projection self key)
-				  (let* ((pal (slot-ref self 'projection-assoc-list))
-							(projections*
-							 (if (or (not pal) (uninitialised? pal))
-								  (let ((lc (list-copy *default-projections*)))
-									 (slot-set! self 'projection-assoc-list lc)
-									 (set! pal lc)
-									 lc)
-								  pal))
-							)
-					 (let ((p (assoc key projections*)))
-						(if p (cdr p) (mapf (lambda (x) (dnl "missing projection: " key) x) )))))
+(define (get-projection self key)
+  (if (not (symbol? key))
+		(error "projections are keyed by symbols" key)
+		(let* ((pal (slot-ref self 'projection-assoc-list))
+				 (projections*
+				  (if (or (not pal) (uninitialised? pal))
+						(let ((lc (list-copy *default-projections*)))
+						  (slot-set! self 'projection-assoc-list lc)
+						  (set! pal lc)
+						  lc)
+						pal))
+				 )
+		  (let ((p (assoc key projections*)))
+			 (if (and (pair? p) (procedure? (cdr p))) (cdr p) (mapf (lambda (x) (dnl "missing projection: " key) x) ))))
+		)
+  )
 
 
 ;-- set the projection that goes from model space to local space
-(model-method (<projection> <symbol>) (set-model->local! self key)
-				  (let ((p (assoc (my 'projection-assoc-list))))
-					 (if p
-						  (set-my! 'model->local p)
+(define (set-model->local! self key)
+				  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
+					 (if (and p (procedure? (cdr p)))
+						  (slot-set! self 'model->local (cdr p))
 						  (error "Projection not found in projection-assoc-list" key))))
 
 ;-- set the projection that goes from local space to model space
-(model-method (<projection> <symbol>) (set-local->model! self key)
-				  (let ((p (assoc (my 'projection-assoc-list))))
-					 (if p
-						  (set-my! 'local->model p)
+(define (set-local->model! self key)
+				  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
+					 (if (and p (procedure? (cdr p)))
+						  (slot-set! self 'local->model (cdr p))
 						  (error "Projection not found in projection-assoc-list" key))))
 
 ;--- kernel Methods for <agent> classes
@@ -414,11 +447,6 @@ commonly viewed as just a simple extension of sclos.
 								))
 				  (ps-dump-parent))
 
-(model-method <agent> (change-type self newtype)
-				 (apply-parameters self (slot-ref self 'type)))
-
-
-
 (model-method <agent> (kernel-check self #!rest args)
 				  ((slot-ref self 'kernel) 'check self args))
 
@@ -513,7 +541,7 @@ commonly viewed as just a simple extension of sclos.
 				  (kdebug '(log-* log-data)
 							(name self)
 							"[" (my 'name) ":"
-							(class-name-of self) "]" "in <agent>:log-data")
+							(cnc self) "]" "in <agent>:log-data")
 				  (let ((file (slot-ref logger 'file))
 						  (show-field-name (slot-ref logger 'show-field-name))
 						  (missing-val (slot-ref logger 'missing-val))
@@ -533,7 +561,7 @@ commonly viewed as just a simple extension of sclos.
 						 (cond
 						  ((has-slot? self field)
 							(kdebug '(log-* log-data logging-debug)      
-									 "  " (name self) (class-name-of self)
+									 "  " (name self) (cnc self)
 									 "Dumping " field "=" (if (has-slot? self field)
 																	  (slot-ref self field)
 																	  "missing!"))
@@ -544,7 +572,7 @@ commonly viewed as just a simple extension of sclos.
 							)
 						  ((member field (extra-variable-list self))
 							(kdebug '(log-* log-data logging-debug)
-									 "  " (name self) (class-name-of self)
+									 "  " (name self) (cnc self)
 									 "Dumping extra " field "="
 									 (extra-variable self field))
 							(if (not spaced-out)
@@ -620,14 +648,6 @@ commonly viewed as just a simple extension of sclos.
 
 (define undefined (lambda x 'undefined))
 (define undefined-state-flag (lambda x 'undefined-state-flag))
-
-(model-method (<agent>) (type self)
-				  (my 'type))
-
-;;
-
-(model-method <agent> (set-type! self newtype)
-				  (set-my! 'type newtype))
 
 ;;
 
@@ -960,7 +980,7 @@ The arguments are
 ;;			 (slot-set! self 'introspection-targets (pkernel 'find-agents (slot-ref self 'introspection-selector))))
 
 		;;(set-kernel! self pkernel)
-		(kdebug 'run-model-body "<agent>" (class-name-of self))
+		(kdebug 'run-model-body "<agent>" (cnc self))
 		(kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
 		;;(dnl* (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
 		(let ((t T))
@@ -985,7 +1005,7 @@ The arguments are
 							((< subj-time t)
 							 (if temporal-fascist
 								  (begin
-									 (kdebug 'temporal-check "[" (my 'name) ":"(class-name-of self) "]"
+									 (kdebug 'temporal-check "[" (my 'name) ":"(cnc self) "]"
 											  "a/an" (my 'representation)
 											  "is lost in time at" subj-time "or" t)
 									 'missing-time)
@@ -993,7 +1013,7 @@ The arguments are
 										 ((loop-through-time
 											(lambda (st ddt)
 											  (kdebug 'passing-control-to-model
-														"["(my 'name)":"(class-name-of self)"]"
+														"["(my 'name)":"(cnc self)"]"
 														"Passing control to the model at" t 
 														"for" (if (< st t)
 																	 ddt
@@ -1011,19 +1031,19 @@ The arguments are
 												  ((eqv? m #!void)
 													(error (string-append
 															  "The model body for "
-															  (class-name-of
+															  (cnc
 																self)
 															  " returned an error: #!void")))
 												  ((eqv? dt #!void)
 													(error (string-append
 															  "dt for "
-															  (class-name-of
+															  (cnc
 																self)
 															  " is somehow #!void (error)")))
 												  ((eqv? DT #!void)
 													(error (string-append
 															  "DT for "
-															  (class-name-of
+															  (cnc
 																self)
 															  " is somehow #!void (error)")))
 												  ((number? m)
@@ -1056,7 +1076,7 @@ The arguments are
 							 (kdebug 'temporal-check "["
 									  (my 'name)
 									  ":"
-									  (class-name-of self)
+									  (cnc self)
 									  "]"
 									  "a/an"
 									  (my 'representation)
@@ -1073,7 +1093,7 @@ The arguments are
 									  "["
 									  (my 'name)
 									  ":"
-									  (class-name-of self)
+									  (cnc self)
 									  "]"
 									  "Passing control to the model at"
 									  t
@@ -1088,12 +1108,12 @@ The arguments are
 												 (run-model-body self t dt) ;;; The model runs before its subsidiaries or components
 											  
 												 ;;  The model returns the amount of time it actually ran for
-												 (kdebug '(nesting run-model-body) (class-name-of self)
+												 (kdebug '(nesting run-model-body) (cnc self)
 														  "Running at " t "+" dt "[" (my 'dt) "]")
 												 (if (< dt 0.0) (error 'bad-dt))
 												 (begin
 													(kdebug 'track-subjective-times
-															 "[" (my 'name) ":" (class-name-of self) "]"
+															 "[" (my 'name) ":" (cnc self) "]"
 															 " running at " (my 'subjective-time) ":" t)
 													
 													(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
@@ -1154,7 +1174,7 @@ The arguments are
 						  (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
 
 						  (kdebug '(nesting run)
-									(class-name-of self)
+									(cnc self)
 									(name self)
 									"Leaving run after a tick of "
 									DT

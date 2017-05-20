@@ -15,7 +15,7 @@
 (for-each load (map sym->scm '(sclos+extn units constants maths)))
 (for-each load (map sym->scm '(integrate matrix postscript basic-population)))
 ;; postscript should (logically) come after the mathematical files ... it uses matrices and such			 
-(for-each load (map sym->scm '(framework-declarations framework framework-classes)))
+(for-each load (map sym->scm '(framework-declarations timers framework framework-classes)))
 (for-each load (map sym->scm '(introspection-classes monitor-classes log-classes)))
 (for-each load (map sym->scm '(diffeq-classes landscape-classes plant-classes animal-classes)))
 (for-each load (map sym->scm '(framework-wrappers declarations framework-methods)))

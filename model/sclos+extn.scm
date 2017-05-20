@@ -232,7 +232,7 @@ communication (without cheating)."
 
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
-  (state-variables name taxon type representation agent-state
+  (state-variables name taxon representation agent-state
 						 note
 						 kernel
 						 subjective-time priority jiggle 
@@ -255,6 +255,7 @@ communication (without cheating)."
 						 ;;
 						 maintenance-list
 						 initialised
+						 runcount
 						 )
 	)
 
@@ -454,6 +455,76 @@ communication (without cheating)."
 
 
 (define no-slot-in-object 'no-slot-in-object)
+
+
+;; The *is- and *has- routines return predicate functions
+(define (*is-class? targetclass #!rest plural)
+  ;; this odd way of specifying arguments  ensures at last one arg
+  (let ((targets (cons targetclass plural))) 
+	 (lambda (x)
+		(if (eq? x 'inspect)
+			 ;;(dnl* "targetclass =" targetclass ": plural =" plural ": targets =" targets)
+			 (list targets)
+			 (apply orf (map (lambda (target) (isa? x target)) targets)))
+		)))
+
+
+"Examples might be
+    (*is-class? <fish>)
+    (*is-class? <fish> <mollusc> <amphipod> <monkey>)
+"
+
+(define (*has-slot? slot)
+  (let ((slot slot))
+	 (lambda (x) 
+		(if (list? slot)
+			 (apply orf (map (lambda (y) (has-slot? x y)) slot))
+			 (has-slot? x slot)))))
+
+
+(define (*has-slot-value? slot v)
+  (let ((slot slot)
+		  (v v))
+	 (cond
+	  ((procedure? v) ;; v is a predicate function
+		(lambda (x) (if (not (has-slot? x slot))
+							 #f
+							 (v x))))
+	  ((list? v)
+		(lambda (x) (if (not (has-slot? x slot))
+							 #f
+							 (eqv? v x))))
+	
+	  (#t 	 (lambda (x) (if (not (has-slot? x slot))
+									  #f
+									  (eq? v x)))))))
+"Examples might be 
+   (*has-slot-value 'age (lambda (age) (and (<= 7 age) (<= age 20))))
+   (*has-slot-value 'reproductive-state '(adolescent adult post-breeding))
+   (*has-slot-value 'water-stressed #t)
+
+If the agent does not possess the slot, it cannot have the indicated property
+and so it is excluded.
+"
+
+
+(define (*is-taxon? targettaxa #!rest cmp)
+	 (lambda (x)
+		(let* ((c (if (null? cmp) '() (car cmp)))
+				 (cmpop (cond
+						  ((null? c) string=?)
+						  ((eq? c 'ci) string-ci-?)
+						  ((eq? c 'wild) wildmatch)
+						  ((eq? c 'wild-ci) wildmatch-ci)
+						  (#t eqv?))))
+		(if (list? targettaxa)
+			 (apply orf (map (lambda (y) (cmpop y (slot-ref x 'taxon))) targettaxa))
+			 (cmpop targettaxa (slot-ref x 'taxon))))))
+
+
+(define (cnc a) (class-name-of (class-of a)))
+(define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
+
 
 ;;; (define slot-ref -;
 ;;;   (letrec ((slot-ref slot-ref)) -;
@@ -706,8 +777,6 @@ of this-agent and its parents (but not *grandparents...).
 					 (slot-set! instance x
 									(uninitialise-flag x)
 									)) (class-slots-of instance))
-	 (slot-set! instance 'type (class-name class)) ;;; This may be replaced by the set-state-variables call and the
-	                                               ;;; initialise call
  	 (object-register 'add instance class)
 	 (set-state-variables instance initargs)
 	 instance))
@@ -791,25 +860,29 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 ;; This returns a list of the form (key ...) where the "value" is
 ;; often a list containing a single number.
 (define (parameter-lookup class taxon key)
-  (let ((the-classes (!filter (lambda (x) (member x *uninitialisable*)) (class-cpl class)))
-		  (returnval #f))
-	 (for-each
-	  (lambda (x)
-		 (if (member x *uninitialisable*)
-			  (let* ((clst (assoc class global-parameter-alist))
-						(v (if clst (assoc key (cdr clst)) (void)))
-						)
-				 (if (not (void? v))
-					  (set! returnval v))))
-		 )
-	  (reverse the-classes))
-	 (let* ((tlst (assoc taxon global-parameter-alist))
-			  (v (if tlst (assoc key (cdr tlst)) (void))))
-		
-		(if (not (void? v))
-			 (set! returnval v)
-			 ))
-	 returnval))
+  (if (not (and (isa? class <class>)
+					 (string? taxon)
+					 (symbol? key)))
+		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
+		(let ((the-classes (!filter (lambda (x) (member x *uninitialisable*)) (class-cpl class)))
+				(returnval #f))
+		  (for-each
+			(lambda (x)
+			  (if (member x *uninitialisable*)
+					(let* ((clst (assoc class global-parameter-alist))
+							 (v (if clst (assoc key (cdr clst)) (void)))
+							 )
+					  (if (not (void? v))
+							(set! returnval v))))
+			  )
+			(reverse the-classes))
+		  (let* ((tlst (assoc taxon global-parameter-alist))
+					(v (if tlst (assoc key (cdr tlst)) (void))))
+			 
+			 (if (not (void? v))
+				  (set! returnval v)
+				  ))
+		  returnval)))
 
 (define (boolean-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
@@ -837,6 +910,12 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (list-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
 	 (if (and r (pair? (cdr r)) (list? (cadr r)))
+		  (cadr r)
+		  #f)))
+
+(define (procedure-parameter-lookup class taxon key)
+  (let ((r (parameter-lookup class taxon key)))
+	 (if (and r (pair? (cdr r)) (procedure? (cadr r)))
 		  (cadr r)
 		  #f)))
 
@@ -905,6 +984,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 
 	 (slot-set! instance 'subjective-time 0)
+	 (slot-set! instance 'runcount 0)
 	 ;; subjective time must be set either in the taxon, in the
     ;; statevars, or explicitly after initialisation
 	 (apply-initialisation instance taxon #t)
@@ -917,6 +997,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
 
 	 (set-state-variables instance statevars)
+	 (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
 	 instance
 	 )
   )

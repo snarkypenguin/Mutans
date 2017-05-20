@@ -50,14 +50,12 @@
 
 (define start 0) ;; day zero
 ;(define end (* 12 days)) ;; of christmas y'know
+;(define end (* 29 days)) 
+;(define end (* 6 weeks)) ;; 
+;(define end (* 61 days)) ;; 
+(define end (* 3 years)) ;; 
 ;(define end (* 480 days)) ;; 
-(define end (* 6 weeks)) ;; 
-;(define end (* 61 days)) ;; end at some day after the start
-;(define end (* 365.25 32)) ;; simulate 32 years
-;(define end (* 365.25 10)) ;; simulate 10 years
-;(define end (* 365.25 6))  ;; simulate 6 years
-;(define end (* 365.25 4))  ;; simulate 4 years
-;(define end (* 365.25 2))  ;; simulate 2 years
+;(define end (* 72 years)) ;;
 
 (if (< end start)
 	 (error "The model doesn't work in that direction")
@@ -70,6 +68,8 @@
                   ;; ll ur optional-pagesize
 ;(set-model-domain '(-5040 -5040 -100) '(5040 5040 3000) isoA4r)
 ;; rotated
+
+
 
 
 ;-- --------------- Load parameters from the parameters directory -------
@@ -114,14 +114,47 @@
 "The following code takes the list of registered submodels and loads any files they may be 
 dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
 
+(define startinittime #f)
+(define endinittime #f)
+(define startpreptime #f)
+(define endpreptime #f)
+(define startqueuetime #f)
+(define endqueuetime #f)
+(define finished #f)
+
+(set! startinittime (process-times))
 (load "specific-model.scm")					 
+(set! endinittime (process-times))
+
+(define Dunnit #f)
+(define *dunnit* #f)
+
+(define (doit q #!rest n)
+  (set! Dunnit (lambda () (shutdown-agents q)))
+  (set! n (if (pair? n) (car n) 1))
+  (if (not *dunnit*)
+		(begin
+		  (dnl* "Prepping")
+		  (set! startpreptime (process-times))
+		  (prep-agents q start end)
+		  (set! endpreptime (process-times))
+		  (set! *dunnit* 0))
+		)
+
+  (set! startqueuetime (process-times))
+  (set! q (queue *dunnit* (+ *dunnit* n) q))
+  (set! endqueuetime (process-times))
+
+  (set! *dunnit* (+ *dunnit* n))
+  )
 
 
 
 ;; Run till end without pause.  If you are a penguin, run without paws.
 (define (Doit q)
   (display "Ok.\n")
-  (let ((state (kdebug-message-state)))
+  (let ((state (kdebug-message-state))
+		  )
 	 (kdebug-message-state #t)
 
 	 (if #f
@@ -129,26 +162,53 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 											 service-type-list
 											 service-eqn-sym-list))
 	 (dnl* "Prepping")
+	 (set! startpreptime (process-times))
 	 (prep-agents q start end)
+	 (set! endpreptime (process-times))
 	 (dnl* "Running")
+	 
+	 (set! startqueuetime (process-times))
 	 (set! q (queue start end q))
+	 (set! endqueuetime (process-times))
 	 (kdebug-message-state state)
 	 
 	 (dnl* "Remember to run (shutdown-agents Q)")
 	 )
   )
 
+(define (cputime-entry vec)
+  (f64vector-ref vec 0))
+(define (systime-entry vec)
+  (f64vector-ref vec 1))
+(define (realtime-entry vec)
+  (f64vector-ref vec 2))
+  
 
-(define Dunnit #f)
-(define *dunnit* #f)
 
-(define (doit q . n)
-  (set! Dunnit (lambda () (shutdown-agents q)))
-  (set! n (if (pair? n) (car n) 1))
-  (if (not *dunnit*) (begin (prep-agents q start end) (set! *dunnit* 0)))
-  (set! q (queue *dunnit* (+ *dunnit* n) q))
-  (set! *dunnit* (+ *dunnit* n))
-  )
+(define (times)
+  (let ((sicpu (cputime-entry startinittime))
+		  (eicpu (cputime-entry endinittime))
+		  (spcpu (cputime-entry startpreptime))
+		  (epcpu (cputime-entry endpreptime))
+		  (sqcpu (cputime-entry startqueuetime))
+		  (eqcpu (cputime-entry endqueuetime))
+		  (sireal (realtime-entry startinittime))
+		  (eireal (realtime-entry endinittime))
+		  (spreal (realtime-entry startpreptime))
+		  (epreal (realtime-entry endpreptime))
+		  (sqreal (realtime-entry startqueuetime))
+		  (eqreal (realtime-entry endqueuetime))
+		  )
+	 (dnl* "Initialisation took   " (- eicpu sicpu) "cpu seconds")
+	 (dnl* "Agent prep took       " (- epcpu spcpu) "cpu seconds")
+	 (dnl* "Running the queue took" (- eqcpu sqcpu) "cpu seconds")
+
+	 (dnl* "Initialisation took   " (- eireal sireal) "real seconds")
+	 (dnl* "Agent prep took       " (- epreal spreal) "real seconds")
+	 (dnl* "Running the queue took" (- eqreal sqreal) "real seconds")
+	 ))
+
+
 
 ;;======================================================================
 
@@ -156,6 +216,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (dnl "Run with (doit Q n) to run for n days (not necessarily n ticks!)")
 (dnl "             so you can run the next step in a similar fashion\n")
 (dnl "Close up shop with (shutdown-agents Q) -- this closes files and things.")
+(dnl "Runtime data can be printed with (times)")
 
 
 (display "Loaded: ")
