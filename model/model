@@ -38,38 +38,6 @@
 ;; defaults to 8, needs to be 12 to accomodate 3000 years from t = 0sec
 
 
-;- =================  Define the model domain now =======================
-;========================================================================
-
-"The model domain must be defined before the model itself is loaded."
-
-
-;-- First do time
-
-(define start 0) ;; day zero
-;(define end (* 12 days)) ;; of christmas y'know
-;(define end (* 29 days)) 
-;(define end (* 6 weeks)) ;; 
-;(define end (* 61 days)) ;; 
-(define end (* 3 years)) ;; 
-;(define end (* 480 days)) ;; 
-;(define end (* 72 years)) ;;
-
-(if (< end start)
-	 (error "The model doesn't work in that direction")
-	 (dnl* "***** Running from" start "to" end))
-
-
-;-- Now space
-
-(set-model-domain '(-5040 -5040 -100) '(5040 5040 3000) isoA4)
-                  ;; ll ur optional-pagesize
-;(set-model-domain '(-5040 -5040 -100) '(5040 5040 3000) isoA4r)
-;; rotated
-
-
-
-
 ;-- --------------- Load parameters from the parameters directory -------
 
 ;; This should be the first thing in a model configuration file after
