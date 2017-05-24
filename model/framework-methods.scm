@@ -148,7 +148,7 @@ straightforward scaling) or vectors (for more complex mappings, like LL->xy).
 The default list of projections and the following functions (amongst
 others) are defined in framework.scm:
 
-(composite-prj_src->dest self src dest)
+(composite-prj_src->dst self src dest)
    -- returns a projection that applies dest after src
 
 (linear2d:model-space->output-space m-domain o-domain)
@@ -199,7 +199,7 @@ others) are defined in framework.scm:
 
 ;-- projection routines that actually map things into different spaces
 
-(model-method (<projection> <projection> <projection>) (composite-prj_src->dest self src dest)
+(model-method (<projection> <projection> <projection>) (composite-prj_src->dst self src dest)
 ;  (dnl* (cnc submodel1) (cnc submodel2))
 
   (let ((l->m (get-local->model src))
@@ -208,7 +208,7 @@ others) are defined in framework.scm:
 	 (lambda (x) 
 		(m->l (l->m x)))))
 
-(model-method (<projection> <projection>) (composite-prj_src->dest self dest)
+(model-method (<projection> <projection>) (composite-prj_src->dst self dest)
 ;  (dnl* (cnc submodel1) (cnc submodel2))
 
   (let ((l->m (get-local->model self))
@@ -328,16 +328,15 @@ others) are defined in framework.scm:
 				  #t
 				  )
 
-;---- <query> 
+;---- <query> -- seems to not work at all 
 
-
-;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
-;; recognise the query it returns (void)
-(model-method <agent> (query self tag #!rest args)
-				  (case tag
-					 ((value) (if (pair? args) (slot-ref self (car args))))
-					 (else (kquery self kernel tag args))
-				  ))
+;;; ;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
+;;; ;; recognise the query it returns (void)
+;;; (model-method <agent> (query self tag #!rest args)
+;;; 				  (case tag
+;;; 					 ((value) (if (pair? args) (slot-ref self (car args))))
+;;; 					 (else (kquery self kernel tag args))
+;;; 				  ))
 
 
 ;;; ;--- Helper classes (wart classes) 
@@ -453,14 +452,14 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method <agent> (provides self)
-				  (list-copy (slot-ref self 'provides)))
+				  (list-copy (cons (cnc self) (cons (my 'taxon) (slot-ref self 'provides)))))
 
 (model-method <agent> (requires self)
 				  (list-copy (slot-ref self 'requires)))
 
 (model-method <agent> (provides? self args)
 				  (if (not (pair? args)) (set! args (list args)))
-				  (list-intersection args (slot-ref self 'provides)))
+				  (list-intersection args (cons (cnc self) (cons (my 'taxon) (slot-ref self 'provides)))))
 
 (model-method <agent> (requires? self args)
 				  (if (not (pair? args)) (set! args (list args)))
@@ -1246,32 +1245,39 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;; 				  )
 
 				
-(model-method (<blackboard> <symbol>) (query self tag #!rest args)
-				  ;; args should either be a list of tags (for 'erase and 'read)
+(model-method (<blackboard> <symbol>) (query self cmd #!rest args)
+				  ;; args should either be a list of cmds (for 'erase and 'read)
 				  ;; or a list of pairs (for 'write)
 						
 
 				  (let* ((messages (my 'message-list))
 							(result
 							 (map (lambda (x)
-									  (case tag
+									  (case cmd
 										 (('erase)
 										  (set-my! self 'message-list (assq-delete messages x))
 										  )
 										 (('read)
 										  (assq (my 'message-list) x)
 										  )
+										 (('append)
+										  (if (not (pair? x))
+												(error "Missing value specified for <blackboard> 'write" args))
+										  (set-my! 'message-list (assq-append (my 'message-list) (car x) (cadr x))))
 										 (('write)
 										  (if (not (pair? x))
 												(error "Missing value specified for <blackboard> 'write" args))
-										  (set-my! 'message-list (assq-set! (my 'message-list) (car x) (cadr x)))
+
+										  (if (null? (my 'message-list))
+												(set-my! 'message-list (assoc-append '()  (car x) (cadr x)))
+												(assq-set! (my 'message-list) (car x) (cadr x)))
 										  )
 										 ))
 									args)))
-					 (case tag
+					 (case cmd
 						((read) result)
 						((erase write) (my 'message-list))
-						(else (kquery self tag args)))))
+						(else (kquery self cmd args)))))
 
 
 (model-body <blackboard>
@@ -1295,15 +1301,19 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;;   'track-epsilon 1e-6))
 
 
+;; This records the track in the native ordinate space of the submodel!
 (model-method (<tracked-agent> <number> <pair>) (track-location! self t loc)
+				  (let ((myt (my 'track)))
+					 (if (and myt (not (list? myt)))
+						  (set! myt '()))
+
 					 (set-my! 'track
-								 (cons t (map 
-								 (if tr 
-									  (append (my 'track) (list (cons t loc)))
+								 (if t
+									  (append myt (list (cons t loc)))
 									  (list (cons t loc))
-									  ))
-					 )
-				  ))
+									  )
+								 ))
+				  )
 
 (model-method (<tracked-agent>) (track self)
 				  (my 'track))
@@ -1428,15 +1438,6 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 
 ;---- environment methods
-
-(define (environment-initfunc self)
-  (set-state-variables self
-							  'minv '(-inf.0 -inf.0 -inf.0)
-							  'maxv '(+inf.0 +inf.0 +inf.0)
-							  'split-flexibly #f
-							  'split-at 12 ;; when a bottom node gets more than 12 elements, convert it into an intermediate with four other nodes
-							  'location-tree  (list (list-head minv 2) (list-head maxv 2)) ;; we only do it in 2d ... ;-)
-  ))
 
 (model-body <environment> ;; does nothing.
 				(call-next-parent-body)

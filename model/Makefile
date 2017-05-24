@@ -22,18 +22,15 @@ CXXFLAGS = -g
 #LDLIBES =
 #LDLIBS = 
 
-
 # These *must not* be put into the rewrite group else they get overwritten.  YOU HAVE BEEN WARNED!
 
-SCLOS = preamble.scm sort.scm utils.scm sclos+extn.scm framework-declarations.scm framework.scm 
+SCLOS = preamble.scm sort.scm utils.scm timer.scm sclos+extn.scm framework-declarations.scm framework.scm
 KERNEL = kdebug.scm kernel.scm
-
 DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm log-declarations.scm
-
 DECS = declarations.scm framework-declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
-SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm postscript.scm 
+SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm papersizes.scm postscript.scm
 CLASSDECS = framework-classes.scm introspection-classes.scm monitor-classes.scm log-classes.scm diffeq-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
 CHASSIS = framework-wrappers.scm framework-methods.scm declarations.scm
 INTROSPECTION =  introspection-methods.scm monitor-methods.scm log-methods.scm

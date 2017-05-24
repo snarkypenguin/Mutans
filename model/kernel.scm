@@ -739,19 +739,18 @@ their model-body is running.
 (define location-tree  '())
 (define split-at 16) ;; bisects cell when there are 16 entities or more
 (define split-flexibly #f) ;; Not implemented yet -- will allow each subdivision to be unequal in area
-(define use-list-for-locate #t)
+(define use-queue-for-locate #t)
 
 (define (locate Q sel location #!rest radius)
   (let ((selector (cond
-						 ((not sel) (lambda (x) #t)) ;; return all candidates
+						 ((eq? sel #t) (lambda (x) #t)) ;; return all candidates
 						 ((procedure? sel) sel)
+						 ((isa? sel <class>) (lambda (x) (isa? x sel )))
+						 ((string? sel) (lambda (x) ((*is-taxon? sel) x)))
 						 (#t (error "Bad selector passed to locate" sel)))))
-	 (if use-list-for-locate
+	 (if use-queue-for-locate
 		  (filter (lambda (x)
-						(if (isa? x <thing>)
-							 (and (selector x) (or (eq? radius #t) (<= (distance x location) radius)))
-							 #f)
-						)
+						 (and (isa? x <thing>) (selector x) (or (eq? radius #t) (<= (distance x location) radius))))
 					 Q)
 		  (letrec ((traverse
 						(lambda (node)
@@ -773,19 +772,20 @@ their model-body is running.
 							(#t (error "bad traversal in environment locate call" node location))))))
 			 (traverse location-tree))
 		  )
-		))
+	 ))
 
 
 (define (add-thing-to-location self entity location)
-  (UNFINISHED-BUSINESS "Need to flesh this out")
+  ;(UNFINISHED-BUSINESS "Need to flesh this out")
   #t
   )
 
 (define (remove-thing-from-location  entity location)
-  (UNFINISHED-BUSINESS "Need to flesh this out")
+  ;(UNFINISHED-BUSINESS "Need to flesh this out")
+  #t
   )
 (define (split-location-tree)
-  (UNFINISHED-BUSINESS "Need to flesh this out")
+  ;(UNFINISHED-BUSINESS "Need to flesh this out")
   #t)
 			
 

@@ -456,7 +456,6 @@ communication (without cheating)."
 
 (define no-slot-in-object 'no-slot-in-object)
 
-
 ;; The *is- and *has- routines return predicate functions
 (define (*is-class? targetclass #!rest plural)
   ;; this odd way of specifying arguments  ensures at last one arg
@@ -522,9 +521,17 @@ and so it is excluded.
 			 (cmpop targettaxa (slot-ref x 'taxon))))))
 
 
-(define (cnc a) (class-name-of (class-of a)))
-(define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
+(define (*is-*? target #!rest plural)
+  (or (apply orf (map (lambda (x) (*is-class? x)) (filter class? (cons target plural))))
+		(apply orf (map (lambda (x) (*has-slot? x)) (filter symbol? (cons target plural))))
+		(apply orf (map (lambda (x) (*is-taxon? x)) (filter string? (cons target plural))))))
 
+
+(define (cnc a) (class-name-of (class-of a)))
+(define (cncs a) (string->symbol (class-name-of (if (class? a) a (class-of a)))))
+   ;; this is mostly used in the provides/requires code
+
+(define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
 
 ;;; (define slot-ref -;
 ;;;   (letrec ((slot-ref slot-ref)) -;

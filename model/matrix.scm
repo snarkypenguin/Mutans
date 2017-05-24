@@ -119,11 +119,11 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 	  ;;((and (= n 1)  (zero? (car rows))) '())
 	  (else 
 		(!list-ref-rows (append (list-head L (car rows)) 
-										(list-tail L (1+ (car rows)))
+										(list-tail L (+ 1 (car rows)))
 										)
 							 (if (null? (cdr rows)) 
 								  '() 
-								  (map 1- (cdr rows)))
+								  (map (lambda (x) (- x 1)) (cdr rows)))
 							 )))))
 
 (define (complementary-list-matrix LM rows cols)
@@ -131,7 +131,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
   ;;(dnl "rows: " rows ", columns: " cols)
   (if (not (pair? rows)) (set! rows (list rows)))
   (if (not (pair? cols)) (set! cols (list cols)))
-  (!list-ref-cols (!list-ref-rows LM (map 1- rows)) (map 1- cols)))
+  (!list-ref-cols (!list-ref-rows LM (map (lambda (x) (- x 1)) rows)) (map (lambda (x) (- x 1)) cols)))
 
 ;; This only works with lists ... this is the transpose of a list of lists.
 (define (pivot x)
@@ -227,7 +227,7 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 				(if (null? j)
 					 (loop-i (cdr i))
 					 (begin 
-						(list-set! (list-ref m (car j)) (car i) (L M (1+ (car i)) (1+ (car j))))
+						(list-set! (list-ref m (car j)) (car i) (L M (+ 1 (car i)) (+ 1 (car j))))
 						(loop-j (cdr j)))))))))
 
 (define (frisk-values M)
@@ -248,11 +248,11 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 ;; sum of ((lambda (x)....) i) from i in [m, M]
 (define (Sum m M lmbda)
-  (apply + (map lmbda (map (lambda (p) (+ m p)) (seq (1+ (- M m)))))))
+  (apply + (map lmbda (map (lambda (p) (+ m p)) (seq (+ 1 (- M m)))))))
 
 ;; product of ((lambda (x)....) i) from i in [m, M]
 (define (Prod m M lmbda)
-  (apply * (map lmbda (map (lambda (p) (+ m p)) (seq (1+ (- M m)))))))
+  (apply * (map lmbda (map (lambda (p) (+ m p)) (seq (+ 1 (- M m)))))))
 
 
 (define (general-determinant A)
@@ -410,25 +410,25 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  ;; dereference a value in the matrix returning either a submatrix or an element
 
 						  (if (and car-is-n cadr-is-n)
-								(matrix-list-ref* M (map 1- x))
+								(matrix-list-ref* M (map (lambda (x) (- x 1)) x))
 								(cond 
 								 (car-is-n
-								  (make-matrix (list-ref-cols (list (list-ref M (1- (car x)))) (map 1- (cadr x)))))
+								  (make-matrix (list-ref-cols (list (list-ref M ((lambda (x) (- x 1)) (car x)))) (map (lambda (x) (- x 1)) (cadr x)))))
 								 (cadr-is-n
-								  (make-matrix (list-ref-rows (*list-nth* M (1- (cadr x))) (map 1- (car x)))))
+								  (make-matrix (list-ref-rows (*list-nth* M (- (cadr x) 1)) (map (lambda (x) (- x 1)) (car x)))))
 								 (else
-								  (make-matrix (list-ref-cols (list-ref-rows M (map 1- (car x))) (map 1- (cadr x)))))
+								  (make-matrix (list-ref-cols (list-ref-rows M (map (lambda (x) (- x 1)) (car x))) (map (lambda (x) (- x 1)) (cadr x)))))
 								 )
 								)
 						  )
 
 						 ((and (member (car x) '(r row)) (= 2 N) cadr-is-n)
 						  ;; return the indicated row vector ** adjust for the 0-1 indexing difference **
-						  (make-matrix (list (list-ref M (1- (cadr x)))))
+						  (make-matrix (list (list-ref M (- (cadr x) 1))))
 						  )
 						 ((and (member (car x) '(c col column)) (= 2 N) cadr-is-n)
 						  ;; return the indicated column vector ** adjust for the 0-1 indexing difference **
-						  (make-matrix (list (*list-nth* M (1- (cadr x)))))
+						  (make-matrix (list (*list-nth* M (- (cadr x) 1))))
 						  )
 
 						 ((and (member (car x) '(det determinant)))
@@ -504,8 +504,8 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
-							  (lambda (i) (let ((v (list-ref (list-ref M2 (1- (cadr x))) i)))
-												 (list-set! (list-ref M2 (1- (cadr x))) i (* (caddr x) v))))
+							  (lambda (i) (let ((v (list-ref (list-ref M2 (- (cadr x) 1)) i)))
+												 (list-set! (list-ref M2 (- (cadr x) 1)) i (* (caddr x) v))))
 							  (seq columns))
 							 (make-matrix M2)))
 
@@ -514,8 +514,8 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
-							  (lambda (i) (let ((v (list-ref (list-ref M2 (1- (cadr x))) i)))
-												 (list-set! (list-ref M2 (1- (cadr x))) i (/ (caddr x) v))))
+							  (lambda (i) (let ((v (list-ref (list-ref M2 (- (cadr x) 1)) i)))
+												 (list-set! (list-ref M2 (- (cadr x) 1)) i (/ (caddr x) v))))
 							  (seq columns))
 							 (make-matrix M2)))
 
@@ -524,9 +524,9 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
-							  (lambda (i) (let ((v (list-ref (list-ref M2 (1- (cadr x))) i))
-													  (u (list-ref (list-ref M2 (1- (caddr x))) i)))
-												 (list-set! (list-ref M2 (1- (cadr x))) i (+ v u))))
+							  (lambda (i) (let ((v (list-ref (list-ref M2 (- (cadr x) 1)) i))
+													  (u (list-ref (list-ref M2 (- (caddr x) 1)) i)))
+												 (list-set! (list-ref M2 (- (cadr x) 1)) i (+ v u))))
 							  (seq columns))
 							 (make-matrix M2)))
 
@@ -535,9 +535,9 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
-							  (lambda (i) (let ((v (list-ref (list-ref M2 (1- (cadr x))) i))
-													  (u (list-ref (list-ref M2 (1- (caddr x))) i)))
-												 (list-set! (list-ref M2 (1- (cadr x))) i (- v u))))
+							  (lambda (i) (let ((v (list-ref (list-ref M2 (- (cadr x) 1)) i))
+													  (u (list-ref (list-ref M2 (- (caddr x) 1)) i)))
+												 (list-set! (list-ref M2 (- (cadr x) 1)) i (- v u))))
 							  (seq columns))
 							 (make-matrix M2)))
 
@@ -548,9 +548,9 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (for-each
-							  (lambda (i) (let ((v (list-ref (list-ref M2 (1- (cadr x))) i))
-													  (u (list-ref (list-ref M2 (1- (caddr x))) i)))
-												 (list-set! (list-ref M2 (1- (cadr x))) i (- v (/ u (cadddr x))))))
+							  (lambda (i) (let ((v (list-ref (list-ref M2 (- (cadr x) 1)) i))
+													  (u (list-ref (list-ref M2 (- (caddr x) 1)) i)))
+												 (list-set! (list-ref M2 (- (cadr x) 1)) i (- v (/ u (cadddr x))))))
 							  (seq columns))
 							 (make-matrix M2)))
 

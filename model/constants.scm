@@ -35,9 +35,13 @@
 
 (define pi (acos -1.))
 (define 2pi (* 2.0 pi))
+(define pi*2 2pi)
 (define tau 2pi)
-(define e (exp 1))
 (define sqrt2pi (sqrt 2pi))
+
+(define e (exp 1))
+(define e*2 (* 2 e))
+(define e*-2 (* -2 e))
 
 (define 100pi 314)
 (define 10000pi 31416)

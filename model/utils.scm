@@ -50,6 +50,11 @@
 
 ;; This next is probably quite gambit specific w.r.t. procedures
 
+(define (force-list l)
+  (if (not (list? l))
+		(list l)
+		l))
+
 (define (object-type ob)
   (cond 
 	((equal? ob #!void) '(void))
@@ -485,7 +490,7 @@
 		  #f)))
 
 ;; Like list-set! but for a-lists
-;; This is a mutator -- the list needs to exist first for it to work, though.
+;; This is a mutator -- the list needs to exist (have at least one entry) for it to work, though.
 (define (assq-set! alist key val)
   (let loop ((l alist))
 	 (if (null? l) 

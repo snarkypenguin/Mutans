@@ -442,19 +442,21 @@ via their containing patch.
 
 
 ;; 
-(define (simple-ecoservice taxon N n V C r maxdt growing? growthmodel . P) 
+(define (simple-ecoservice taxon name variable value cap r maxdt growing? growthmodel . P) 
   (if (pair? P)
 		(set! P (car P))
 		(dnl* "No patch specified for" taxon))
 		
-  (if (not (and (string? taxon)(string? N) (symbol? n) (number? V) (number? C) (number? r) (number? maxdt) (boolean? growing?) (or (symbol? growthmodel) (procedure? growthmodel))))
+  (if (not (and (string? taxon)(string? name) (symbol? variable ) (number? value)
+					 (number? cap) (number? r) (number? maxdt) (boolean? growing?)
+					 (or (symbol? growthmodel) (procedure? growthmodel))))
 			  (error "Type error in call to simple-ecosystem: "
 						(cond
 						 ((not (string? taxon))  (string-append "taxon " (object->string taxon)))
-						 ((not (string? N))  (string-append "N " (object->string N)))
-						 ((not (symbol? n))  (string-append "n " (object->string n)))
-						 ((not (number? V))  (string-append "V " (object->string V)))
-						 ((not (number? C))  (string-append "C " (object->string C)))
+						 ((not (string? name))  (string-append "name " (object->string name)))
+						 ((not (symbol? variable))  (string-append "variable " (object->string variable)))
+						 ((not (number? value))  (string-append "value " (object->string value)))
+						 ((not (number? cap))  (string-append "cap " (object->string C)))
 						 ((not (number? r))  (string-append "r " (object->string r)))
 						 ((not (number? maxdt))  (string-append "maxdt " (object->string maxdt)))
 						 ((not (boolean? growing?)) (string-append "growing?" (object->string growing?)))
@@ -463,13 +465,13 @@ via their containing patch.
 			  )
     
   (let ((A (create <ecoservice> taxon
-							  'name (strsub N " " "_")
+							  'name (strsub name " " "_")
 							  ;; string corresponding to its name, like "Vulpes lagopus"
-							  'sym n
+							  'sym variable
 							  ;; 'Vl perhaps
-							  'value V
+							  'value value
 							  ;; Immediately after model-body this will be the value calculated, before hand it is the value to be used
-							  'capacity C
+							  'capacity cap
 							  ;; this corresponds to a carrying capacity ... +inf.0 and -inf.0 are reasonable values for this 
 							  'r r
 							  ;; r controls the growth rate per unit time, for linear values this is the slope, 
@@ -485,8 +487,8 @@ via their containing patch.
 							  )
 
 			  ))
-	 (dnl "Made ecoservice for " n)
-	 (slot-set! A 'provides (list n))
+	 (dnl "Made ecoservice for " name)
+	 (slot-set! A 'provides (list variable))
 	 A
 	 )
 )
@@ -536,8 +538,11 @@ via their containing patch.
 	  (#t (error "bad request to external ecoservice agent"))))
   )
 
-(model-method (<ecoservice>) (symbol self)
+(model-method (<ecoservice>) (symbol self) ;; ecoservices can *only* provide their single service
 				  (slot-ref self 'sym))
+
+(model-method (<ecoservice>) (provides? self sym)
+				  (service? self sym))
 
 (model-method (<ecoservice> <symbol>) (service? self sym)
 				  (or (eqv? (my 'sym) sym) (eqv? (my 'name) sym)))
@@ -624,6 +629,9 @@ via their containing patch.
 
 (model-method <ecoservice> (location self)
 				  (location (my 'patch)))
+
+(model-method <ecoservice> (area self #!optional passing)
+				  (area (my 'patch) passing))
 
 (model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
 				  (let (;;(f (if (pair? args) (car args) #f))
@@ -770,6 +778,9 @@ via their containing patch.
 (model-method (<circle>) (Radius self)
 				  (my 'radius))
 
+(model-method (<circle>) (area self #!optional passing)
+				  (* pi (sqr (radius self passing))))
+
 (model-method (<circle>) (min-bound self)
 				  (my 'radius))
 
@@ -860,6 +871,14 @@ via their containing patch.
 							)
 					 (if (and drop-closing-point (equal? (car p) (car (reverse p)))) (cdr p) p))) ;; handle closed polygons.
 
+(model-method (<polygon>) (area self #!optional passing)
+				  (let ((a (my 'area)))
+					 (if (number? a)
+						  a
+						  (let ((c (polygon-area (perimeter self))))
+							 (set-my! 'area c)
+							 c))))
+
 (model-method (<polygon>) (minima self)
 				  (extremum min (perimeter self)))
 
@@ -889,8 +908,6 @@ via their containing patch.
 				  ;;(min-bound self)
 				  (magnitude (distance-to-boundary self (my 'location))))
 
-					 
-
 (model-method (<polygon>) (random-point self)
 					(let* ((peri (perimeter self))
 							 (minx (apply min (map car peri)))
@@ -914,9 +931,14 @@ via their containing patch.
 (model-method (<patch>) (perimeter self #!optional passing-argument)
 				  (perimeter (my 'rep) passing-argument))
 
+(model-method (<patch>) (area self #!optional passing-argument)
+				  (area (my 'rep) passing-argument))
+
 (model-method (<patch>) (centre self)
 				  (centre (my 'rep)))
 
+(model-method (<patch> <list>) (distance-to-boundary self loc)
+				  (distance-to-boundary (my 'rep) loc))
 
 (define (make-boundary rep centre arg)
   (let ((rep-class (case rep
@@ -1013,6 +1035,28 @@ via their containing patch.
 (model-method <patch> (location self)
 				  (slot-ref (my 'rep) 'location))
 
+
+(model-method (<patch> <symbol>) (provides self sym)
+				  (member sym (provides self)))
+
+(model-method (<patch> <string>) (provides self str)
+				  (member str (provides self)))
+				  
+;; Something provided which is not a service indicates a limitless presence: a permanent lake provides water in this sense.
+(model-method (<patch> <list>) (provides self slist)
+				  (let ((provisions (provides self)))
+					 (list-intersection slist provisions)))
+						 
+
+
+;; Something provided which is not a service indicates a limitless presence: a permanent lake provides water in this sense.
+(model-method (<patch>) (provides self)
+				  (sortless-unique (append (cons (cncs self) (cons (my 'taxon) (my 'provides))) (map (lambda (s) (slot-ref x 'provides)) (my 'service-list)))))
+						 
+
+(model-method (<patch> <symbol>) (provides? self sym)
+				  (member sym (provides self)))
+
 ;--- (service?...) queries if a service is present
 (model-method (<patch> <symbol>) (service? self sym)
 				  (not (null? (services self sym))))
@@ -1024,7 +1068,6 @@ via their containing patch.
 ;--- (set-services!...) sets the value of the services list
 (model-method (<patch> <list>) (set-services! self servlist)
 				  (set-my! 'service-list servlist))
-
 
 ;--- (add-service!...) adds a service to a patch
 
@@ -1292,7 +1335,7 @@ via their containing patch.
 				  (kdebug '(log-horrible-screaming ecoservice) (map cnc (list self logger format  targets)) 'format: format)
 				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
 						(let ((file (slot-ref logger 'file))
-								(p (composite-prj_src->dest self logger))
+								(p (composite-prj_src->dst self logger))
 								)
 						  (if (not (procedure? p)) (set! p (lambda (x) x)))
 						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
@@ -1321,8 +1364,10 @@ via their containing patch.
 								  ((or (isa? (my 'rep) <circle>)
 										 (isa? (my 'rep) <polygon>))
 									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
+									(file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
+									(file 'comment (string-append "Projected ordinates:" (object->string (map (composite-prj_src->dst	self logger) (perimeter self)))))
 									(adjusted-plot-polygon file 0.7 0.0 #f
-																  (composite-prj_src->dest
+																  (composite-prj_src->dst
 																	self logger)
 																  (perimeter (my 'rep))))
 								  (#t (error "Bad representation for output" (cnc (my 'rep)))) 
@@ -1861,8 +1906,8 @@ args can be  an update map or an update map and update equations
 				  (let ((minv (apply minima (my 'patchlist)))
 						  (maxv (apply maxima (my 'patchlist)))
 						  )
-					 (set-my 'minv minv)
-					 (set-my 'maxv maxv)
+					 (set-my! 'minv minv)
+					 (set-my! 'maxv maxv)
 				  ))
 
 ;--- model-method (<habitat> <patch>) (add-patch! self patch) add a
@@ -1873,8 +1918,8 @@ args can be  an update map or an update map and update equations
 				  (let ((minv (apply minima (my 'patchlist)))
 						  (maxv (apply maxima (my 'patchlist)))
 						  )
-					 (set-my 'minv minv)
-					 (set-my 'maxv maxv)
+					 (set-my! 'minv minv)
+					 (set-my! 'maxv maxv)
 				  ))
 
 ;--- model-method (<habitat> <procedure>) (remove-patch! self pfilter)
@@ -1928,11 +1973,20 @@ args can be  an update map or an update map and update equations
 ;;; 										 (patch-list self))))))
 
 
+
+(model-method (<habitat>) (provides self)
+				  (sortless-unique
+					(append
+					 (cons (cnc <habitat>)
+							 (cons (my taxon)
+									 (apply append (map provides (my 'patch-list))))))))
+
+
 ;--- model-method (<habitat>) (service-list% self) ret a list of all ecoservices
 ;; May be wrong....***
 (model-method (<habitat> <list>) (service-list% self ss)
 				  (let* ((S (map (lambda (s) (service-list s)) (my 'patch-list))))
-								(apply append S)))
+								(sortless-unique (apply append S))))
 					 
 
 

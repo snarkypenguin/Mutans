@@ -15,6 +15,32 @@
 ;-  Code 
 
 
+
+;; The functions returned by mass-at-age-function and age-at-mass-function will
+;; return an imaginary value for a mass or age which lies outside the defined
+;; domain. The absolute value of the returned value is the minimum or maximum
+;; mass or age.
+
+
+(define (mass-at-age-function m a M A)
+  (lambda (age)
+	 (cond
+	  ((< age a) (* m 0+1i))
+	  ((= age a) m)
+	  ((>= age A) (* M 0+1i))
+	  (#t (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a))))))))
+	  )))
+
+(define (age-at-mass-function m a M A)
+  (lambda (mass)
+	 (cond
+	  ((< mass m) (* a 0+1i))
+	  ((= mass m) a)
+	  ((>= mass M) (* A 0+1i))
+	  (#t (+ a (/ (- A a) e*-2) (log (- 1 (/ (- mass m) (- M m))))))
+	  )))
+
+
 (define (APPLY f lst)
   (let ((N 8192))
 	 (if (< (length lst) N)
@@ -129,9 +155,13 @@
 (define (set-uninitialised-slots obj lst value)
   	(for-each
 		(lambda (slt)
-		  (if (uninitialised? (slot-ref obj slt)) (slot-set! obj slt value))
-		  (if (not (equal? (slot-ref obj slt) value)) (error "Bad initialisation in set-uninitialised-slots" slt value ))
-		  )
+		  (if (uninitialised? (slot-ref obj slt))
+				(begin
+				  (dnl*  "Setting"  slt "to" value "for" (cnc obj) (slot-ref obj 'taxon))
+				  (slot-set! obj slt value)
+				  (if (not (equal? (slot-ref obj slt) value)) (error "Bad initialisation in set-uninitialised-slots" (cnc obj) (slot-ref obj 'taxon) slt value ))
+				  )
+		  ))
 		lst))
 
 (define (fail-on-uninitialised-slots obj lst)
@@ -143,7 +173,7 @@
 												 lst))))
 		(if (pair? lst)
 			 (begin
-				(display  "The following slots need to be set!\n")
+				(dnl*  "The following slots need to be set for" (cnc obj) (slot-ref obj 'taxon))
 				(pp lst)
 				(abort)))
 		))
@@ -387,74 +417,16 @@
 	((vector? x) 'vector)))
 
 
-;; --- The following is deprecated, mainly because it was a complex solution to a simple problem.
+;; Useful for growing things...
 
-;; (define submodel-register '())
-
-;; (define (register-submodel tag . filelist)
-;;   (if (assoc tag submodel-register)
-;; 		(set-cdr! (assoc tag submodel-register)
-;; 					 (append (assoc tag submodel-register) filelist))
-;; 		(set! submodel-register
-;; 				(cons (cons tag filelist) submodel-register)))
-;;   )
-
-;; (define (load-submodels)
-;;   (let ((L load))
-;; 	 "The following code takes the list of registered submodels and loads any files they may be 
-;; dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
-
-;; 	 (let ((submodel-files
-;; 			  (!filter null? (map	cdr (!filter null? (!filter (lambda (x) (member (car x) logger-tags)) submodel-register))))
-;; 			  ))
-
-;; 		(if (pair? submodel-files)
-;; 			 (begin 
-;; 				;;(dnl "Submodels: " submodel-files)
-;; 				(for-each (if #t
-;; 								  L 
-;; 								  (lambda (x)
-;; 									 (display "loading submodel: ")
-;; 									 (display x)
-;; 									 (newline)
-;; 									 (L x))
-;; 								  )
-;; 							 submodel-files))
-;; 			 (dnl "No submodel files to be loaded"))
-
-
-;; ;\;; loggers get inserted at the head of the queue
-
-;; 		(let ((logger-files
-;; 				 (!filter
-;; 				  null?
-;; 				  (map
-;; 					cdr
-;; 					(!filter
-;; 					 null?
-;; 					 (filter
-;; 					  (lambda (x) (member (car x) logger-tags))
-;; 					  submodel-register))))
-;; 				 ))
-
-;; 		  (if (pair? logger-files)
-;; 				(begin 
-;; 				  ;;(dnl "Loggers: " logger-files)
-;; 				  (for-each (if #t
-;; 									 L 
-;; 									 (lambda (x)
-;; 										;;(display "loading logger: ")
-;; 										;;(display x)
-;; 										;;(newline)
-;; 										(L x))
-;; 									 )
-;; 								logger-files))
-;; 				(dnl "No logger files to be loaded"))
-;; 		  )
-;; 		)
-
-;; 	 )
-;;   )
+(define  (nominal-growth-rate self dt #!optional check)
+  (let ((CK (and check (has-slot? self 'age)
+					  (has-slot? self 'mass) (has-slot! self 'mass-at-age))))
+	 (if (or CK (not check))
+		  (let ((age (slot-ref self 'age))
+				  (mass (slot-ref self 'mass)))
+			 (/ (- (mass-at-age age) (mass-at-age (+ age dt))) dt))
+		  (error "Bad nominal-growth-rate call"))))
 
 ;-  The End 
 

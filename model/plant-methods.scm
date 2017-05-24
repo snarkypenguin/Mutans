@@ -106,27 +106,6 @@
 (model-method <plant> (plant-radius self)
 				  (plant-mass->radius (slot-ref self 'mass)))
 
-(define (simple-plant-initfunc self)
-	 (set-state-variables self (list 'reproduction-period 
-												(if #f
-													 (random-real) ;; a probability, or
-													 (+ 30 (random-integer 30)); an interval
-													 )
-												
-												'reproduction-offset (random-integer 20)
-												'reproduction-mechanism #f ;; <fruit> or a
-												;; procedure which performs an update on
-												;; some undefined thing. 
-												))
-
-
-	 (slot-set! self 'mass (* (random-real) (random-real)
-									  (slot-ref self 'max-mass)))
-	 (slot-set! self 'age
-					(* (slot-ref self 'max-age)
-						(/ (slot-ref self 'mass) (slot-ref self 'max-mass)))))
-
-	
 (model-method <plant> (actual-leaf-area self)
 				  (- (leaf-area self) (my 'forage-damage)))
 
@@ -150,13 +129,13 @@
 	(start-timer 'plant-model-body)
 	(if (<= (my 'runcount) 0)
 		 (begin
-			(dnl* "Initialising <plant> model-body" (my 'runcount))
-
 			(if (uninitialised? (my 'age))
 				 (error "age not initialised for a <plant>" (name self)))
 
+			(dnl* (my 'name) (my 'age) (my 'mass))
 			(set-my! 'mass ((slot-ref self 'mass-at-age) (slot-ref self 'age)))
 			
+			(dnl* '---> (my 'name) (my 'age) (my 'mass))
 			;;; (let* ((domain (append (uniq 
 			;;; 					 (map inexact->exact 
 			;;; 							(map truncate 
@@ -431,7 +410,7 @@
 					(slot-ref tree 'location) (* 0.5 scale (plant-radius tree)) inner-facets))
 			(oply (make-circle-perimeter
 					(slot-ref tree 'location) (* scale (plant-radius tree)) outer-facets))
-			(prj (composite-prj_src->dest tree logger))
+			(prj (composite-prj_src->dst tree logger))
 			)
 
 	 (adjusted-plot-polygon file 0.1 0.0 #f prj iply)
@@ -455,7 +434,7 @@
 							  ((member fmt '(ps))
 								(let* ((ply (make-circle-perimeter
 												 (my 'location) (* 20 (plant-radius self)) circle-facets))
-										 (prj (composite-prj_src->dest self logger))
+										 (prj (composite-prj_src->dst self logger))
 										 (pply (map prj ply))
 										 )
 

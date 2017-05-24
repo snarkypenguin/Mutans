@@ -450,6 +450,45 @@
   (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
 
 
+(define (signed-polygon-area poly)
+  (cond
+	((or (not (pair? poly)) (< (length poly) 3))
+		0+1i)
+	((not (equal? (car poly) (car (reverse poly))))
+	 0+2i) ;; not closed
+	((not (equal? (car poly) (car (reverse poly))))
+	 0+3i) ;; it is a line
+	(#t
+	 (let* ((n (length poly))
+			  (s (seq (- n 1)))
+			  (m (map (lambda (ix)
+							(dnl* ix (+ ix 1))
+							(dnl* (* (car (list-ref poly ix))(cadr (list-ref poly (+ ix 1)))))
+							(dnl* (* (cadr (list-ref poly ix))(car (list-ref poly (+ ix 1)))) "\n")
+							(- (* (car (list-ref poly ix))
+									(cadr (list-ref poly (+ ix 1))))
+								(* (cadr (list-ref poly ix))
+									(car (list-ref poly (+ ix 1)))))
+							)
+						 s))
+			  )
+		(/ (apply + m) 2))
+	 )
+	))
+
+(define (polygon-area poly)
+  (abs (signed-polygon-area poly)))
+
+
+				 
+				 
+  
+
+
+
+
+
+
 (define (dot a b) ;; general
   (apply + (list-operator * a b)))
 

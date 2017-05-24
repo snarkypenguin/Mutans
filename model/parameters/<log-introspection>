@@ -1,3 +1,4 @@
+; -*- mode: scheme; -*-
 'Parameters
 (define <log-introspection>-parameters
   (list

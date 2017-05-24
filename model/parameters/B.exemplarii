@@ -1,3 +1,4 @@
+; -*- mode: scheme; -*-
 'Parameters
 
 (define B.ex-mass  (rk4 (lambda (t y) ;;   This is the diff'l eqn

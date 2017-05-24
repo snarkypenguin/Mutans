@@ -1,4 +1,4 @@
 #!/bin/xs
 
-cd /home/randall/Thesis/Example-Model/model
+cd /home/randall/Thesis/model
 rsync -lptgoH  randall@pooh:/home/randall/example-model/* .

@@ -1,5 +1,6 @@
 (include "framework")
 
+(declare-method *provides? "predicate to see if an object provides a 'service' of some sort")
 (declare-method actual-leaf-area "actual-leaf-area returns the leaf area less any damage")		
 (declare-method add! "add!")
 (declare-method add-fruit "adjusts the number of fruit in a cell")
@@ -10,10 +11,11 @@
 (declare-method age "return the age of the animal")
 (declare-method aggregate-value "aggregate-value of a services within a nominated circle")
 (declare-method apply-parameters "load a new parameterisation and type from a file in ./params") ;; Hardcoded at the moment
+(declare-method area "area of an object")
 (declare-method capacity "returns the carrying capacity of an ecoservice")
 (declare-method centre "returns the centre/centroid of an object")
 (declare-method change-territory "move to another region (change cells)")
-(declare-method composite-prj_src->dest "return a projection from one agent's space to another's")
+(declare-method composite-prj_src->dst "return a projection from one agent's space to another's")
 (declare-method crowded? "determine if the region is too crowded for the animal")
 (declare-method define-population-dynamics! "Sets things up for population dynamics using definitions, alternative to set-population-dynamics!")
 (declare-method define-system-dynamics! "specifies a system of differential equations")

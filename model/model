@@ -13,7 +13,6 @@
 
 ;-- Configure the informational output (e.g. for debugging)
 
-
 (kdebug-production! #t) ;; bypass all kdebug messages (they can be slow to process)
 
 (set! indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
@@ -32,7 +31,6 @@
 ;(debugkdebug #f)
 
 (kdebug-message-state #f)
-
 
 ;; This needs to be done before we start loading agent into things,
 ;; else they may set up their filenames incorrectly

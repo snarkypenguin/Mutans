@@ -7,12 +7,26 @@
 ;-  Code 
 
 (define-class <simple-metabolism>
-  (inherits-from <object>)
-  (state-variables days-of-hunger hunger-limit))
+  (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
+  (state-variables
+	mass
+	period-of-hunger ;; how long it's been hungry
+	hunger-limit ;; amount of time it can be hungry before death
+	max-satiety ;; maximum number of satiety points
+	satiety     ;; current number of satiety points
+	satiety-rate ;; how fast we lose our satiety
+	sated-quantity  ;; the number of points that indicate satiety
+	sated-time      ;; how long the organism has been sated -- negative numbers correspond to "not sated"
+	food-satiety-rate ;; how many satiety points a mass of generic food is worth
+
+	age-at-mass ;; not optional -- the actual mass man not correspond exactly with the mass-at age func
+	mass-at-age ;; not optional    but the growth will, so an animal that misses out on a bursty period
+	            ;;                 will always be smaller than other in its cohort
+	))
 
 
 (define-class <metabolism>
-  (inherits-from <object>)
+  (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
   (state-variables stomach-contents 
 						 mass            ;; kg
 						 structural-prop ;; structural-mass increases as
@@ -39,6 +53,9 @@
 						 mass-conversion-rate
 						 max-condition-rate
 						 max-growth-rate
+
+						 age-at-mass ;; optional
+						 mass-at-age ;; optional
 						 )
   )
 
@@ -76,12 +93,20 @@
 
 (define-class <simple-animal>
   (inherits-from <simple-metabolism> <thing>)
-  (state-variables age sex habitat searchradius 
-						 foodlist homelist breedlist
+  (state-variables age sex searchradius ;; we have mass here because things might eat them....
+						 habitat  ;; an landscape agent that encompasses a number of potential domains
+						          ;;    or a list that does the same thing ... not currently used
+						 domain   ;; an environment of some sort (they have to live somewhere!)
 						 domain-attraction
+						 homelist ;; categorical indicators of potential homes
+						 foodlist ;; categorical indicators of potential prey
+						          ;; implemented by calls to (*is?  ...)
+						 breedlist
 						 food-attraction
 						 nominal-growth-rate
 						 population-switch ;; level at which it might pay to switch to analytic form
+
+						 distance-cost
 						 )
   ) ;; lists of attributes it looks for for eating, denning and breeding
 
@@ -89,6 +114,7 @@
 ;; current-interest is a function which takes (self age t dt ...) and
 ;; returns a meaningful symbol
 ;; 
+;;							(H (my 'habitat))
 
 (define-class <animal>
   (inherits-from <simple-animal>)
@@ -108,35 +134,24 @@
 (define-class <example-animal>
   (inherits-from <animal>)
   (state-variables
-	cell
-	age
-	mass
-
-	age-at-mass ;; Necessary for initialisation
-	mass-at-age ;; Necessary for initialisation
-	
 	peak-mass
+
 	omega-ind ;; individual mortality
-	omega-hunger ;;; starvation time, $\Omega_{H}$ or $\Omega_{J}$ 
 
-	max-satiety ;; maximum number of satiety points
-	satiety     ;; current number of satiety points
-	satiety-rate ;; how fast we lose our satiety
-	sated-quantity  ;; the number of points that indicate satiety
-	sated-time      ;; how long the organism has been sated -- negative numbers correspond to "not sated"
+	adult-diet-mass
+	prey-list ;; actual entities that can be used as food
 
-	time-spent-hungry
-
-	prey-list
-	forage-ct
-
+	food-density-limit ;; used to trigger migration
+	last-reproduced
 	reproduction-age
 	reproduction-mass
 	reproduction-prob
-	reproduction-delay
+;;	reproduction-delay ;; from the start of the year
+	reproduction-period
 	reproduction-ct
 	crowded-level
 	migrate-param
+	offspring ;; usually null
 	))
 
 
@@ -151,9 +166,12 @@
 	))
 
 (define-class <aherb>
-  (inherits-from <example-animal>
+  (inherits-from <example-animal>)
+  (stat-variables
 	tree-satiety-rate ;; how much needs to be eaten for one satiety point
-					  ))
+	))
+  
+
 
 ;;; These are implemented only as an ecoservice
 ;(define-class <jcarn>
@@ -162,8 +180,9 @@
 
 
 (define-class <acarn>
-  (inherits-from <example-animal>
-					  ))
+  (inherits-from <example-animal>)
+  (no-state-variables)
+  )
 
 
 
