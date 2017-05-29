@@ -151,16 +151,16 @@ others) are defined in framework.scm:
 (composite-prj_src->dst self src dest)
    -- returns a projection that applies dest after src
 
-(affine2d:model-space->output-space m-domain o-domain)
-   -- makes a affine mapping function, each of the args is a rectangular 
+(linear2d:model-space->output-space m-domain o-domain)
+   -- makes a linear mapping function, each of the args is a rectangular 
       bounding box (ll ur). This mapping fits the o-domain by contraction.
 
-(define (*affine2d:model-space->output-space m-domain o-domain)
-   -- makes a *affine mapping function, each of the args is a rectangular 
+(define (*linear2d:model-space->output-space m-domain o-domain)
+   -- makes a *linear mapping function, each of the args is a rectangular 
       bounding box (ll ur). This mapping fits the o-domain by using 
       different scales for the axes
 
-(define (map:domain-to-postscript model-domain papersize margin #!rest use-*affine-map)
+(define (map:domain-to-postscript model-domain papersize margin #!rest use-*linear-map)
   -- Defaults to a regular scale.
   -- margin will be in mm, if margin is a pair, the car is side
   -- margins and the cadr is the top and bottom length

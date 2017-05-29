@@ -332,7 +332,7 @@
 
 ;Old code may need
 ;     (define projection linear-projection)
-;  Even this is badly named, it should be affine-projection.     
+;  Even this is badly named, it should be linear-projection.     
 (define (linear-projection loc range co-range)
   (lambda (x) (translate-pointlist loc (scale-pointlist (/ co-range range) x))))
 

@@ -277,9 +277,9 @@
 	 (if invkey (add-to-*default-projections* (ps 'inverse) invkey))
 	 ))
 
-;-- makes a affine mapping function, each of the args is a rectangular bounding box (ll ur)
+;-- makes a linear mapping function, each of the args is a rectangular bounding box (ll ur)
 ;; This mapping fits the o-domain by contraction: the scales on the axes may differ!
-(define (n-affine-map domain codomain)
+(define (n-linear-map domain codomain)
   ;; (p-d0)*(D1-D0)/(d1-d0) + D0
   (lambda (p)
 	 (let ((d0 (car domain))
@@ -316,9 +316,9 @@
 		
   
 "
-The affine-map function constructs a affine mapping from a domain to a codomain
+The linear-map function constructs a linear mapping from a domain to a codomain
 "
-(define (affine-map domain codomain #!optional inverse)
+(define (linear-map domain codomain #!optional inverse)
   ;; This implicitly clips to the shallowest domain
   ;; (p-d0)*(D1-D0)/(d1-d0) + D0
 
@@ -361,7 +361,7 @@ The affine-map function constructs a affine mapping from a domain to a codomain
 							((eq? p 'codomain) domain)
 							((eq? p 'inverse)
 									(if (not g)
-										 (set! g (affine-map domain codomain f)))
+										 (set! g (linear-map domain codomain f)))
 									g)
 							((eq? p 'show)
 							 (dnl "projection:")
@@ -373,35 +373,35 @@ The affine-map function constructs a affine mapping from a domain to a codomain
 							 (dnl* " " 'scale (if inverse invscale scale))
 							 (dnl* " " 'invscale (if inverse invscale scale))
 							 (pp f))
-							(else (error "Bad argument to affine map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
+							(else (error "Bad argument to linear map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
 						f)))
 
 
 
-;-- makes a affine mapping function, each of the args is a rectangular bounding box (ll ur)
+;-- makes a linear mapping function, each of the args is a rectangular bounding box (ll ur)
 ;; This mapping fits the o-domain by contraction
-(define (affine2d:model-space->output-space domain codomain)
+(define (linear2d:model-space->output-space domain codomain)
   (let* ((c2 (lambda (x) (list-head x 2)))
 			(domain (c2 domain))
 			(codomain (c2 codomain)))
-	 (affine-map domain codomain)))
+	 (linear-map domain codomain)))
 
-;-- makes a *affine mapping function, each of the args is a rectangular bounding box (ll ur)
+;-- makes a *linear mapping function, each of the args is a rectangular bounding box (ll ur)
 ;; This mapping fits the o-domain by using different scales for the axes
-(define (*affine2d:model-space->output-space domain codomain)
+(define (*linear2d:model-space->output-space domain codomain)
   (let* ((c2 (lambda (x) (list-head x 2)))
 			(domain (c2 domain))
 			(codomain (c2 codomain)))
-	 (n-affine-map domain codomain)))
+	 (n-linear-map domain codomain)))
 
-;; (define (map:domain-to-postscript model-domain pagesize #!optional margin #!rest use-*affine-map)
+;; (define (map:domain-to-postscript model-domain pagesize #!optional margin #!rest use-*linear-map)
 ;;   ;; Defaults to a regular scale.
 ;;   ;; margin must come in as a measure in mm, if margin is a pair, the car is side
 ;;   ;; margins and the cadr is the top and bottom length
 
 ;;   (if (not margin) (set! margin ps-default-margin))
 
-;;   (set! use-*affine-map (if (null? use-*affine-map) #f (car use-*affine-map)))
+;;   (set! use-*linear-map (if (null? use-*linear-map) #f (car use-*linear-map)))
 
 ;;   (set! margin ;; convert margin into points
 ;; 		  ((mapf mm->points)
@@ -410,21 +410,24 @@ The affine-map function constructs a affine mapping from a domain to a codomain
 ;; 					((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
 ;; 					(#t margin)) 2)))
   
-;;   ((if use-*affine-map
-;; 		 *affine2d:model-space->output-space
-;; 		 affine2d:model-space->output-space)
+;;   ((if use-*linear-map
+;; 		 *linear2d:model-space->output-space
+;; 		 linear2d:model-space->output-space)
 ;; 	(list-head model-domain 2)
 ;; 	(list margin (map - ((mapf mm->points) (list-head pagesize 2)) margin)) ;; expects page sizes in mm
 ;; 	))
 
 ;; this implicitly makes "1" in the model domain a mm away from "0"
 ;; as a result of specifying the size of pages in mm
-(define (map:domain-to-postscript domain pagesize #!optional margin #!rest use-*affine-map)
+(define (map:domain-to-postscript domain pagesize #!optional margin #!rest use-*linear-map)
   (if (not margin) (set! margin ps-default-margin))
   (if (number? margin) (set! margin (list margin margin)))
   (if (and (pair? margin) (null? (cdr margin))) (set! margin (cons (car margin) margin)))
+
+  (set! margin (map mm->points margin))         ;; set the ordinates to points rather than mm
+  (set! pagesize ((mapf mm->points) pagesize))   ;; since postscript works in points by definition
   
-  (set! use-*affine-map (if (null? use-*affine-map) #f (car use-*affine-map)))
+  (set! use-*linear-map (if (null? use-*linear-map) #f (car use-*linear-map)))
 
   (set! margin ;; Do not convert margin into points -- wait till we have done everything in "units"
 			(list-head (cond
@@ -433,11 +436,11 @@ The affine-map function constructs a affine mapping from a domain to a codomain
 							(else margin)) 2))
 
   (dnl* 'Domain domain '-> (map (lambda (x) (list-head x 2)) domain))
-  (dnl* 'Page pagesize '-> (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin)))))
+  (dnl* 'Page pagesize '-> (list  margin (map - (list-head pagesize 2) (map + margin margin))))
 
-  (if use-*affine-map
- 		 (n-affine-map (map (lambda (x) (list-head x 2)) domain) (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin))))) ;; expects page sizes in mm
- 		 (affine-map (map (lambda (x) (list-head x 2)) domain) (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin))))) ;; expects page sizes in mm
+  (if use-*linear-map
+ 		 (n-linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin)))) ;; expects page sizes in mm
+ 		 (linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin)))) ;; expects page sizes in mm
 		 ))
   
 
