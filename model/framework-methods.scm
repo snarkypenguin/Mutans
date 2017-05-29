@@ -151,23 +151,23 @@ others) are defined in framework.scm:
 (composite-prj_src->dst self src dest)
    -- returns a projection that applies dest after src
 
-(linear2d:model-space->output-space m-domain o-domain)
-   -- makes a linear mapping function, each of the args is a rectangular 
+(affine2d:model-space->output-space m-domain o-domain)
+   -- makes a affine mapping function, each of the args is a rectangular 
       bounding box (ll ur). This mapping fits the o-domain by contraction.
 
-(define (bilinear2d:model-space->output-space m-domain o-domain)
-   -- makes a bilinear mapping function, each of the args is a rectangular 
+(define (*affine2d:model-space->output-space m-domain o-domain)
+   -- makes a *affine mapping function, each of the args is a rectangular 
       bounding box (ll ur). This mapping fits the o-domain by using 
       different scales for the axes
 
-(define (map:domain-to-postscript model-domain papersize margin #!rest use-bilinear-map)
+(define (map:domain-to-postscript model-domain papersize margin #!rest use-*affine-map)
   -- Defaults to a regular scale.
   -- margin will be in mm, if margin is a pair, the car is side
   -- margins and the cadr is the top and bottom length
 
 "
 
-(model-method (<projection> <procedure>) (ps-dump self ps) 
+(model-method (<projection> <procedure>) (ps-dump self ps projection) 
 				  (dnl "In projection ps-dump")
 				  (ps 'show-table
 						(list "<projection>")))
@@ -323,7 +323,7 @@ others) are defined in framework.scm:
 
 ;--- kernel Methods for <agent> classes
 
-(model-method (<agent> <procedure>) (ps-dump self ps)
+(model-method (<agent> <procedure>) (ps-dump self ps projection)
 				  (dnl "in agent ps-dump")
 				  #t
 				  )
@@ -434,9 +434,9 @@ commonly viewed as just a simple extension of sclos.
 ;;; ;;; 					  param-list)))
 
 
-(model-method (<thing> <procedure>) (ps-dump self ps)
+(model-method (<thing> <procedure>) (ps-dump self ps projection)
 				  (dnl "in thing ps-dump")
-				  (ps 'moveto ((cdr (assoc 'ps->model *default-projections*))(local->model (location self))))
+				  (ps 'moveto (projection (local->model (location self))))
 				  (ps 'show-table
 						(list (string-append "<thing>" (name self))
 								(string-append "mass =" (number->string (my 'mass)))

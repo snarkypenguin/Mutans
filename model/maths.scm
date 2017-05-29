@@ -62,7 +62,7 @@
 	 (cond
 	  ((< M m) (find-preimage x f M m epsilon)) ;;; requires a monotonic function f
 	  ((< x (f m)) (dnl* "(find-preimage" x f m M ") off the end on the left" x (f m)))
-	  ((> x (f M)) (dnl* "(find-preimage" x f m M ") off the end on the right" x (f M)p))
+	  ((> x (f M)) (dnl* "(find-preimage" x f m M ") off the end on the right" x (f M)))
 	  ((and (<= (f m) x) (<= x (f M)) (< (abs (- M m)) epsilon))
 		(/ (+ M m) 2))
 	  ((<= (f c) x)
@@ -128,12 +128,12 @@
 
 ;; returns the elements with "odd" indices
 ;; (odds '(a b c d e) => (b d)
-(define (odd-indicess* lst)
+(define (odd-indices* lst)
   (map (lambda (x) (list-ref lst x)) (filter odd? (sequence (length lst)))))
 
 ;; These are faster, but not robust w.r.t. line length
-(define (even-indices lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (even-indicess (cddr lst)) '()))))
-(define (odd-indicess lst) (if (null? lst) '() (if (pair? (cdr lst)) (even-indices (cdr lst)) '())))
+(define (even-indices lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (even-indices (cddr lst)) '()))))
+(define (odd-indices lst) (if (null? lst) '() (if (pair? (cdr lst)) (even-indices (cdr lst)) '())))
 
 (define (N<= n)
   (define (rsequence n) (if (<= n 0) '() (cons (- n 1) (rsequence (- n 1)))))
@@ -369,51 +369,61 @@
 	 (apply andf (map point? p))))
 
 (define (n-point? n p)
-  (and (= n (length p)) (point? p)))
+  ;;(dnl* 'n-point? n p)
+  (if (not (list? p)) (borkedness))
+  (and (number? n) (list? p) (= n (length p)) (point? p)))
 
 (define (n-point-list? n p)
+  ;;(dnl* 'n-point-list? n p)
   (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
-	 (apply andf (map (lambda (x) (n-point? n x)) p))))
+	 (apply andf (number? n) (map (lambda (x) (n-point? n x)) p))))
 
 
 
 (define (distance-to-segment r segment)
-  (if (and (n-point? 2 r) (n-point-list? 2 segment))
-		(let* ((rx (car r))
-				 (ry (cadr r))
-				 (p0 (car segment))
-				 (p1 (cadr segment))
-		  
-				 (p0x (car p0))
-				 (p0y (cadr p0))
-				 (p1x (car p1))		
-				 (p1y (cadr p1))
+  (if (eq? (car segment) (cadr segment))
+		(distance r (car segment))
+		(if (and (n-point? 2 r) (n-point-list? 2 segment))
+			 (let* ((rx (car r))
+					  (ry (cadr r))
+					  (p0 (car segment))
+					  (p1 (cadr segment))
+					  
+					  (p0x (car p0))
+					  (p0y (cadr p0))
+					  (p1x (car p1))		
+					  (p1y (cadr p1))
 
-				 (px (- p1x p0x))	
-				 (py (- p1y p0y))
-				 (t (/ (+ (* px (- rx p0x)) (* py (- ry p0y))) (+ (* px px) (* py py))))
-				 )
-		  
-		  (cond
-			((<= t 0) (distance r p0))
-			((>= t 1) (distance r p1))
-			(#t (distance r (list (+ p0x (* t px)) (+ p0y (* t py)))))))
-		(error "bad point or point list in distance-to-segment" r segment)
-		))
+					  (px (- p1x p0x))	
+					  (py (- p1y p0y))
+					  (t (/ (+ (* px (- rx p0x)) (* py (- ry p0y))) (+ (* px px) (* py py))))
+					  )
+				
+				(cond
+				 ((<= t 0) (distance r p0))
+				 ((>= t 1) (distance r p1))
+				 (#t (distance r (list (+ p0x (* t px)) (+ p0y (* t py)))))))
+			 (error "bad point or point list in distance-to-segment" r segment)
+			 )))
+  
+;;; (define (distance-to-polygon r poly) ***
+;;;   (define (d2p r poly) ***
+;;; 	 (cond ***
+;;; 	  ((and (pair? poly) (pair? (cdr poly))) ***
+;;; 		(apply min (map (lambda (p q) (distance-to-segment r  ***
+;;; 			  (distance-to-polygon r (cdr poly)))) ***
+;;; 	  ((pair? poly) (distance r (car poly))) ***
+;;; 	  (#t +inf.0))) ***
 
-(define (distance-to-polygon r poly)
-  (define (d2p r poly)
-	 (cond
-	  ((and (pair? poly) (pair? (cdr poly)))
-		(min (distance-to-segment r (list-head poly 2))
-			  (distance-to-polygon r (cdr poly))))
-	  ((pair? poly) (distance r (car poly)))
-	  (#t +inf.0)))
-
-  (d2p r  (append  poly (if (equal? (car poly) (car (reverse poly))) '() (list (car poly))))))
+;;;   (d2p r  (append  poly (if (equal? (car poly) (car (reverse poly))) '() (list (car poly)))))) ***
 
 
-
+(define (distance-to-polygon p poly)
+  (if (eq? (car poly) (car (reverse poly))) ;; prune duplicate point
+		(distance-to-polygon p (cdr poly))
+		(apply min (map (lambda (a b)
+								(distance-to-segment p (list a b)))
+							 poly (rotate-list 'cw poly)))))
 
 ;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
 ;; With changes 
@@ -462,9 +472,9 @@
 	 (let* ((n (length poly))
 			  (s (seq (- n 1)))
 			  (m (map (lambda (ix)
-							(dnl* ix (+ ix 1))
-							(dnl* (* (car (list-ref poly ix))(cadr (list-ref poly (+ ix 1)))))
-							(dnl* (* (cadr (list-ref poly ix))(car (list-ref poly (+ ix 1)))) "\n")
+							;;(dnl* ix (+ ix 1))
+							;;(dnl* (* (car (list-ref poly ix))(cadr (list-ref poly (+ ix 1)))))
+							;;(dnl* (* (cadr (list-ref poly ix))(car (list-ref poly (+ ix 1)))) "\n")
 							(- (* (car (list-ref poly ix))
 									(cadr (list-ref poly (+ ix 1))))
 								(* (cadr (list-ref poly ix))
@@ -480,21 +490,12 @@
   (abs (signed-polygon-area poly)))
 
 
-				 
-				 
-  
-
-
-
-
-
-
 (define (dot a b) ;; general
   (apply + (list-operator * a b)))
 
 
 (define (urnd-int m M) (+ m (random-integer (- M m))))
-(define (urnd-real m M) (+ m (* (- M m) (randomreal))))
+(define (urnd-real m M) (+ m (* (- M m) (random-real))))
 
 
 (define (nrnd #!rest args)
@@ -651,7 +652,8 @@
         'change-basis:too-many-dimensions)))
 
 
-; a and b are vectors ... usually used as (projection (list-op - s r) (list-op - t r))
+
+; a and b are vectors ... usually used as (project-vector (list-op - s o) (list-op - t o))
 (define (project a b) ;; general
   (/ (dot a b) (v-length b)))
 
@@ -863,10 +865,11 @@
 ;-  The End 
 
 
-;;; Local Variables: ***
-;;; mode: scheme ***
-;;; outline-regexp: ";-+" ***
-;;; comment-column:0 ***
-;;; comment-start: ";;; "  ***
-;;; comment-end:"***" ***
+;;; Local Variables:
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column:0
+;;; comment-start: ";; " 
+;;; comment-end: ""
 ;;; End: ***
+

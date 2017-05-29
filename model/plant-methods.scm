@@ -68,24 +68,18 @@
 ;;;  ) ;-
  
 
-(model-method (<plant> <procedure>) (ps-dump self ps)
-				  (let ((ms->ps (let ((p (assoc 'model->ps *default-projections*))) (if p (cdr p) (error "bad projection to ps"))))
-						  )
-					 
-					 ;;(dnl* "In plant ps-dump")
-					 (ps 'moveto (ms->ps (local->model self (my 'location))))
-					 (ps 'show-table
-						  (list (string-append "<plant>" (name self))
-								  (string-append "mass =" (number->string (my 'mass)))
-								  (string-append "radius =" (number->string (plant-radius self)))
-								  ))
-					 ;(dnl 'bork)
-					 (ps 'moveto (ms->ps (local->model self (my 'location))))
-					 ;(dnl 'Bork)
-					 (adjusted-plot-polygon ps 0.4 0.5 #f (lambda (x) x)
-													(map ms->ps (make-circle-perimeter (my 'location) (* 250 (plant-radius self)))))
-				  ;;(dnl* "leaving plant ps-dump")
-				  ))
+(model-method (<plant> <procedure>) (ps-dump self ps projection)
+				  ;;(dnl* "In plant ps-dump")
+				  (ps 'moveto (projection (local->model self (my 'location))))
+				  (ps 'show-table
+						(list (string-append "<plant>" (name self))
+								(string-append "mass =" (number->string (my 'mass)))
+								(string-append "radius =" (number->string (plant-radius self)))
+								))
+				  (ps 'moveto (projection (local->model self (my 'location))))
+				  (adjusted-plot-polygon ps 0.4 0.5 #f (lambda (x) x)
+												 (map projection (make-circle-perimeter (my 'location) (* 250 (plant-radius self)))))
+				  )
 
 
 ;----- (self-assessment)
@@ -321,83 +315,83 @@
 
 ;--- Only logging methods below
 		 
-;;; (model-method (<plant> <log-introspection> <symbol> <list>) (map-log-data self logger fmt targets)
-;;; 				  (let ((file (slot-ref logger 'file))
-;;; 						  (leading-entry #f)
-;;; 						  (needs-newline #f)
-;;; 						  )
-;;; 					 (display kdebug (list 'PSsst 'log-* 'log-plant (my 'name) (my 'taxon))
-;;; 								"<plant>:map-log-data --- Entering [" (my 'name) ":" (cnc self) "]"
-;;; 								"in log-data")
+(model-method (<plant> <log-introspection> <symbol> <list>) (map-log-data self logger fmt targets)
+				  (let ((file (slot-ref logger 'file))
+						  (leading-entry #f)
+						  (needs-newline #f)
+ 						  )
+					 (display kdebug (list 'PSsst 'log-* 'log-plant (my 'name) (my 'taxon))
+								"<plant>:map-log-data --- Entering [" (my 'name) ":" (cnc self) "]"
+								"in log-data")
 
-;;; 					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
-;;; 						  (for-each
-;;; 							(lambda (field)
-;;; 							  (if (has-slot? self field)
-;;; 									(letrec ((r (slot-ref self field)))
-;;; 									  #t
+					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						  (for-each
+							(lambda (field)
+							  (if (has-slot? self field)
+									(letrec ((r (slot-ref self field)))
+									  #t
 
-;;; 									  (case fmt
-;;; 										 ((ps)
-;;; 										  ;;							(set! needs-newline #t)
-;;; 										  (file 'show (string-append
-;;; 															(if (string? r)
-;;; 																 r
-;;; 																 (object->string r)) " "))
-;;; 										  )
-;;; 										 ((text table dump)
-;;; 										  (let ((show-field-name
-;;; 													(slot-ref logger 'show-field-name))
-;;; 												  (missing-val
-;;; 													(slot-ref logger 'missing-val))
-;;; 												  )
-;;; 											 (if show-field-name
-;;; 												  (begin
-;;; 													 (set! needs-newline #t)
-;;; 													 (if leading-entry
-;;; 														  (display " " file)
-;;; 														  (set! leading-entry #t))
-;;; 													 (set! needs-newline #t)
-;;; 													 (display field file)))
+									  (case fmt
+										 ((ps)
+										  ;;							(set! needs-newline #t)
+										  (file 'show (string-append
+															(if (string? r)
+																 r
+																 (object->string r)) " "))
+										  )
+										 ((text table dump)
+										  (let ((show-field-name
+													(slot-ref logger 'show-field-name))
+												  (missing-val
+													(slot-ref logger 'missing-val))
+												  )
+											 (if show-field-name
+												  (begin
+													 (set! needs-newline #t)
+													 (if leading-entry
+														  (display " " file)
+														  (set! leading-entry #t))
+													 (set! needs-newline #t)
+													 (display field file)))
 											 
-;;; 											 (let ((val (if (eqv? field 'name) 
-;;; 																 (if (slot-ref self 'habitat)
-;;; 																	  (string-append
-;;; 																		(slot-ref (slot-ref self 'habitat) 'name) ":" (name self))
-;;; 																	  (name self))
-;;; 																 (if (has-slot? self field)
-;;; 																	  (slot-ref self field)
-;;; 																	  (slot-ref logger 'missing-val)))))
-;;; 												(if leading-entry 
-;;; 													 (display " " file)
-;;; 													 (set! leading-entry #t))
-;;; 												(set! needs-newline #t)
-;;; 												(display val file))
-;;; 											 )
-;;; 										  )
+											 (let ((val (if (eqv? field 'name) 
+																 (if (slot-ref self 'habitat)
+																	  (string-append
+																		(slot-ref (slot-ref self 'habitat) 'name) ":" (name self))
+																	  (name self))
+																 (if (has-slot? self field)
+																	  (slot-ref self field)
+																	  (slot-ref logger 'missing-val)))))
+												(if leading-entry 
+													 (display " " file)
+													 (set! leading-entry #t))
+												(set! needs-newline #t)
+												(display val file))
+											 )
+										  )
 
-;;; 										 (else
-;;; 										  (kdebug '(log-* log-ecoservice)
-;;; 													 "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
-;;; 													 "Ignoring " field " because I don't have it")
-;;; 										  'ignore-unhandled-format)))						 (begin
-;;; 																										(kdebug '(log-* log-ecoservice)
-;;; 																												  "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
-;;; 																												  "no service" field)
-;;; 																										#f)))
-;;; 							(uniq (if #t
-;;; 										 targets
-;;; 										 (filter (not-memq (slot-ref logger 'dont-log)) targets)))
-;;; 							)
-;;; 						  (void))
+										 (else
+										  (kdebug '(log-* log-ecoservice)
+													 "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
+													 "Ignoring " field " because I don't have it")
+										  'ignore-unhandled-format)))						 (begin
+																										(kdebug '(log-* log-ecoservice)
+																												  "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
+																												  "no service" field)
+																										#f)))
+							(uniq (if #t
+										 targets
+										 (filter (not-memq (slot-ref logger 'dont-log)) targets)))
+							)
+						  (void))
 
-;;; 					 (if needs-newline (newline file))
+					 (if needs-newline (newline file))
 
-;;; 					 (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
-;;; 								"<plant>:map-log-data --- Leaving [" (my 'name) ":" (cnc self) "]"
-;;; 								"in log-data")
-;;; 					 )	
-;;; 				  )
+					 (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
+								"<plant>:map-log-data --- Leaving [" (my 'name) ":" (cnc self) "]"
+								"in log-data")
+					 )	
+				  )
 
 (define circle-facets 6)
 
@@ -661,7 +655,7 @@
 
 
 ;;; Local Variables: 
-;;; comment-end: ";-"
+;;; comment-end: ""
 ;;; comment-start: ";;; "
 ;;; mode: scheme
 ;;; outline-regexp: ";-+"

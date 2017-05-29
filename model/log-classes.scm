@@ -20,7 +20,7 @@
 				  (state-variables file filename filetype filename-timescale format variables
 										 variables-may-be-set missing-val show-field-name
 										 preamble-state introspection-targets
-										 report-time-table
+										 report-time-table output-projection
 										 ))
 ;;- file is the output handle
 ;;  if filename is not a string, things go to stdout

@@ -496,7 +496,6 @@ with the following differences:
 
 				(if (< fruit-density (my 'food-density-limit))
 					 (begin ;looking at moving
-						(dnl* "Slim pickins")
 						(let* ((loc (my 'location))
 								 (dlist (map (lambda (x)
 													(let ((f (value x 'fruit))
@@ -514,6 +513,7 @@ with the following differences:
 						  (if (and (pair? patchlist)
 									  (pair? (car patchlist))
 									  (> (caar plist) fruit-density))
+								(dnl* "Unhappy camper:" (slot-ref self name))
 								#t;; Go to (list-ref (car plist) 5)
 								;; -- (cadr plist) might also work
 								)

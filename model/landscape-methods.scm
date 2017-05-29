@@ -144,7 +144,7 @@
 
 (define print-environment-data
   (lambda (ps p x n ns loc rad)
-	 (ps 'comment "in print-environment-data")
+	 (ps 'Comment "in print-environment-data")
 	 (ps 'moveto (map p (map + (list-head loc 2)
 									 (map p (list (* 1.0 rad)
 													  (* (- (/ ns 2.0) n) 1.0))))))
@@ -156,7 +156,7 @@
 
 
 (define (crop-caption ps p x #!rest pt)
-	 (ps 'comment "in crop-caption")
+	 (ps 'Comment "in crop-caption")
 	 (if (null? pt) (set! pt 10) (set! pt (car pt)))
 	 (let ((loc (p (list-head (location x) 2)))
 			 (rad (car (p (make-list 2 (radius x))))))
@@ -487,7 +487,7 @@ via their containing patch.
 							  )
 
 			  ))
-	 (dnl "Made ecoservice for " name)
+;;	 (dnl "Made ecoservice for " name)
 	 (slot-set! A 'provides (list variable))
 	 A
 	 )
@@ -839,22 +839,7 @@ via their containing patch.
 
 ;; NOTE that this returns a negative number if the point is in the interior of the polygon.
 (model-method (<polygon> <list>) (distance-to-boundary self point) ;; This is 2d only...
-				  (let* ((x0 (car point))
-							(y0 (cadr point))
-							(P (perimeter self))
-							(R (let loop ((p P) (r '()))
-								  (if (or (null? (cdr p)) (null? p))
-										(apply max r)
-										(let ((x1 (car (car p)))
-												(y1 (cadr (car p)))
-												(x2 (car (cadr p)))
-												(y2 (cadr (cadr p))))
-										  (loop (cdr p)
-												  (cons (/ (+ (* (- y2 y1) x0) (* (- x1 x2) y0) (* x2 y1))
-															  (sqrt (+ (sqr (- y2 y1)) (sqr (- x2 x1)))))
-														  r))))))
-							)
-					 (if (contains? self point) (- R) R)))
+				  (distance-to-polygon point (perimeter self)))
 
 (model-method (<polygon>) (centre self)
 				  ;; This is a *very* simplistic "centre" which may lie
@@ -887,27 +872,27 @@ via their containing patch.
 
 
 (model-method (<polygon>) (min-bound self)
-				  (let ((c (my 'location)))
-					 (apply min (map (lambda (p)
-											 (distance c p))
-										  (perimeter self)))))
+				  (distance-to-polygon (my 'location)  (perimeter self)))
 
 
 (model-method (<polygon>) (max-bound self)
-				  (let ((c (my 'location)))
 					 (apply max (map (lambda (p)
 											 (distance c p))
-										  (perimeter self)))))
+										  (perimeter self))))
 
 
 (model-method (<polygon>) (Radius self)
-				  (max-bound self)
-				  )
+				  (max-bound self))
 
 (model-method (<polygon>) (radius self)
-				  ;;(min-bound self)
-				  (magnitude (distance-to-boundary self (my 'location))))
-
+				  (min-bound self)
+				  ;;; (let* ((p (perimeter self))
+				  ;;; 		  (p- (cdr p)) ;; don't want a point counted twice
+				  ;;; 		  (c (centre self))
+				  ;;; 		  (m (map- p- c))
+				  ;;; 		  (S (apply min (map v-length m))))
+				  ;;; 	 S)
+				  )
 (model-method (<polygon>) (random-point self)
 					(let* ((peri (perimeter self))
 							 (minx (apply min (map car peri)))
@@ -928,6 +913,7 @@ via their containing patch.
 ;; 
 
 
+
 (model-method (<patch>) (perimeter self #!optional passing-argument)
 				  (perimeter (my 'rep) passing-argument))
 
@@ -939,6 +925,10 @@ via their containing patch.
 
 (model-method (<patch> <list>) (distance-to-boundary self loc)
 				  (distance-to-boundary (my 'rep) loc))
+
+(model-method (<patch>) (max-bound self)
+				  (max-bound (my 'rep)))
+
 
 (define (make-boundary rep centre arg)
   (let ((rep-class (case rep
@@ -1331,8 +1321,8 @@ via their containing patch.
 						)
 
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
-(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (kdebug '(log-horrible-screaming ecoservice) (map cnc (list self logger format  targets)) 'format: format)
+(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
+				  (kdebug '(log-horrible-screaming ecoservice) (map cnc (list self logger format targets)) 'format: format)
 				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
 						(let ((file (slot-ref logger 'file))
 								(p (composite-prj_src->dst self logger))
@@ -1356,8 +1346,15 @@ via their containing patch.
 										(ns (length slist))
 										(mm-xoffset 2)
 										(mm-yoffset 2)
+										(Left (apply min (map car (perimeter self))))
+										(Right (apply max (map car (perimeter self))))
+										(Up (apply max (map cadr (perimeter self))))
+										(Down (apply min (map cadr (perimeter self))))
+										(ploc (location self))
+										(psprj (composite-prj_src->dst self logger))
+										(psloc (psprj ploc))
 										)
-								 (file 'comment (string-append "in log-data for <patch> " (object->string (my 'name))))
+								 (file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name))))
 								 
 								 (if adjust-grey (file 'setgray PATCHGREY))
 								 (cond
@@ -1366,25 +1363,25 @@ via their containing patch.
 									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
 									(file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
 									(file 'comment (string-append "Projected ordinates:" (object->string (map (composite-prj_src->dst	self logger) (perimeter self)))))
-									(adjusted-plot-polygon file 0.7 0.0 #f
-																  (composite-prj_src->dst
-																	self logger)
-																  (perimeter (my 'rep))))
+									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
 								  (#t (error "Bad representation for output" (cnc (my 'rep)))) 
 								  )
 								 
-								 (file 'moveto (p (map + L
-															  (list (+ mm-xoffset
-																		  (* 0.2 R))
-																	  (+ mm-yoffset
-																		  (/ ns 2.0)))
-															  )))
+								 ;;; (file 'moveto (p (map + L
+								 ;;; 							  (list (+ mm-xoffset
+								 ;;; 										  (* 0.2 R))
+								 ;;; 									  (+ mm-yoffset
+								 ;;; 										  (/ ns 2.0)))
+								 ;;; 							  )))
+
+								 (file 'moveto (psprj (list Up Left)))
+								 (file 'push-color '(0.5 1.0 0.5))
 								 (file 'show-table (map
 														  (lambda (x) (string-append
 																			(slot-ref x 'name)
-																			": " (pno (value x))))
+																			" = " (pno (value x))))
 														  slist))
-
+								 (file 'pop-color)
 								 (crop-caption file p self)
 								 ))
 
@@ -1534,28 +1531,111 @@ via their containing patch.
 
 
 ;; Returns a list of the form (patchlist patchgrid)
-(define (make-grid cell-class taxon name cell-type n m ll ur #!rest extras)
-  (let* ((nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
-			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 n))))
+(define (make-grid cell-class taxon name cell-type n m domain #!rest extras)
+  (let* ((ll (car domain))
+			(ur (cadr domain))
+			(nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
+			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 m))))
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
 			(terrain (if (pair? extras) (car extras)))
 			(statevars (if (pair? extras) (cdr extras)))
 			)
-	 
+;	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+;	 (dnl* "stepsizes" nscale mscale)
+
+	 ;; The flag 'is-relative is set to false in the construction of the grid cells.
+	 ;; We could specify a single box and make the polygon vertices relative to the centre,
+	 ;; but this is not yet well exercised.  The distinction between the two is important when
+	 ;; debugging.
+
 	 (map-**-ix (lambda (x i)
-					  (let ((centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
-												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
-							  (box (bbox (list (+ (car ll) (* nscale (car i)))
+					  (let ((box (bbox (list (+ (car ll) (* nscale (car i)))
 													 (+ (cadr ll) (* mscale (cadr i))))
 											 (list (+ (car ll) (* nscale (+ 1 (car i))))
 													 (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
+							  (centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
+												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
 							  (pname (string-append name "-" (number->string (car i)) ","
 															(number->string (cadr i))))
 							  )
-						 
-						 (kdebug 'make-grid "Working " x i " --> "box)
+						 ;;(dnl* "Box " pname x i box)
+						 (let* ((minx +nan.0)
+								  (miny +nan.0)
+								  (maxx +nan.0)
+								  (maxy +nan.0)
+								  (mB (extremum min box))
+								  (MB (extremum max box))
+								  (cell
+									(create 
+									 cell-class
+									 taxon
+									 'name pname
+									 'representation (cnc cell-type)
+									 'rep
+									 (create-
+									  <polygon>
+									  'location centre
+									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
+									  'perimeter box
+									  'is-relative #f ;;;; (-: THIS IS IMPORTANT - awkward bugs arise if this is wrong ;-)
+									  'minv mB
+									  'maxv MB
+									  'note "generated by make-grid"
+									  'dont-log #f ;; let them be logged by default
+									  ))))
+;							(dnl* "-->"(perimeter cell))
+;							(dnl* "   " box)
+							(if (pair? statevars) (set-state-variables cell statevars))
+							;; so we can adjust things like dt.
+
+							(set! patch-list (cons cell patch-list))
+							cell))
+						 )
+					M)
+	 ;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
+	 (reverse patch-list) 
+	 )
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+;; Returns a list of the form (patchlist patchgrid)
+(define (bad-make-grid cell-class taxon name cell-type n m domain #!rest extras)
+  (let* ((ll (car domain))
+			(ur (cadr domain))
+			(nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
+			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 m))))
+			(radius (min nscale mscale))
+			(patch-list '())
+			(M (make-list* n m))
+			(terrain (if (pair? extras) (car extras)))
+			(statevars (if (pair? extras) (cdr extras)))
+			)
+	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+	 (dnl* "stepsizes" nscale mscale)
+
+	 (map-**-ix (lambda (x i)
+					  (let ((box (bbox (list (+ (car ll) (* nscale (car i)))
+													 (+ (cadr ll) (* mscale (cadr i))))
+											 (list (+ (car ll) (* nscale (+ 1 (car i))))
+													 (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
+							  (centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
+												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
+							  (pname (string-append name "-" (number->string (car i)) ","
+															(number->string (cadr i))))
+							  )
+						 (dnl* "Box " pname x i box)
 						 (let* ((minx +nan.0)
 								  (miny +nan.0)
 								  (maxx +nan.0)

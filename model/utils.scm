@@ -404,6 +404,15 @@
   (generate-iteration-list lst))
 
 
+(define (rotate-list direction l)
+  (case direction
+	 ((cw clockwise) (append (cdr l) (cons (car l) '())))
+	 ((ccw counter-clockwise) (let ((n (- (length l) 1))) (append (list-tail l n) (list-head l n))))
+	 (else (error "Unrecognised direction, should be cw or ccw" direction))))
+	 
+  
+		
+
 ;-- (**-map (lambda (oblst/ob) ...) ll*ist) -- preserves list structure
 (define (**-map L ll*ist)
   (if (null? ll*ist)
@@ -1329,6 +1338,6 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 ;;; mode: scheme
 ;;; outline-regexp: ";-+"
 ;;; comment-column:0
-;;; comment-start: ";;; "
+;;; comment-start: ";; "
 ;;; comment-end:"" 
 ;;; End:

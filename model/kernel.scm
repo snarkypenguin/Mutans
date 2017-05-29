@@ -331,12 +331,12 @@
 		(begin
 		  (dnl "There are " (length tqs-rq)
 				 " entries in the runqueue when we expect at most " N);
-		  (dnl "These entities total "
-				 (apply + (map (lambda (x) (members x)) tqs-rq)) " members");
+;;		  (dnl "These entities total "
+;;				 (apply + (map (lambda (x) (members x)) tqs-rq)) " members");
 		  
-		  (map (lambda (me) 
-					(dnl " " (representation me) ":" (name me) " (" me ")	@ "
-						  (slot-ref me 'subjective-time) " with " (members me))) tqs-rq)
+;;		  (for-each (lambda (me) 
+;;					(dnl " " (representation me) ":" (name me) " (" me ")	@ "
+;;						  (slot-ref me 'subjective-time) " with " (members me))) tqs-rq)
 		  (abort "Failed queue size test")
 		  ))
   )
@@ -602,7 +602,9 @@ their model-body is running.
 		 (let ((A (if (pair? args) args (list args))))
 			(for-each (lambda (a) (set! Q (excise a Q))) A)
 			))
+
 		((containing-agents) ;; returns a list of agents which report as containing any of the list of arguments
+		 (error "i-contain is not implemented")
 		 (filter (lambda (x) (i-contain x args)) Q))
 
 		((providers?) ;; returns a list of agents which provide indicated things
@@ -612,21 +614,6 @@ their model-body is running.
 			(error "bad options passed in kernel call to providers?" args))
 		  (#t (filter (lambda (x) (provides? x args)) Q)))
 		 )	
-
-		((resource-value) ;; returns the value of a resource from a nominated agent -- (kernel 'resource-value other 'seeds)
-		 (if (apply provides? args)
-			  (apply value args)
-			  #f))
-
-		((set-resource-value!) ;; sets the value of a resource from a nominated agent
-		 (if (apply provides? args)
-			  (or (apply set-value! args) #t)
-			  #f))
-
-		((add-resource-value!) ;; adds to the value of a resource from a nominated agent
-		 (if (apply provides? args)
-			  (or (apply add-value! args) #t)
-			  #f))
 
 		((agent-count) (length Q))
 		((next-agent)
@@ -641,6 +628,27 @@ their model-body is running.
 		 (if (null? Q)
 			  0
 			  (/ (apply + (map subjective-time Q)) (length Q))))
+
+
+		;;**********************************************************************************************************************
+		;; Access to values through the following mechanism may make distributed and concurrent processing more straightforward.
+		;;**********************************************************************************************************************
+
+		((resource-value) ;; returns the value of a resource from a nominated agent -- (kernel 'resource-value other 'seeds)
+		 (if (apply provides? args)
+			  (apply value args)
+			  #f))
+
+		((set-resource-value!) ;; sets the value of a resource from a nominated agent
+		 (if (apply provides? args)
+			  (or (apply set-value! args) #t)
+			  #f))
+
+		((add-resource-value!) ;; adds to the value of a resource from a nominated agent
+		 (if (apply provides? args)
+			  (or (apply add! args) #t)
+			  #f))
+
 		(else (error "Unrecognised kernel-call request" query args)))
 	 )
    (#t (error 'kernel-call:bad-argument))

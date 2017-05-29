@@ -28,7 +28,7 @@
 	  ((< age a) (* m 0+1i))
 	  ((= age a) m)
 	  ((>= age A) (* M 0+1i))
-	  (#t (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a))))))))
+	  (else (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a))))))))
 	  )))
 
 (define (age-at-mass-function m a M A)
@@ -37,7 +37,7 @@
 	  ((< mass m) (* a 0+1i))
 	  ((= mass m) a)
 	  ((>= mass M) (* A 0+1i))
-	  (#t (+ a (/ (- A a) e*-2) (log (- 1 (/ (- mass m) (- M m))))))
+	  (else (+ a (/ (- A a) e*-2) (log (- 1 (/ (- mass m) (- M m))))))
 	  )))
 
 
@@ -77,7 +77,7 @@
   (cond
 	((zero? k) '())
 	((negative? k) (error "Negative length in make-list" k ))
-	(#t (cons (car v) (make-list (- k 1) (car v))))))
+	(else (cons (car v) (make-list (- k 1) (car v))))))
 
 ;; (define (make-circle-perimeter location radius #!optional divisions)
 ;;   (if (not (number? divisions)) (set! divisions 120))
@@ -201,19 +201,19 @@
 	 s)
 	((and (pair? s) (number? (car s)) (number? (cadr s))	(= (length s) 2))
 	 (list '(0 0) s))
-	(#t (error "bad papersize" s))))
+	(else (error "bad papersize" s))))
 	  
-(define (m->ps xy)
-  (rescale 2834.64646464646464646 x))
+;; (define (m->ps xy)
+;;   (rescale 2834.64646464646464646 x))
 
-(define (ps->m x)
-  (rescale (/ 1.0 2834.64646464646464646) x))
+;; (define (ps->m x)
+;;   (rescale (/ 1.0 2834.64646464646464646) x))
 
-(define (km->ps xy)
-  (rescale 2834646.46464646464646 x))
+;; (define (km->ps xy)
+;;   (rescale 2834646.46464646464646 x))
 
-(define (ps->km x)
-  (rescale (/ 1.0 2834646.46464646464646) x))
+;; (define (ps->km x)
+;;   (rescale (/ 1.0 2834646.46464646464646) x))
 
 
 (define *default-projections*
@@ -222,20 +222,20 @@
   ;; to a vector function.
   (list
 	(cons 'I  (lambda (x) x)) ;; The identity mapping
-	(cons 'km->ps (mapf km->ps)) ;; defined above
-	(cons 'ps->km (mapf ps->km)) ;; defined above
-	(cons 'm->ps (mapf m->ps)) ;; defined above
-	(cons 'ps->m (mapf ps->m)) ;; defined above
-	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
-	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
-	(cons 'm->mm (mapf (lambda (x) (* x 1000))))
-	(cons 'mm->m (mapf (lambda (x) (/ x 1000))))
-	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
-	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
-	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
-	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
-	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
-	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
+;;	(cons 'km->ps (mapf km->ps)) ;; defined above
+;;	(cons 'ps->km (mapf ps->km)) ;; defined above
+;;	(cons 'm->ps (mapf m->ps)) ;; defined above
+;;	(cons 'ps->m (mapf ps->m)) ;; defined above
+;;	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
+;;	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
+;;	(cons 'm->mm (mapf (lambda (x) (* x 1000))))
+;;	(cons 'mm->m (mapf (lambda (x) (/ x 1000))))
+;;	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
+;;	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
+;;	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
+;;	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
+;;	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
+;;	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
 	))
 
   ;;; might be useful sometime
@@ -243,17 +243,25 @@
   ;;; 			(mll (map:ll-ur->m ll))
   ;;; 			(mur (map:ll-ur->m ur))
   ;;; 			)
-(define Model-Domain '<uninitialised>) 
+(define Domain '<uninitialised>)
+(define Range '<uninitialised>)
+(define PageSize isoA4) ;; default value
+
 (define default-margins 10) ;; implicitly in mm.
 
-(define (set-model-domain ll ur #!rest pagesize) ;; 10mm margins all around
-  (set! Model-Domain (list ll ur))
-  (add-ps-projection
-	'model->ps
-	'ps->model
-	(list ll ur)
-	(if (null? pagesize) isoA4 (car pagesize))
-	default-margins)
+(define ->map-output (lambda (x) x))
+  
+;; Page sizes should always be specified in mm 
+(define (set-model-domain! ll ur #!optional pagesize) ;; 10mm margins all around
+  (set! Domain (list ll ur))
+  (set! Range (map - ur ll))
+;  (add-ps-projection
+;	'model->ps
+;	'ps->model
+;	(list ll ur)
+;	(map mm->points (if (not pagesize) isoA4 pagesize))
+;	default-margins)
+  (load "output-mappings.scm")
 	)
 
 (define (add-to-*default-projections* p k)
@@ -269,10 +277,9 @@
 	 (if invkey (add-to-*default-projections* (ps 'inverse) invkey))
 	 ))
 
-
-;-- makes a linear mapping function, each of the args is a rectangular bounding box (ll ur)
-;; This mapping fits the o-domain by contraction
-(define (n-linear-map domain codomain)
+;-- makes a affine mapping function, each of the args is a rectangular bounding box (ll ur)
+;; This mapping fits the o-domain by contraction: the scales on the axes may differ!
+(define (n-affine-map domain codomain)
   ;; (p-d0)*(D1-D0)/(d1-d0) + D0
   (lambda (p)
 	 (let ((d0 (car domain))
@@ -289,9 +296,39 @@
 (define (reciprocal x) (/ 1 x))
 
 
-(define (linear-map domain codomain)
+(define (domain-transposed D)
+  (let ((D (map (lambda (x) (list-head x 2)) D)))
+	 (list (list (car (car D)) (car (cadr D)))
+			 (list (cadr (car D)) (cadr (cadr D))))))
+
+
+
+(define (is-in x #!rest domain)
+  (cond
+	((not (pair? domain)) #f)
+	((pair? (car domain))
+	 (and (<= (caar domain) x) (<= x (cadar domain))))
+	((and (number? (car domain)) (not (null? (cdr domain))) (number? (cadr domain)))
+	 ((and (<= (car domain) x) (<= x (cadr domain)))))
+	(else #f)))
+	
+		
+		
+  
+"
+The affine-map function constructs a affine mapping from a domain to a codomain
+"
+(define (affine-map domain codomain #!optional inverse)
   ;; This implicitly clips to the shallowest domain
-    ;; (p-d0)*(D1-D0)/(d1-d0) + D0
+  ;; (p-d0)*(D1-D0)/(d1-d0) + D0
+
+  ;; This is a hack which we include for convenience.  
+  (if (number? (car domain))
+		(set! domain (list (make-list (length domain) 0) domain)))
+  
+  (if (number? (car codomain))
+		(set! codomain (list (make-list (length domain) 0) codomain)))
+  
   (let* ((N (apply min (map length (append domain codomain))))
 			(C (lambda (x) (list-head x N)))
 			(d0 (C (car domain)))
@@ -300,65 +337,117 @@
 			(D1 (C (cadr codomain)))
 			(scale (make-list N (apply min (map abs (map / (map - D1 D0) (map - d1 d0))))))
 			(invscale (map reciprocal scale))
-			)
-	 (letrec ((f	(lambda (p)
+			(g inverse)
+			) 
+
+	 (letrec ((f (lambda (p)
+						(if (and #f (list? p))
+								(begin
+								  (dnl* 'p p '-- 'd0 d0 'D0 D0 (if inverse 'invscale 'scale) (if inverse invscale scale))
+								  (dnl* "(map - p d0)" (map - p d0))
+								  (dnl* "(map * (map - p d0) (if inverse invscale scale))" (map * (map - p d0) (if inverse invscale scale)))
+								  (dnl* "(map + (map * (map - p d0) (if inverse invscale scale))" (map + (map * (map - p d0) (if inverse invscale scale)) D0))))
 						  (cond
-							((pair? p) (map + (map * (map - p d0) scale) D0))
+							((pair? p) (let ((R (map + (map * (map - p d0) (if inverse invscale scale)) D0)))
+											 (if (and (is-in (car R) (car (domain-transposed codomain)))
+														 (is-in (cadr R) (cadr (domain-transposed codomain))))
+												  R
+												  (oops))))
+							((eq? p '1/scale) (map reciprocal (if inverse invscale scale)))
+							((eq? p 'scale) (if inverse invscale scale))
+							((eq? p 'verbose) (set! verbose #t))
+							((eq? p 'quiet) (set! verbose #f))
+							((eq? p 'domain) codomain)
+							((eq? p 'codomain) domain)
 							((eq? p 'inverse)
-							 (lambda (q)
-								(cond
-								 ((pair? q)	(map + (map / (map - q D0) scale) d0))
-								 ((eq? q 'scale) (map reciprocal scale))
-								 ((eq? q 'domain) codomain)
-								 ((eq? q 'codomain) domain)
-								 ((eq? q 'inverse) f)
-								 (#t (error "Bad argument to linear map, try a point, 'inverse 'scale, 'domain or 'codomain" p)))))))))
-		f)))
+									(if (not g)
+										 (set! g (affine-map domain codomain f)))
+									g)
+							((eq? p 'show)
+							 (dnl "projection:")
+							 (dnl* " " 'N N)
+							 (dnl* " " 'd0 d0)
+							 (dnl* " " 'd1 d1)
+							 (dnl* " " 'D0 D0)
+							 (dnl* " " 'D1 D1)
+							 (dnl* " " 'scale (if inverse invscale scale))
+							 (dnl* " " 'invscale (if inverse invscale scale))
+							 (pp f))
+							(else (error "Bad argument to affine map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
+						f)))
 
 
 
-
-
-
-
-;-- makes a linear mapping function, each of the args is a rectangular bounding box (ll ur)
+;-- makes a affine mapping function, each of the args is a rectangular bounding box (ll ur)
 ;; This mapping fits the o-domain by contraction
-(define (linear2d:model-space->output-space domain codomain)
+(define (affine2d:model-space->output-space domain codomain)
   (let* ((c2 (lambda (x) (list-head x 2)))
 			(domain (c2 domain))
 			(codomain (c2 codomain)))
-	 (linear-map domain codomain)))
+	 (affine-map domain codomain)))
 
-;-- makes a bilinear mapping function, each of the args is a rectangular bounding box (ll ur)
+;-- makes a *affine mapping function, each of the args is a rectangular bounding box (ll ur)
 ;; This mapping fits the o-domain by using different scales for the axes
-(define (bilinear2d:model-space->output-space domain codomain)
+(define (*affine2d:model-space->output-space domain codomain)
   (let* ((c2 (lambda (x) (list-head x 2)))
 			(domain (c2 domain))
 			(codomain (c2 codomain)))
-	 (n-linear-map domain codomain)))
+	 (n-affine-map domain codomain)))
 
-(define (map:domain-to-postscript model-domain pagesize #!optional margin #!rest use-bilinear-map)
-  ;; Defaults to a regular scale.
-  ;; margin must come in as a measure in mm, if margin is a pair, the car is side
-  ;; margins and the cadr is the top and bottom length
+;; (define (map:domain-to-postscript model-domain pagesize #!optional margin #!rest use-*affine-map)
+;;   ;; Defaults to a regular scale.
+;;   ;; margin must come in as a measure in mm, if margin is a pair, the car is side
+;;   ;; margins and the cadr is the top and bottom length
 
-  (if (not margin) (set! margin ps-default-margin))
+;;   (if (not margin) (set! margin ps-default-margin))
 
-  (set! use-bilinear-map (if (null? use-bilinear-map) #f (car use-bilinear-map)))
+;;   (set! use-*affine-map (if (null? use-*affine-map) #f (car use-*affine-map)))
 
-  (set! margin ;; convert margin into points
-		  ((mapf mm->points)
-				  (list-head (cond
-					((number? margin) (list margin margin))
-					((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
-					(#t margin)) 2)))
+;;   (set! margin ;; convert margin into points
+;; 		  ((mapf mm->points)
+;; 				  (list-head (cond
+;; 					((number? margin) (list margin margin))
+;; 					((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
+;; 					(#t margin)) 2)))
   
-  ((if use-bilinear-map
-		 bilinear2d:model-space->output-space
-		 linear2d:model-space->output-space)
-	(list-head model-domain 2)
-	(list margin (map - ((mapf mm->points) (list-head pagesize 2)) margin)) ;; expects page sizes in mm
-	))
+;;   ((if use-*affine-map
+;; 		 *affine2d:model-space->output-space
+;; 		 affine2d:model-space->output-space)
+;; 	(list-head model-domain 2)
+;; 	(list margin (map - ((mapf mm->points) (list-head pagesize 2)) margin)) ;; expects page sizes in mm
+;; 	))
+
+;; this implicitly makes "1" in the model domain a mm away from "0"
+;; as a result of specifying the size of pages in mm
+(define (map:domain-to-postscript domain pagesize #!optional margin #!rest use-*affine-map)
+  (if (not margin) (set! margin ps-default-margin))
+  (if (number? margin) (set! margin (list margin margin)))
+  (if (and (pair? margin) (null? (cdr margin))) (set! margin (cons (car margin) margin)))
+  
+  (set! use-*affine-map (if (null? use-*affine-map) #f (car use-*affine-map)))
+
+  (set! margin ;; Do not convert margin into points -- wait till we have done everything in "units"
+			(list-head (cond
+							((number? margin) (list margin margin))
+							((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
+							(else margin)) 2))
+
+  (dnl* 'Domain domain '-> (map (lambda (x) (list-head x 2)) domain))
+  (dnl* 'Page pagesize '-> (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin)))))
+
+  (if use-*affine-map
+ 		 (n-affine-map (map (lambda (x) (list-head x 2)) domain) (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin))))) ;; expects page sizes in mm
+ 		 (affine-map (map (lambda (x) (list-head x 2)) domain) (list (map mm->points margin) (map mm->points (map - (list-head pagesize 2) (map + margin margin))))) ;; expects page sizes in mm
+		 ))
+  
+
+	 
+  
+
+
+
+;(define (apply-pointwise-projection 
+
 
 (define (slow-sort lst)
   (let ((<=? (lambda (x y) (string<=? (object->string x) (object->string y)))))

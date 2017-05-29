@@ -97,40 +97,58 @@ close pages and emit 'showpage' for postscript stuff.
 		(kdebug '(log-* introspection-trace)
 				  "[" (my 'name) ":" (cnc self) "]"
 				  "Introspection: model-body")
+		(if (<= (my 'runcount) 0)
+			 (begin
+				(if (uninitialised? (my 'filename-timescale))
+					 (set-my! 'filename-timescale 6))
 
-		(if (uninitialised? (my 'filename-timescale))
-			 (set-my! 'filename-timescale 6))
-
-		(if (uninitialised? (my 'report-time-table))
+				(if (uninitialised? (my 'report-time-table))
 					 (begin
-						;;a(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
+						;;(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
 						(slot-set! self 'report-time-table (make-table))))
 
-				(let ((sched (my 'timestep-schedule))
-						)
-
-				  (if (kdebug? 'introspection-trace)
-						(pp (dumpslots self)))
-
-				  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
-									(- (car sched) t)
-									dt))
-
-				  (kdebug '(log-* introspection-trace)
-							"      list:     " (map taxon (my-list self)))
-				  (kdebug '(log-* introspection-trace)
-							"      schedule: "
-							(list-head (my 'timestep-schedule) 3)
-							(if (> (length (my 'timestep-schedule)) 3)
-								 '... ""))
+				(if (my 'output-projection)
+					 (let ((->out (my 'output-projection))
+							 (m->l (my 'model->local)))
 				  
-				  (set-my! 'variables-may-be-set #f)
-				  (emit-page self)
+						(cond
+						 ((member ->out '(ps PS postscript Postscript PostScript POSTSCRIPT))
+						  (set-my! 'model->local (lambda (p) (map mm->points (m->l p)))))
+						 ((procedure? ->out)
+						  (set-my! 'model->local (lambda (p) (-> out (m->l p)))))
+						 ((symbol? ->out)
+						  (error "Unrecognised symbol for the output mapping" name ->out))
 
-				  ;;(skip-parent-body)
-				  (call-next-parent-body) ;; parent body sets the time step used
-				  dt
-				  ))
+						 (set-my! 'output-projection #f) ;; Done, no need to do anything else
+						 )))
+				))
+
+
+		(let ((sched (my 'timestep-schedule))
+				)
+		  
+		  (if (kdebug? 'introspection-trace)
+				(pp (dumpslots self)))
+		  
+		  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
+							(- (car sched) t)
+							dt))
+
+		  (kdebug '(log-* introspection-trace)
+					 "      list:     " (map taxon (my-list self)))
+		  (kdebug '(log-* introspection-trace)
+					 "      schedule: "
+					 (list-head (my 'timestep-schedule) 3)
+					 (if (> (length (my 'timestep-schedule)) 3)
+						  '... ""))
+		  
+		  (set-my! 'variables-may-be-set #f)
+		  (emit-page self)
+
+		  ;;(skip-parent-body)
+		  (call-next-parent-body) ;; parent body sets the time step used
+		  dt
+		  ))
 
 
 (model-method (<log-introspection>) (my-list self)
@@ -529,7 +547,7 @@ close pages and emit 'showpage' for postscript stuff.
 							  ;; modelspace data into the PS domain
 							  (ps (slot-ref self 'file))
 							  )
-						(ps 'comment "logging data for " name "****************")
+						(ps 'Comment "logging data for " name "****************")
 						(ps 'moveto (list (p '(20 20))))
 						(ps 'setgray 0.0)
 						(ps 'Helvetica 14)

@@ -6,8 +6,11 @@
   	 (list 'type 'log-data)
 	 (list 'format 'ps)
 	 (list 'file-type "ps")
-    (list 'model->local '($ (cdr (assoc 'model->ps *default-projections*)))) ;; Takes model space to ps page
-	 (list 'local->model '($ (cdr (assoc 'ps->model *default-projections*)))) ;; ... and the other way 'round.
+	 (list 'output-projection 'ps)
+    (list 'model->local '($ (map:domain-to-postscript Domain isoA4 (* 10 mm))
+											  )) ;; Takes model space to ps page
+	 (list 'local->model '($ ((map:domain-to-postscript Domain isoA4 (* 10 mm)) 'inverse)
+										)) ;; ... and the other way 'round.
     ;;(list 'ps '<uninitialised>)
     ;;(list 'png '<uninitialised>)
   )

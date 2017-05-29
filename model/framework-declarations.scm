@@ -90,7 +90,6 @@
 (declare-method projection-assoc-list "returns the list of available projections")
 (declare-method set-projection-assoc-list! "sets the list of available projections")
 (declare-method projection "returns a projection for a given symbol")
-(declare-method project "projects a datum using the projection for a given symbol")
 (declare-method project-datum "projects a datum using an indicated symbol")
 (declare-method mass "Return the mass of an entity")
 (declare-method max-bound "list of maxima for the dimensions")

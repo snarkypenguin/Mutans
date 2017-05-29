@@ -332,7 +332,7 @@
 
 ;Old code may need
 ;     (define projection linear-projection)
-;
+;  Even this is badly named, it should be affine-projection.     
 (define (linear-projection loc range co-range)
   (lambda (x) (translate-pointlist loc (scale-pointlist (/ co-range range) x))))
 
@@ -340,7 +340,7 @@
 (define (set-font ps . args)
   (case (length args)
 	 ((1) (if (eq? (car args) 'reset)
-				 (times-roman 12)
+				 (set-font 'Times-Roman 12)
 				 (error "argument to set-font should either be 'reset or a font and size" args)))
 	 ((2)  (apply ps (cons  'font  args)))
 	 (else (error "Too many arguments to set-font" args))))
@@ -354,12 +354,13 @@
 						 (apply ps (cons 'setrgb args)))))
 
 	 (else (error "argument to set-color should either be 'reset or a single number or a triplet" args))))
+
 (define set-colour set-color)
 
 (define (set-linewidth ps . args)
   (case (length args)
 	 ((1) (if (eq? (car args) 'reset)
-				 (times-roman 12)
+				 (ps 'font 'Times-Roman 12)
 				 (ps 'linewidth 0.2)))
 	 ((2)  (apply ps (cons  'font  args))
 	  (apply ps (cons 'linewidth args)))
@@ -374,6 +375,9 @@
 		  (pagescale '(1.0 1.0))
 		  (pageoffset '(0 0))
 		  (pagecount 0)
+		  (font-stack '())
+		  (color-stack '())
+		  (width-stack '())
 		  )
 
     (define (ps-display thing)
@@ -452,7 +456,6 @@
 		  (display "\n" file))
        (#t #f)))
 	 
-
     (define (font nfont size)
       (if (not (null? fonts))
 			 (begin
@@ -463,6 +466,17 @@
 				(display " scalefont setfont\n" file))
 			 #f))
 
+	 (define (push-font nfont size)
+		(set! font-stack (cons (list nfont size) font-stack))
+		(font nfont size))
+
+	 (define (pop-font)
+		(if (pair? font-stack) (set! font-stack (cdr font-stack)))
+		(if (null? font-stack)
+			 (font 'time-roman 12)
+			 (apply font (car font-stack))
+			 ))
+	 
     (define (times-roman size)
       (font "Times-Roman" size))
 
@@ -565,6 +579,13 @@
 		(ps-display "currentpoint"))
 
 	 (define (ps-comment #!rest args)
+		(for-each
+		 (lambda (x)
+			(ps-display (string-append "%%   " (make-it-a-string x))))
+		 args)
+		)
+	 
+	 (define (ps-Comment #!rest args)
 		(ps-display "%%\n%%")
 		(for-each
 		 (lambda (x)
@@ -601,7 +622,18 @@
 
     (define (setlinewidth weight)
       (ps-1-arg "setlinewidth" weight))
-    
+
+	 (define (push-width nwidth)
+		(set! width-stack (cons nwidth width-stack))
+		(setlinewidth nwidth))
+
+	 (define (pop-width)
+		(if (pair? width-stack) (set! width-stack (cdr width-stack)))
+		(if (null? width-stack)
+			 (setlinewidth 0.2)
+			 (setlinewidth (car width-stack))))
+
+
     (define (setgray weight)
 		(let* ((weight (cond
 							((number? weight) weight)
@@ -615,7 +647,48 @@
 
     (define (sethsv h s v)
       (ps-3-arg "sethsvcolor" h s v))
-	 
+
+	 (define push-color
+		(lambda x
+		  (let* ((x (if (and (pair? x) (pair? (car x))) (car x) x))
+					(lx (length x))
+					)
+		  (cond
+			((= lx 1)
+			 (set! color-stack (cons x color-stack))
+			 (apply setgray x))
+			((= lx 2)
+			 (set! color-stack (cons x color-stack))
+			 (apply setgray (cdr x))
+			((= lx 3) ;rgb
+			 (set! color-stack (cons x color-stack))
+			 (apply setrgb x)
+			 )
+			((= 4 lx) ;rgb or hsv
+			 (cond
+			  ((eq? (car x) 'rgb)
+				(set! color-stack (cons (cdr x) color-stack))
+				(apply setrgb (cdr x)))
+			  ((eq? (car x) 'hsv)
+				(set! color-stack (cons x color-stack))
+				(apply sethsv (cdr x)))
+			  (#t (error "Bad rgb/hsv spec, should be ('rgb r g b) or ('hsv h s v)" x))))
+			(#t (error "Bad arguments for push-color" x))
+			))))
+		)
+
+	 (define (pop-color)
+		(if (pair? color-stack)
+			 (set! color-stack (cdr color-stack)))
+		(cond
+		 ((null? color-stack) (setgray 0))
+		 ((eq? (caar color-stack) 'hsv) (apply sethsv (cdar color-stack)))
+		 ((and (pair? (car color-stack)) (pair? (cdar color-stack)))
+		  (apply setrgb (cdar color-stack)))
+		 ((and (pair? (car color-stack)) (null? (cdar color-stack)))
+		  (apply setgray (car color-stack)))
+		 (#t (error "What?"))))
+
     (define (stroke)
       (ps-display "stroke"))
     
@@ -796,8 +869,23 @@
 								(apply ps-comment args)
 ;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
 								)
+							  ((eq? cmd 'Comment) 
+								(apply ps-Comment args)
+;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
+								)
 
 							  ((eq? cmd 'set-font) (apply font args))
+							  ((eq? cmd 'push-font) (push-font args))
+							  ((eq? cmd 'pop-font) (pop-font))
+							  ;;; ((eq? cmd 'push-color)
+							  ;;; 	(if (= (length args) 1)
+							  ;;; 		 (push-color1 args)
+							  ;;; 		 (push-color2 args)))
+
+							  ((eq? cmd 'push-color) (apply push-color args))
+							  ((eq? cmd 'pop-color) (pop-color))
+							  ((eq? cmd 'push-width) (push-width args))
+							  ((eq? cmd 'pop-width) (pop-width))
 							  ((eq? cmd 'font) (apply font args))
 							  ((eq? cmd 'Times-Roman) (apply font "Times-Roman" args))
 							  ((eq? cmd 'Times-Italic) (apply font "Times-Italic" args))
@@ -860,7 +948,7 @@
 
 							  (#t (map display cmd " is not recognised\n")))
 							 ))
-					 )))
+					 ))) 
 		postscript-handle
 		)
     ))
