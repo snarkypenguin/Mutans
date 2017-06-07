@@ -2,10 +2,14 @@
 'Parameters
 (define <tracked-agent>-parameters
   (list
-    (list 'track #t)
+    (list 'track '()) ;; should either be an empty list or #f if tracking isn't required
     (list 'tracked-paths #f)
     (list 'track-schedule '())
     (list 'track-epsilon (* 1e-6 seconds))
+	 (list 'default-font 'Helvetica)
+	 (list 'default-size 6)
+	 (list 'plot-magnificaton 1)
+	 (list 'circle-facets 3)
   )
 )
 (set! global-parameter-alist (cons (cons <tracked-agent> <tracked-agent>-parameters) global-parameter-alist))

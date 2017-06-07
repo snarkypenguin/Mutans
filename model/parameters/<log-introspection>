@@ -16,6 +16,9 @@
     (list 'show-field-name #f)
     (list 'preamble-state '())
     (list 'timestep-epsilon 1e-6)
+	 (list 'default-font 'Helvetica)
+	 (list 'default-size 10) ;; point
+	 (list 'default-color ps-black)
   )
 )
 (set! global-parameter-alist (cons (cons <log-introspection> <log-introspection>-parameters) global-parameter-alist))

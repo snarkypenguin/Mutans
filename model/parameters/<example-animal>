@@ -2,6 +2,7 @@
 'Parameters
 (define <example-animal>-parameters
   (list
+	(list 'decay-rate (/ -2.0 (log (* 8 days)))) ;; half the body will be gone in 8 days (scavenging and decay)
     ;;(list 'mass '<uninitialised>)
     ;;(list 'peak-mass '<uninitialised>)
     ;;(list 'sated-quantity-prop '<uninitialised>)

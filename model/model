@@ -3,6 +3,10 @@
 ; Test model configuration
 ;-  Code 
 
+
+;; comment this out if you want "predictable" rng sequences
+(random-source-randomize! default-random-source)
+
 ;(dump wally)(newline)
 ;(aborts "Incomplete initialisation is making things fail when it runs")
 
@@ -95,6 +99,11 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (define Dunnit #f)
 (define *dunnit* #f)
 
+(define final-Q 'not-run-yet)
+
+(random-source-randomize! default-random-source)
+
+
 (define (doit q #!rest n)
   (set! Dunnit (lambda () (shutdown-agents q)))
   (set! n (if (pair? n) (car n) 1))
@@ -108,12 +117,11 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 		)
 
   (set! startqueuetime (process-times))
-  (set! q (queue *dunnit* (+ *dunnit* n) q))
+  (set! final-Q (queue *dunnit* (+ *dunnit* n) (if (pair? final-Q) final-Q q)))
   (set! endqueuetime (process-times))
 
   (set! *dunnit* (+ *dunnit* n))
   )
-
 
 
 ;; Run till end without pause.  If you are a penguin, run without paws.
@@ -134,7 +142,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 	 (dnl* "Running")
 	 
 	 (set! startqueuetime (process-times))
-	 (set! q (queue start end q))
+	 (set! final-Q (queue start end q))
 	 (set! endqueuetime (process-times))
 	 (kdebug-message-state state)
 	 

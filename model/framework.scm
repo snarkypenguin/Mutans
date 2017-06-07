@@ -14,7 +14,7 @@
 
 ;-  Code 
 
-
+(define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state)))
 
 ;; The functions returned by mass-at-age-function and age-at-mass-function will
 ;; return an imaginary value for a mass or age which lies outside the defined
@@ -22,24 +22,56 @@
 ;; mass or age.
 
 
-(define (mass-at-age-function m a M A)
+
+;; mass_at_age(m, a, M, A, age) = m + (M - m) * (1 - exp( -2 * exp(1) *(age - a)/(A - a)))
+;;-->            (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a)))))))
+
+
+;; age_at_mass(m, a, M, A, mass) = a + (A-a)/(-2 * exp(1)) * log(1 - (mass - m)/(M - m))
+;;--> (+ a (* (/ (- A a) (* -2 (exp 1))) (log (- 1 (/ (- mass m) (- M m))))))
+
+
+(define ($mass-at-age-function m a M A)
   (lambda (age)
 	 (cond
+	  ((not (number? age))
+		(dnl* "Age is bounded by " a "and" A "and mass is bounded by" m "and" M))
 	  ((< age a) (* m 0+1i))
 	  ((= age a) m)
 	  ((>= age A) (* M 0+1i))
 	  (else (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a))))))))
 	  )))
 
-(define (age-at-mass-function m a M A)
+(define ($age-at-mass-function m a M A)
   (lambda (mass)
 	 (cond
+	  ((not (number? mass))
+		(dnl* "Age is bounded by " a "and" A "and mass is bounded by" m "and" M))
 	  ((< mass m) (* a 0+1i))
 	  ((= mass m) a)
 	  ((>= mass M) (* A 0+1i))
-	  (else (+ a (/ (- A a) e*-2) (log (- 1 (/ (- mass m) (- M m))))))
+	  (else (+ a (* (/ (- A a) (* -2 (exp 1))) (log (- 1 (/ (- mass m) (- M m)))))))
 	  )))
 
+(define (mass-at-age-function m a M A)
+  (lambda (age)
+	 (cond
+	  ((not (number? age))
+		(dnl* "Age is bounded by " a "and" A "and mass is bounded by" m "and" M))
+	  ((<= age a) m)
+	  ((>= age A) M)
+	  (else (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a))))))))
+	  )))
+
+(define (age-at-mass-function m a M A)
+  (lambda (mass)
+	 (cond
+	  ((not (number? mass))
+		(dnl* "Age is bounded by " a "and" A "and mass is bounded by" m "and" M))
+	  ((<= mass m) a)
+	  ((>= mass M) A)
+	  (else (+ a (* (/ (- A a) (* -2 (exp 1))) (log (- 1 (/ (- mass m) (- M m)))))))
+	  )))
 
 (define (APPLY f lst)
   (let ((N 8192))
@@ -52,7 +84,7 @@
 (define %%%-time-register-%%% '()) 
 
 (define time-field-width 8)
-(define ps-default-margin (* 10 mm))
+(define ps-default-margin 10) ;; implicitly mm NOTE
 
 (define support-dir "./")
 
@@ -157,7 +189,7 @@
 		(lambda (slt)
 		  (if (uninitialised? (slot-ref obj slt))
 				(begin
-				  (dnl*  "Setting"  slt "to" value "for" (cnc obj) (slot-ref obj 'taxon))
+				  ;;(dnl*  "Setting"  slt "to" value "for" (cnc obj) (slot-ref obj 'taxon))
 				  (slot-set! obj slt value)
 				  (if (not (equal? (slot-ref obj slt) value)) (error "Bad initialisation in set-uninitialised-slots" (cnc obj) (slot-ref obj 'taxon) slt value ))
 				  )
@@ -348,11 +380,15 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 								  (dnl* "(map * (map - p d0) (if inverse invscale scale))" (map * (map - p d0) (if inverse invscale scale)))
 								  (dnl* "(map + (map * (map - p d0) (if inverse invscale scale))" (map + (map * (map - p d0) (if inverse invscale scale)) D0))))
 						  (cond
-							((pair? p) (let ((R (map + (map * (map - p d0) (if inverse invscale scale)) D0)))
-											 (if (and (is-in (car R) (car (domain-transposed codomain)))
-														 (is-in (cadr R) (cadr (domain-transposed codomain))))
-												  R
-												  (oops))))
+							((and (pair? p) (apply andf (map number? p)))
+									(let ((R (map + (map * (map - p d0) (if inverse invscale scale)) D0)))
+									  (if (and (is-in (car R) (car (domain-transposed codomain)))
+												  (is-in (cadr R) (cadr (domain-transposed codomain))))
+											R
+											(begin
+											  (dnl* "Domain failure: " p "->" R "from" domain "to" codomain)
+											  ;;(oops)
+											  ))))
 							((eq? p '1/scale) (map reciprocal (if inverse invscale scale)))
 							((eq? p 'scale) (if inverse invscale scale))
 							((eq? p 'verbose) (set! verbose #t))
@@ -435,14 +471,23 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 							((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
 							(else margin)) 2))
 
-  (dnl* 'Domain domain '-> (map (lambda (x) (list-head x 2)) domain))
-  (dnl* 'Page pagesize '-> (list  margin (map - (list-head pagesize 2) (map + margin margin))))
+  (let ((lm   (if use-*linear-map
+						(n-linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin))))
+						(linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin))))
+						))
+		  )
+	 (if #t
+		  (begin
+			 (dnl "*****************************")
+			 (dnl* 'Domain domain '-> (map (lambda (x) (list-head x 2)) domain))
+			 (dnl* "Default margins" '-> margin)
+			 (dnl* 'Page pagesize '-> (list  margin (map - (list-head pagesize 2) (map + margin margin))))
+			 (dnl* "Printing area" '-> (lm (list-head (car Domain) 2)) 'x (lm (list-head (cadr Domain) 2)))
+			 (dnl "*****************************"))
+		  )
+	 lm))
 
-  (if use-*linear-map
- 		 (n-linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin)))) ;; expects page sizes in mm
- 		 (linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin)))) ;; expects page sizes in mm
-		 ))
-  
+
 
 	 
   

@@ -98,9 +98,9 @@ data, it looks as though a radius which is 3/8 * h may be close enough.
 "
 
 
-(define (leaf-area p) ;; leaf area
+(define (plant-leaf-area p) ;; leaf area
   (let ((pi (acos -1.0)))
-	 (* (slot-ref p 'lai) pi (sqr (plant-radius p)))))
+	 (* (slot-ref p 'lai) pi (sqr (plant-mass->radius (slot-ref p 'mass))))))
 
 (define (plant-mass->height m) ;; given mass
   (power m 1/3))

@@ -13,8 +13,9 @@
 
 (for-each load (map sym->scm '(sclos+extn)))
 
-;(for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript)))
-(load "support.o1")
+
+(for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript)))
+;(load "support.o1")
 
 (for-each load (map sym->scm '(basic-population)))
 ;; postscript should (logically) come after the mathematical files ... it uses matrices and such			 
@@ -26,8 +27,8 @@
 (for-each load (map sym->scm '(diffeq-methods landscape-methods oak plant-methods animal-methods)))
 
 ;; The kernel alway comes last.
-;(load "kernel.scm")
-(load "kernel.o1")
+(load "kernel.scm")
+;(load "kernel.o1")
 
 (load "model-flags.scm") ;; Flags for kdebug/kdebug? messages/code and other global flags
 (load "parameters.scm") ;; code to handle the parameter files 

@@ -74,6 +74,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
   (inherits-from <primitive-object>)
   (state-variables projection-assoc-list
 						 local->model model->local
+						 default-font default-size
 						 ))
 "The model->local is a projection used to map model coordinates
 into agent's *internal* coordinates.  There must also be a
@@ -86,7 +87,7 @@ direction"
 
 (define-class <tracked-agent>
   (inherits-from <agent> <projection>)
-  (state-variables track tracked-paths track-schedule track-epsilon))
+  (state-variables track tracked-paths track-schedule track-epsilon default-font default-size circle-facets plot-magnification))
 ;; "track" will either be a list like (... (t_k x_k y_k) ...) or false
 ;; "tracked-paths" is a list of non-false traces or false
 ;; This is the basic class to derive things that have a memory of their past.

@@ -148,30 +148,58 @@
 	 (ps 'moveto (map p (map + (list-head loc 2)
 									 (map p (list (* 1.0 rad)
 													  (* (- (/ ns 2.0) n) 1.0))))))
-	 (if adjust-grey (ps 'setgray PATCHGREY)) ;; zero is white...
-	 (ps 'Helvetica 7)
-	 (ps 'show (string-append (slot-ref x 'name) ": "
+	 (if adjust-grey (ps 'push-color PATCHGREY)) ;; zero is white...
+	 (ps 'push-font 'Helvetica 7)
+	 (ps 'show (string-append " " (slot-ref x 'name) ": "
 									  (number->string (value x))))
+	 (ps 'pop-font)
+	 (if adjust-grey (ps 'pop-color PATCHGREY)) ;; zero is white...
 	 ))
 
 
-(define (crop-caption ps p x #!rest pt)
+(define (crop-caption ps obj prj #!rest pt)
 	 (ps 'Comment "in crop-caption")
 	 (if (null? pt) (set! pt 10) (set! pt (car pt)))
-	 (let ((loc (p (list-head (location x) 2)))
-			 (rad (car (p (make-list 2 (radius x))))))
+	 (let ((loc (prj (list-head (location obj) 2)))
+			 (rad (car (prj (make-list 2 (radius obj))))))
 		(ps 'moveto (map - loc
 							  (list (* 0.5 rad)  (* -1 (+ 5 (* 1 rad) )))))
-		(ps 'Helvetica pt)
-		(if adjust-grey (ps 'setgray PATCHGREY))
+		(ps 'moveto (map - loc
+							  (list (* 0.5 rad)  (* -1 (+ 5 (* 1 rad) )))))
+
+		(ps 'push-font 'Helvetica 7)
+		(if adjust-grey (ps 'push-color PATCHGREY))
 		(if #f
-			 (ps 'show-right (string-append
-									(slot-ref x 'name) " at "
-									(number->string (slot-ref x 'subjective-time))))
-			 (ps 'show (string-append
-							(slot-ref x 'name) " at "
-							(number->string (slot-ref x 'subjective-time)))))
+			 (ps 'show-right (string-append " "
+									(slot-ref obj 'name) " at "
+									(number->string (slot-ref obj 'subjective-time))))
+			 (ps 'show (string-append " "
+							(slot-ref obj 'name) " at "
+							(number->string (slot-ref obj 'subjective-time)))))
+		(ps 'pop-color)
+		(ps 'pop-font)
 		)
+	 )
+
+(define (caption ps obj prj loc #!rest pt)
+	 (ps 'Comment "in caption")
+	 (if (null? pt) (set! pt 8) (set! pt (car pt)))
+
+	 (if loc
+		  (if prj
+				(ps 'moveto (prj loc))
+				(ps 'moveto loc)) )
+	 
+	 (ps 'push-font 'Helvetica 9)
+	 (if adjust-grey (ps 'setgray PATCHGREY))
+	 (if #f
+		  (ps 'show-right (string-append " "
+								 (slot-ref obj 'name) " at "
+								 (number->string (slot-ref obj 'subjective-time))))
+		  (ps 'show (string-append " "
+						 (slot-ref obj 'name) " at "
+						 (number->string (slot-ref obj 'subjective-time)))))
+	 (ps 'pop-font)
 	 )
 
 
@@ -312,7 +340,7 @@
 				  '())
 
 (model-body <environment>
-				(call-next-parent-body)
+				(call-parents)
 				dt)
 
 (model-method (<environment> <list>) (contains? self loc)
@@ -435,7 +463,7 @@ via their containing patch.
 								  )
 								))
 
-						(call-next-parent-body) ;; chain to <agent>
+						(call-parents) ;; chain to <agent>
 						;;(parent-body)
 						dt
 						)
@@ -656,11 +684,13 @@ via their containing patch.
 
 											(case format
 											  ((ps)
-												(file 'show (string-append
+												(file 'push-font (my 'default-font) (my 'default-size))
+												(file 'show (string-append " "
 																 (if (string? r)
 																	  r
 																	  (object->string r)) " "))
 												(dnl* "SHOWING " r)
+												(file 'pop-font)
 												)
 ;								 ((dump)
 ;								  (with-output-to-port file
@@ -877,7 +907,7 @@ via their containing patch.
 
 (model-method (<polygon>) (max-bound self)
 					 (apply max (map (lambda (p)
-											 (distance c p))
+											 (distance (centre self) p))
 										  (perimeter self))))
 
 
@@ -1041,7 +1071,10 @@ via their containing patch.
 
 ;; Something provided which is not a service indicates a limitless presence: a permanent lake provides water in this sense.
 (model-method (<patch>) (provides self)
-				  (sortless-unique (append (cons (cncs self) (cons (my 'taxon) (my 'provides))) (map (lambda (s) (slot-ref x 'provides)) (my 'service-list)))))
+				  (sortless-unique
+					(append
+					 (list (cncs self) (my 'taxon) (my 'provides))
+					 (apply append (map (lambda (s) (slot-ref s 'provides)) (my 'service-list))))))
 						 
 
 (model-method (<patch> <symbol>) (provides? self sym)
@@ -1316,7 +1349,7 @@ via their containing patch.
 
 
 						;;; 	  )
-						(call-next-parent-body)
+						(call-parents)
 						dt
 						)
 
@@ -1333,6 +1366,7 @@ via their containing patch.
 						  
 						  (case format
 							 ((ps)
+							  (file 'push-font (my 'default-font) (my 'default-size))
 							  (let* ((symlist (services self))
 										(name (slot-ref self 'name))
 										(R (car (p (make-list 2 (radius self)))))
@@ -1340,31 +1374,37 @@ via their containing patch.
 										(L (p (list-head (location self) 2)))
 										(slist (slot-ref self 'service-list))
 										(n (+ 1 (length slist))) ;; slist is
+										(perim (perimeter self))
 										;; becoming
 										;; circular??
 										;; ....******
 										(ns (length slist))
 										(mm-xoffset 2)
 										(mm-yoffset 2)
-										(Left (apply min (map car (perimeter self))))
-										(Right (apply max (map car (perimeter self))))
-										(Up (apply max (map cadr (perimeter self))))
-										(Down (apply min (map cadr (perimeter self))))
+										(p^t (list-transpose perim))
+										(Left (apply min (car p^t)))
+										(Right (apply max (car p^t)))
+										(Up (apply max (cadr p^t)))
+										(Down (apply min (cadr p^t)))
 										(ploc (location self))
 										(psprj (composite-prj_src->dst self logger))
 										(psloc (psprj ploc))
 										)
-								 (file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name))))
+								 (file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name)) (object->string (list Left Down Right Up))))
 								 
 								 (if adjust-grey (file 'setgray PATCHGREY))
 								 (cond
-								  ((or (isa? (my 'rep) <circle>)
-										 (isa? (my 'rep) <polygon>))
+								  ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
+										 (eq? (class-of (my 'rep)) <polygon>))
 									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
-									(file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
-									(file 'comment (string-append "Projected ordinates:" (object->string (map (composite-prj_src->dst	self logger) (perimeter self)))))
-									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-								  (#t (error "Bad representation for output" (cnc (my 'rep)))) 
+									(file 'comment (string-append "Native ordinates: " (object->string (perimeter self))))
+									(file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
+									(file 'comment (string-append "service list: " (object->string slist)))
+;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
+									(log-map-polygon logger (perimeter self) 'grey)
+									)
+									
+								  (#t (error "Bad representation for output" (cnc (my 'rep))))
 								  )
 								 
 								 ;;; (file 'moveto (p (map + L
@@ -1374,15 +1414,19 @@ via their containing patch.
 								 ;;; 										  (/ ns 2.0)))
 								 ;;; 							  )))
 
-								 (file 'moveto (psprj (list Up Left)))
+								 (file 'comment (string-append "Left Up = " (object->string (psprj (list Left Up)))))
+								 (file 'moveto (psprj (list Left Up)))
+								 (file 'linefeed 1)
+								 (if (null? slist) (file 'linefeed 1))
 								 (file 'push-color '(0.5 1.0 0.5))
 								 (file 'show-table (map
-														  (lambda (x) (string-append
+														  (lambda (x) (string-append " "
 																			(slot-ref x 'name)
 																			" = " (pno (value x))))
 														  slist))
 								 (file 'pop-color)
-								 (crop-caption file p self)
+								 (caption file self #f #f) ;; the last two args are prj and loc respectively
+								 (file 'pop-font)
 								 ))
 
 
@@ -1534,8 +1578,8 @@ via their containing patch.
 (define (make-grid cell-class taxon name cell-type n m domain #!rest extras)
   (let* ((ll (car domain))
 			(ur (cadr domain))
-			(nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
-			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 m))))
+			(nscale (/ (- (car ur) (car ll)) (* 1.0 n)))
+			(mscale (/ (- (cadr ur) (cadr ll)) (* 1.0 m)))
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
@@ -1752,7 +1796,7 @@ args can be  an update map or an update map and update equations
 				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
 					 (for-each (lambda (x y) 
-									 (if (not (eqv? x 'service-list))
+<									 (if (not (eqv? x 'service-list))
 										  (begin
 											 (display (make-string (+ 2 count) #\space))
 											 (display x)
@@ -1781,7 +1825,7 @@ args can be  an update map or an update map and update equations
 										(name (slot-ref self 'name))
 										)
 
-								 (if adjust-grey (file 'setgray PATCHGREY))
+								 (if adjust-grey (file 'push-color PATCHGREY))
 								 (ps-circle file  (p (list (radius self)))
 												(p (list-head (location self) 2)) 0.7 0.0)
 
@@ -1793,21 +1837,41 @@ args can be  an update map or an update map and update equations
 										  (rad (radius self))
 										  (mm-xoffset 2)
 										  (mm-yoffset 2)
+										  (p^t (list-transpose perim))
+										  (Left (apply min (car p^t)))
+										  (Right (apply max (car p^t)))
+										  (Up (apply max (cadr p^t)))
+										  (Down (apply min (cadr p^t)))
+										  (ploc (location self))
+										  (psprj (composite-prj_src->dst self logger))
+										  (psloc (psprj ploc))
 										  )
-									(file 'moveto (map p (map + 
-																	  (list-head loc 2) 
-																	  (list (+ mm-xoffset (* 1.05 rad))
-																			  (+ mm-yoffset (/ ns 2.0)))
-																	  )))
-									(file 'show-table
-											(map
-											 (lambda (x) (string-append
-															  (slot-ref x 'name)
-															  ": "
-															  (pno (value x))))
-											 slist))
+
+									(cond
+									 ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
+											(eq? (class-of (my 'rep)) <polygon>))
+									  (file 'comment (string-append "<dynamic-patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
+									  (file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
+									  (file 'comment (string-append "Projected ordinates:" (object->string (map psprj (perimeter self)))))
+;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
+									  (log-map-polygon logger (perimeter self) 'grey)
+									  )
+									 
+									 (#t (error "Bad representation for output" (cnc (my 'rep))))
+									 )
+
+									(file 'moveto (psprj (list Left Up)))
+									(file 'linefeed 1)
+									(if (null? slist) (file 'linefeed 1))
+									(file 'push-color '(0.5 1.0 0.5))
+									(file 'show-table (map
+															 (lambda (x) (string-append " "
+																			  (slot-ref x 'name)
+																			  ": "
+																			  (pno (value x))))
+															 slist))
 									)
-								 (crop-caption file p self)
+								 (caption file self #f #f) ;; the last two args are prj and loc respectively
 								 )
 							  )
 
@@ -1868,7 +1932,7 @@ args can be  an update map or an update map and update equations
 ;; This is to keep the "run" chain consistent
 (model-body <landscape>
 						(kdebug '(model-bodies landscape-running nested-habitat)  (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
-						(call-next-parent-body) ;; chain to <environment>
+						(call-parents) ;; chain to <environment>
 						(kdebug '(nested-habitat)  "after parent body ->" (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
 						dt
 						)
@@ -2190,33 +2254,6 @@ args can be  an update map or an update map and update equations
 
 ;; p is usually something like mm->points
 
-;--- (<habitat> <procedure>) (map-log-data self logger format targets)
-(model-method (<habitat> <log-introspection> <symbol> <list>) (map-log-data self logger format  targets)
-				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
-						(let* ((symlist (services self))
-								 (name (slot-ref self 'name))
-								 (plist (slot-ref self 'patch-list))
-								 (locs (centroid (map location plist)))
-								 )
-						  (let ((ps (slot-ref logger 'file))
-								  (p (slot-ref self 'projection-assoc-list)))
-							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
-							 
-							 (ps 'moveto (list (p (car locs)) (p (cadr locs))))
-							 (if adjust-grey (ps 'setgray HABITATGREY))
-							 (ps 'Helvetica 12)
-							 (ps 'show (string-append (slot-ref self 'name)))								  
-							 
-							 (let ((subs (slot-ref self 'active-subsidiary-agents)))
-								(if (pair? subs)
-									 (for-each (lambda (lpch)
-													 (ps 'Helvetica 7)
-													 (map-log-data lpch format targets p ps)
-													 )
-												  subs))))
-						  
-						  )))
-
 ;--- (<habitat> <procedure>...) (log-data self logger format  targets)
 (model-method (<habitat> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
 				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
@@ -2226,13 +2263,33 @@ args can be  an update map or an update map and update equations
 						  (case format
 							 ((ps)
 
-							  (map-log-data self logger format targets p ps)
-							  (let ((subs (slot-ref self 'active-subsidiary-agents)))
-								 (for-each (lambda (lpch)
-												 (log-data lpch logger format targets ps p)
-												 )
-											  (my 'patch-list)))
-							  )
+							  (let* ((symlist (services self))
+										(name (slot-ref self 'name))
+										(plist (slot-ref self 'patch-list))
+										(locs (centroid (map location plist)))
+										(ps (slot-ref logger 'file))
+										(p (slot-ref self 'projection-assoc-list)))
+								 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+									
+								 (ps 'moveto (list (p (car locs)) (p (cadr locs))))
+								 (if adjust-grey (ps 'setgray HABITATGREY))
+								 (ps 'Helvetica 12)
+								 (ps 'show (string-append " " (slot-ref self 'name)))								  
+								 
+								 (let ((subs (slot-ref self 'active-subsidiary-agents)))
+									(if (pair? subs)
+										 (for-each (lambda (lpch)
+														 (ps 'Helvetica 7)
+														 (map-log-data lpch format targets p ps)
+														 )
+													  subs))))
+							  
+							 (let ((subs (slot-ref self 'active-subsidiary-agents)))
+								(for-each (lambda (lpch)
+												(log-data lpch logger format targets ps p)
+												)
+											 (my 'patch-list)))
+							 )
 							 ((dump)
 							  (with-output-to-port
 									(lambda ()
@@ -2287,7 +2344,7 @@ args can be  an update map or an update map and update equations
 ;--- model-body <habitat>
 (model-body <habitat*>
 	(kdebug '(model-bodies habitat-running) (cnc self) (name self) "@" t)
-	(call-next-parent-body)
+	(call-parents)
 
 	(let ((gp (my 'global-patch)))
 	  (run-agents self t dt (list gp) run (my 'kernel)) ;; execute patch model body for global patch *after* subsidiary patches

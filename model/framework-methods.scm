@@ -125,13 +125,13 @@
 ;;; 	 (pp tst)))
 
 (model-body <model-maintenance>
-				;;(call-next-parent-body)
+				;;(call-parents)
 				(let ((status-list (map (lambda (kernel t dt maint-routine)
 												  (maint-routine kernel t dt))
 												(slot-ref self 'maintenance-list)
 												)))
 				  ;; Now do something with  the status-list!
-				dt))
+				  dt))
 
 
 
@@ -149,29 +149,29 @@ The default list of projections and the following functions (amongst
 others) are defined in framework.scm:
 
 (composite-prj_src->dst self src dest)
-   -- returns a projection that applies dest after src
+-- returns a projection that applies dest after src
 
 (linear2d:model-space->output-space m-domain o-domain)
-   -- makes a linear mapping function, each of the args is a rectangular 
-      bounding box (ll ur). This mapping fits the o-domain by contraction.
+-- makes a linear mapping function, each of the args is a rectangular 
+bounding box (ll ur). This mapping fits the o-domain by contraction.
 
 (define (*linear2d:model-space->output-space m-domain o-domain)
-   -- makes a *linear mapping function, each of the args is a rectangular 
-      bounding box (ll ur). This mapping fits the o-domain by using 
-      different scales for the axes
+  -- makes a *linear mapping function, each of the args is a rectangular 
+  bounding box (ll ur). This mapping fits the o-domain by using 
+  different scales for the axes
 
-(define (map:domain-to-postscript model-domain papersize margin #!rest use-*linear-map)
-  -- Defaults to a regular scale.
-  -- margin will be in mm, if margin is a pair, the car is side
-  -- margins and the cadr is the top and bottom length
+  (define (map:domain-to-postscript model-domain papersize margin #!rest use-*linear-map)
+	 -- Defaults to a regular scale.
+	 -- margin will be in mm, if margin is a pair, the car is side
+	 -- margins and the cadr is the top and bottom length
 
-"
+	 "
 
 (model-method (<projection> <procedure>) (ps-dump self ps projection) 
 				  (dnl "In projection ps-dump")
 				  (ps 'show-table
 						(list "<projection>")))
-				  
+
 
 
 (model-method <projection> (projection-assoc-list self key)
@@ -191,10 +191,10 @@ others) are defined in framework.scm:
 									 (cons (cons key p) q)))
 					 ))
 
-					 
+
 (model-method (<projection> <symbol> <procedure>) (remove-projection! self key p)
 				  (set-my! 'projection-assoc-list (assoc-delete (my 'projection-assoc-list) key p)))
-					 
+
 
 
 ;-- projection routines that actually map things into different spaces
@@ -202,20 +202,20 @@ others) are defined in framework.scm:
 (model-method (<projection> <projection> <projection>) (composite-prj_src->dst self src dest)
 ;  (dnl* (cnc submodel1) (cnc submodel2))
 
-  (let ((l->m (get-local->model src))
-		  (m->l (get-model->local dest))
-		  )
-	 (lambda (x) 
-		(m->l (l->m x)))))
+				  (let ((l->m (get-local->model src))
+						  (m->l (get-model->local dest))
+						  )
+					 (lambda (x) 
+						(m->l (l->m x)))))
 
 (model-method (<projection> <projection>) (composite-prj_src->dst self dest)
 ;  (dnl* (cnc submodel1) (cnc submodel2))
 
-  (let ((l->m (get-local->model self))
-		  (m->l (get-model->local dest))
-		  )
-	 (lambda (x) 
-		(m->l (l->m x)))))
+				  (let ((l->m (get-local->model self))
+						  (m->l (get-model->local dest))
+						  )
+					 (lambda (x) 
+						(m->l (l->m x)))))
 
 (define (local->model self location)
   (let ((p (slot-ref self 'local->model)))
@@ -232,7 +232,7 @@ others) are defined in framework.scm:
 				(set! p (cdr p)))
 			  ((not (procedure? p))
 				(error "Something very bad has happened in the local->model projection code" p)))
-		  
+			 
 			 (if p
 				  (p location)
 				  location)))))
@@ -252,7 +252,7 @@ others) are defined in framework.scm:
 				(set! p (cdr p)))
 			  ((not (procedure? p))
 				(error "Something very bad has happened in the model->local projection code" p)))
-		  
+			 
 			 (if p (p location)
 				  location)))))
 
@@ -276,17 +276,17 @@ others) are defined in framework.scm:
 
 ;-- get the projection that goes from local space to model space
 (define (get-local->model self)
-				  (let ((p (slot-ref self 'local->model)))
-					 (if (and (pair? p)
-								 ;;(eq? (car p) 'local->model)
-								 )
-						  (set! p (cdr p)))
-					 (if (not (procedure? p))
-						  (begin
-							 (set! p (get-projection self p))
-							 (slot-set! self 'local->model p)))
-					 p)
-				  )
+  (let ((p (slot-ref self 'local->model)))
+	 (if (and (pair? p)
+				 ;;(eq? (car p) 'local->model)
+				 )
+		  (set! p (cdr p)))
+	 (if (not (procedure? p))
+		  (begin
+			 (set! p (get-projection self p))
+			 (slot-set! self 'local->model p)))
+	 p)
+  )
 
 ;-- get an arbitrary projection
 (define (get-projection self key)
@@ -309,17 +309,17 @@ others) are defined in framework.scm:
 
 ;-- set the projection that goes from model space to local space
 (define (set-model->local! self key)
-				  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
-					 (if (and p (procedure? (cdr p)))
-						  (slot-set! self 'model->local (cdr p))
-						  (error "Projection not found in projection-assoc-list" key))))
+  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
+	 (if (and p (procedure? (cdr p)))
+		  (slot-set! self 'model->local (cdr p))
+		  (error "Projection not found in projection-assoc-list" key))))
 
 ;-- set the projection that goes from local space to model space
 (define (set-local->model! self key)
-				  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
-					 (if (and p (procedure? (cdr p)))
-						  (slot-set! self 'local->model (cdr p))
-						  (error "Projection not found in projection-assoc-list" key))))
+  (let ((p (assoc (slot-ref self 'projection-assoc-list))))
+	 (if (and p (procedure? (cdr p)))
+		  (slot-set! self 'local->model (cdr p))
+		  (error "Projection not found in projection-assoc-list" key))))
 
 ;--- kernel Methods for <agent> classes
 
@@ -405,7 +405,7 @@ commonly viewed as just a simple extension of sclos.
 ;;; 							))
 ;;; 				  ;; call "parents" last to make the initialisation list work
 ;;; 				  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
-				  
+
 ;;; 				  (let ((initslots (evens initargs)))
 ;;; 					 (if (member 'type initslots)
 ;;; 						  (apply-parameters self (slot-ref self 'type))))
@@ -434,6 +434,14 @@ commonly viewed as just a simple extension of sclos.
 ;;; ;;; 					  param-list)))
 
 
+(model-method (<agent>) (initialisation-checks self)
+				  (void)
+				  )
+				  
+						
+
+
+
 (model-method (<thing> <procedure>) (ps-dump self ps projection)
 				  (dnl "in thing ps-dump")
 				  (ps 'moveto (projection (local->model (location self))))
@@ -452,14 +460,19 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method <agent> (provides self)
-				  (list-copy (cons (cnc self) (cons (my 'taxon) (slot-ref self 'provides)))))
+				  (list-copy (append (list (cnc self) (my 'taxon))
+											(let ((p (slot-ref self 'provides)))
+											  (cond
+												((uninitialised? p) '())
+												((list? p) p)
+												(#t (list p)))))))
 
 (model-method <agent> (requires self)
 				  (list-copy (slot-ref self 'requires)))
 
 (model-method <agent> (provides? self args)
 				  (if (not (pair? args)) (set! args (list args)))
-				  (list-intersection args (cons (cnc self) (cons (my 'taxon) (slot-ref self 'provides)))))
+				  (list-intersection args (provides self)))
 
 (model-method <agent> (requires? self args)
 				  (if (not (pair? args)) (set! args (list args)))
@@ -471,13 +484,13 @@ commonly viewed as just a simple extension of sclos.
 				  (let ((pl (slot-ref self 'provides)))
 					 (if (not (member service pl))
 						  (slot-set! self 'provides (cons service pl)))))
-						  
+
 (model-method <agent> (requires! self service)
 				  (if (not (pair? args)) (set! args (list args)))
 				  (let ((pl (slot-ref self 'requires)))
 					 (if (not (member service pl))
 						  (slot-set! self 'requires (cons service pl)))))
-						  
+
 
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
@@ -500,6 +513,14 @@ commonly viewed as just a simple extension of sclos.
 ;; Termination can happen from any state
 (model-method <agent> (agent-shutdown self #!rest args) 
 				  (slot-set! self 'agent-state 'terminated))
+
+
+;; Check and adjust agent states
+(model-method <agent> (agent-state self)
+				  (my 'agent-state))
+
+(model-method <agent> (set-agent-state! self newstate)
+				  (set-my! 'agent-state newstate))
 
 
 ;----- (dump) ;; This dumps all the slots from agent up.  
@@ -538,9 +559,9 @@ commonly viewed as just a simple extension of sclos.
 
 (model-method (<agent> <log-introspection> <symbol> <list>) (log-data self logger format targets)
 				  (kdebug '(log-* log-data)
-							(name self)
-							"[" (my 'name) ":"
-							(cnc self) "]" "in <agent>:log-data")
+							 (name self)
+							 "[" (my 'name) ":"
+							 (cnc self) "]" "in <agent>:log-data")
 				  (let ((file (slot-ref logger 'file))
 						  (show-field-name (slot-ref logger 'show-field-name))
 						  (missing-val (slot-ref logger 'missing-val))
@@ -560,10 +581,10 @@ commonly viewed as just a simple extension of sclos.
 						 (cond
 						  ((has-slot? self field)
 							(kdebug '(log-* log-data logging-debug)      
-									 "  " (name self) (cnc self)
-									 "Dumping " field "=" (if (has-slot? self field)
-																	  (slot-ref self field)
-																	  "missing!"))
+									  "  " (name self) (cnc self)
+									  "Dumping " field "=" (if (has-slot? self field)
+																		(slot-ref self field)
+																		"missing!"))
 							(if (not spaced-out)
 								 (set! spaced-out #t)
 								 (display " " file))
@@ -571,9 +592,9 @@ commonly viewed as just a simple extension of sclos.
 							)
 						  ((member field (extra-variable-list self))
 							(kdebug '(log-* log-data logging-debug)
-									 "  " (name self) (cnc self)
-									 "Dumping extra " field "="
-									 (extra-variable self field))
+									  "  " (name self) (cnc self)
+									  "Dumping extra " field "="
+									  (extra-variable self field))
 							(if (not spaced-out)
 								 (set! spaced-out #t)
 								 (display " " file))
@@ -750,17 +771,17 @@ commonly viewed as just a simple extension of sclos.
 
 ;----- (set-timestep-schedule!) 
 (model-method (<agent> <number>) (set-timestep-schedule! self nbody)
-									(if (list? nbody)
-										 (slot-set! self 'timestep-schedule nbody)
-										 (error (string-append
-													"agent:set-timestep-schedule! -- "
-													"arg is not a procedure")))
-									(slot-set! self 'timestep-schedule nbody)
-									)
+				  (if (list? nbody)
+						(slot-set! self 'timestep-schedule nbody)
+						(error (string-append
+								  "agent:set-timestep-schedule! -- "
+								  "arg is not a procedure")))
+				  (slot-set! self 'timestep-schedule nbody)
+				  )
 
 ;----- (kernel) 
 (model-method (list <agent>) (kernel self)
-									(slot-ref self 'kernel))
+				  (slot-ref self 'kernel))
 
 ;----- (set-kernel!) 
 
@@ -784,6 +805,7 @@ commonly viewed as just a simple extension of sclos.
 
 (model-method <agent> (parameter-names self)
 				  (class-slots-of self))
+
 (model-method <agent> (parameters self)
 				  (map (lambda (x) (slot-ref self x))
 						 (class-slots-of self)))
@@ -839,7 +861,7 @@ commonly viewed as just a simple extension of sclos.
   (let ((r (filter (lambda (x) (> x tm)) ttr)))
 	 (kdebug 'timestep-schedule "prune-local-time-queue leaves with: " tm "--" ttr)
 	 r)
-)
+  )
 
 (define ACTIVE #t)
 (define INACTIVE #f)
@@ -892,14 +914,14 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 
 				  (error "Bad agent passed to transfer-agent" agent*)
 				  )
-				  
+
 (model-method <agent> (adjust-state self mutator #!rest args)
 				  (if mutator
 						(mutator self args)
 						(if (pair? args) (set-state-variables self args))
 						)
 				  )
-					  
+
 (model-method (<agent>) (activate self selector)
 				  (let* ((subs (slot-ref self 'subsidiary-agents))
 							(asubs (slot-ref self 'active-subsidiary-agents))
@@ -927,7 +949,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 
 (definition-comment 'run
 
-"This is the routine which gives the agents a chance to do their thing. It is 
+  "This is the routine which gives the agents a chance to do their thing. It is 
 also present as an illustration of the low-level way of implementing a method.
 The arguments are 
 	self    -- the agent to be run
@@ -975,8 +997,8 @@ The arguments are
 			 (set-my! (lambda (x y) (slot-set! self x y)))
 			 (kernel (slot-ref self 'kernel)))
 
-;;		(if (has-slot? self 'introspection-targets)
-;;			 (slot-set! self 'introspection-targets (pkernel 'find-agents (slot-ref self 'introspection-selector))))
+		;;		(if (has-slot? self 'introspection-targets)
+		;;			 (slot-set! self 'introspection-targets (pkernel 'find-agents (slot-ref self 'introspection-selector))))
 
 		;;(set-kernel! self pkernel)
 		(kdebug 'run-model-body "<agent>" (cnc self))
@@ -993,30 +1015,36 @@ The arguments are
 								 (my 'timestep-schedule))))
 				  (let ((dt (interval t (slot-ref self 'dt) stop ttr)))
 					 (let ((subj-time (my 'subjective-time)))
-						(if (<= (+ t dt) subj-time)
-							 (error "Trying to go back in time" (cnc (class-of self)) (slot-ref self 'name) (slot-ref self 'taxon) '@ t "+" dt "with a subjective time of" subj-time)
-							 (kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "... running from" t "to" (+ t dt) ", a step of" dt)
-							 )
+						(if (< (+ t dt) subj-time)
+							 (begin
+								(dnl* "Trying to go back in time" (cnc (class-of self)) (slot-ref self 'name) (slot-ref self 'taxon) '@ t "+" dt "with a subjective time of" subj-time)
+								(kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "... running from" t "to" (+ t dt) ", a step of" dt)
+								'ok ;; report it and just skip this attempt
+							 ))
 
 						(let ((DT 0))
 						  (set-my! 'kernel kernel)
+						  (if (not (= t subj-time))
+								(begin
+								  (dnl* "Adjusting dt" (cnc (class-of self)) (slot-ref self 'name) 'st subj-time 'T t DT dt)
+								  (set! dt (- (+ t dt) subj-time))))
 						  (cond
 							((< subj-time t)
 							 (if temporal-fascist
 								  (begin
 									 (kdebug 'temporal-check "[" (my 'name) ":"(cnc self) "]"
-											  "a/an" (my 'representation)
-											  "is lost in time at" subj-time "or" t)
+												"a/an" (my 'representation)
+												"is lost in time at" subj-time "or" t)
 									 'missing-time)
 								  ((letrec
 										 ((loop-through-time
 											(lambda (st ddt)
 											  (kdebug 'passing-control-to-model
-														"["(my 'name)":"(cnc self)"]"
-														"Passing control to the model at" t 
-														"for" (if (< st t)
-																	 ddt
-																	 (- (+ t dt) subj-time)))
+														 "["(my 'name)":"(cnc self)"]"
+														 "Passing control to the model at" t 
+														 "for" (if (< st t)
+																	  ddt
+																	  (- (+ t dt) subj-time)))
 											  ;;*** Control passes to run-model-body here ***
 											  (let ((m (run-model-body
 															self
@@ -1073,31 +1101,31 @@ The arguments are
 									(min (- t subj-time) (my 'dt)))))
 							((and (> dt 0.) (>= subj-time (+ t dt)))
 							 (kdebug 'temporal-check "["
-									  (my 'name)
-									  ":"
-									  (cnc self)
-									  "]"
-									  "a/an"
-									  (my 'representation)
-									  "is driving a DeLorian."
-									  "  Expected subjective-time to be"
-									  t
-									  "but it was"
-									  subj-time
-									  "and dt ="
-									  dt)
+										(my 'name)
+										":"
+										(cnc self)
+										"]"
+										"a/an"
+										(my 'representation)
+										"is driving a DeLorian."
+										"  Expected subjective-time to be"
+										t
+										"but it was"
+										subj-time
+										"and dt ="
+										dt)
 							 'back-to-the-future)
 							(#t
 							 (kdebug 'passing-control-to-model
-									  "["
-									  (my 'name)
-									  ":"
-									  (cnc self)
-									  "]"
-									  "Passing control to the model at"
-									  t
-									  "for"
-									  dt)
+										"["
+										(my 'name)
+										":"
+										(cnc self)
+										"]"
+										"Passing control to the model at"
+										t
+										"for"
+										dt)
 
 							 ;;; (let ((m (if (isa? self <agent>)
 							 ;;; 				  (run-model-body self t dt)
@@ -1105,15 +1133,15 @@ The arguments are
 							 (let ((m (if (isa? self <agent>)
 											  (begin
 												 (run-model-body self t dt) ;;; The model runs before its subsidiaries or components
-											  
+												 
 												 ;;  The model returns the amount of time it actually ran for
 												 (kdebug '(nesting run-model-body) (cnc self)
-														  "Running at " t "+" dt "[" (my 'dt) "]")
+															"Running at " t "+" dt "[" (my 'dt) "]")
 												 (if (< dt 0.0) (error 'bad-dt))
 												 (begin
 													(kdebug 'track-subjective-times
-															 "[" (my 'name) ":" (cnc self) "]"
-															 " running at " (my 'subjective-time) ":" t)
+															  "[" (my 'name) ":" (cnc self) "]"
+															  " running at " (my 'subjective-time) ":" t)
 													
 													(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
 														 (run-subsidiary-agents self t dt run kernel))
@@ -1147,7 +1175,7 @@ The arguments are
 																 (cons mtrb (list dt)))
 															dt))
 													)
-											  dt))))
+												 dt))))
 								(if (not (number? m)) (error "Did not get a numeric return from run-model-body"  m))
 
 								(set! DT (+ DT m))
@@ -1164,29 +1192,29 @@ The arguments are
 						  (if (has-slot? self 'subjective-time) ;; Anything (<agent> or otherwise) should have its time updated
 								(begin
 								  (kdebug 'trace-time-update "UPDATING...")
-								(slot-set!
-								 self 'subjective-time
-								 (+ DT (my 'subjective-time)))
-								(kdebug 'trace-time-update "..." (slot-ref self 'subjective-time))
-								))
+								  (slot-set!
+									self 'subjective-time
+									(+ DT (my 'subjective-time)))
+								  (kdebug 'trace-time-update "..." (slot-ref self 'subjective-time))
+								  ))
 
 						  (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
 
 						  (kdebug '(nesting run)
-									(cnc self)
-									(name self)
-									"Leaving run after a tick of "
-									DT
-									" @ "
-									(my 'subjective-time)
-									"["
-									(my 'dt)
-									"]")
+									 (cnc self)
+									 (name self)
+									 "Leaving run after a tick of "
+									 DT
+									 " @ "
+									 (my 'subjective-time)
+									 "["
+									 (my 'dt)
+									 "]")
 						  'ok)))))))
 		))
   ))
 
-				
+
 
 (definition-comment 'run-agents
   "is called by run-subsidiary-agents and is used as a proxy for the call to queue;"
@@ -1244,11 +1272,11 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;; 				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
 ;;; 				  )
 
-				
+
 (model-method (<blackboard> <symbol>) (query self cmd #!rest args)
 				  ;; args should either be a list of cmds (for 'erase and 'read)
 				  ;; or a list of pairs (for 'write)
-						
+				  
 
 				  (let* ((messages (my 'message-list))
 							(result
@@ -1281,7 +1309,6 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 
 (model-body <blackboard>
-				(call-next-parent-body)
 				dt
 				)
 
@@ -1342,7 +1369,7 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 				(track-location! self t (my 'location)) ;; even if they
 				;; aren't
 				;; moving
-				(call-next-parent-body)
+				(call-parents)
 				dt
 				)
 
@@ -1356,21 +1383,6 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;;   'speed #f 'mass #f
 ;;;   'track #f
 ;;;   'tracked-paths #f)
-
-;----- (mass) 
-(model-method
- (<thing>)
- (mass self)
- (slot-ref self 'mass))
-
-
-;----- (set-mass!) 
-(model-method
- (<thing> <number>)
- (set-mass! self n)
- (if (not (number? n))
-	  (error "thing:set-mass! -- bad number")
-	  (slot-set! self 'mass n)))
 
 ;----- (dim) 
 (model-method
@@ -1386,6 +1398,20 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 					(if (not (integer? n))
 						 (error "thing:set-dim! -- bad integer")
 						 (slot-set! self 'dim n)))
+;----- (mass) 
+(model-method
+ (<thing>)
+ (mass self)
+ (slot-ref self 'mass))
+
+
+;----- (set-mass!) 
+(model-method
+ (<thing> <number>)
+ (set-mass! self n)
+ (if (or (not (number? n)) (negative? n))
+	  (error "thing:set-mass! -- bad number")
+	  (slot-set! self 'mass n)))
 
 ;----- (speed) 
 (model-method
@@ -1414,9 +1440,8 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 (model-method 
  (<thing>)
  (set-location! self vec)
- (if (not (= (length vec) (slot-ref self 'dim)))
-	  (error "thing:set-location! -- bad list length")
-	  (slot-set! self 'location vec)))
+ (slot-set! self 'location vec))
+ 
 
 ;----- (direction) 
 (model-method 
@@ -1426,12 +1451,13 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 
 ;----- (set-direction!) 
-(model-method 
- (<thing> <pair>)
- (set-direction! self vec)
- (if (not (= (length vec) (slot-ref self 'dim)))
-	  (error "thing:set-direction! -- bad list length")
-	  (slot-set! self 'direction vec)))
+(model-method  (<thing> <list>) (set-direction! self vec)
+   (if (pair? vec) 
+		 (let ((v (sqrt (apply + (map sqr vec)))))
+			(if (positive? v)
+				 (slot-set! self 'direction (map (lambda (x) (/ x v)) vec))))))
+
+; Vectors should have a length of one.  We do not try and set a direction of "zero"
 
 
 
@@ -1440,8 +1466,6 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;---- environment methods
 
 (model-body <environment> ;; does nothing.
-				(call-next-parent-body)
-				dt
 				)
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)

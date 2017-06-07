@@ -42,9 +42,13 @@
 	)
 
 "<monitor> agents play a special role, keeping an eye on subsets of
-the population of agents.  Monitors can effect changes in the
+the population of agents.  Monitors may effect changes in the
 composition of both the population and the constituents which comprise
 an agent. In many ways, monitors are similar to introspection agents."
+
+
+
+
 
 
 (define-class <domain-monitor>
@@ -53,6 +57,7 @@ an agent. In many ways, monitors are similar to introspection agents."
   ;; the domain list is the list of agents which comprise the notional domain
   ;; the 
   )
+
 ;; A domain monitor may have a number of niche level monitors which
 ;; are associated with it; they would typically be included in its
 ;; domain-list
@@ -75,6 +80,7 @@ an agent. In many ways, monitors are similar to introspection agents."
   ;; if the indicated variable has a value in a given interval, or the function returns #t,
   ;; the corresponding flag is included in a component list of a returned list.
 )
+
 
 
 

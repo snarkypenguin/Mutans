@@ -20,7 +20,12 @@
 				  (state-variables file filename filetype filename-timescale format variables
 										 variables-may-be-set missing-val show-field-name
 										 preamble-state introspection-targets
-										 report-time-table output-projection
+										 report-time-table ;output-projection
+										 default-font default-size
+										 ;; These last two are here because it is
+										 ;; entirely likely that there will be
+										 ;; tex, latex and eps-text formats for production
+										 ;; quality output
 										 ))
 ;;- file is the output handle
 ;;  if filename is not a string, things go to stdout
@@ -59,12 +64,24 @@
 
 
 (define-class <log-map> (inherits-from <snapshot>)
-										(state-variables))
+  (state-variables)
+  )
 
 
 (define-class <log-data> (inherits-from <logfile>)
 										 (state-variables)
 										 )
+
+
+(define-class <log-statistics> (inherits-from <log-data>)
+  (state-variables
+	stats ;; an instance of a stats-filter
+	selector ;; function to select which agents to poll
+	methodlist ;; methods to call to gather statistics, where the
+				  ;; methods are of the form (get-stats target #!optional
+	           ;; lst-of-data)
+	))
+  
 
 ;; Ultimately, there will be a <log-movie> which inherits from <log-data> 
 ;; but generates images (frames) like <log-map> for a movie-loop either 

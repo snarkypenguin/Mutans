@@ -85,7 +85,6 @@
 (declare-method log-this-agent "log an agent's data")
 (declare-method maintain-state "constructs a closure which can maintain and report the state, and provide a list of things needed from other representations")
 (declare-method map-emit-page "specific for postscript output")
-(declare-method map-log-data "specific for postscript output")
 (declare-method map-log-track-segment "description needed")
 (declare-method projection-assoc-list "returns the list of available projections")
 (declare-method set-projection-assoc-list! "sets the list of available projections")

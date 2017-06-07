@@ -28,8 +28,6 @@
 
 ;(load "constants.scm")
 
-(define _tau_ (* 2.0 (acos -1.0)))
-
 (define maths-dnl*
   (lambda X
 	 (let ((out (if (and (pair? X) (port? (car (reverse X))))
@@ -370,7 +368,7 @@
 
 (define (n-point? n p)
   ;;(dnl* 'n-point? n p)
-  (if (not (list? p)) (borkedness))
+  (if (not (list? p)) (error "bad list of points" p))
   (and (number? n) (list? p) (= n (length p)) (point? p)))
 
 (define (n-point-list? n p)
@@ -494,11 +492,20 @@
   (apply + (list-operator * a b)))
 
 
+(define (proportion v #!rest interval)
+  (set! interval (cond
+						((null? interval) (error "Missing interval in call to proportion"))
+						((and (not (pair? (car interval))) (null? (cddr interval))) interval)
+						((and (null? (cddar interval))) (car interval))
+						(#t (error "bad arguments to (proportion ...)" v interval))))
+  (/ (- v (car interval)) (- (cadr interval) (car interval))))
+		  
+
+
 (define (urnd-int m M) (+ m (random-integer (- M m))))
 (define (urnd-real m M) (+ m (* (- M m) (random-real))))
 
-
-(define (nrnd #!rest args)
+(define (simple-nrnd #!rest args)
   (let* ((N (length args))
 			(mean (if (>= N 1) (car args) 0))
 			(stddev (if (>= N 2) (cadr args) 1))
@@ -514,10 +521,39 @@
 						  stddev) mean)))
 		(if (and (< m n) (< n M)) ;; open interval!
 			 n
-			 (nrnd mean stddev m M)))))
+			 (simple-nrnd mean stddev m M)))))
+
+(define (nrnd #!rest args)
+  (let* ((N (length args))
+			(mean (if (>= N 1) (car args) 0))
+			(stddev (if (>= N 2) (cadr args) 1))
+			(m (if (>= N 3) (caddr args) -inf.0))
+			(M (if (>= N 4) (cadddr args) +inf.0))
+			(n (if (list? mean) (length mean) 0)))
+	 (letrec ((orf (lambda x
+						  (if (null? x)
+								#f
+								(or (car x) (apply orf (cdr x))))))
+				 (andf (lambda x
+						  (if (null? x)
+								#t
+								(and (car x) (apply andf (cdr x))))))
+				 )
+		(cond
+		 ((apply andf (map number? (list mean stddev m M))) (apply simple-nrnd args)) ;; all numbers
+		 ((not (list? mean)) (error "If a tuple is pass as an arg, the mean must be a tuple", args))
+		 ((and (apply andf (map list? (list stddev m M))) (apply = (map length (list mean stddev m M))))
+		  (map simple-nrnd mean stddev m M)) ;; all consistent
+		 ((number? stddev) (nrnd mean (make-list n stddev) m M))
+		 ((number? m) (nrnd mean stddev (make-list n m) M))
+		 ((number? M) (nrnd mean stddev m (make-list n M)))
+		 (#t (error "Bad arguments to nrnd*" args)))))
+  )
+
+
 
 ;; NOTE: The mean and stddev are for the related *normal* rng
-(define (lnrnd #!rest args)
+(define (simple-lnrnd #!rest args)
   (let* ((N (length args))
 			(mean (if (>= N 1) (car args) 0))
 			(stddev (if (>= N 2) (cadr args) 1))
@@ -529,14 +565,33 @@
 			 n
 			 (lnrnd mean stddev m N)))))
 
-(define (proportion v #!rest interval)
-  (set! interval (cond
-						((null? interval) (error "Missing interval in call to proportion"))
-						((and (not (pair? (car interval))) (null? (cddr interval))) interval)
-						((and (null? (cddar interval))) (car interval))
-						(#t (error "bad arguments to (proportion ...)" v interval))))
-  (/ (- v (car interval)) (- (cadr interval) (car interval))))
-		  
+
+(define (lnrnd #!rest args)
+  (let* ((N (length args))
+			(mean (if (>= N 1) (car args) 0))
+			(stddev (if (>= N 2) (cadr args) 1))
+			(m (if (>= N 3) (caddr args) -inf.0))
+			(M (if (>= N 4) (cadddr args) +inf.0))
+			(n (if (list? mean) (length mean) 0)))
+	 (letrec ((orf (lambda x
+						  (if (null? x)
+								#f
+								(or (car x) (apply orf (cdr x))))))
+				 (andf (lambda x
+						  (if (null? x)
+								#t
+								(and (car x) (apply andf (cdr x))))))
+				 )
+		(cond
+		 ((apply andf (map number? (list mean stddev m M))) (apply simple-lnrnd args)) ;; all numbers
+		 ((not (list? mean)) (error "If a tuple is pass as an arg, the mean must be a tuple", args))
+		 ((and (apply andf (map list? (list stddev m M))) (apply = (map length (list mean stddev m M))))
+		  (map simple-lnrnd mean stddev m M)) ;; all consistent
+		 ((number? stddev) (lnrnd mean (make-list n stddev) m M))
+		 ((number? m) (lnrnd mean stddev (make-list n m) M))
+		 ((number? M) (lnrnd mean stddev m (make-list n M)))
+		 (#t (error "Bad arguments to lnrnd" args)))))
+  )
 
 
 (define (make-pprocess meany)
@@ -574,12 +629,36 @@
 	 ))
 
 
-(define (pprnd mean)
+(define (simple-pprnd mean)
   (let loop-while-zero ((y (random-real)))
 	 (if (zero? y)
 		  (loop-while-zero (random-real))
 		  (* -1 mean (log (- 1 y)))
 		  ))
+  )
+
+(define (pprnd mean #!optional M)
+  (let ((lnm (if (list? mean) (length mean) #f))
+		  (lnM (cond ((list? M) (length M)) (M 0) (else #f))))
+	 
+	 (cond
+	  ((and (eq? lnm #f) (not lnM)) ;; no max, only a single mean
+		(simple-pprnd mean)
+		)
+	  ((and (number? lnm) (not lnM))
+		(map pprnd mean))
+	  ((and (eq? lnm #f) (number? M)) ;; open boundary
+		(let loop-till-less ((p (simple-pprnd mean)))
+		  (if (>= p M)
+				(loop-till-less (simple-pprnd mean))
+				p)))
+	  ((and lnm (number? M)) ;; list and a single max
+		(map (lambda (mn) (pprnd mn M)) mean))
+	  ((and lnm M (list M) (eq? (length mean) (length M)))
+		(map (lambda (mn Mx) (pprnd mn Mx)) mean M)
+		)
+	  (else (error "Incompatible list lengths in pprnd" mean M))
+	  ))
   )
 
 

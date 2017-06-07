@@ -19,6 +19,12 @@
 ;;  )
 
 
+
+(define (pp-to-string p)
+  (with-output-to-string '()
+								 (lambda ()
+									(pp p))))
+
 (define (atom? x)
   (not (pair? x)))
 

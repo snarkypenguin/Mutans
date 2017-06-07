@@ -16,6 +16,7 @@
 (define-class <plant>
   (inherits-from <model-maintenance> <thing>)
   (state-variables
+	decay-rate  ;; usually somethings like -2/(* 20 days)
 	omega-ind ;; individual mortality
 	mass  ;; actual mass
 	peak-mass ;; greatest mass attained
@@ -27,6 +28,7 @@
 	age ;; age of plant in [0,4)
 	lai ;; leaf area index in (0,10) -- ideal leaf area/area in drip-line
 	leaf-area ;; we need a separate counter since there can be "accidents"
+	leaf-mass ;; mass of a leaf
 	water-stress  ;; [0,1]	level of water stress
 	water-use ;; amount of water required for a square metre
 	water-stress-effect ;; True if we factor water stress
@@ -46,6 +48,9 @@
 	seeds-per-fruit
 	habitat            ;; #f or a patch/landscape/habitat thing
 	population-switch
+
+	plot-circle-facets ;; number of facets -- useful for differentiating species
+	plot-magnification ;; less than one contracts, 
 	))
 
 

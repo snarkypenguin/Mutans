@@ -46,11 +46,10 @@
 (define 100pi 314)
 (define 10000pi 31416)
 
-
+(define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
 
 ;; Used as the placeholder for uninitialised things in classes
 (define uninitialised (lambda args (abort)))
-
 
 ;-  The End 
 

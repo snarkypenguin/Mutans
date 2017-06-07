@@ -70,15 +70,25 @@
 
 (define ACQ '()) ;; queue of things to insert before the next agent runs
 
-(define keep-terminated-agents #t)
-(define terminated-agents '())
-
 (define (terminating-condition-test . args)
   #f)
 
-(define valid-agent-states '(ready-for-prep ready-to-run running terminated dead suspended))
+(define valid-agent-states '(ready-for-prep ready-to-run running dead suspended terminated ))
 
-(define Mortuary '()) ;; a list of dead agents
+;; ready-for-prep means that the agent has been created, but has not been inserted into the runqueue
+;; ready-to-run means that the agent is active and may be run by the scheduler
+;; running means that the agent is currently running (this is pertinent for inter-agent communication and parallelisation)
+;; dead means the agent should still be kept in the system and may be interacted with, but that it
+;;     runs an alternate "dead-agent" code path in its model body --- typically associated with decay
+;;     Trees, for example, may have a trivial dead-agent code path if they are unlikely to rot
+;; suspended agents consume time and update their subjective time, but do nothing else (not even a dead-agent
+;;     path)
+;; terminated agents take no further part in the simulation and should be removed from the runqueue.
+
+
+(define keep-terminated-agents #t) ;; shunt them into a list of terminated agents so they are available for
+                                         ;; post-run analysis 
+(define terminated-agents '())
 
 ;---------------------------------------------------
 ;               Kernel support
@@ -104,8 +114,8 @@
 (define (Qcmp r1 r2) ;; reducing the amount of time this takes will have a performance impact
   ;;(start-timer 'Qcmp)
   ;;(let ((result 
-  (let ((st1 (slot-ref r1 'subjective-time))
-		  (st2 (slot-ref r2 'subjective-time)))
+  (let ((st1 (subjective-time r1))
+		  (st2 (subjective-time r2)))
 	 (cond
 	  ((> st1 st2) #f)
 	  ((<= st1 st2) #t)
@@ -154,7 +164,7 @@
 			 (let ((f (car mt-rq)))
 				(slot-ref f 'subjective-time))
 			 )
-		'end-of-run
+	'end-of-run
 		)
   )
 
@@ -235,8 +245,18 @@
   "inserts a run record in the right place in the queue Q")
 (define kernel-time 0)
 
+(define (QI Q rec reccmp)
+  (let loop ((ptr Q))
+	 (cond
+	  ((null? ptr) (list rec))
+	  ((reccmp rec (car ptr))
+		(cons rec ptr))
+	  (#t (cons (car ptr) (loop (cdr ptr)))))))
+
+
+
 ;; This returns the queue, and it must be called using the global variable Q like so: (set! Q (q-insert Q ...))
-(define (q-insert Q rec reccmp)
+(define (Q-Insert Q rec reccmp)
   (if (memq (slot-ref rec 'agent-state) '(ready-to-run running suspended))
 		(begin
 		  (start-timer 'q-insert)
@@ -244,8 +264,7 @@
 					(cond
 					 ((not (isa? rec <agent>)) (error "Passed a non-agent to q-insert" rec))
 					 ((eq? (slot-ref rec 'agent-state) 'terminated)
-					  (if keep-terminated-agents
-							(set! terminated-agents (cons rec terminated-agents)))
+					  (hoodoo rec "q-insert 1")
 					  Q)
 					 (#t
 					  (let ((j (slot-ref rec 'jiggle))
@@ -270,13 +289,17 @@
 				  )
 			 (stop-timer 'q-insert)
 			 result))
-		(if (memq (slot-ref rec 'agent-state) '(terminated dead))
+		(if (eq? (slot-ref rec 'agent-state) 'terminated)
 			 (begin
-				(set! Mortuary (cons rec Mortuary))
+				(hoodoo rec "q-insert 2")
 				Q)
 			 (append Q (list rec))) ;; we stick them at the end of the list to keep them in the system
 		))
 		
+
+(define q-insert QI)
+
+
 
 
 ;;; (define (q-mis-insert Q rec reccmp) ***
@@ -342,6 +365,12 @@
   )
 
 
+(define (hoodoo agent proc)
+  (case (agent-state)
+	 ((terminated) (set! terminated-agents (cons agent terminated-agents)))
+	 (else (dnl* "Bad hoodoo workin in" proc) (error "Impossible codepath" agent proc))))
+
+
 (definition-comment 'queue
   "This is the main loop which runs agents and reinserts them after"
   "they've executed. Typically one would begin the simulation by "
@@ -356,15 +385,21 @@
 (define indicate-progress #f)
 ;; If set to #f nothing is printed out to indicate progress
 ;; set to -1 (or any negative number) to make it chatter
+(define display-Q-length #t)
+
+(define tracing-q 'not-yet-run)
 
 ;; This typically runs the agent at the head of the queue
 (define (queue t stop runqueue #!rest N)
+  (set! tracing-q (sort runqueue Qcmp))
+  
   (if (eq? indicate-progress #t) (set! indicate-progress -1))
   (set! N (if (null? N) #f (car N)))
 
   (start-timer 'queue)
   (let loop ((q-rq runqueue)
 				 )
+
 	 (if (pair? ACQ)
 		  (begin
 			 (set! q-rq (sort (append q-rq ACQ) Qcmp))
@@ -377,6 +412,7 @@
 			 (display  (subjective-time (car q-rq)))
 			 (display " ")
 			 (display (string-append (number->string (round (* 100 (/ (subjective-time (car q-rq)) end)))) "%"))
+			 (if display-Q-length (display (string-append " " (number->string (length q-rq)) " agents")))
 			 (newline)
 			 )
 		  )
@@ -396,10 +432,9 @@
 	  ((and (< t stop) (running-queue q-rq stop))
 		(set! t (apply min (map-q subjective-time q-rq)))
 		;;(test-queuesize q-rq N)
-		(if (memq (slot-ref (car q-rq) 'agent-state) '(dead terminated))
+		(if (eq? (slot-ref (car q-rq) 'agent-state) 'terminated) ;; this is Just In Case
 			 (begin
-				(dnl* "Terminating" (name (car q-rq))  (slot-ref (car q-rq) 'agent-state))
-				(set! terminated-agents (cons (car q-rq) terminated-agents))
+				(hoodoo (car q-rq) "queue")
 				(loop (cdr q-rq)))
 			 (begin
 				(stop-timer 'queue)
@@ -408,6 +443,9 @@
 				(test-queue-size q-rq N)
 				(loop q-rq)))
 		)
+	  ((and (>= t stop) (running-queue q-rq stop))
+		(stop=timer 'queue)
+		(shutdown-agents q-rq))
 	  )
 	 )
   (stop-timer 'queue)
@@ -532,14 +570,19 @@ NOTE PARTICULARLY: if the flag blue-meanie is set, agents can only access the ke
 their model-body is running.  
 ")
 
+;; This is wrapped by "kernel" in the agents .... recall that objects do not have
+;; access to the kernel except by using kernel-call.
 (define (kernel-call Q client query #!rest args)
   (if (null? args) (set! args #f))
   
+  ;(dnl* "In kernel-call, Qlen" (length Q) (name client) query args)
+
   (if (string? query)
 		(set! query (string->symbol query))
 		(if (and (pair? args) (null? (cdr args)) (pair? (car args)) (= 1 (length args)))
 			 (set! args (car args))) ;;
 		)
+
   (cond
    ((and (or (eqv? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
 	 (if monitors-monitor-themselves
@@ -551,6 +594,7 @@ their model-body is running.
 	 (apply (cadr args) (cons query (cddr query))))
 
    ((symbol? query)
+	 ;;(dnl* "Dispatch to standard query:" query)
     (case query
 		((runqueue)
 		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>) (isa? client <introspection>))
@@ -585,12 +629,12 @@ their model-body is running.
 					  Q)))
 
 		((locate)
-		 (let ((location (car args))
-				 (selector (if (pair? (cdr args)) (cadr args) #f))
+		 (let ((selector (car args))
+				 (location (cadr args))
 				 (radius (if (pair? (cddr args)) (caddr args) #t)))
-			(locate Q selector location radius))
-
-		 )
+			;;;(dnl* "(locate ...)" (pp-to-string selector) location radius)
+			(locate Q selector location radius)
+			))
 
 		((shutdown)
 		 (let ((A (if (pair? args) args (list args))))
@@ -685,7 +729,7 @@ their model-body is running.
 ;; 	   indicates that the agents in list-of-new-agents should be
 ;; 	   added to the simulation
 
-;; 	(list 'remove-me dt)
+;; 	(list 'remove dt)
 ;; 	   indicates that an agent should be removed from the simulation
 
 ;; 	(list 'migrate dt list-of-suggestions)
@@ -705,11 +749,8 @@ their model-body is running.
   "arguments that might be required."
   )	
 
-(define boink 'undone)
-
 (define (prep-activate pa-rq q-entry)
   (kdebug 'prep "Prepping, in lambda")
-  (set! boink q-entry)
   (if (isa? q-entry <agent>)
 		(let ((kernel (lambda x (apply kernel-call (cons pq-rq (cons q-entry x )))))
 				)
@@ -729,7 +770,10 @@ their model-body is running.
   ;;  (dnl* "Prepping from" start "to" end)
 ;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
   
-  (for-each (lambda (x) (prep-activate Q x)) Q)
+  (for-each (lambda (x)
+				  (initialisation-checks x)
+				  (prep-activate Q x)) Q)
+  @
   )
 
 (definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
@@ -749,38 +793,49 @@ their model-body is running.
 (define split-flexibly #f) ;; Not implemented yet -- will allow each subdivision to be unequal in area
 (define use-queue-for-locate #t)
 
-(define (locate Q sel location #!rest radius)
-  (let ((selector (cond
-						 ((eq? sel #t) (lambda (x) #t)) ;; return all candidates
-						 ((procedure? sel) sel)
-						 ((isa? sel <class>) (lambda (x) (isa? x sel )))
-						 ((string? sel) (lambda (x) ((*is-taxon? sel) x)))
-						 (#t (error "Bad selector passed to locate" sel)))))
-	 (if use-queue-for-locate
-		  (filter (lambda (x)
-						 (and (isa? x <thing>) (selector x) (or (eq? radius #t) (<= (distance x location) radius))))
-					 Q)
-		  (letrec ((traverse
-						(lambda (node)
-						  (cond
-							((null? node)
-							 '())
-							((= (length node) 3) ;; bottom
-							 (if (point-in-polygon location (bbox (car node) (cadr node)))
-								  node
-								  #f))
-							((= (length node) 6) ;; bottom
-							 (if (not (point-in-polygon location (bbox (car node) (cadr node))))
-								  #f
-								  (let* ((q (map traverse (cddr node)))
-											(qr (filter (lambda (x) x) q)))
-									 (if (null? qr)
-										  '()
-										  (car qr)))))
-							(#t (error "bad traversal in environment locate call" node location))))))
-			 (traverse location-tree))
-		  )
-	 ))
+(define (locate Q sel #!rest args)
+  (let* ((locus (if (pair? args) (car args) #f))
+			(radius (if (and (pair? args) (pair? (cdr args))) (cadr args) #t))
+			(selector (cond
+						  ((eq? sel #t) (lambda (x) #t)) ;; return all candidates
+						  ((isa? sel <class>) (*is-class? sel))
+						  ((string? sel) (lambda (x) (*is-taxon? sel) x))
+						  ((list? sel) (*is-? sel))
+						  ((procedure? sel) sel)
+						  (#t (error "Bad selector passed to locate" sel)))))
+		(if use-queue-for-locate
+			 (filter (lambda (x)
+						  (and (selector x)
+								 (or (not (isa? x <thing>))
+									  (and (isa? x <thing>)
+											 (or (boolean? radius)
+												  (= radius +inf.0)
+												  (eq? radius #t)
+												  (<= (distance (location x) locus) radius)))
+									  ))
+						  )
+						Q)
+			 (letrec ((traverse
+						  (lambda (node)
+							 (cond
+							  ((null? node)
+								'())
+							  ((= (length node) 3) ;; bottom
+								(if (point-in-polygon locus (bbox (car node) (cadr node)))
+									 node
+									 #f))
+							  ((= (length node) 6) ;; bottom
+								(if (not (point-in-polygon locus (bbox (car node) (cadr node))))
+									 #f
+									 (let* ((q (map traverse (cddr node)))
+											  (qr (filter (lambda (x) x) q)))
+										(if (null? qr)
+											 '()
+											 (car qr)))))
+							  (#t (error "bad traversal in environment locate call" node locus))))))
+				(traverse location-tree))
+			 )
+		))
 
 
 (define (add-thing-to-location self entity location)
@@ -811,9 +866,8 @@ their model-body is running.
 		(set! N (if (null? N) #f (car N)))
 
 		(cond
-		 ((member (slot-ref (car run-agent-runqueue) 'agent-state) '(terminated dead))
-		  (if keep-terminated-agents
-				(set! terminated-agents (cons (car run-agent-runqueue) terminated-agents)))
+		 ((member (slot-ref (car run-agent-runqueue) 'agent-state) '(terminated))
+		  (hoodoo (car run-agent-runqueue) "run-agent")
 		  (cdr run-agent-runqueue)
 		  )
 		 (#t (let* ((local-run-agent-runqueue run-agent-runqueue)
@@ -822,6 +876,7 @@ their model-body is running.
 					  (agent-state (slot-ref process 'agent-state))
 					  )
 				 (or (eqv? agent-state 'running)
+					  (eqv? agent-state 'dead);; dead is like running, but not alive ;-)
 					  (eqv? agent-state 'ready-to-run)
 					  (and (eqv? agent-state 'ready-for-prep)
 							 (abort (string-append
@@ -848,7 +903,10 @@ their model-body is running.
 				 ;; Here result should be a complex return value, not the
 				 ;; number of ticks used.
 				 (let* ((kernel
-							(lambda x (apply kernel-call (cons local-run-agent-runqueue (cons process x))))
+							(lambda x
+							  ;;(dnl* "calling kernel with" (cnc process) (name process) x)
+							  ;;(dnl* "The queue has" (length local-run-agent-runqueue) "entries")
+							  (apply kernel-call (cons local-run-agent-runqueue (cons process x))))
 							)
 						  
 						  (result (cond
@@ -882,89 +940,106 @@ their model-body is running.
 				 
 				 (if (not (slot-ref process 'agent-body-ran))
 					  (begin
-						 (error
-						  (string-append
-							"The agent " (cnc process) ":" (name process)
-							" failed to chain back to the base <agent> "
-							"model-body.\n"
-							"This suggest that things have gone very wrong; "
-							"check that there is a call like (call-next-parent-body).")
-						  )
+						 (if #f
+							  (error
+								(string-append
+								 "The agent " (cnc process) ":" (name process)
+								 " failed to chain back to the base <agent> "
+								 "model-body.\n"
+								 "This suggest that things have gone very wrong; "
+								 "check that there is a call like (call-parents).")
+								))
 						 'missed-model-body)
-					  (slot-set! process 'runcount (+ (slot-ref process 'runcount) 1))
 					  )
-				 (let ()
-					(cond
-					 ((eqv? result 'ok)
-					  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
-					  local-run-agent-runqueue)
+				 (let ((return-list
+						  (cond
+							((eqv? result 'ok)
+							 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+							 local-run-agent-runqueue)
 
-					 ((number? result) 
-					  ;; The result (in this case) is the amount of time used
-					  ;; measured from the subjective-time of the agent.
-					  ;; q-insert knows how to find out "when" the agent is,
-					  ;; and will re-insert it correctly.  subjective-time is
-					  ;; updated
-					  (abort "(run ...) returned a number rather than a state")
-					  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
+							((number? result) 
+							 ;; The result (in this case) is the amount of time used
+							 ;; measured from the subjective-time of the agent.
+							 ;; q-insert knows how to find out "when" the agent is,
+							 ;; and will re-insert it correctly.  subjective-time is
+							 ;; updated
+							 (abort "(run ...) returned a number rather than a state")
+							 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+							 local-run-agent-runqueue
+							 )
 
-					 ((symbol? result) ;;----------------------------------------------
-					  (let ()
-						 (dnl "Got " result)
+							((symbol? result) ;;----------------------------------------------
+							 (let ()
+								(dnl "Got " result)
 
-						 (cond
-						  ((eqv? result 'remove)
-							local-run-agent-runqueue)
-						  (else 
-							(cons result local-run-agent-runqueue)))
-						 ))
-					 ((eqv? result #!void)
-					  (let ((s
-								(string-append "A " (cnc process)
-													" tried to return a void from its "
-													"model-body.  This is an error")))
-						 ;;(Abort s)
-						 (abort s)
-						 ))
-					 (#t
-					  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
-					 ((list? result)
-					  (case (car result)
-						 
-						 ;; Remove ===============================================================
-						 ('remove
-						  local-run-agent-runqueue
-						  ) ;; end of the migration clause
+								(cond
+								 ((eqv? result 'remove)
+								  local-run-agent-runqueue)
+								 (else 
+								  (cons result local-run-agent-runqueue)))
+								))
+							((eqv? result #!void)
+							 (let ((s
+									  (string-append "A " (cnc process)
+														  " tried to return a void from its "
+														  "model-body.  This is an error")))
+								;;(Abort s)
+								(abort s)
+								))
+							((list? result)
+							 (case (car result)
+								;; Remove ===============================================================
+								('remove
+								 local-run-agent-runqueue
+								 ) 
 
-						 ;; Migrate to a different model representation ==========================
-						 ('migrate
-						  #f
-						  ) ;; end of the migration clause
+								;; Migrate to a different model representation ==========================
+								 ;; model migration implies correct execution of the timestep
+								('migrate-representation
+								 (for-each
+								  (lambda (x) ;; insert all component agents for new representation
+									 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))
+								  (cdr result))
+								 local-run-agent-runqueue
+								 ) ;; end of the migration clause
 
-						 ;; insert spawned offspring into the
-						 ;;system ** not implemented in make-entity
-						 ('spawnlist ;;-----------------------------------------------------------
-						  #f
-						  )
-						 (else 'boink)
-						 ) ; case
-					  ) ; cond clause
-					 )
-					)
-				 (test-queue-size local-run-agent-runqueue N)
-				 (kdebug 'run-agent "Finished with run-agent" (name process)
-							"@" (slot-ref process 'subjective-time))
-				 ;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
-				 ;; One might need to have a method that will take a kernelcall procedure from
-				 ;; another agent if there is out-of-band activity that requires a kernelcall.
-				 ;; This is the conservative option.
-				 local-run-agent-runqueue)
-				 )
+								;; Spawn to a different model representation ==========================
+								;; insert spawned offspring into the system, the agent handles the creation
+								;; of the offspring (appropriately enough)
+								('spawn
+								 ;; Spawning implies correct execution of the timestep
+								 
+								 ;; Something like salmon will flag themselves as dead in their final spawning tick
+								 (if (not (member (slot-ref process 'agent-state) '(terminated)))
+									  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
+								 (for-each
+								  (lambda (x) ;; insert each child in the runqueue
+									 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))
+								  (cdr result))
+								 local-run-agent-runqueue
+								 )
+								(else (error "The frog has left the building!"))
+								) ; case
+							 ) ; cond clause
+							(#t
+							 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+							 local-run-agent-runqueue
+							 )
+							)))
+					(test-queue-size return-list N)
+					(kdebug 'run-agent "Finished with run-agent" (name process)
+							  "@" (slot-ref process 'subjective-time))
+					;; *********** THIS IS NOT THE ONLY WAY TO DO THIS **************
+					;; One might need to have a method that will take a kernelcall procedure from
+					;; another agent if there is out-of-band activity that requires a kernelcall.
+					;; This is the conservative option.
+					return-list
+					) )
 			  )
 		 )
 		)
 	 )
-  )
+  ))
 
 
 (definition-comment 'run-simulation

@@ -14,7 +14,7 @@
     (list 'type 'plant)
 	 (list 'representation 'simple-individual)
 	 (list 'I-need '(water))
-	 (list 'provides '(fruit seeds vegetation))
+	 (list 'provides '(vegetation)) ;; the tree itself does not provide fruit or seeds!
 	 (list 'requires '(water)
 	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
 	 (list 'population-switch (/ (* 10000 kg)  hectare)));; if the density is greater than 10000 kg plants in a hectare
@@ -49,6 +49,8 @@
     (list 'water-stress-effect #t) ;; changes fruiting 
     (list 'water-stress 0)
     (list 'water-use 4/5)
+
+	 (list 'leaf-mass (/ (* 1 kg) (* 300))) ;; 300 leaves make a kilogram
 
 	 ;;(list 'leaf-area '<uninitialised>) ;; derive from mass : real leaf area
     (list 'reproduction-mass (* 12 kg))

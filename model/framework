@@ -674,7 +674,7 @@ how much time they have actually used."
 ;;; 		  `(if (and #t (not (generic-method-register 'type? 'run-model-body)))
 ;;; 				 (Error "instantiating model-body with a declaration of run-model-body"))
 ;;; 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
-;;; 														 (lambda (call-next-parent-body self t dt)
+;;; 														 (lambda (call-parents self t dt)
 ;;; 															;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
 ;;; 															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body) (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies (construct-symbol (slot-ref self 'name))) (slot-ref self 'name) "Entering" (class-name-of ,myclass) "model-body at time" t "+" dt)
 ;;; 															(let* ((method-id ,method-id)
@@ -722,47 +722,67 @@ how much time they have actually used."
 		  `(if (and #t (not (generic-method-register 'type? 'run-model-body)))
 				 (Error "instantiating model-body with a declaration of run-model-body"))
 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
-														 (lambda (call-next-parent-body self t dt)
+														 (lambda (call-parents self t dt)
 															;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
-															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body) (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies (construct-symbol (slot-ref self 'name))) (slot-ref self 'name) "Entering" (class-name-of ,myclass) "model-body at time" t "+" dt)
-															(let* ((method-id ,method-id)
-																	 (my (lambda (x) (slot-ref self x)))
-																	 (set-my! (lambda (x y) (slot-set! self x y)))
-																	 (initialised? (lambda () (slot-ref! self 'initialised)))
-																	 (initialised! (lambda () (slot-set! self 'initialised #t)))
-																	 (initialise (lambda  state (dnl* (cnc self) "/" (my 'name) "called initialise in body?")))
-																	 (reset-taxon (lambda (newtax) (slot-set! self 'taxon newtax)))
-																	 (kernel (slot-ref self 'kernel))
-																	 )
-															  (kdebug 'time-team "Entering wrapper with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-															  (if (> (abs (- (slot-ref self 'subjective-time) t)) (slot-ref self 'agent-epsilon))
-																	(error "Too much lost time! Possibly uncontrolled numeric error or a bug\n" 'st: (slot-ref self 'subjective-time) 't: t ))
-															  (set! dt (min (my 'dt) dt))
+															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body)
+																			  (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies
+																			  (construct-symbol (slot-ref self 'name)))
+																	  (slot-ref self 'name) "Entering"
+																	  (class-name-of ,myclass) "model-body at time" t "+" dt)
+															(letrec ((no-parent-body (lambda args (set! call-parents no-parent-body) dt)))
+															  (let* ((method-id ,method-id)
+																		(my (lambda (x) (slot-ref self x)))
+																		(set-my! (lambda (x y) (slot-set! self x y)))
+																		(initialised? (lambda () (slot-ref! self 'initialised)))
+																		(initialised! (lambda () (slot-set! self 'initialised #t)))
+																		(initialise (lambda  state (dnl* (cnc self) "/" (my 'name) "called initialise in body?")))
+																		(reset-taxon (lambda (newtax) (slot-set! self 'taxon newtax)))
+																		(kernel (slot-ref self 'kernel))
+																		)
+																 (kdebug 'time-team "Entering wrapper with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
+																 (if (> (abs (- (slot-ref self 'subjective-time) t)) (slot-ref self 'agent-epsilon))
+																	  (error "Too much lost time! Possibly uncontrolled numeric error or a bug\n"
+																				'st: (slot-ref self 'subjective-time) 't: t ))
+																 (set! dt (min (my 'dt) dt))
 
-															  (kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-															  (let ((body-result
-																		(begin
-																		  (kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'trace-model-body) "Running model body for " method-id (if (agent? self) (slot-ref self 'name) "<object>") " at " t '/ (slot-ref self 'subjective-time) '+ dt)
-																		  dt ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
-																		  ,@body
-																		  ))
-																	  )
 																 (kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-																 (kdebug 'model-body "returns with dt" dt " and with result" body-result)
+																 (let ((body-result
+																		  (begin
+																			 (kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name))
+																								(construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body)
+																								'trace-model-body) "Running model body for " method-id
+																								(if (agent? self) (slot-ref self 'name) "<object>")
+																								" at " t '/ (slot-ref self 'subjective-time) '+ dt)
+																			 ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
+																			 (if (not (eqv? (agent-state self) 'suspended))
+																				  (begin
+																					 dt
+																					 ,@body)
+																				  dt)
+																			 ))
+																		 )
+																	(kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
+																	(kdebug 'model-body "returns with dt" dt " and with result" body-result)
 
-																 (if (and (number? dt) (> dt 0) (not (slot-ref self 'agent-body-ran)))
-																	  (begin
-																		 ;; DO NOT DO THIS -- this is handled in the "run" method in framework.methods.  If
-																		 ;; times are not being adjusted, it indicates that there is a break in the chaining back through parent classes
-																		 ;;**** (slot-set! self 'subjective-time (+ (slot-ref self 'subjective-time) dt))  ****
-																		 (slot-set! self 'counter
-																						(+ 1 (slot-ref self 'counter)))
-																		 (slot-set! self 'agent-body-ran #t))
-																	  )
-																 (kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'trace-model-body) "Leaving" (cnc self)": " self "with" body-result)
-																 body-result
-																 )
-															  )
+																	(if (and (number? dt) (> dt 0)
+																				(not (slot-ref self 'agent-body-ran)) ;; this ensures that the update only happens once per timestep
+																				(eq? ,myclass (class-of self)) ;; this restricts the block to executing in the 'outermost'
+																				)                             ;; model body (that of the the first argument in the (create ...) call)
+																		 (begin
+																			;; DO NOT CHANGE THE SUBJECTIVE TIME -- it is handled in the "run" method in framework-methods.  If
+																			;; times are not being adjusted, it indicates that there is a break in the chaining back through parent model-bodies
+
+																			;; The counter variable can be used as an indicator for conditional initialisation -- it is only zero on the
+																			;; first pass through an agent's chain of model bodies.
+																			(slot-set! self 'counter
+																						  (+ 1 (slot-ref self 'counter)))
+																			(slot-set! self 'agent-body-ran #t))
+																		 )
+																	(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon))
+																					  (construct-symbol (cnc self) 'body) 'trace-model-body) "Leaving" (cnc self)": " self "with" body-result)
+																	body-result
+																	)
+																 ))
 															;; exit point
 															)
 														 )
@@ -785,7 +805,7 @@ how much time they have actually used."
   `(model-body ,myclass
 					(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'trace-model-body)
 					 ',myclass (slot-ref self 'name) "is using its parents model-body")
-					(call-next-parent-body)))
+					(call-parents)))
 
 
 

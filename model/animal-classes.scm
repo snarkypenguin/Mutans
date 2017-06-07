@@ -10,6 +10,7 @@
   (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
   (state-variables
 	mass
+	decay-rate
 	period-of-hunger ;; how long it's been hungry
 	hunger-limit ;; amount of time it can be hungry before death
 	max-satiety ;; maximum number of satiety points
@@ -29,6 +30,7 @@
   (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
   (state-variables stomach-contents 
 						 mass            ;; kg
+						 decay-rate
 						 structural-prop ;; structural-mass increases as
 						 ;; mass increases -- all things
 						 ;; that have metabolism must have
@@ -93,7 +95,7 @@
 
 (define-class <simple-animal>
   (inherits-from <simple-metabolism> <thing>)
-  (state-variables age sex searchradius ;; we have mass here because things might eat them....
+  (state-variables age sex  ;; we have mass here because things might eat them....
 						 habitat  ;; an landscape agent that encompasses a number of potential domains
 						          ;;    or a list that does the same thing ... not currently used
 						 domain   ;; an environment of some sort (they have to live somewhere!)
@@ -106,6 +108,8 @@
 						 nominal-growth-rate
 						 population-switch ;; level at which it might pay to switch to analytic form
 
+						 search-radius
+						 eat-radius    ;; the radius within which we will consider food to be accessible immediately
 						 distance-cost
 						 )
   ) ;; lists of attributes it looks for for eating, denning and breeding
@@ -136,6 +140,7 @@
   (state-variables
 	peak-mass
 
+	max-age ;; the hard limit
 	omega-ind ;; individual mortality
 
 	adult-diet-mass

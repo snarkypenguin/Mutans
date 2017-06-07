@@ -14,6 +14,11 @@
 	 (list 'maintenance-list '())
     ;;(list 'population-switch '<uninitialised>)
 
+	 (list 'plot-magnification 120)
+	 ;;(list 'plot-magnification 40)
+	 (list 'plot-circle-facets 12)
+
+	 (list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
     (list 'max-age (* 37 years))
     (list 'max-mass (* 150 kg))
 	 (list 'mass '($ (nrnd 10 4 0 150)))
@@ -22,7 +27,7 @@
     (list 'water-stress 0)
     (list 'water-use 4/5)
 
-	 (list 'growth-rate (lambda (mass stress) (if (> stress 1) 0 (min (/ 0.1 week)  (/ 900.0 (+ (* mass mass) 1)))))) ;; example
+	 (list 'growth-rate (lambda (m stress) (if (> stress 1) 0 (min (/ 0.1 week)  (/ 900.0 (+ (* m m) 1)))))) ;; example
     (list 'age '<uninitialised>)
 	 ;;(list 'leaf-area '<uninitialised>) ;; real leaf area
     (list 'reproduction-mass (* 18 kg))

@@ -38,6 +38,14 @@
 (define eval-marker '$)
 
 
+(define (all-slotnames obj)
+  (map car (class-slots (class-of obj))))
+
+(define (all-slots obj)
+  (let ((names (all-slotnames obj)))
+	 (map (lambda (x) (list x (slot-ref obj x))) names)))
+
+
 ;-- Define abstract-register ... routine to create registers
 
 ;; Registers to associate  classes, methods and objects with their name.
@@ -255,7 +263,6 @@ communication (without cheating)."
 						 ;;
 						 maintenance-list
 						 initialised
-						 runcount
 						 )
 	)
 
@@ -453,18 +460,23 @@ communication (without cheating)."
 												  ;(apply initialise (cons self initargs))
 												  self) ))
 
+(define (null=#f arg)
+  (if (or (not arg) (null? arg))
+		#f
+		arg))
 
 (define no-slot-in-object 'no-slot-in-object)
 
 ;; The *is- and *has- routines return predicate functions
 (define (*is-class? targetclass #!rest plural)
+  (set! targetclass (cons targetclass plural))
   ;; this odd way of specifying arguments  ensures at last one arg
-  (let ((targets (cons targetclass plural))) 
+  (let ((targets (filter class? targetclass)))
 	 (lambda (x)
-		(if (eq? x 'inspect)
-			 ;;(dnl* "targetclass =" targetclass ": plural =" plural ": targets =" targets)
-			 (list targets)
-			 (apply orf (map (lambda (target) (isa? x target)) targets)))
+		(null=#f (if (eq? x 'inspect)
+						 ;;(dnl* "targetclass =" targetclass ": plural =" plural ": targets =" targets)
+						 (list targets)
+						 (apply orf (map null=#f (map (lambda (target) (isa? x target)) targets)))))
 		)))
 
 
@@ -474,11 +486,11 @@ communication (without cheating)."
 "
 
 (define (*has-slot? slot)
-  (let ((slot slot))
+  (let ((slot (filter symbol? slot)))
 	 (lambda (x) 
-		(if (list? slot)
-			 (apply orf (map (lambda (y) (has-slot? x y)) slot))
-			 (has-slot? x slot)))))
+		(null=#f (if (list? slot)
+						 (apply orf (map (lambda (y) (has-slot? x y)) slot))
+						 (has-slot? x slot))))))
 
 
 (define (*has-slot-value? slot v)
@@ -486,17 +498,17 @@ communication (without cheating)."
 		  (v v))
 	 (cond
 	  ((procedure? v) ;; v is a predicate function
-		(lambda (x) (if (not (has-slot? x slot))
-							 #f
-							 (v x))))
+		(lambda (x) (null=#f (if (not (has-slot? x slot))
+										 #f
+										 (v x)))))
 	  ((list? v)
-		(lambda (x) (if (not (has-slot? x slot))
+		(lambda (x) (null=#f (if (not (has-slot? x slot))
 							 #f
-							 (eqv? v x))))
+							 (eqv? v x)))))
 	
-	  (#t 	 (lambda (x) (if (not (has-slot? x slot))
+	  (#t 	 (lambda (x) (null=#f (if (not (has-slot? x slot))
 									  #f
-									  (eq? v x)))))))
+									  (eq? v x))))))))
 "Examples might be 
    (*has-slot-value 'age (lambda (age) (and (<= 7 age) (<= age 20))))
    (*has-slot-value 'reproductive-state '(adolescent adult post-breeding))
@@ -507,25 +519,73 @@ and so it is excluded.
 "
 
 
-(define (*is-taxon? targettaxa #!rest cmp)
+(define (*is-taxon? target #!rest s)
+  (let* ((targets (filter string? (cons target s)))
+			(cmpop string=?))
 	 (lambda (x)
-		(let* ((c (if (null? cmp) '() (car cmp)))
-				 (cmpop (cond
-						  ((null? c) string=?)
-						  ((eq? c 'ci) string-ci-?)
-						  ((eq? c 'wild) wildmatch)
-						  ((eq? c 'wild-ci) wildmatch-ci)
-						  (#t eqv?))))
-		(if (list? targettaxa)
-			 (apply orf (map (lambda (y) (cmpop y (slot-ref x 'taxon))) targettaxa))
-			 (cmpop targettaxa (slot-ref x 'taxon))))))
+		(null=#f (if (null? targets)
+			 #f
+			 (if (list? targets)
+				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+				  (cmpop targets (taxon x))))))))
 
 
-(define (*is-*? target #!rest plural)
-  (or (apply orf (map (lambda (x) (*is-class? x)) (filter class? (cons target plural))))
-		(apply orf (map (lambda (x) (*has-slot? x)) (filter symbol? (cons target plural))))
-		(apply orf (map (lambda (x) (*is-taxon? x)) (filter string? (cons target plural))))))
+(define (*is-taxon-ci? targets #!rest s)
+  (let* ((targets (filter string? (cons target s)))
+			(cmpop string-ci=?))
+	 (lambda (x)
+		(null=#f (if (null? targets)
+			 #f
+			 (if (list? targets)
+				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+				  (cmpop targets (taxon x))))))))
 
+(define (*is-taxon-wild? targets #!rest s)
+  (let* ((targets (filter string? (cons target s)))
+			(cmpop wildmatch))
+	 (lambda (x)
+		(null=#f (if (null? targets)
+			 #f
+			 (if (list? targets)
+				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+				  (cmpop targets (taxon x))))))))
+
+
+(define (*is-taxon-wild-ci? target #!rest s)
+  (let* ((targets (filter string? (cons target s)))
+			(cmpop wildmatch-ci))
+	 (lambda (x)
+		(null=#f (if (null? targets)
+			 #f
+			 (if (list? targets)
+				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+				  (cmpop targets (taxon x))))))))
+
+(define (*provides? target #!rest s)
+  (let ((targets (filter symbol? (cons target s))))
+	 (lambda (A)
+		(null=#f (if (null? targets)
+			 #f
+			 (apply orf (map null=#f (map (lambda (s) (provides? A s)) targets))))))))
+
+
+(define (*is-*? target #!rest s)
+  (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
+			(C (*is-class? targets))
+			(S (*has-slot? targets))
+			(T (*is-taxon? targets))
+			)
+	 (lambda (x)
+		(null=#f (or (C x) (S x) (T x)))))
+
+(define (*provides-*? target #!rest s)
+  (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
+	 (let ((C (apply *is-class? targets))
+			 (P (apply *provides? targets))
+			 (T (apply *is-taxon? targets))
+			 )
+		(lambda (x)
+		  (null=#f (or (C x) (P x) (T x)))))))
 
 (define (cnc a) (class-name-of (class-of a)))
 (define (cncs a) (string->symbol (class-name-of (if (class? a) a (class-of a)))))
@@ -979,6 +1039,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	  (reverse the-classes)) ;; run from most general to most specific
 
 	 (set-state-variables instance statevars) ;; these come from the create call...
+
 	 (if (kdebug? 'initialisation) (dumpslots instance))
   instance
   ))
@@ -991,7 +1052,8 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 
 	 (slot-set! instance 'subjective-time 0)
-	 (slot-set! instance 'runcount 0)
+	 (slot-set! instance 'counter 0)
+
 	 ;; subjective time must be set either in the taxon, in the
     ;; statevars, or explicitly after initialisation
 	 (apply-initialisation instance taxon #t)
@@ -999,12 +1061,15 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 	 (dumpslots instance)
 	 
+	 (set-state-variables instance statevars)
+
 	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
 				(eqv? (slot-ref instance 'name) <nameless>))
-		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
+		  (slot-set! instance 'name (serial-number taxon))) ;; may be overridden/overwritten
 
-	 (set-state-variables instance statevars)
 	 (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
+
+	 (initialisation-checks instance)
 	 instance
 	 )
   )

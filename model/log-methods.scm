@@ -38,7 +38,11 @@ close pages and emit 'showpage' for postscript stuff.
 		  #f)))
 
 
-
+;; (model-method <log-introspection> (set-default-font self file)
+;;   (if (member (my 'format) '(ps postscript postscript-text))
+;; 		(begin
+;; 		  (file 'set-font (my 'default-font) (my 'default-size))
+;; 		  (file 'set-gray ps-black))))
 
 ;; Logger agents (things that inherit from introspection, really) have
 ;; a high priority; as a consequence they get sorted to the front of a
@@ -93,12 +97,7 @@ close pages and emit 'showpage' for postscript stuff.
 ;;  (set-state-variables self args)
 ;;  )
 
-(model-body% <log-introspection>
-		(kdebug '(log-* introspection-trace)
-				  "[" (my 'name) ":" (cnc self) "]"
-				  "Introspection: model-body")
-		(if (<= (my 'runcount) 0)
-			 (begin
+(model-method <log-introspection> (initialisation-checks self)
 				(if (uninitialised? (my 'filename-timescale))
 					 (set-my! 'filename-timescale 6))
 
@@ -106,22 +105,30 @@ close pages and emit 'showpage' for postscript stuff.
 					 (begin
 						;;(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
 						(slot-set! self 'report-time-table (make-table))))
+)				  
 
-				(if (my 'output-projection)
-					 (let ((->out (my 'output-projection))
-							 (m->l (my 'model->local)))
+(model-body% <log-introspection>
+		(kdebug '(log-* introspection-trace)
+				  "[" (my 'name) ":" (cnc self) "]"
+				  "Introspection: model-body")
+		;; (if (<= (my 'counter) 0)
+		;; 	 (begin
+
+				;; (if (my 'output-projection)
+				;; 	 (let ((->out (my 'output-projection))
+				;; 			 (m->l (my 'model->local)))
 				  
-						(cond
-						 ((member ->out '(ps PS postscript Postscript PostScript POSTSCRIPT))
-						  (set-my! 'model->local (lambda (p) (map mm->points (m->l p)))))
-						 ((procedure? ->out)
-						  (set-my! 'model->local (lambda (p) (-> out (m->l p)))))
-						 ((symbol? ->out)
-						  (error "Unrecognised symbol for the output mapping" name ->out))
+				;; 		(cond
+				;; 		 ((member ->out '(ps PS postscript Postscript PostScript POSTSCRIPT))
+				;; 		  (set-my! 'model->local (lambda (p) (map mm->points (m->l p)))))
+				;; 		 ((procedure? ->out)
+				;; 		  (set-my! 'model->local (lambda (p) (-> out (m->l p)))))
+				;; 		 ((symbol? ->out)
+				;; 		  (error "Unrecognised symbol for the output mapping" name ->outb))
 
-						 (set-my! 'output-projection #f) ;; Done, no need to do anything else
-						 )))
-				))
+				;; 		 (set-my! 'output-projection #f) ;; Done, no need to do anything else
+				;; 		 )))
+				;; ))
 
 
 		(let ((sched (my 'timestep-schedule))
@@ -146,7 +153,7 @@ close pages and emit 'showpage' for postscript stuff.
 		  (emit-page self)
 
 		  ;;(skip-parent-body)
-		  (call-next-parent-body) ;; parent body sets the time step used
+		  (call-parents) ;; parent body sets the time step used
 		  dt
 		  ))
 
@@ -302,6 +309,7 @@ close pages and emit 'showpage' for postscript stuff.
 						  (if (or (not (string? fn) (not fn) (zero? (string-length fn))))
 								(set! file (current-output-port))
 								(set! file (open-output-file fn)))
+;;						  (set-default-font self file)
 						  ))
 					  ((memq file (list (current-output-port) (current-error-port)))
 						;; do nothing really
@@ -325,11 +333,13 @@ close pages and emit 'showpage' for postscript stuff.
 						  (if (or (not fn) (and (string? fn) (zero? (string-length fn))))
 								(set! file (current-output-port))
 								(set! file (open-output-file fn)))
+;;						  (set-default-font self file)
 						  )
 						)
 					  )
 					 
 					 (set-my! 'file file)
+;;					 (set-default-font self file)
 
 					 (kdebug '(introspection logfile) "[" (my 'name) ":"
 							  (cnc self) "]" "opened" file)
@@ -351,24 +361,29 @@ close pages and emit 'showpage' for postscript stuff.
 ;(use-parent-body <snapshot>)
 
 (define (colour-mapping C)
-  (case C
-	 ((#t) 0.0)
-	 ((#f) 1.0)
-	 ((red) '(1.0 0.0 0.0))
-	 ((darkred) '(0.5 0.0 0.0))
-	 ((lightred) '(1.0 0.5 0.5))
-	 ((green) '(0.0 1.0 0.0))
-	 ((darkgreen) '(0.0 0.5 0.0))
-	 ((lightgreen) '(0.5 1.0 0.5))
-	 ((blue) '(0.0 0.0 1.0))
-	 ((darkblue) '(0.0 0.0 0.5))
-	 ((lightblue) '(0.5 0.5 1.0))
-	 ((grey gray) '(0.5 0.5 0.5))
-	 ((lightgrey lightgray) '(0.82 0.82 0.82))
-	 ((midgrey midgray) '(0.75 0.75 0.75))
-	 ((darkgrey darkgray) '(0.3 0.3 0.3))
-	 ((black) '(0.0 0.0 0.0))
-	 ((white) '(1.0 1.0 1.0))
+  (cond
+	((number? C)
+	 C
+	 )
+	((or (boolean? C) (symbol? C))
+	 (case C
+		((#t) 0.0)
+		((#f) 1.0)
+		((red) '(1.0 0.0 0.0))
+		((darkred) '(0.5 0.0 0.0))
+		((lightred) '(1.0 0.5 0.5))
+		((green) '(0.0 1.0 0.0))
+		((darkgreen) '(0.0 0.5 0.0))
+		((lightgreen) '(0.5 1.0 0.5))
+		((blue) '(0.0 0.0 1.0))
+		((darkblue) '(0.0 0.0 0.5))
+		((lightblue) '(0.5 0.5 1.0))
+		((grey gray) '(0.5 0.5 0.5))
+		((lightgrey lightgray) '(0.82 0.82 0.82))
+		((midgrey midgray) '(0.75 0.75 0.75))
+		((darkgrey darkgray) '(0.3 0.3 0.3))
+		((black) '(0.0 0.0 0.0))
+		((white) '(1.0 1.0 1.0))
 	 (else
 	  (cond
 		((and (number? C) (inexact? C) (<= 0.0 C) (<= C 0.1))
@@ -382,49 +397,24 @@ close pages and emit 'showpage' for postscript stuff.
 
 		((and (list? C) (= (length C) 3) (apply andf map (lambda (v) (and (integer? v) (<= 0 v) (<= v 255))) C))
 		 (map (lambda (v) (/ v 255.0)) C))
-		(#t (error "Bad colour" C))))))
+		(else (error "Bad colour" C))))))
+	(else (error "Bad colour" C))
+	))
 		 
 
 
 
 ;---- log-map methods (inherits from <snapshot>)
  
-
-;;(model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
-;;				  (log-map-circle self ms:location radius mark-centre colour)
-;;				  (let* ((location (model->local self ms:location))
-;;							(radius (car (make-list (length location) radius)))
-;;							(col (colour-mapping colour))
-;;							(ps (my 'file))
-;;							)
-;;					 (dnl* "THIS IS BROKEN)
-;;					 (if mark-centre
-;;						  (begin
-;;							 (ps 'comment (string-append "log-map-circle at " (object->string ms:location) " " (number->string radius) " r."))
-;;							 (ps-circle ps (* 0.01 radius) location map:lightwidth col)
-;;							 ;(ps-circle ps (* 0.05 radius) location map:lightwidth col)
-;;							 (ps-circle ps (* 0.3 radius) location map:lightwidth col)
-;;							 (ps-circle ps (* 0.5 radius) location map:lightwidth col)
-;;							 (ps-circle ps (* 0.7 radius) location map:lightwidth col)
-;;							 ;(ps-circle ps (* 0.95 radius) location map:lightwidth col)
-;;							 ))
-;;					 
-;;					 (ps-circle ps (* 0.7 radius) location map:linewidth 0)))
-
-(model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
-				  (log-map-circle self ms:location radius mark-centre colour)
-				  #f)
-
-
-(model-method (<log-map> <list> <number> <boolean>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
-				  (log-map-polygon self ms:perimeter mark-centre colour)
-				  (let* ((perimeter (map (lambda (x) (model->local self x) ms:location)))
+(model-method (<log-map> <list>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
+				  (log-map-polygon self ms-poly #!optional colour)
+				  (let* ((perimeter (map (lambda (x) (model->local self x)) ms-poly))
 							(col (colour-mapping colour))
 							(ps (my 'file))
 							)
 
 					 (ps 'comment (string-append "log-map-polygon " (object->string perimeter)))
-					 (plot-polygon ps map:linewidth col 1 perimeter)))
+					 (plot-polygon ps map:linewidth col perimeter)))
 
 
 ;(use-parent-body <log-map>)
@@ -437,6 +427,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  (let ((filename (my 'filename))
 						  (filetype (my 'filetype))
 						  (file (my 'file))
+						  (format (my 'format))
 						  (t (my 'subjective-time))
 						  )
 
@@ -490,7 +481,8 @@ close pages and emit 'showpage' for postscript stuff.
 								(void)
 								(if (and (string? fn) (zero? (string-length fn)))
 									 (abort "Oh. Bother.")
-									 (set! file (make-ps fn '(Helvetica)))))
+									 (set! file (make-ps fn '(Helvetica)))
+										))
 						  )
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
 								 (cnc self) "]" "returning from preamble")
@@ -584,7 +576,8 @@ close pages and emit 'showpage' for postscript stuff.
 							 (if (or (not filename) (not (string? filename)) (zero? (string-length filename)))
 								  (set! file (current-output-port))
 								  (set! file (open-output-file filename))
-							 )
+								  )
+;;							 (set-default-font self file)
 							 (kdebug '(introspection logfile) "[" (my 'name) ":"
 									  (cnc self) "]" "opened" file)
 							 )
@@ -636,6 +629,7 @@ close pages and emit 'showpage' for postscript stuff.
 							 (set-my! 'file (current-output-port))
 							 )
 						  )
+;;					 (set-default-font self (my 'file))
 					 )
 				  (if (null? (my 'variables))
 						(let ((vars (reverse
@@ -798,6 +792,15 @@ close pages and emit 'showpage' for postscript stuff.
 					 ;; -- change #t to #f to get lines between "pages"
 					 )
 				  )
+
+
+
+
+
+
+(model-method (<log-statistics> <agent>)(stats-callback agnt #!optional data-list)
+				  #t)
+
 
 
 ;-  The End 

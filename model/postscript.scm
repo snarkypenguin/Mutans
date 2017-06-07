@@ -22,6 +22,59 @@
 ;;(load "utils.scm")
 ;;(load "constants.scm")
 
+(define ps-black 0.0)
+(define ps-dark-grey 0.33)
+(define ps-grey 0.5)
+(define ps-light-grey 0.66)
+(define ps-white 1.0)
+
+(define ps-red '(1.0 0.0 0.0))
+(define ps-green '(0.0 1.0 0.0))
+(define ps-blue '(0.0 0.0 1.0))
+(define ps-yellow '(1.0 1.0 0.0))
+(define ps-cyan '(0.0 1.0 1.0))
+(define ps-magenta '(1.0 0.0 1.0))
+
+(define ps-pale-red '(1.0 0.66 0.66))
+(define ps-pale-green '(0.66 1.0 0.66))
+(define ps-pale-blue '(0.66 0.66 1.0))
+(define ps-pale-yellow '(1.0 1.0 0.66))
+(define ps-pale-cyan '(0.66 1.0 1.0))
+(define ps-pale-magenta '(1.0 0.66 1.0))
+
+(define ps-mid-red (list 0.66 0.0 0.0))
+(define ps-mid-green (list 0.0 0.66 0.0))
+(define ps-mid-blue (list 0.0 0.0 0.66))
+(define ps-mid-magenta (list 0.66 0.0 0.66))
+(define ps-mid-yellow (list 0.66 0.66 0.0))
+(define ps-mid-cyan (list 0.0 0.66 0.66))
+
+(define ps-dark-red (list 0.33 0.0 0.0))
+(define ps-dark-green (list 0.0 0.33 0.0))
+(define ps-dark-blue (list 0.0 0.0 0.33))
+(define ps-dark-magenta (list 0.33 0.0 0.33))
+(define ps-dark-yellow (list 0.33 0.33 0.0))
+(define ps-dark-cyan (list 0.0 0.33 0.33))
+
+(define ps-orange (list 1.0 0.5 0.0))
+(define ps-rose (list 1.0 0.0 0.5))
+(define ps-springgreen (list 0.5 1.0 0.0))
+(define ps-purple (list 0.5 0.0 1.0 ))
+(define ps-limegreen (list 0.0 1.0 0.5))
+(define ps-seablue (list 0.0 0.5 1.0 ))
+
+(define ps-dark-orange (list 0.66 0.33 0.0))
+(define ps-dark-rose (list 0.66 0.0 0.33))
+(define ps-dark-springgreen (list 0.33 0.66 0.0))
+(define ps-dark-purple (list 0.33 0.0 0.66 ))
+(define ps-dark-limegreen (list 0.0 0.66 0.33))
+(define ps-dark-seablue (list 0.0 0.33 0.66 ))
+
+(define ps-Rgb (list 1.0 0.33 0.33))
+(define ps-rGb (list 0.33 1.00  0.33))
+(define ps-rgB (list 0.33 0.33 1.00))
+
+
 (define (make-it-a-string s) 
   (or (and (string? s) s) (and (char? s) (make-string 1 s)) (object->string s)))
 
@@ -875,7 +928,7 @@
 								)
 
 							  ((eq? cmd 'set-font) (apply font args))
-							  ((eq? cmd 'push-font) (push-font args))
+							  ((eq? cmd 'push-font) (push-font (car args) (cadr args)))
 							  ((eq? cmd 'pop-font) (pop-font))
 							  ;;; ((eq? cmd 'push-color)
 							  ;;; 	(if (= (length args) 1)
@@ -884,6 +937,8 @@
 
 							  ((eq? cmd 'push-color) (apply push-color args))
 							  ((eq? cmd 'pop-color) (pop-color))
+							  ((eq? cmd 'push-colour) (apply push-color args))
+							  ((eq? cmd 'pop-colour) (pop-color))
 							  ((eq? cmd 'push-width) (push-width args))
 							  ((eq? cmd 'pop-width) (pop-width))
 							  ((eq? cmd 'font) (apply font args))
@@ -948,7 +1003,8 @@
 
 							  (#t (map display cmd " is not recognised\n")))
 							 ))
-					 ))) 
+					 )))
+		(font (car fontlist) 12) ;; Default is whatever is first in the fontlist at 12pt 
 		postscript-handle
 		)
     ))
