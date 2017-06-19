@@ -14,18 +14,22 @@
 	 (list 'maintenance-list '())
     ;;(list 'population-switch '<uninitialised>)
 
-	 (list 'plot-magnification 120)
+	 (list 'plot-magnification 3)
 	 ;;(list 'plot-magnification 40)
 	 (list 'plot-circle-facets 12)
+	 (list 'plot-magnificaton 1)
+	 (list 'circle-facets 9)
 
 	 (list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
-    (list 'max-age (* 37 years))
+    (list 'max-age +inf.0) ;; they don't die by default
     (list 'max-mass (* 150 kg))
-	 (list 'mass '($ (nrnd 10 4 0 150)))
+	 (list 'mass 'none)
     (list 'lai 1.7)
     (list 'water-stress-effect #t) ;; changes fruiting 
     (list 'water-stress 0)
     (list 'water-use 4/5)
+
+	 (list 'mass-at-age uninitialised)
 
 	 (list 'growth-rate (lambda (m stress) (if (> stress 1) 0 (min (/ 0.1 week)  (/ 900.0 (+ (* m m) 1)))))) ;; example
     (list 'age '<uninitialised>)

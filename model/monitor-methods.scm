@@ -26,7 +26,7 @@ changes, we hope not too many.
 
 ;;; ;--- initialisation -;
 ;;; (agent-initialisation-method <monitor> (args) (specific-targets '() selector (lambda x #f) tree '(0 0 {})) -;
-;;; 									  (initialise-parent) -;
+;;; 									  (parent-initialise) -;
 ;;; 									  ;; call "parents" last to make the initialisation list work -;
 ;;; 									  ) -;
 

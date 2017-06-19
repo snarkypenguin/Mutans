@@ -14,18 +14,12 @@
 ;-  Code 
 
 (define-class <plant>
-  (inherits-from <model-maintenance> <thing>)
+  (inherits-from <model-maintenance> <living-thing>)
   (state-variables
 	decay-rate  ;; usually somethings like -2/(* 20 days)
 	omega-ind ;; individual mortality
-	mass  ;; actual mass
 	peak-mass ;; greatest mass attained
-	max-age ;; dies beyond this
-	age-at-max-mass ;; beyond this age mass will not increase
 	max-mass ;; unlikely to reach this
-	mass-at-age ;; function which returns mass given age
-	age-at-mass ;; function generated from mass-at-age, max-mass and age-at-max-mass
-	age ;; age of plant in [0,4)
 	lai ;; leaf area index in (0,10) -- ideal leaf area/area in drip-line
 	leaf-area ;; we need a separate counter since there can be "accidents"
 	leaf-mass ;; mass of a leaf

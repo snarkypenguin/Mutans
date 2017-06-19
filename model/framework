@@ -113,6 +113,15 @@
 			  x_x_n))))
 
 
+;; This ought to be done with define-syntax, but this is more convenient than loading the sytax stuff.
+(define-macro (while condition . body)
+  `(let while-loop-call ((c ,condition))
+	 (if c
+		  (begin
+			 ,@body
+			 (while-loop-call ,condition)
+			 ))))
+		  
 
 
 
@@ -397,10 +406,14 @@
 						  (class-register)
 						  ,cname))))
 		;;(pp txt)
-		txt
+		txt 
 		)))
 
 
+;; This doesn't work yet.... ought to be a part of the declaration, y'know.
+;;(define-macro (guard-method mname)
+;;  (let ((txt `(add-method '() (lambda args (error ',mname "has probably been called without a 'self' object or agent")))))
+;;	 txt))
 
 ;; This works like so:
 ;;(model-method <parent1> (methname) body)
@@ -507,7 +520,7 @@
 ;;; 			 (Error "instantiating without declaration" ',mname))
 ;;; 		  (let ((txt `(let* ((M (make-method
 ;;; 										 (list ,@classlst) ;; make-method returns a function....
-;;; 										 (lambda (,(string->symbol (string-append (symbol->string mname) "-parent")) self ,@mm-margs);; Provides ,mname-parent for the "best match"
+;;; 										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
 ;;; 											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Entering" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>"))
 
 ;;; 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
@@ -518,7 +531,7 @@
 ;;; 											;;; 					  )
 ;;; 											;;; 				(map (lambda (x) (x self t dt)) methods))))
 ;;; 											 		 )
-;;; 											  ;; provides ,mname-parents for arbitrary sets .. may be called more than once, and with different sets of parents
+;;; 											  ;; provides ,parent-mname for arbitrary sets .. may be called more than once, and with different sets of parents
 											  
 ;;; 											  ;; this provides the setter and getter for this entities variables (they can be passed about too)
 ;;; 											  (let ((my (lambda (x) (slot-ref self x))) 
@@ -599,7 +612,7 @@
 			 (Error "instantiating without declaration" ',mname))
 		  (let ((txt `(let* ((M (make-method
 										 (list ,@classlst) ;; make-method returns a function....
-										 (lambda (,(string->symbol (string-append (symbol->string mname) "-parent")) self ,@mm-margs);; Provides ,mname-parent for the "best match"
+										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
 											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Entering" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>"))
 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
 													 (call-parents ;; this returns amount of time used for each parent in the list
@@ -609,7 +622,7 @@
 																  )
 															(map (lambda (x) (x self t dt)) methods))))
 													 )
-											  ;; provides ,mname-parents for arbitrary sets .. may be called more than once, and with different sets of parents
+											  ;; provides ,parent-mname for arbitrary sets .. may be called more than once, and with different sets of parents
 											  
 											  ;; this provides the setter and getter for this entities variables (they can be passed about too)
 											  (let ((my (lambda (x) (slot-ref self x))) 

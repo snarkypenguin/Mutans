@@ -71,7 +71,7 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 ;;;(load "log-classes.scm") ;; These are used to generate output.
 
 (define-class <projection>
-  (inherits-from <primitive-object>)
+  (inherits-from <object>)
   (state-variables projection-assoc-list
 						 local->model model->local
 						 default-font default-size
@@ -95,6 +95,23 @@ direction"
 (define-class <thing>
   (inherits-from <tracked-agent> <projection>)
   (state-variables mass dim location direction speed))
+
+(define-class <living-thing>
+  (inherits-from <thing>)
+  (state-variables
+	age
+	age-at-instantiation ;; the age at which something is "born"
+	longevity ;; used for calculating the mass-at-age curve -- equivalent to the max-age of the species
+	max-age	;; This is either a precalculated hard-kill (corresponds, to genetic influence?) or a non-number
+	probability-of-mortality ;;; a number [typically compared against a (random-real) call] or a
+	                         ;;; procedure that takes the age of the entity and returns a number
+	decay-rate ;; when it's no longer living
+	mass-at-age ;; not optional    but the growth will, so an entity that misses out on a bursty period
+					;; will always be smaller than others in its cohort
+	habitat  ;; an landscape agent that encompasses a number of potential domains
+	         ;;    or a list that does the same thing ... not currently used
+	domain   ;; an environment of some sort (they have to live somewhere!)
+	))
 
 (define-class <environment>
   (inherits-from <agent> <projection>)

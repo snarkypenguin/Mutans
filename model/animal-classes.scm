@@ -19,10 +19,6 @@
 	sated-quantity  ;; the number of points that indicate satiety
 	sated-time      ;; how long the organism has been sated -- negative numbers correspond to "not sated"
 	food-satiety-rate ;; how many satiety points a mass of generic food is worth
-
-	age-at-mass ;; not optional -- the actual mass man not correspond exactly with the mass-at age func
-	mass-at-age ;; not optional    but the growth will, so an animal that misses out on a bursty period
-	            ;;                 will always be smaller than other in its cohort
 	))
 
 
@@ -55,9 +51,6 @@
 						 mass-conversion-rate
 						 max-condition-rate
 						 max-growth-rate
-
-						 age-at-mass ;; optional
-						 mass-at-age ;; optional
 						 )
   )
 
@@ -94,20 +87,20 @@
 ;; the system
 
 (define-class <simple-animal>
-  (inherits-from <simple-metabolism> <thing>)
-  (state-variables age sex  ;; we have mass here because things might eat them....
-						 habitat  ;; an landscape agent that encompasses a number of potential domains
-						          ;;    or a list that does the same thing ... not currently used
-						 domain   ;; an environment of some sort (they have to live somewhere!)
+  (inherits-from <simple-metabolism> <living-thing>)
+  (state-variables sex  ;; we have mass here because things might eat them....
 						 domain-attraction
 						 homelist ;; categorical indicators of potential homes
 						 foodlist ;; categorical indicators of potential prey
 						          ;; implemented by calls to (*is?  ...)
-						 breedlist
+						 breedlist ;; if this is null, it assumes the animal breeds with its taxon.
+                             ;; Sex differences are checked only if the sex is 'female or 'male.
+
+						 age-at-instantiation ;; the age offspring are introduced to the system
 						 food-attraction
 						 nominal-growth-rate
-						 population-switch ;; level at which it might pay to switch to analytic form
-
+						 population-switch ;; nominal level at which it might pay to switch to analytic form
+						                   ;; properly, this is handled by a monitor agent
 						 search-radius
 						 eat-radius    ;; the radius within which we will consider food to be accessible immediately
 						 distance-cost
@@ -140,7 +133,6 @@
   (state-variables
 	peak-mass
 
-	max-age ;; the hard limit
 	omega-ind ;; individual mortality
 
 	adult-diet-mass

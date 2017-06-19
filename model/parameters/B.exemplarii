@@ -1,9 +1,12 @@
 ; -*- mode: scheme; -*-
 'Parameters
 
+;; These are defined here in order to evaluate the rk4 only once, and to be able to generate the age-at-mass once
+(define B.ex-longevity (* 37 years))
+(define B.ex-mass-max (* 150 kg))
 (define B.ex-mass  (rk4 (lambda (t y) ;;   This is the diff'l eqn
-											(* 5e-7 (- 1 (/ y 150 ))))
-										 0 (* 37 years) (* 4 weeks) 0.1))
+											(* 5e-7 (- 1 (/ y B.ex-mass-max))))
+										 0 B.ex-longevity (* 4 weeks) 0.1))
 										 ;; step size is 4 wks, 0.1 is the initial size of the tree when we start tracking
 
 (define B.exemplarii-parameters ;; Parameters for Botanicus exemplarii
@@ -29,19 +32,25 @@
 ;	 (list 'omega-ind (/ 1 (* 4 years)))  ;;  the mortality rate is its reciprocal
 	 (list 'omega-ind  1/14000)  ;;  the mortality rate is its reciprocal
 
-	 (list 'age '($ (pprnd 23))) ;; estimated using with (histobins (map (lambda (x) (pprnd 23)) (seq 3000)) 90)
-	 (list 'mass-at-age  (rk4 (lambda (t y) ;;   This is the diff'l eqn
-											(* 5e-7 (- 1 (/ y 150 ))))
-										 0 (* 37 years) week 0.1)
-                           ;;start  finish  stepsize y_0
-			 ) ;; feeding in days for t looks about right
+	 (list 'age '($ (pprnd (* 4 years)))) 
 
+	 (list 'mass-at-age B.ex-mass)
 
-	 (list 'age-at-max-mass (* 37 years)) ;; 
-    (list 'max-age '($ (* (edf (random-real)) 37 years)))
-	       ;; this selects a maximum age for each instance; a population of 37 drops below one after 37 years.
+	 (list 'mass #f) ;; Calculate at the beginning of the first step
 
-    (list 'max-mass (* 150 kg))
+	 (list 'longevity B.ex-longevity) ;; this corresponds to the species level maximum age
+
+	 ;(list 'probability-of-mortality ***
+	 ;(list 'mortality-distribution   ***
+
+    (list 'max-age '($ (* (edf (random-real)) B.ex-longevity)))
+
+	 ;; edf is a decay function which maps 1 to 0.002
+	 ;; this selects a maximum age for each instance; a population of 37 drops below one after 37 years.
+	 ;; It is entirely possible for a tree to be generated which is older than its max-age -- in this case
+	 ;; the tree will be dead, which is entirely reasonable in an ecosystem.
+
+    (list 'max-mass B.ex-mass-max)
 
 	 (list 'fruiting-mass (* 20 kg))
 	 (list 'fruiting-probability 0.8)
@@ -68,17 +77,13 @@
 	 (list 'fruit-decay -1e-5) ;; 220000 -> ~5100 in 90 days   ;; Not used directly by the trees.
 
 	 ;; seeds are added by juvenile herbivores
-	 (list 'seed-decay -6e-6) ;; 2000 -> ~100 in 7 days        ;; Not used directly by the trees.
+	 ;(list 'seed-decay -5e-6) ;; 2000 -> ~100 in 7 days        ;; Not used directly by the trees.
 
-	 (list 'seed-germination-prob 0.001)          ;; using the seed ecoservice
+	 (list 'seed-decay 0) ;; no decay at all
+
+	 (list 'seed-germination-prob 0.01)          ;; using the seed ecoservice
 	 (list 'fluke-seed-germination-prob (* 1/60 0.0001)) ;; chance of a fruit that hasn't been eaten germinating a seed
   )
 )
 (set! global-parameter-alist (cons (cons "B.exemplarii" B.exemplarii-parameters) global-parameter-alist))
-
-
-
-
-
-
 

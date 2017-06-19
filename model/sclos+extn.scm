@@ -1,4 +1,4 @@
-; -*- mode: scheme; -*-
+;-*- mode: scheme; -*-
 ;-  Identification and Changes
 
 ;--
@@ -140,7 +140,6 @@
 
 				 (else
 				  (dnl* "Called a " thingtype "/" thingname "register with " cmd )
-				  
 				  (pp (cdr args))
 				  (display "... Didn't really work, was that a real command?\n")
 				  (error "\n\n+++BANANA UNDERFLOW ERROR+++\n" args))
@@ -217,7 +216,7 @@
 (register-unique class <method>)
 
 
-
+(define not-an-object (list <method> <generic> <entity-class> <procedure-class> <primitive-object> <top> <class>))
 
 ;-- Begin defining the fundamental classes for entities in the models
 
@@ -249,6 +248,7 @@ communication (without cheating)."
 						 state-flags
 						 agent-epsilon
 						 dont-log
+						 always-log
 						 agent-body-ran
 
 						 ;; a list of things the agent "provides"
@@ -264,41 +264,39 @@ communication (without cheating)."
 						 maintenance-list
 						 initialised
 						 )
-	)
+  )
 
+
+(define (classes-of-supers x)
+  (if (class? x)
+		(slot-ref x 'direct-supers)
+		(slot-ref (class-of x) 'direct-supers)))
 
 ;;-- This returns the parents of an instance or class
 
-(define (parent-classes x)
-  (define (c*tst x y)
-	 (cond
-	  ((null? y) #f)
-	  ((member x (car y)) #t)
-	  (#t (c*tst x (cdr y)))))
 
-  (let ((c* (reverse (cdr (map class-cpl (classes-of-supers (if (class? x) (allocate-instance x) x))))))
-		  )
-	 (let loop ((C c*)
-					(actual-parents '()))
-		;;(if (and (pair? C)(pair? (car C))) (dnl* 'T: (class-name-of (caar C))))
-		;;(if (pair? C) (dnl* 'C: (map (lambda (s) (class-name-of (car s))) (cdr C))))
-		;;(dnl* 'P: (map class-name-of actual-parents))
-		(cond
-		 ((null? C) actual-parents)
-		 ((and (pair? C) (pair? (car C)) (c*tst (caar C) (cdr C)))
-		  (loop (cdr C) actual-parents))
-		 (#t (loop (cdr C) (cons (caar C) actual-parents))))))
-  )
+(define (parent-classes x)
+  (let* ((flense (lambda (x) (!filter (lambda (c) (member c not-an-object)) x)))
+			(c* (map flense (map class-cpl (classes-of-supers x))))
+			)
+	 (map cdr
+			(sort 
+			 (map (lambda (x) (cons (length (parent-classes x)) x))
+					(sortless-unique (apply append c*)))
+			 (lambda (x y)
+				(>= (car x) (car y))))
+			)))
+
 
 ;-- Routines to interrogate or identify entities
 
 ;--- (define (class-slots-of x)
 (define (class-slots-of x)
   (letrec ((orf (lambda y
-					  (cond
-						((null? y) #f)
-						((car y) #t)
-						(#t (apply orf (cdr y))))) ))
+						(cond
+						 ((null? y) #f)
+						 ((car y) #t)
+						 (#t (apply orf (cdr y))))) ))
 	 (cond
 	  ((isa? x <primitive-object>) (map (lambda (x) (if (pair? x) (car x) x)) (class-slots (class-of x))))
 	  ((isa? x <generic>) (map (lambda (x) (if (pair? x) (car x) x)) (append (class-slots (class-of x)) (class-slots x))))
@@ -319,7 +317,7 @@ communication (without cheating)."
 					 ((complex? x)     <complex>)
 					 (#t (primitive-class-of x))))))
 	 (set! class-of co)))
-			
+
 
 
 
@@ -328,13 +326,17 @@ communication (without cheating)."
   (let ((s (class-slots-of ent))
 		  )
 	 (if (member 'dont-log s)
-		  (let ((dont (slot-ref ent 'dont-log)))
+		  (let ((dont (slot-ref ent 'dont-log))
+				  (donot (if (list? dont) dont (list dont))))
 			 (map (lambda (x)
 					  (list x (slot-ref ent x)))
-					(!filter (lambda (y) (member y dont)) s)))
+					(!filter (lambda (y) (member y donot)) s)))
 		  (map (lambda (x)
 					(list x (slot-ref ent x)))
 				 s))))
+
+(define (examine-instance entity)
+  (for-each (lambda (x) (dnl (list (car x) (slot-ref entity (car x))))) (class-slots (class-of entity))))
 
 (define (class-name-of q)
   (class-register 'name? q))
@@ -368,7 +370,7 @@ communication (without cheating)."
 ;; 					condition-variable? mutex? thread? table? will? random-source?
 ;; 					#f)
 ;; 			))
-	 
+
 ;;   (cond
 ;; 	((null? lst) (standard-type? x gambit-type-predicates))
 ;; 	((and (pair? lst) (null? (cdr lst))) ((car lst) x))
@@ -381,7 +383,7 @@ communication (without cheating)."
   (if (member a (list <top> <class> <procedure-class> <entity-class>))
 		#t
 		(and (equal? (class-slots-of a) '(direct-supers direct-slots cpl slots nfields field-initialisers getters-n-setters))))
-)
+  )
 
 
 ;--- (define (object? a)
@@ -393,8 +395,13 @@ communication (without cheating)."
   (and (%instance? a) (isa? a <agent>) #t))
 
 ;--- (define (has-slot? a k)
-(define (has-slot? a k) 
-  (member k (class-slots-of a)))
+(define (has-slot? a k)
+  (cond
+	((object? a) (member k (class-slots-of a)))
+	((class? a) (member k (map car (slot-ref a 'slots))))
+	(else #f)
+	)
+  )
 
 (define (parent-classes? x)
   (map class-name-of (parent-classes x)))
@@ -409,9 +416,14 @@ communication (without cheating)."
 
 
 ;--- (define (uninitialised? x #!rest y)
+"There are three things used to indicate an uninitialised value: 
+   * the function of arbitrary arguments, uninitialised
+   * the symbol '<uninitialised>
+   * the object <uninitialised>
+"
 (define (uninitialised? x #!rest y)
   (if (object? x) (uninitialised? (slot-ref x (car y)))
-		(if (null? y)  (or (eq? x '<uninitialised>)(eqv? x <uninitialised>))
+		(if (null? y)  (or (eq? x uninitialised) (eq? x '<uninitialised>)(eqv? x <uninitialised>))
 			 (and (uninitialised? x)
 					(apply uninitialised? y)))))
 
@@ -429,26 +441,72 @@ communication (without cheating)."
 		(nameless? (slot-ref x (car y)))))
 
 
-;-- Accessors, predicates
+;-- State variable routines, accessors, predicates
+
+;;--- (defval sym value)
+(define (defval sym value #!optional note)
+  (if (symbol? sym)
+		(list sym value)
+		(abort "Bad defval arguments" sym value args)))
+
+(define (2list? l)
+  (if (null? l)
+		#f
+		(and (list? l) (pair? l) (symbol? (car l)) (pair? (cdr l)) (null? (cddr l)))))
+
+(define (list-of-2list? L)
+  (if (null? L)
+		#f
+		(apply andf (map 2list? L))))
+
 ;--- (define (set-state-variables self arguments)
-(define (set-state-variables self arguments)
-  (if (null? arguments)
-		(void)
-		(if (not (and (pair? arguments) (even? (length arguments))))
-			 (error "Bad state variable list!" (class-name-of (class-of self)) arguments)
-			 (cond
-			  ((null? arguments) (void))
-			  ((<= 2 (length arguments))
-				(let ()
-				  (if (has-slot? self (car arguments))
-						(slot-set! self (car arguments) (cadr arguments))
-						(kdebug 'state-vars-missed (class-name-of (class-of self)) "does not have a slot" (car arguments)))
-				  (set-state-variables self (cddr arguments)))
+"This requires a little explanation: the arguments can be specified as either a flat list of 
+tags and values, or as a list of tag-value pairs.  This is because the flat list is easier on
+the eyes and the other is easier for the code.  In practice, it is as easy to write code that 
+handles mixed lists.  Whether that is a good idea is a matter of practicality versus taste.
+"
+
+(define (set-state-variables-2lists self arglist)
+  (if (not (null? arglist))
+		(let ((argl (car arglist)))
+;			 (dnl* "2l !null" (cnc self) (car argl) (has-slot? self (car argl)))
+		  (if (has-slot? self (car argl))
+				(begin
+;					 (dnl* "setting 2l"  (cnc self) argl)
+				  (slot-set! self (car argl) (cadr argl))))
+		  (cdr arglist))
+		arglist))
+
+(define (set-state-variables-flat-list self arglist)
+  (if (not (null? arglist))
+		(begin
+;		  (dnl* "fl !null" (cnc self) (car arglist) (has-slot? self (car arglist)))
+		  (if (has-slot? self (car arglist))
+				(begin
+;				  (dnl* "setting fl" (cnc self) (car arglist) (cadr arglist))
+				  (slot-set! self (car arglist) (cadr arglist)))
+;				(dnl* "no slot" (car arglist))
 				)
-			  (#t (error "The list of initialisers is missing something!" arguments))))))
+;		  (dnl* "continuing after" (car arglist) "and" (cadr arglist) "with" (cddr arglist))
+		  (cddr arglist))
+		arglist))
 
 
-;; These need to preceed framework-classes.
+(define (set-state-variables self arguments)
+  (if (and (= (length arguments) 1)
+			  (pair? (car arguments)))
+		(set-state-variables self (car arguments))
+		(cond
+		 ((null? arguments)
+		  (void))
+		 ((2list? (car arguments))
+		  (set-state-variables self (set-state-variables-2lists self arguments)))
+		 ((and (symbol? (car arguments)) (pair? arguments) (pair? (cdr arguments)))
+		  (set-state-variables self (set-state-variables-flat-list self arguments)))
+		 (else (abort "Bad state variable list for" (cnc self) "#" (length arguments) "|" arguments ))))
+  )
+
+;; These need to act before framework-classes.
 (add-method initialise (make-method (list <object>)
 												(lambda (call-next-method self #!rest initargs)
 												  
@@ -456,8 +514,8 @@ communication (without cheating)."
 														(set! initargs (car initargs))
 														)
 												  (set-state-variables self initargs)
-												  ;(initialise self initargs)
-												  ;(apply initialise (cons self initargs))
+;(initialise self initargs)
+;(apply initialise (cons self initargs))
 												  self) ))
 
 (define (null=#f arg)
@@ -503,12 +561,12 @@ communication (without cheating)."
 										 (v x)))))
 	  ((list? v)
 		(lambda (x) (null=#f (if (not (has-slot? x slot))
-							 #f
-							 (eqv? v x)))))
-	
+										 #f
+										 (eqv? v x)))))
+	  
 	  (#t 	 (lambda (x) (null=#f (if (not (has-slot? x slot))
-									  #f
-									  (eq? v x))))))))
+												  #f
+												  (eq? v x))))))))
 "Examples might be 
    (*has-slot-value 'age (lambda (age) (and (<= 7 age) (<= age 20))))
    (*has-slot-value 'reproductive-state '(adolescent adult post-breeding))
@@ -524,10 +582,10 @@ and so it is excluded.
 			(cmpop string=?))
 	 (lambda (x)
 		(null=#f (if (null? targets)
-			 #f
-			 (if (list? targets)
-				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
-				  (cmpop targets (taxon x))))))))
+						 #f
+						 (if (list? targets)
+							  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+							  (cmpop targets (taxon x))))))))
 
 
 (define (*is-taxon-ci? targets #!rest s)
@@ -535,20 +593,20 @@ and so it is excluded.
 			(cmpop string-ci=?))
 	 (lambda (x)
 		(null=#f (if (null? targets)
-			 #f
-			 (if (list? targets)
-				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
-				  (cmpop targets (taxon x))))))))
+						 #f
+						 (if (list? targets)
+							  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+							  (cmpop targets (taxon x))))))))
 
 (define (*is-taxon-wild? targets #!rest s)
   (let* ((targets (filter string? (cons target s)))
 			(cmpop wildmatch))
 	 (lambda (x)
 		(null=#f (if (null? targets)
-			 #f
-			 (if (list? targets)
-				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
-				  (cmpop targets (taxon x))))))))
+						 #f
+						 (if (list? targets)
+							  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+							  (cmpop targets (taxon x))))))))
 
 
 (define (*is-taxon-wild-ci? target #!rest s)
@@ -556,27 +614,27 @@ and so it is excluded.
 			(cmpop wildmatch-ci))
 	 (lambda (x)
 		(null=#f (if (null? targets)
-			 #f
-			 (if (list? targets)
-				  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
-				  (cmpop targets (taxon x))))))))
+						 #f
+						 (if (list? targets)
+							  (apply orf (map null=#f (map (lambda (y) (cmpop y (taxon x))) (filter string? targets))))
+							  (cmpop targets (taxon x))))))))
 
 (define (*provides? target #!rest s)
   (let ((targets (filter symbol? (cons target s))))
 	 (lambda (A)
 		(null=#f (if (null? targets)
-			 #f
-			 (apply orf (map null=#f (map (lambda (s) (provides? A s)) targets))))))))
+						 #f
+						 (apply orf (map null=#f (map (lambda (s) (provides? A s)) targets))))))))
 
 
 (define (*is-*? target #!rest s)
   (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
-			(C (*is-class? targets))
-			(S (*has-slot? targets))
-			(T (*is-taxon? targets))
-			)
-	 (lambda (x)
-		(null=#f (or (C x) (S x) (T x)))))
+	 (C (*is-class? targets))
+	 (S (*has-slot? targets))
+	 (T (*is-taxon? targets))
+	 )
+  (lambda (x)
+	 (null=#f (or (C x) (S x) (T x)))))
 
 (define (*provides-*? target #!rest s)
   (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
@@ -589,7 +647,7 @@ and so it is excluded.
 
 (define (cnc a) (class-name-of (class-of a)))
 (define (cncs a) (string->symbol (class-name-of (if (class? a) a (class-of a)))))
-   ;; this is mostly used in the provides/requires code
+;; this is mostly used in the provides/requires code
 
 (define (nm? a) (if (isa? a <agent>) (slot-ref a 'name) a))
 
@@ -639,7 +697,7 @@ and so it is excluded.
 
 
  This routine calls all applicable methods appropriate for parent
- classes, in contrast to the 'method'-parent hook that is passed in as
+ classes, in contrast to the parent-'method' hook that is passed in as
  the first arg in a method.
 
 
@@ -655,10 +713,10 @@ and so it is excluded.
 
 
 
- The second form returns applicable methods common to both the class
-of this-agent and its parents (but not *grandparents...).
+  The second form returns applicable methods common to both the class
+  of this-agent and its parents (but not *grandparents...).
 
-"
+  "
 
 ;--- (sortless-unique lst)
 (define (sortless-unique lst)  ;; This is so we can ensure that we don't call a method twice.
@@ -698,24 +756,24 @@ of this-agent and its parents (but not *grandparents...).
   (set! class-restriction (if (procedure? class-restriction) (list class-restriction) class-restriction))
 
   (sortless-unique
-        (let ((mine ((compute-methods methd) (cons self args))))
-          (cond
-			  ((null? mine)
-				(dnl* "Missing method?" (method-register 'rec? mine)))
-			  ((list? class-restriction)
-				(apply append (map (lambda (x) (apply get-methods (cons x (cons methd (cons self args))))) class-restriction))
-				)
-			  ((member class-restriction '(* all ()))
-				mine)
-			  ((primitive-object? class-restriction) ;; single class
-				
-				(let ((theirs (apply compute-methods (cons methd (cons (allocate-instance class-restriction) args)))))
-				  (filter (lambda (x) (member x theirs)) mine)))
-			  (#t mine)
-			  ))
-		  )
+	(let ((mine ((compute-methods methd) (cons self args))))
+	  (cond
+		((null? mine)
+		 (dnl* "Missing method?" (method-register 'rec? mine)))
+		((list? class-restriction)
+		 (apply append (map (lambda (x) (apply get-methods (cons x (cons methd (cons self args))))) class-restriction))
+		 )
+		((member class-restriction '(* all ()))
+		 mine)
+		((primitive-object? class-restriction) ;; single class
+		 
+		 (let ((theirs (apply compute-methods (cons methd (cons (allocate-instance class-restriction) args)))))
+			(filter (lambda (x) (member x theirs)) mine)))
+		(#t mine)
+		))
+	)
   )
-					
+
 
 ;--- (define (call-parent-methods classes methd self #!rest args)
 
@@ -745,7 +803,7 @@ of this-agent and its parents (but not *grandparents...).
 							  )
 						 )
 					  classes)
-					  ))
+					 ))
 			 (kdebug 'model-body "call-parent-methods returns " result)
 			 result)
 		  #t
@@ -762,14 +820,14 @@ of this-agent and its parents (but not *grandparents...).
 	 (kdebug 'model-body "calling parents" (if (pair? classes) (map pname classes) (pname classes)))
 	 (let ((result
 			  (call-parent-methods classes methd self args)
-						))
+			  ))
 		(kdebug 'model-method "... yields " result)
 		result)
-))
+	 ))
 
 
 ;--- (define (call-first-method classes methd self #!rest args) -- the most/least restrictive match
-(define (call-first-method classes methd self #!rest args) ;; The following routine is very similar to the "meth"-parent
+(define (call-first-method classes methd self #!rest args) ;; The following routine is very similar to the parent-"meth"
   (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
   (let* ((ml (apply get-methods(cons classes (cons methd (cons self args)))))
 			)
@@ -788,7 +846,7 @@ of this-agent and its parents (but not *grandparents...).
 		  <vector> <string> <list> <input-port> <output-port>
 		  <null> <boolean> <symbol> <procedure> <number> <char> 
 		  ))
-										
+
 (define global-parameter-alist '())
 (define **entity-index**
   (let* ((i 1)
@@ -805,7 +863,7 @@ of this-agent and its parents (but not *grandparents...).
 					((symbol? it) (symbol->string it))
 					((number? it) (number->string it))
 					((class? it) (class-name-of it))
-				  ((instance? it) (class-name-of (class-of it)))
+					((instance? it) (class-name-of (class-of it)))
 					(#t (object->string it)))))
 	 (if (eqv? name (void))
 		  (set! name (object->string it)))
@@ -822,7 +880,7 @@ of this-agent and its parents (but not *grandparents...).
 			 #f
 			 <uninitialised>)
 		(uninitialise-flag (object->string s))))
-		
+
 ;--- (iflag clss)  constructs the flag indicating a class has had its default initialisation
 (define (iflag clss)
   (cond
@@ -832,7 +890,7 @@ of this-agent and its parents (but not *grandparents...).
 	((class? clss) (iflag (class-name-of clss)))
 	((instance? clss) (iflag (class-of clss)))
 	(#t #f)))
-  
+
 ;--- (define (make-object class #!rest initargs)
 (define (make-object class #!rest initargs)
   ;;(dnl "**** entering make-object ****")
@@ -864,9 +922,9 @@ of this-agent and its parents (but not *grandparents...).
   (let* ((not-tilde (not (char=? #\~ (car (reverse (string->list filename))))))
 			(key  (with-input-from-file filename (lambda () (read))))
 			(isparameters (equal? (quote (quote Parameters)) key)))
-  (and not-tilde isparameters)))
+	 (and not-tilde isparameters)))
 
-;--- (apply-initialisation instance key #!rest verbose)  loads parameters from the global-parameter list
+;--- (apply-initialisation instance key)  loads parameters from the global-parameter list
 "Arguably, this whole initialisation thing might be considered part of the 'model' and sit 
 in one of the framework classes.  I have put  it here since object initialisation is really
 a pretty fundamental part of an object oriented approach to anything, and the initialisation
@@ -875,7 +933,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (p-eval k)
   (cond
 	((and (pair? k) (or (eqv? (car k) eval-marker) (equal? (car k) eval-marker)))
-	 (kdebug 'state-vars-eval "EVAL: " (cdr k))
+	 ;;(kdebug 'state-vars-eval "EVAL: " (cdr k))
 	 (apply eval (cdr k)))
 	((and (pair? k) (null? (cdr k)))
 	 (car k))
@@ -884,54 +942,95 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 (define (void? x) (eqv? x (void)))
 
-(define (apply-initialisation instance key #!rest verbose)
-  (kdebug 'initialisation "***** apply initialisation for " (class-name-of (class-of instance)) "with a key" (if (class? key) (class-name-of key) key) "****")
+(define (apply-initialisation instance key)
+  (let ((kdebug (if #t kdebug dnl*))
+		  (verbose (if #f dnl* (lambda x (void))))
+		  )
+	 (verbose
+				"***** apply initialisation for "
+				(class-name-of (class-of instance)) "with a key"
+				(if (class? key) (class-name-of key) key) "*****")
 
-  (let* ((flag (iflag key))
-			(p (let ((t (assoc key global-parameter-alist)))
-				  (cond
-					((eqv? t (void)) #f)
-					((and (pair? t) (pair? (cdr t))) (if (void? (cadr t)) #f (cdr t)))
-					((pair? t) #f)
-					(#t t))))
-				
-			(tlist (list-intersection (map car (class-slots (class-of instance)))
-											  (if (or (not p) (eqv? p (void)))
-													'()
-													(map car  p))))
+	 (let* ((flag (iflag key))
+			  (p (let ((t (assoc key global-parameter-alist)))
+					 (cond
+					  ((eqv? t (void)) #f)
+					  ((and (pair? t) (pair? (cdr t))) (if (void? (cadr t)) #f (cdr t)))
+					  ((pair? t) #f)
+					  (#t t))))
+			  
+			  (tlist (list-intersection (map car (class-slots (class-of instance)))
+												 (if (or (not p) (eqv? p (void)))
+													  '()
+													  (map car  p))))
+			  (p* (if p
+						 (filter (lambda (n) (member (car n) tlist)) p)
+						 #f))
+			  )
+		
+		(verbose "Initialising slots:" tlist)
+		(verbose "                  :" p*)
+		(kdebug 'initialisation "apply-initialisation:")
+		(kdebug 'initialisation "key:   " flag)
+		(kdebug 'initialisation "p:     " p )
+		(kdebug 'initialisation "tlist: " tlist)
+		(kdebug 'initialisation "p*:    " p*)
 
-			(p* (if p
-					  (filter (lambda (n) (member (car n) tlist)) p)
-					  #f))
-			)
-
-	 (kdebug 'initialisation 'key: flag)
-	 (kdebug 'initialisation 'p: p )
-	 (kdebug 'initialisation 'tlist: tlist)
-	 (kdebug 'initialisation 'p*: p*)
-
-	 (if p*
-		  (let ((R (map cons (map car p*) (map p-eval (map cadr p*)))))
-			 (for-each
-			  (lambda (kv)
-				 (kdebug 'initialisation 'kv: kv)
-				 (slot-set! instance (car kv) (cdr kv))
-				 (kdebug 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
-				 )
-			  R)))
-	 )
-  	 (kdebug 'initialisation "... ok")
-	 )
+		(if p*
+			 (let ((R (map cons (map car p*) (map p-eval (map cadr p*)))))
+				(for-each
+				 (lambda (kv)
+					(verbose (car kv) '<- (cdr kv))
+					(kdebug 'initialisation 'kv: kv)
+					(slot-set! instance (car kv) (cdr kv))
+					(kdebug 'state-vars (class-name-of (class-of instance)) 'slot-set kv)
+					)
+				 R)))
+		) )
+  )
 
 
 ;; This returns a list of the form (key ...) where the "value" is
 ;; often a list containing a single number.
 (define (parameter-lookup class taxon key)
+  (dnl* 'parameter-lookup (class-name class) taxon key)
   (if (not (and (isa? class <class>)
 					 (string? taxon)
 					 (symbol? key)))
 		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
-		(let ((the-classes (!filter (lambda (x) (member x *uninitialisable*)) (class-cpl class)))
+
+		(let ((the-chain (append (!filter (lambda (x) (member x *uninitialisable*))
+													 ;;(class-cpl class)
+													 (parent-classes class) )
+										 (list taxon)))
+				(returnval #f))
+		  (let ((v (filter (lambda (t) t)
+								 (map (lambda (l)
+										  (let ((K (assoc key l)))
+											 (if K (cdr K) #f)))
+										(reverse
+										 (filter (lambda (t) t)
+													(map (lambda (x)
+															 (let ((c (assoc x global-parameter-alist)))
+																(if c (cdr c) #f)))
+														  the-chain))))
+								 ))
+				  )
+			 (if (and v (not (null? v)))
+				  (car v)
+				  #f)))))
+
+
+
+(define (Xparameter-lookup class taxon key)
+  (if (not (and (isa? class <class>)
+					 (string? taxon)
+					 (symbol? key)))
+		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
+		(let ((the-classes (!filter (lambda (x) (member x *uninitialisable*))
+											 ;;(class-cpl class)
+											 (parent-classes class)
+											 ))
 				(returnval #f))
 		  (for-each
 			(lambda (x)
@@ -953,25 +1052,25 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 (define (boolean-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
-	 (if (and r (pair? (cdr r)) (boolean? (cadr r)))
-		  (cadr r)
+	 (if (and r (pair? r) (boolean? (car r)))
+		  (car r)
 		  #f)))
 (define (numeric-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
-	 (if (and r (pair? (cdr r)) (number? (cadr r)))
-		  (cadr r)
+	 (if (and r (pair? r) (number? (car r)))
+		  (car r)
 		  #f)))
 
 (define (string-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
-	 (if (and r (pair? (cdr r)) (string? (cadr r)))
-		  (cadr r)
+	 (if (and r (pair? r) (string? (car r)))
+		  (car r)
 		  #f)))
 
 (define (symbol-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
-	 (if (and r (pair? (cdr r)) (symbol? (cadr r)))
-		  (cadr r)
+	 (if (and r (pair? r) (symbol? (cadr r)))
+		  (car r)
 		  #f)))
 
 (define (list-parameter-lookup class taxon key)
@@ -981,6 +1080,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		  #f)))
 
 (define (procedure-parameter-lookup class taxon key)
+  (error "not tested yet")
   (let ((r (parameter-lookup class taxon key)))
 	 (if (and r (pair? (cdr r)) (procedure? (cadr r)))
 		  (cadr r)
@@ -995,57 +1095,54 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 ;; Both create and create- make <objects> and things derived from <object>
 ;; This version does not apply a taxon specific initialisation
 (define (create- class #!rest statevars)
-  (kdebug '(object-creation initialisation) "Creating object" (class-name-of class) statevars)
-  (let* ((instance (allocate-instance  class))
-			(the-classes (!filter (lambda (x) (member x *uninitialisable*))  (class-cpl class)))
-			)
-	 (kdebug 'creation-classes "CPL: " (map class-name-of the-classes))
-	 (set! alort instance)
-	 (set! clort the-classes)
-	 
-	 (kdebug 'initialisation-C-- (class-name-of (class-of alort)))
-	 (kdebug 'initialisation-P-- (map class-name-of the-classes))
+  (let ((kdebug (if #t kdebug dnl*))
+		  )
+	 (if (and (= (length statevars) 1) (list? (car statevars)))
+		  (set! statevars (car statevars)))
 
-	 (object-register 'add instance class)
+	 (if (eq? class <polygon>) (kdebug '(object-creation initialisation) "Creating object" (class-name-of class) statevars))
+	 (let* ((instance (allocate-instance  class))
+			  (the-classes (!filter (lambda (x) (member x *uninitialisable*)) (parent-classes class)))
+			  )
+		(set! alort instance)
+		(set! clort the-classes)
+		
+		(kdebug 'initialisation-C-- (class-name-of (class-of alort)))
+		(kdebug 'initialisation-P-- (map class-name-of the-classes))
 
-	 ;; Set *all* slots to uninitialised
-	 (for-each
-	  (lambda (x)
-		 (let ((flag x))
-			(kdebug 'initialisation-U-- 'uninitialise x)
-			(slot-set! instance x (uninitialise-flag flag))))
-	  (class-slots-of instance))
+		(object-register 'add instance class)
 
-	 ;; First load the states of the classes from base->most-refined
-	 (for-each
-	  (lambda (x)
-		 (kdebug 'initialisation-CLASS--  "looking at " (class-name-of x))
-		 (let ()
-			(kdebug 'initialisation-CLASS--  "assessing initialisation for [" (class-name-of x) "]")
-			(if (member x *uninitialisable*)
-				 (kdebug 'initialisation-CLASS--  "skipping" (class-name-of x))
+		;; Set *all* slots to uninitialised
+		(for-each
+		 (lambda (x)
+			(let ((flag x))
+			  (kdebug 'initialisation-U-- 'uninitialise x)
+			  (slot-set! instance x (uninitialise-flag flag))))
+		 (class-slots-of instance))
+
+		;; First load the states of the classes from base->most-refined
+		(for-each
+		 (lambda (x)
+			(if (not (member x *uninitialisable*))
 				 (begin
-					(kdebug 'initialisation-CLASS-- "Working on" (class-name-of x))
-					(set-state-variables instance (initialisation-defaults-for class)) ;; these are the state set by a (default-initialisation <class>) clause
 					(apply-initialisation instance x)                         ;; these come from the parameter files
-					(kdebug 'initialisation-CLASS--  " ... flagging ..." (class-name-of x) (iflag x))
 					(slot-set! instance (iflag (class-name-of x)) #t)
-					(kdebug 'initialisation-CLASS--  "finished" (class-name-of x))
 					)
 				 )
 			)
-		 (kdebug 'initialisation-CLASS--  "initialisation for [" (class-name-of x) "] ok")
-		 )
-	  (reverse the-classes)) ;; run from most general to most specific
+		 (append (reverse the-classes) (list (class-of instance)))) ;; run from most general to most specific
 
-	 (set-state-variables instance statevars) ;; these come from the create call...
-
-	 (if (kdebug? 'initialisation) (dumpslots instance))
-  instance
-  ))
+		(set-state-variables instance statevars) ;; these come from the create call...
+		(if (kdebug? 'initialisation) (dumpslots instance))
+		instance
+		))
+  )
 
 (define (create class taxon #!rest statevars)
-  (let* ((instance (apply create- (cons class statevars)))
+  (if (and (= (length statevars) 1) (list? (car statevars)))
+		(set! statevars (car statevars)))
+
+  (let* ((instance (create- class statevars))
 			)
 	 (kdebug '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
 	 (agent-register 'add instance class)
@@ -1056,11 +1153,9 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 	 ;; subjective time must be set either in the taxon, in the
     ;; statevars, or explicitly after initialisation
-	 (apply-initialisation instance taxon #t)
+	 (apply-initialisation instance taxon)
 	 (slot-set! instance 'initialised #t)
 
-	 (dumpslots instance)
-	 
 	 (set-state-variables instance statevars)
 
 	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
@@ -1069,7 +1164,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 	 (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
 
-	 (initialisation-checks instance)
+	 ;;(initialisation-checks instance) This is done in the prep-agent routine.
 	 instance
 	 )
   )

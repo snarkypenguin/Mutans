@@ -10,7 +10,7 @@
     (list 'fruiting-rate (/ 2 kg))
     (list 'seeds-per-fruit 60)
     (list 'seed-queue '())
-    (list 'mort-mass 0.07) ;; a proportion which will be multiplied by peak mass
+    (list 'mort-mass 0.17) ;; a proportion which will be multiplied by peak mass
     (list 'mort-prob '0.001)
   )
 )

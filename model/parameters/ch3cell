@@ -13,6 +13,7 @@
 	 (list 'population-switch (/ (* 10000 kg)  hectare));; if the density is greater than 10000 kg plants in a hectare
 	 (list 'maintenance-list '())
     (list 'population-switch #f) ;; not a simple switch 
-  )
+	 ;;(list 'caretaker (lambda (self t dt) (dnl* (name self) "taking care")))
+	 )
 )
 (set! global-parameter-alist (cons (cons "ch3cell" ch3cell-parameters) global-parameter-alist))

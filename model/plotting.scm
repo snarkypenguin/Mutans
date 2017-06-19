@@ -31,13 +31,19 @@
 
 ;-  Code 
 
-(load "/usr/share/slib/gambit.init")
-(require 'charplot)
-(load "maths.scm")
-(load "integrate.scm")
+;;(load "/usr/share/slib/gambit.init")
+;;(require 'charplot)
+;;(load "maths.scm")
+;;(load "integrate.scm")
 ;(define M (rk4 (lambda (t y) (* 1e-6 (sqr (- 1 (/ y 150 )))) ) 0 (* 37 366 days) day 1))
 ;(plot M 0 (* 37 366 days))
+;; (plot '((0 1 3) (1 2 2.5)  (2 4 1)) "as" "is") ;;-- produces three plots on one set of axes
+
 ;(histobins (map (lambda (x) (pprnd 20)) (seq 3000))) 90)
+
+
+(define (multiplot xlabel ylabel funclist ixlist)
+  (error "not done yet"))
 
 
 (define (ixin sym lst)

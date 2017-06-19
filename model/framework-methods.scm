@@ -454,6 +454,94 @@ commonly viewed as just a simple extension of sclos.
 								))
 				  (ps-dump-parent))
 
+(model-method (<living-thing> <procedure>) (ps-dump self ps projection)
+				  (call-parents)
+				  (ps 'moveto (projection (local->model (location self))))
+				  (ps 'show-table
+						(list (string-append "<thing>" (name self))
+								(string-append "mass =" (number->string (my 'mass)))
+								(string-append "age =" (number->string (my 'age)))
+								(string-append "location =" (number->string (my 'location)))
+								(string-append "speed =" (number->string (my 'speed)))
+								(string-append "direction =" (number->string (my 'direction)))
+								))
+				  (ps-dump-parent))
+
+
+(model-method <living-thing> (die self)
+				  (set-agent-state! self 'dead)
+				  ;;(set! Mortuary (cons self Mortuary))
+				  ;; dead things may persist and decay....
+				  ;; (kernel 'shutdown self) 
+				  'dead)
+
+(model-method <living-thing> (initialisation-checks self)
+				  (set-uninitialised-slots self '(age-at-instantiation) 0)
+				  (fail-on-uninitialised-slots self
+														 '(age longevity mass-at-age
+																 decay-rate
+																 ))
+				  )
+
+
+(model-method <living-thing> (mass-at-age self #!optional mymass)
+						((my 'mass-at-age) (if mymass mymass (my 'mass))))
+
+(model-method <living-thing> (mass-at-age self #!optional mymass)
+				  (if (not (uninitialised? (my 'mass-at-age)))
+						((my 'mass-at-age) (if mymass mymass (my 'mass)))
+						(my 'mass)))
+
+
+
+(model-method <living-thing> (growth-rate self #!rest extras) ;; this is allegedly an instantaneous thing...
+				  (cond
+					((and (has-slot? self 'growth-rate)
+							(or (procedure? (my 'growth-rate))
+								 (number? (my 'growth-rate))))
+					 (let ((gr (my 'growth-rate)))
+						(if (number? gr) gr (apply gr extras))))
+					 
+					((has-slot? self 'mass-at-age)
+					 (/ (- ((my 'mass-at-age) (my 'age))
+							 ((my 'mass-at-age) (my 'age)))
+						 (my 'dt))
+					 )
+
+					(else
+					 (/ (- (my 'max-mass) (my 'mass)) (my 'longevity)))))
+
+
+
+
+;;; ;;; (model-method <living-thing> (age-at-mass self mass #!optional eps) ;; This should rarely be used  -- it is expensive
+;;; ;;; 				  "This requires a monotonic mass-at-age function. No warranties apply."
+;;; ;;; 				  (error "This does not really work")
+;;; ;;; 				  (let ((maa (my 'mass-at-age))
+;;; ;;; 						  (age (my 'age))
+;;; ;;; 						  (mass (my 'mass))
+;;; ;;; 						  (L (my 'longevity))
+;;; ;;; 						  )
+;;; ;;; 					 (if (not eps) (set! eps (* (/ 0.005 2) L))); We assume that half a percent of longevity is ok for most of the lifespan -- +/- 2mo out of 70yr
+
+;;; ;;; 					 (if (uninitialised? age) ;; set an initial age using the mass at age function
+;;; ;;; 						  (set-my! 'age
+;;; ;;; 									  (let loop ((m (my 'min-mass))
+;;; ;;; 													 (M (my 'max-mass))
+;;; ;;; 													 (a 0)
+;;; ;;; 													 (A L)
+;;; ;;; 													 )
+;;; ;;; 										 (let* ((p (/ (+ A a) 2.))
+;;; ;;; 												  (w (maa p)))
+;;; ;;; 											(cond
+;;; ;;; 											 ((and (<= (- w eps) mass) (<= mass (+ w eps))) ;; mass is within eps of test point
+;;; ;;; 											  p)
+;;; ;;; 											 ((< w mass) (loop (w M p A)))
+;;; ;;; 											 ((< mass w) (loop (m w a p)))
+;;; ;;; 											 (else (abort 'bad-mojo)))))))))
+					 
+
+
 (model-method <agent> (kernel-check self #!rest args)
 				  ((slot-ref self 'kernel) 'check self args))
 
@@ -491,6 +579,12 @@ commonly viewed as just a simple extension of sclos.
 					 (if (not (member service pl))
 						  (slot-set! self 'requires (cons service pl)))))
 
+;; Check and adjust agent states
+(model-method <agent> (agent-state self)
+				  (my 'agent-state))
+
+(model-method <agent> (set-agent-state! self newstate)
+				  (set-my! 'agent-state newstate))
 
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
@@ -513,14 +607,6 @@ commonly viewed as just a simple extension of sclos.
 ;; Termination can happen from any state
 (model-method <agent> (agent-shutdown self #!rest args) 
 				  (slot-set! self 'agent-state 'terminated))
-
-
-;; Check and adjust agent states
-(model-method <agent> (agent-state self)
-				  (my 'agent-state))
-
-(model-method <agent> (set-agent-state! self newstate)
-				  (set-my! 'agent-state newstate))
 
 
 ;----- (dump) ;; This dumps all the slots from agent up.  
@@ -632,7 +718,7 @@ commonly viewed as just a simple extension of sclos.
 
 ;; (add-method name
 ;; 				(make-method (list <agent>)
-;; 								 (lambda (name-parent self)
+;; 								 (lambda (parent-name self)
 ;; 									(slot-ref self 'name))))
 
 ;----- (set-name!) 
@@ -645,16 +731,20 @@ commonly viewed as just a simple extension of sclos.
 ;----- (taxon) 
 
 (model-method (<agent>) (taxon self)
-				  (let ((n (slot-ref self 'taxon)))
-					 n
-					 ))
+				  (if (has-slot? self 'taxon)
+						(let ((n (slot-ref self 'taxon)))
+						  n
+						  )
+						(cnc self)
+						)
+)
 
 ;(model-method <agent> (taxon self)
 ;				  (my 'taxon))
 
 ;; (add-method taxon
 ;; 				(make-method (list <agent>)
-;; 								 (lambda (taxon-parent self)
+;; 								 (lambda (parent-taxon self)
 ;; 									(slot-ref self 'taxon))))
 
 ;----- (set-taxon!) 
@@ -1267,15 +1357,15 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;;; 					self (list 'message-list '()
 ;;; 								  'label ""
 ;;; 								  ))
-;;; 				  (initialise-parent)
+;;; 				  (parent-initialise)
 ;;; 				  ;; call "parents" last to make the initialisation list work
 ;;; 				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
 ;;; 				  )
 
 
 (model-method (<blackboard> <symbol>) (query self cmd #!rest args)
-				  ;; args should either be a list of cmds (for 'erase and 'read)
-				  ;; or a list of pairs (for 'write)
+				  ;; args should either be a list of tags (for 'erase and 'read)
+				  ;; or a list of pairs consisting of tags and values (for 'write)
 				  
 
 				  (let* ((messages (my 'message-list))

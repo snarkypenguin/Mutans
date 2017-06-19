@@ -466,6 +466,23 @@ compared to the librcg version in C
 		  Y))))
 
 
+(define (make-inverse-function F a b ss)
+  (let* ((domain (map (lambda (x) (+ a (* ss x)))
+							 (seq (inexact->exact (+ (truncate (/ (- b a) ss)) 1)))))
+			(fl (map (lambda (x) (list (F x) x)) domain))
+			(rfl (reverse fl))
+			)
+	 (cond
+	  ((apply < (map car fl))
+		(lambda (x) (interpolate fl x)))
+	  ((apply < (map car rfl))
+		(lambda (x) (interpolate rfl x)))
+	  (else (error "attempt to construct an inverse for a non-monotonic function")))))
+		
+				 
+  
+  
+
 ;; We repeat this every time, so I don't forget!
 
 ;; We have an expression of the form dy/dt = f where y is a scalar function of t and f is a function in terms of y and t

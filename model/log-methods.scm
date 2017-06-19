@@ -92,7 +92,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;; 				 'variables-may-be-set #t
 ;; 				 ))
-;;  (initialise-parent) ;; call "parents" last to make the
+;;  (parent-initialise) ;; call "parents" last to make the
 ;;  ;; initialisation list work
 ;;  (set-state-variables self args)
 ;;  )
@@ -108,6 +108,7 @@ close pages and emit 'showpage' for postscript stuff.
 )				  
 
 (model-body% <log-introspection>
+   (let ((kdebug (if #f kdebug dnl*)))
 		(kdebug '(log-* introspection-trace)
 				  "[" (my 'name) ":" (cnc self) "]"
 				  "Introspection: model-body")
@@ -155,7 +156,8 @@ close pages and emit 'showpage' for postscript stuff.
 		  ;;(skip-parent-body)
 		  (call-parents) ;; parent body sets the time step used
 		  dt
-		  ))
+		  )
+		))
 
 
 (model-method (<log-introspection>) (my-list self)
@@ -177,7 +179,7 @@ close pages and emit 'showpage' for postscript stuff.
 					 ))
 
 (model-method (<log-introspection> <number> <number>) (agent-prep self start end)
-				  (agent-prep-parent self start end) ;; parents should prep first
+				  (parent-agent-prep self start end) ;; parents should prep first
 				  )
 
 (model-method <log-introspection> (agent-shutdown self #!rest args)
@@ -189,7 +191,7 @@ close pages and emit 'showpage' for postscript stuff.
 														(current-error-port)))))
 						  (close-output-port file))
 					 (set-my! 'file #f)
-					 (agent-shutdown-parent)
+					 (parent-agent-shutdown)
 					 ))
 
 (model-method (<log-introspection> <list>) (set-variables! self lst)
@@ -263,7 +265,7 @@ close pages and emit 'showpage' for postscript stuff.
 ;---- snapshot methods -- <snapshot>s open a new file each time they run model-body
 
 ;; (agent-initialisation-method <snapshot> (args) (no-default-variables)
-;; 				  (initialise-parent) ;; call "parents" last to make the
+;; 				  (parent-initialise) ;; call "parents" last to make the
 ;; 											 ;; initialisation list work
 ;; 				  (set-state-variables self (list 'type snapshot 'lastfile #f
 ;; 												 'currentfile #f))
@@ -527,26 +529,29 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;; This logs to an open file
 (model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
-				  (lambda (target)	
-					 (kdebug '(log-* log-map) (name self) "[" (my 'name)
-							  ":" (cnc self) "]" "in log-data"
-							  (cnc target) (slot-ref target 'name))
+				  (let ((kdebug (if #f kdebug dnl*))
+						  )
+					 
+					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
+					 (lambda (target)	
+						(kdebug '(log-* log-map) (name self) "[" (my 'name)
+								  ":" (cnc self) "]" "in log-data"
+								  (cnc target) (slot-ref target 'name))
 
-					 (let* ((name (slot-ref target 'name))
-							  (p (slot-ref self 'local-projection))
-							  ;; to spit out a ps file we need to project the 
-							  ;; modelspace data into the PS domain
-							  (ps (slot-ref self 'file))
-							  )
-						(ps 'Comment "logging data for " name "****************")
-						(ps 'moveto (list (p '(20 20))))
-						(ps 'setgray 0.0)
-						(ps 'Helvetica 14)
-						(ps 'show (string-append (slot-ref self 'name)))
-						(ps 'comment "finished logging data for " name)
-						)))
-
+						(let* ((name (slot-ref target 'name))
+								 (p (slot-ref self 'local-projection))
+								 ;; to spit out a ps file we need to project the 
+								 ;; modelspace data into the PS domain
+								 (ps (slot-ref self 'file))
+								 )
+						  (ps 'Comment "logging data for " name "****************")
+						  (ps 'moveto (list (p '(20 20))))
+						  (ps 'setgray 0.0)
+						  (ps 'Helvetica 14)
+						  (ps 'show (string-append (slot-ref self 'name)))
+						  (ps 'comment "finished logging data for " name)
+						  )))
+				  )
 ;---- logfile methods -- <logfile>s open a single file and use that till they finish running
 
 (model-method <logfile> (page-preamble self logger format)
@@ -603,7 +608,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 (model-method (<log-data> <number> <number>) (agent-prep self start end)
 				  ;; This opens the output file on initialisation.
-				  (agent-prep-parent self start end) ;; parents should prep first
+				  (parent-agent-prep self start end) ;; parents should prep first
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
 							(cnc self) "]" "in agent-prep")
 				  
@@ -655,13 +660,13 @@ close pages and emit 'showpage' for postscript stuff.
 						  (close-output-port (my 'file))
 						  (set-my! 'file #f) ;; leave it the way it should be left
 						  ))
-				  (agent-shutdown-parent) ;; Parents should shutdown last
+				  (parent-agent-shutdown) ;; Parents should shutdown last
 				  )
 
 (model-method (<log-data> <log-introspection> <symbol>) (page-preamble self logger format)
 				  (kdebug 'log-issues "In: log-data preamble filename " (my 'filename) "and file" (my 'file))
 
-				  (page-preamble-parent) ;; opens the file
+				  (parent-page-preamble) ;; opens the file
 
 				  (kdebug 'log-issues "In: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
 
@@ -732,54 +737,57 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 						
 (model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)
-				  ;; (error "(-: Oops, really ought to never get here. :-)")
-				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(cnc self) "]" "in log-data")
-				  (let ((file (my 'file))
-						  (show-field-name (my 'show-field-name))
-						  (subjects (my-list self))
-						  (target-variables (my 'variables))
-						  (missing-val (my 'missing-val))
+				  (let ((kdebug (if #f kdebug dnl*))
 						  )
-					 (for-each (lambda (subject) 
-									 (display "**" file)
-									 (for-each ;; field in the variable list
-									  (lambda (field)
-										 (if show-field-name
-											  (begin
-												 (display " " file)
-												 (display field file)))
+									 
+					 ;; (error "(-: Oops, really ought to never get here. :-)")
+					 (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
+								(cnc self) "]" "in log-data")
+					 (let ((file (my 'file))
+							 (show-field-name (my 'show-field-name))
+							 (subjects (my-list self))
+							 (target-variables (my 'variables))
+							 (missing-val (my 'missing-val))
+							 )
+						(for-each (lambda (subject) 
+										(display "**" file)
+										(for-each ;; field in the variable list
+										 (lambda (field)
+											(if show-field-name
+												 (begin
+													(display " " file)
+													(display field file)))
 
-										 (cond
-										  ((member field
-													  (map car
-															 (class-slots-of subject)))
-											(kdebug '(log-* log-data logging-debug)
-													 "     Dumping " field "="
-													 (if (has-slot? self t)
-														  (slot-ref self t)
-														  "missing!"))
-												 
-											(display " " file)
-											(display (slot-ref subject field) file)
+											(cond
+											 ((member field
+														 (map car
+																(class-slots-of subject)))
+											  (kdebug '(log-* log-data logging-debug)
+														 "     Dumping " field "="
+														 (if (has-slot? self t)
+															  (slot-ref self t)
+															  "missing!"))
+											  
+											  (display " " file)
+											  (display (slot-ref subject field) file)
+											  )
+											 ((member field (extra-variable-list subject))
+											  (display " " file)
+											  (display (extra-variable subject field) file)
+											  )
+											 (missing-val
+											  (display " " file)
+											  (display missing-val file)))
 											)
-										  ((member field (extra-variable-list subject))
-											(display " " file)
-											(display (extra-variable subject field) file)
-											)
-										  (missing-val
-											(display " " file)
-											(display missing-val file)))
-										 )
-									  (if DONT-FILTER-TARGET-VARIABLES
-											target-variables
-											(filter (not-member (my 'dont-log)) target-variables)))
-									 (newline file)
-									 )
-								  subjects)
+										 (if DONT-FILTER-TARGET-VARIABLES
+											  target-variables
+											  (filter (not-member (my 'dont-log)) target-variables)))
+										(newline file)
+										)
+									 subjects)
+						)
 					 )
 				  )
-
 
 (model-method (<log-data> <log-introspection> <symbol>) (page-epilogue self logger format)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"

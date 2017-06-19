@@ -28,6 +28,16 @@
 
 ;(load "constants.scm")
 
+(define pi (* 4 (atan 1)))
+(define e (exp 1))
+
+
+(define log10 ;; defined this way so it doesn't recalculate ln10
+  (let ((ln10 (log 10)))
+	 (lambda (x)
+		(/ (log x) ln10))))
+
+
 (define maths-dnl*
   (lambda X
 	 (let ((out (if (and (pair? X) (port? (car (reverse X))))
@@ -50,6 +60,35 @@
 			 (newline out)
 		)))
 
+(define unit-box '((0 0)(1 0) (1 1) (0 1) (0 0)))
+(define unit-box-points  '((0 0)(1 0) (1 1) (0 1)))
+
+(define (random-point-in-box ll #!optional ur)
+  (if (not ur)
+		(cond
+		 ((= (length ll) 4)	(random-point-in-box (car ll) (caddr ll)))
+		 ((= (length ll) 5)	(random-point-in-box (car ll) (caddr ll)))
+		 ((= (length ll) 2)	(random-point-in-box (car ll) (cadr ll)))
+		 (else (error "whut?")))
+		(map +  ll (map * (map (lambda (x) (random-real)) ll) (map - ur ll)))))
+
+
+(define (random-bounded-point-in-box prop ll #!optional ur)
+  ;; prop is the linear proportion around the centre of the domain to use
+  (if (not ur)
+		(random-bounded-point-in-box prop (car ll) (caddr ll))
+		(let* ((n (length ur))
+				 (c (map * (map + ur ll) (make-list n 1/2)))
+				 (r (map - c ll))
+				 (p (make-list n (* 1/2 r prop) ))
+				 )
+		  (map + c (map +/- (map (lambda (x) (* p (random-real))) c)))
+		  )))
+
+
+(define (+/- #!optional x) (if x
+										 (if (zero? (random-integer 2)) (- x) x)
+										 (if (zero? (random-integer 2)) - +)))
 
 (define (find-preimage x f m M #!optional epsilon) ;;; requires a monotonic function f
   ;; f is a monotonic function, x is a value (f a), a \in \[m, M\]
@@ -187,15 +226,47 @@
 )
 
 
-(define-macro (pi) `,(* 4 (atan 1)))
-
 ;; returns a decay function which has a coefficient of N and a decay lambda L
 ;; 
 (define (exp-decay-func N L)
-  (lambda (t) (* N (exp (* -1 L t)))))
+  (lambda (t) (* N (exp (* t (/ -1 L ))))))
 
-(define (edf t) (exp (* t (/ -1. .1610)))) ;; (edf 1) = 0.0020
 
+
+
+
+
+
+
+;; (edf x) is an exponential decay function which is for most cases defined on [0,1]->[0,1].
+;; By the time x = 1---the default value---(edf x) is less than 0.0009 
+;; Increasing the value of y increases the mean and the value of edf at 1, and y\in(0,+inf.0)
+;; This makes a reasonable PDF for things since both axes (essentially) have a range of one.
+
+(define (1df t #!optional y)
+  (let* ((b (- pi 3))
+			)
+	 (if y
+		  (exp (* t (/ -1. b) (/ 1 y)))
+		  (exp (* t (/ -1. b))))))
+
+(define (1cdf t #!optional y)
+  (let* ((b (- pi 3)))
+	 (+ (if y
+			  (* (/ -1 (* b y))
+				  (exp (* t (/ -1. b) (/ 1 y))))
+				 (* b
+					 (exp (* t (/ -1. b)))
+					 )
+				 )
+		 )))
+	 
+(define (edf t #!optional y)
+  (let ((q (1cdf 1.0 y)))
+	 (* q (1df t y))))
+	 
+(define (ecdf t #!optional y)
+  (integrate (lambda (x) (edf x y) 0 t)))
 
 
 ;;# general-sigmoid: x is in [0,1], lmb governs how sharp the transition is and phi shifts it to 
@@ -212,7 +283,7 @@
 
 ;; This is the generating function
 (define (general-sigmoid-f x lmb phi)
-  (exp (* 4 (pi) lmb (- x phi))))
+  (exp (* 4 pi lmb (- x phi))))
 
 ;; This is exp( 4*pi*lmb * (x -phi))
 
@@ -241,7 +312,7 @@
   (cond 
 	((>= X 1) 1)
 	((<= X 0) 0)
-	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 4 (pi))) 0.5)))))
+	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 4 pi)) 0.5)))))
   )
 )
 
@@ -255,7 +326,7 @@
 (define (inverse-sigmoid P lmb phi)
   (cond
 	((<= P 0) 0)
-	((<= P 1) (+ (/ (log P) (* 4 (pi) lmb)) phi))
+	((<= P 1) (+ (/ (log P) (* 4 pi lmb)) phi))
 	(else 1)))
 
 
@@ -264,7 +335,7 @@
   (cond
 	((<= P_0 0) 0)
 	((>= P_0 1) 1)
-	(else (/ (log (- (/ 1 P_0) 1)) (* 4 (pi) lmb)))))
+	(else (/ (log (- (/ 1 P_0) 1)) (* 4 pi lmb)))))
 
 (define (power b e)
   (cond
@@ -513,7 +584,7 @@
 			(M (if (>= N 4) (cadddr args) +inf.0))
 			)
 
-	 (let* ((n (+ (* (let* ((pi*2 (* (pi) 2))
+	 (let* ((n (+ (* (let* ((pi*2 (* pi 2))
 									  (u (random-real))
 									  (v (random-real))
 									  (w (sqrt (* -2.0 (log u)))))
@@ -593,8 +664,14 @@
 		 (#t (error "Bad arguments to lnrnd" args)))))
   )
 
+(define (logtrans mean y) ;; y \in [0,1]
+  (* -1 mean (log (- 1 y))))
 
-(define (make-pprocess meany)
+(define (invlogtrans mean y)
+  (- 1 (exp (/ y (* -1 mean)))))
+
+
+(define (make-pprocess meany #!optional clip)
   (let* ((halfway-point (lambda (m M) (inexact->exact (truncate (/ (+ (max  m M) (min m M)) 2)))))
 			(mean #f)
 			(debug #f)
@@ -602,17 +679,19 @@
 					  (set! mean imean)
 					  ))
 			)
+	 (if (not clip) (set! clip  +inf.0))
 	 (letrec ((pprng% (lambda args
 							  (if debug
 									(maths-dnl* "Entering pprng% with: " args))
 							  (cond
 								((null? args)
-								 (let loop-while-zero ((y (random-real)))
-															  (if (zero? y)
-																	(loop-while-zero (random-real))
-																	(* -1 mean (log (- 1 y)))
-																	))
-								 )
+								 (let ((clip (if clip (invlogtrans mean clip) clip)))
+									(let loop-while-zero ((y (random-real)))
+									  (if (or (zero? y) (and clip (>= y (abs clip))))
+											(loop-while-zero (random-real))
+											(* -1 mean (log (- 1 y)))
+											))
+									))
 								
 								((eq? (car args) 'debug) (set! debug #t))
 								((eq? (car args) 'no-debug) (set! debug #f))
@@ -629,13 +708,20 @@
 	 ))
 
 
-(define (simple-pprnd mean)
-  (let loop-while-zero ((y (random-real)))
-	 (if (zero? y)
-		  (loop-while-zero (random-real))
-		  (* -1 mean (log (- 1 y)))
-		  ))
-  )
+(define (simple-pprnd mean #!optional clip)
+  ; clip = (* -1 mean (log (- 1 y))))
+  ; (/ clip (* -1 mean) = (log (- 1 y))
+  ; (exp (/ clip (* -1 mean))) = (- 1 y)
+  ; (- (exp (/ clip (* -1 mean))) 1) = -y
+  ; (- 1 (exp (/ clip (* -1 mean)))) = y
+
+  (let ((clip (if clip (invlogtrans mean clip) clip)))
+	 (let loop-while-zero ((y (random-real)))
+		(if (or (zero? y) (and clip (>= y clip)))
+			 (loop-while-zero (random-real))
+			 (* -1 mean (log (- 1 y)))
+			 ))
+	 ))
 
 (define (pprnd mean #!optional M)
   (let ((lnm (if (list? mean) (length mean) #f))
@@ -650,7 +736,7 @@
 	  ((and (eq? lnm #f) (number? M)) ;; open boundary
 		(let loop-till-less ((p (simple-pprnd mean)))
 		  (if (>= p M)
-				(loop-till-less (simple-pprnd mean))
+				(loop-till-less (simple-pprnd mean M))
 				p)))
 	  ((and lnm (number? M)) ;; list and a single max
 		(map (lambda (mn) (pprnd mn M)) mean))
@@ -676,7 +762,7 @@
 (define random random-real)
 
 (define (random-angle)
-  (* (pi) (- (* (random-real) 2.0) 1)))
+  (* pi (- (* (random-real) 2.0) 1)))
 
 (define (rotated-velocity v theta)
   (rotated-vector v theta))
@@ -873,26 +959,34 @@
 ;; This returns a piecewise linear function of one argument which is zero outside its domain
 (define (pwl ptlist)
   (lambda (x)
-	 (if (or (null? ptlist) (not (pair? ptlist)) (not (pair? (car ptlist))) (< x (caar ptlist))) 
-		  0.0
-		  (let hunt ((p ptlist))
-			 (cond
-			  ((null? p) 0.0)
-			  ((and (pair? (cdr p)) (< x (caadr p)))
-				(let ((d (caar p))
-						(D (caadr p))
-						(n (cadar p))
-						(N (cadadr p)))
-				  (+ (* (/ (- N n) (- D d)) (- x d)) n)))
-			  (#t (hunt (cdr p))))))))
+	 (cond
+	  ((symbol? x) ptlist)
+		  
+	  ((or (null? ptlist) (not (pair? ptlist)) (not (pair? (car ptlist))) (< x (caar ptlist)))
+		0.0)
+	  (else (let hunt ((p ptlist))
+				 (cond
+				  ((null? p) 0.0)
+				  ((and (pair? (cdr p)) (< x (caadr p)))
+					(let ((d (caar p))
+							(D (caadr p))
+							(n (cadar p))
+							(N (cadadr p)))
+					  (+ (* (/ (- N n) (- D d)) (- x d)) n)))
+				  (#t (hunt (cdr p)))))))))
+
+(define (inverse-pwl ptlist)
+  (let ((n (- (length (car ptlist)) 1)))
+	 (let ((iptlist (map (lambda (x) (cons (car (reverse x)) (list-head x n))) ptlist)))
+		(pwl iptlist))))
 
 
 ;; This is used by rk4-* ... it does traces through many dimensional spaces
-(define (interpolate pwl x)
+(define (interpolate pwl-pointlist x)
   (cond
-	((null? pwl)  #f)
-	((and (not (pair? pwl)) (not (pair? (car pwl)))) #f)
-	((< 2 (length (car pwl)))
+	((null? pwl-pointlist)  #f)
+	((and (not (pair? pwl-pointlist)) (not (pair? (car pwl-pointlist)))) #f)
+	((< 2 (length (car pwl-pointlist)))
 	 (map 
 	  (lambda (y) 
 		 (interpolate 
@@ -902,14 +996,14 @@
 				(car pt) 
 				(list-ref pt y)) 
 			  )
-			pwl)
+			pwl-pointlist)
 		  x))
-	  (map (lambda (x) (+ x 1)) (sequence (- (length (car pwl)) 1)))))
-	((<= x (caar pwl)) (cadar pwl))
-	((null? (cdr pwl)) (cadar pwl))
-	((< x (caadr pwl)) 
-	 (let* ((p1 (car pwl))
-			  (p2 (cadr pwl))
+	  (map (lambda (x) (+ x 1)) (sequence (- (length (car pwl-pointlist)) 1)))))
+	((<= x (caar pwl-pointlist)) (cadar pwl-pointlist))
+	((null? (cdr pwl-pointlist)) (cadar pwl-pointlist))
+	((< x (caadr pwl-pointlist)) 
+	 (let* ((p1 (car pwl-pointlist))
+			  (p2 (cadr pwl-pointlist))
 			  (a (car p1))
 			  (m (cadr p1))
 			  (b (car p2))
@@ -932,7 +1026,7 @@
 					))
 			 )
 	)
-  (#t (interpolate (cdr pwl) x)))
+  (#t (interpolate (cdr pwl-pointlist) x)))
 )
 
 

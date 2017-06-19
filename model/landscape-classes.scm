@@ -92,13 +92,33 @@ A typical construction of an ecoservice might look like
 (define-class <patch> (inherits-from  <environment> <projection>)
   (state-variables service-list))
 ;; This one needs a 'rep set (which is what <environment> provides
+;; The caretaker variable may be a process of the form
+
+;; (lambda (self t dt) ...)  which will be called in each of its timesteps.
+;; This process cannot modify t or dt.
+
+;; notepad is (notionally) a list which can be used as quasi-permanent
+;; storage
 
 (Comment "A patch is a geographic region with a list of ecological
 services.  The representation (rep) is a spatial thingie.")
 
+(define-class <patch*> (inherits-from  <patch>)
+  (state-variables caretaker notepad))
+;; This one needs a 'rep set (which is what <environment> provides
+;; The caretaker variable may be a process of the form
+
+;; (lambda (self t dt) ...)  which will be called in each of its timesteps.
+;; This process cannot modify t or dt.
+
+;; notepad is (notionally) a list which can be used as quasi-permanent
+;; storage. 
+
+(Comment "A <patch*> adds the ability to do processing of some sort at each timestep.")
+
 ;;
 (define-class <dynamic-patch>
-  (inherits-from <patch> <diffeq-system>)
+  (inherits-from <patch*> <diffeq-system>)
   (state-variables
 	do-dynamics       ;; #t/#f whether to do the dynamics
 	;; or not if this is false, state

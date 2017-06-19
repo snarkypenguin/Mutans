@@ -19,6 +19,7 @@
     ;;(list 'mass-conversion-rate '<uninitialised>)
     ;;(list 'max-condition-rate '<uninitialised>)
     ;;(list 'max-growth-rate '<uninitialised>)
+	 (list 'mass-at-age uninitialised)
   )
 )
 (set! global-parameter-alist (cons (cons <metabolism> <metabolism>-parameters) global-parameter-alist))

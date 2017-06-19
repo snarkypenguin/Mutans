@@ -13,8 +13,11 @@
 
 (for-each load (map sym->scm '(sclos+extn)))
 
-
 (for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript)))
+
+(define slib-gambit.init "/usr/share/slib/gambit.init")
+(define SLIB #f)
+
 ;(load "support.o1")
 
 (for-each load (map sym->scm '(basic-population)))
@@ -32,6 +35,17 @@
 
 (load "model-flags.scm") ;; Flags for kdebug/kdebug? messages/code and other global flags
 (load "parameters.scm") ;; code to handle the parameter files 
+
+
+;; This comes last ... things go awry otherwise?
+(if (file-exists? slib-gambit.init)
+	 (begin
+		(load slib-gambit.init)
+		(require 'printf) ;; for controlling output precision
+		(require 'charplot) ;; for rough, ascii plotting within the interpreter.
+		(set! SLIB #t)
+		))
+			 
 
 ;-  The End 
 

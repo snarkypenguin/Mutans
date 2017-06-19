@@ -18,7 +18,32 @@
 ;;	 s)
 ;;  )
 
+(define (scaleT T)
+  (* 0.1 
+  (cond
+	((< T 600) T)
+	((< T hour) (/ T 600))
+	((< T day) (/ T hours)) 
+	((< T week) (/ T days))
+	((< T year) (/ T weeks))
+	(else (/ T years))
+	)))
 
+(define (scaleTS T)
+  (cond
+	((< T 600) "secs")
+	((< T hour) "mins")
+	((< T day) "hours")
+	((< T week) "days")
+	((< T year) "weeks")
+	(else "years")
+  ))
+
+(define (scaled-time T)
+  (string-append ((if SLIB (lambda (x) (sprintf "%.2f" x)) number->string) (scaleT T)) " " (scaleTS T)))
+
+(define (scaled-time-ratio T E)
+  (string-append ((if SLIB (lambda (x) (sprintf "%.2f" x)) number->string) (/ (scaleT T) (scaleT E))) " " (scaleTS T)"/"(scaleTS E)))
 
 (define (pp-to-string p)
   (with-output-to-string '()
@@ -234,8 +259,7 @@
 
 (define (nrandom mean . its) ;; very dodgey ... but bog simple
   (let ((N (if (null? its) 100 (car its))))
-	 (let loop ((i 0)
-					(the-sum 0))
+	 (let loop ((i 0) (the-sum 0))
 		(if (>= i N)
 			 (* (/ mean (/ N 2.0)) the-sum)
 			 (loop ((+ 1  i) (+ the-sum (random-real))))))))

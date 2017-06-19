@@ -2,7 +2,8 @@
 'Parameters
 (define <animal>-parameters
   (list
-    (list 'current-interest '())
+	(list 'current-interest '())
+	(list 'last-reproduced +inf.0) ;; since they haven't reproduce yet by default
 	 ;;(list 'movementspeed '<uninitialised>)
     ;;(list 'searchspeed '<uninitialised>)
     ;;(list 'foragespeed '<uninitialised>)

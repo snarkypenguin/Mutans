@@ -59,7 +59,7 @@
 ;; 							  )
 ;; 			  )
 ;; 	  )
-;; 	(initialise-parent) ;; call "parents" last to make the
+;; 	(parent-initialise) ;; call "parents" last to make the
 ;; 	;; initialisation list work
 ;; 	(if (or (not (number? (my 'subdivisions))) (not (positive? (my 'subdivisions))))
 ;; 		 (slot-set! self 'subdivisions 3)) 

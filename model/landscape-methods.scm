@@ -425,7 +425,6 @@ via their containing patch.
 								;;;     (my 'name))
 								(let* ((capacity (my 'capacity))
 										 (value  (my 'value))
-										 (domain (my 'delta-T-max))
 										 (ecoserv-growth (my 'growth-model)) 
 										 ;; The growth-model expects the start
 										 ;; of the time-step and and an
@@ -439,20 +438,21 @@ via their containing patch.
 										 ;; (such as a table, or a regular
 										 ;; increment, for example).
 
-
-
-
 										 (newvalue 
 										  (cond
 											((procedure? ecoserv-growth)
 											 (ecoserv-growth t dt value))
 											((eqv? ecoserv-growth 'sigmoid)
 											 (let* (;; This is a logistic update
+													  (domain (my 'delta-T-max))
 													  (ipt (/ value capacity)) 
 													  (pt (inverse-sigmoid* ipt))
 													  (rdt (/ dt domain))
 													  )
-												(* capacity (sigmoid* (+ pt rdt)))))
+												(if (>= domain dt)
+													 (* capacity (sigmoid* (+ pt rdt)))
+													 (error "The specified timestep " dt " is greater than the 'delta-T-max value " domain " for " (my taxon)))
+												))
 											((eqv? ecoserv-growth 'linear)
 											 (min capacity (+ value (* dt (my 'r)))))
 											(#t
@@ -470,10 +470,9 @@ via their containing patch.
 
 
 ;; 
-(define (simple-ecoservice taxon name variable value cap r maxdt growing? growthmodel . P) 
-  (if (pair? P)
-		(set! P (car P))
-		(dnl* "No patch specified for" taxon))
+(define (simple-ecoservice taxon dt name variable value cap r maxdt growing? growthmodel . patch)  
+  (if (pair? patch)
+		(set! patch (car patch)))
 		
   (if (not (and (string? taxon)(string? name) (symbol? variable ) (number? value)
 					 (number? cap) (number? r) (number? maxdt) (boolean? growing?)
@@ -493,26 +492,27 @@ via their containing patch.
 			  )
     
   (let ((A (create <ecoservice> taxon
-							  'name (strsub name " " "_")
-							  ;; string corresponding to its name, like "Vulpes lagopus"
-							  'sym variable
-							  ;; 'Vl perhaps
-							  'value value
-							  ;; Immediately after model-body this will be the value calculated, before hand it is the value to be used
-							  'capacity cap
-							  ;; this corresponds to a carrying capacity ... +inf.0 and -inf.0 are reasonable values for this 
-							  'r r
-							  ;; r controls the growth rate per unit time, for linear values this is the slope, 
-							  'delta-T-max maxdt	
-							  ;; r is the rate of growth per unit time
-							  'do-growth growing?
-							  ;; if #f any changes must be effected by external agency
-							  'growth-model growthmodel
+						 'dt dt
+						 'name (strsub name " " "_")
+						 ;; string corresponding to its name, like "Vulpes lagopus"
+						 'sym variable
+						 ;; 'Vl perhaps
+						 'value value
+						 ;; Immediately after model-body this will be the value calculated, before hand it is the value to be used
+						 'capacity cap
+						 ;; this corresponds to a carrying capacity ... +inf.0 and -inf.0 are reasonable values for this 
+						 'r r
+						 ;; r controls the growth rate per unit time, for linear values this is the slope, 
+						 'delta-T-max maxdt	
+						 ;; r is the rate of growth per unit time
+						 'do-growth growing?
+						 ;; if #f any changes must be effected by external agency
+						 'growth-model growthmodel
                        ;;; 'sigmoid
                        ;;; 'linear
                        ;;; (lambda (t dt v) ...)
-							  'patch P
-							  )
+						 'patch patch
+						 )
 
 			  ))
 ;;	 (dnl "Made ecoservice for " name)
@@ -662,23 +662,24 @@ via their containing patch.
 				  (area (my 'patch) passing))
 
 (model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (let (;;(f (if (pair? args) (car args) #f))
+				  (let ((kdebug (if #f kdebug dnl*))
+						  ;;(f (if (pair? args) (car args) #f))
 						  ;;(p (if (and (pair? args)
-							;;			  (pair? (cdr args)))
-							;;		(cadr args)
+						  ;;			  (pair? (cdr args)))
+						  ;;		(cadr args)
 						  ;;		#f))
 						  )
 					 (kdebug '(log-horrible-screaming ecoservice log-ecoservice) (cnc self) (cnc format) (cnc (my 'name)))
-					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (let ((file (slot-ref logger 'file)))
 							 (kdebug '(log-* log-ecoservice)
-										 "[" (my 'name) ":" (cnc self) "]"
-										 "in log-data")
+										"[" (my 'name) ":" (cnc self) "]"
+										"in log-data")
 							 (let ((leading-entry #f))
 								(for-each
 								 (lambda (field)
 									(kdebug '(log-* log-ecoservice) "[" (my 'name) ":"
-												(cnc self) "]" "checking" field)
+											  (cnc self) "]" "checking" field)
 									(if (has-slot? self field)
 										 (let ((r (slot-ref self field)))
 
@@ -686,10 +687,9 @@ via their containing patch.
 											  ((ps)
 												(file 'push-font (my 'default-font) (my 'default-size))
 												(file 'show (string-append " "
-																 (if (string? r)
-																	  r
-																	  (object->string r)) " "))
-												(dnl* "SHOWING " r)
+																					(if (string? r)
+																						 r
+																						 (object->string r)) " "))
 												(file 'pop-font)
 												)
 ;								 ((dump)
@@ -734,13 +734,13 @@ via their containing patch.
 												  (display S file)))
 											  (else
 												(kdebug '(log-* log-ecoservice)
-															"[" (my 'name) ":" (cnc self) "]"
-															"Ignoring " field " because I don't have it")
+														  "[" (my 'name) ":" (cnc self) "]"
+														  "Ignoring " field " because I don't have it")
 												'ignore-unhandled-format)))
 										 (begin
 											(kdebug '(log-* log-ecoservice)
-														"[" (my 'name) ":" (cnc self) "]"
-														"no service" field)
+													  "[" (my 'name) ":" (cnc self) "]"
+													  "no service" field)
 											#f)))
 								 (uniq (if #t
 											  targets
@@ -1009,7 +1009,7 @@ via their containing patch.
 ;;; 				  ;; to make the
 ;;; 				  ;; initialisation list
 ;;; 				  ;; work
-;;; 				  (initialise-parent)
+;;; 				  (parent-initialise)
 
 ;;; 				  (set-state-variables self args)
 ;;; 				  )
@@ -1200,7 +1200,7 @@ via their containing patch.
 
 ;; (Add-method representation
 ;; 				(make-method (list <agent>)
-;; 								 (lambda (representation-parent self)
+;; 								 (lambda (parent-representation self)
 ;; 									(my 'representation))))
 
 
@@ -1305,23 +1305,7 @@ via their containing patch.
 						  0.0
 						  (apply + (map (lambda (y) (value y)) ss)))))
 
-(model-method (<patch> <pair>) (total-value self symlist)
-				  (let ((ss (service-list self (if (symbol? symlist)
-															  (list symlist)
-															  symlist))))
-					 (if (or (not ss) (null? ss) )
-						  0.0
-						  (apply + (map (lambda (y) (value y)) ss)))))
-
 ;--- model-method (<patch> <pair>) (total-capacity self symlist)
-(model-method (<patch> <pair>) (total-capacity self symlist)
-				  (let ((ss (service-list self (if (symbol? symlist)
-															  (list symlist)
-															  symlist))))
-					 (if (or (not ss) (null? ss) )
-						  0.0
-						  (apply + (map (lambda (y) (capacity y)) ss)))))
-
 (model-method (<patch> <pair>) (total-capacity self symlist)
 				  (let ((ss (service-list self (if (symbol? symlist)
 															  (list symlist)
@@ -1355,58 +1339,61 @@ via their containing patch.
 
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
 (model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-				  (kdebug '(log-horrible-screaming ecoservice) (map cnc (list self logger format targets)) 'format: format)
-				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
-						(let ((file (slot-ref logger 'file))
-								(p (composite-prj_src->dst self logger))
-								)
-						  (if (not (procedure? p)) (set! p (lambda (x) x)))
-						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
-									  (cnc self) "]" "in log-data")
-						  
-						  (case format
-							 ((ps)
-							  (file 'push-font (my 'default-font) (my 'default-size))
-							  (let* ((symlist (services self))
-										(name (slot-ref self 'name))
-										(R (car (p (make-list 2 (radius self)))))
-										   ;; this will fail if the projection is not a linear-map
-										(L (p (list-head (location self) 2)))
-										(slist (slot-ref self 'service-list))
-										(n (+ 1 (length slist))) ;; slist is
-										(perim (perimeter self))
-										;; becoming
-										;; circular??
-										;; ....******
-										(ns (length slist))
-										(mm-xoffset 2)
-										(mm-yoffset 2)
-										(p^t (list-transpose perim))
-										(Left (apply min (car p^t)))
-										(Right (apply max (car p^t)))
-										(Up (apply max (cadr p^t)))
-										(Down (apply min (cadr p^t)))
-										(ploc (location self))
-										(psprj (composite-prj_src->dst self logger))
-										(psloc (psprj ploc))
-										)
-								 (file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name)) (object->string (list Left Down Right Up))))
-								 
-								 (if adjust-grey (file 'setgray PATCHGREY))
-								 (cond
-								  ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
-										 (eq? (class-of (my 'rep)) <polygon>))
-									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
-									(file 'comment (string-append "Native ordinates: " (object->string (perimeter self))))
-									(file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
-									(file 'comment (string-append "service list: " (object->string slist)))
-;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-									(log-map-polygon logger (perimeter self) 'grey)
-									)
-									
-								  (#t (error "Bad representation for output" (cnc (my 'rep))))
+				  (let ((kdebug (if #f kdebug dnl*))
+						  )
+					 
+					 (kdebug '(log-horrible-screaming patch) (map cnc (list self logger format targets)) 'format: format)
+					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						  (let ((file (slot-ref logger 'file))
+								  (p (composite-prj_src->dst self logger))
 								  )
-								 
+							 (if (not (procedure? p)) (set! p (lambda (x) x)))
+							 (kdebug '(log-* log-patch) "[" (my 'name) ":"
+										(cnc self) "]" "in log-data")
+							 
+							 (case format
+								((ps)
+								 (file 'push-font (my 'default-font) (my 'default-size))
+								 (let* ((symlist (services self))
+										  (name (slot-ref self 'name))
+										  (R (car (p (make-list 2 (radius self)))))
+										  ;; this will fail if the projection is not a linear-map
+										  (L (p (list-head (location self) 2)))
+										  (slist (slot-ref self 'service-list))
+										  (n (+ 1 (length slist))) ;; slist is
+										  (perim (perimeter self))
+										  ;; becoming
+										  ;; circular??
+										  ;; ....******
+										  (ns (length slist))
+										  (mm-xoffset 2)
+										  (mm-yoffset 2)
+										  (p^t (list-transpose perim))
+										  (Left (apply min (car p^t)))
+										  (Right (apply max (car p^t)))
+										  (Up (apply max (cadr p^t)))
+										  (Down (apply min (cadr p^t)))
+										  (ploc (location self))
+										  (psprj (composite-prj_src->dst self logger))
+										  (psloc (psprj ploc))
+										  )
+									(file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name)) (object->string (list Left Down Right Up))))
+									
+									(if adjust-grey (file 'setgray PATCHGREY))
+									(cond
+									 ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
+											(eq? (class-of (my 'rep)) <polygon>))
+									  (file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
+									  (file 'comment (string-append "Native ordinates: " (object->string (perimeter self))))
+									  (file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
+									  (file 'comment (string-append "service list: " (object->string slist)))
+;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
+									  (log-map-polygon logger (perimeter self) 'grey)
+									  )
+									 
+									 (#t (error "Bad representation for output" (cnc (my 'rep))))
+									 )
+									
 								 ;;; (file 'moveto (p (map + L
 								 ;;; 							  (list (+ mm-xoffset
 								 ;;; 										  (* 0.2 R))
@@ -1414,42 +1401,67 @@ via their containing patch.
 								 ;;; 										  (/ ns 2.0)))
 								 ;;; 							  )))
 
-								 (file 'comment (string-append "Left Up = " (object->string (psprj (list Left Up)))))
-								 (file 'moveto (psprj (list Left Up)))
-								 (file 'linefeed 1)
-								 (if (null? slist) (file 'linefeed 1))
-								 (file 'push-color '(0.5 1.0 0.5))
-								 (file 'show-table (map
-														  (lambda (x) (string-append " "
-																			(slot-ref x 'name)
-																			" = " (pno (value x))))
-														  slist))
-								 (file 'pop-color)
-								 (caption file self #f #f) ;; the last two args are prj and loc respectively
-								 (file 'pop-font)
-								 ))
+									(file 'comment (string-append "Left Up = " (object->string (psprj (list Left Up)))))
+									(file 'moveto (psprj (list Left Up)))
+									(file 'linefeed 1)
+									(if (null? slist) (file 'linefeed 1))
+									(file 'push-color '(0.5 1.0 0.5))
+									(file 'show-table (map
+															 (lambda (x) (string-append " "
+																								 (slot-ref x 'name)
+																								 " = " (pno (value x))))
+															 slist))
+									(file 'pop-color)
+									(caption file self #f #f) ;; the last two args are prj and loc respectively
+									(file 'pop-font)
+									))
 
 
-							 ;;((text table dump)
-							 ;; (log-data-parent)
-							 ;; )
-							 (else
-							  (display (my 'name) file)
-							  (for-each 
-								(lambda (x)
-								  (display " " file)
-								  (if (agent? x)
-										(display (value x))
-										(display x)))
-								(map (lambda (x) (value x)) (my 'service-list)))
-							  (newline file)
-							  ;;(log-data-parent)	
-							  )
+								;;((text table dump)
+								;; (parent-log-data)
+								;; )
+								(else
+								 (display (my 'name) file)
+								 (for-each 
+								  (lambda (x)
+									 (display " " file)
+									 (if (agent? x)
+										  (display (value x))
+										  (display x)))
+								  (map (lambda (x) (value x)) (my 'service-list)))
+								 (newline file)
+								 ;;(parent-log-data)	
+								 )
+								)
 							 )
 						  )
-						)
+					 )
 				  )
 
+
+
+;-- patch* note methods and model body
+
+(model-method <patch*> (initialisation-checks self)
+				  (if (uninitialised? (my 'notepad))
+						(set-my! 'notepad (create <blackboard> (string-append (name self) "-notepad") 'label 'not-runninge 'message-list '()))))
+
+(model-method <patch*> (query self cmd #!rest args)
+				  (apply query (cons (my 'notepad) (cons cmd args))))
+
+(model-body <patch*>
+				(call-parents)
+				(let* ((caretaker (slot-ref self 'caretaker))
+						 (result (if (procedure? caretaker)
+										 (caretaker self t dt)
+										 dt))
+						 )
+				  (if (or (null? result) (number? result))
+						dt
+						(append (list 'introduce-new-agents dt)
+								  result)
+						)
+				  ))
 
 ;-- dynamic-patch methods and body
 
@@ -1517,7 +1529,7 @@ via their containing patch.
 ;;; 							(slot-set! self 'variable-symbols #f)
 ;;; 							(slot-set! self 'd/dt-list #f)))
 ;;; 					 )
-;;; 				  (initialise-parent) ;; call "parents" last
+;;; 				  (parent-initialise) ;; call "parents" last
 ;;; 				  ;; to make the
 ;;; 				  ;; initialisation list
 ;;; 				  ;; work
@@ -1586,8 +1598,8 @@ via their containing patch.
 			(terrain (if (pair? extras) (car extras)))
 			(statevars (if (pair? extras) (cdr extras)))
 			)
-;	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
-;	 (dnl* "stepsizes" nscale mscale)
+	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+	 (dnl* "stepsizes" nscale mscale)
 
 	 ;; The flag 'is-relative is set to false in the construction of the grid cells.
 	 ;; We could specify a single box and make the polygon vertices relative to the centre,
@@ -1611,24 +1623,25 @@ via their containing patch.
 								  (maxy +nan.0)
 								  (mB (extremum min box))
 								  (MB (extremum max box))
+								  (PP (create-	<polygon>
+													'location centre
+													'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
+													'perimeter box
+													'is-relative #f ;;;; (-: THIS IS IMPORTANT HERE---awkward bugs arise if this is wrong ;-)
+													'minv mB
+													'maxv MB
+													'note "generated by make-grid"
+													'dont-log #t ;; let them be logged by default
+													))
 								  (cell
 									(create 
 									 cell-class
 									 taxon
 									 'name pname
 									 'representation (cnc cell-type)
-									 'rep
-									 (create-
-									  <polygon>
-									  'location centre
-									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
-									  'perimeter box
-									  'is-relative #f ;;;; (-: THIS IS IMPORTANT - awkward bugs arise if this is wrong ;-)
-									  'minv mB
-									  'maxv MB
-									  'note "generated by make-grid"
-									  'dont-log #f ;; let them be logged by default
-									  ))))
+									 'rep PP
+									 )))
+;;							(pp (dumpslots PP))
 ;							(dnl* "-->"(perimeter cell))
 ;							(dnl* "   " box)
 							(if (pair? statevars) (set-state-variables cell statevars))
@@ -1812,79 +1825,81 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <procedure> <symbol> <procedure>)(log-data self logger format  targets)
 (model-method (<dynamic-patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
-						(let ((file (slot-ref logger 'file))
-								(p (slot-ref self 'projection-assoc-list)))
-						  (if (or (not p) (null? p))  (set! p (lambda (x) x)))
-						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
-									  (cnc self) "]" "in log-data")
-						  
-						  (case format
-							 ((ps)
-							  (let* ((symlist (services self))
-										(name (slot-ref self 'name))
-										)
-
-								 (if adjust-grey (file 'push-color PATCHGREY))
-								 (ps-circle file  (p (list (radius self)))
-												(p (list-head (location self) 2)) 0.7 0.0)
-
-
-								 (let* ((slist (slot-ref self 'service-list))
-										  (n (+ 1 (length slist))) ;; slist is becoming circular?? ....******
-										  (ns (length slist))
-										  (loc (location self))
-										  (rad (radius self))
-										  (mm-xoffset 2)
-										  (mm-yoffset 2)
-										  (p^t (list-transpose perim))
-										  (Left (apply min (car p^t)))
-										  (Right (apply max (car p^t)))
-										  (Up (apply max (cadr p^t)))
-										  (Down (apply min (cadr p^t)))
-										  (ploc (location self))
-										  (psprj (composite-prj_src->dst self logger))
-										  (psloc (psprj ploc))
+				  (let ((kdebug (if #f kdebug  dnl*))
+						  )
+					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						  (let ((file (slot-ref logger 'file))
+								  (p (slot-ref self 'projection-assoc-list)))
+							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+							 (kdebug '(log-* log-patch) "[" (my 'name) ":"
+										(cnc self) "]" "in log-data")
+							 
+							 (case format
+								((ps)
+								 (let* ((symlist (services self))
+										  (name (slot-ref self 'name))
 										  )
 
-									(cond
-									 ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
-											(eq? (class-of (my 'rep)) <polygon>))
-									  (file 'comment (string-append "<dynamic-patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
-									  (file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
-									  (file 'comment (string-append "Projected ordinates:" (object->string (map psprj (perimeter self)))))
+									(if adjust-grey (file 'push-color PATCHGREY))
+									(ps-circle file  (p (list (radius self)))
+												  (p (list-head (location self) 2)) 0.7 0.0)
+
+
+									(let* ((slist (slot-ref self 'service-list))
+											 (n (+ 1 (length slist))) ;; slist is becoming circular?? ....******
+											 (ns (length slist))
+											 (loc (location self))
+											 (rad (radius self))
+											 (mm-xoffset 2)
+											 (mm-yoffset 2)
+											 (p^t (list-transpose perim))
+											 (Left (apply min (car p^t)))
+											 (Right (apply max (car p^t)))
+											 (Up (apply max (cadr p^t)))
+											 (Down (apply min (cadr p^t)))
+											 (ploc (location self))
+											 (psprj (composite-prj_src->dst self logger))
+											 (psloc (psprj ploc))
+											 )
+
+									  (cond
+										((or (member (class-of (my 'rep)) (list <polygon> <circle>))
+											  (eq? (class-of (my 'rep)) <polygon>))
+										 (file 'comment (string-append "<dynamic-patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
+										 (file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
+										 (file 'comment (string-append "Projected ordinates:" (object->string (map psprj (perimeter self)))))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-									  (log-map-polygon logger (perimeter self) 'grey)
+										 (log-map-polygon logger (perimeter self) 'grey)
+										 )
+										
+										(#t (error "Bad representation for output" (cnc (my 'rep))))
+										)
+
+									  (file 'moveto (psprj (list Left Up)))
+									  (file 'linefeed 1)
+									  (if (null? slist) (file 'linefeed 1))
+									  (file 'push-color '(0.5 1.0 0.5))
+									  (file 'show-table (map
+																(lambda (x) (string-append " "
+																									(slot-ref x 'name)
+																									": "
+																									(pno (value x))))
+																slist))
 									  )
-									 
-									 (#t (error "Bad representation for output" (cnc (my 'rep))))
-									 )
-
-									(file 'moveto (psprj (list Left Up)))
-									(file 'linefeed 1)
-									(if (null? slist) (file 'linefeed 1))
-									(file 'push-color '(0.5 1.0 0.5))
-									(file 'show-table (map
-															 (lambda (x) (string-append " "
-																			  (slot-ref x 'name)
-																			  ": "
-																			  (pno (value x))))
-															 slist))
+									(caption file self #f #f) ;; the last two args are prj and loc respectively
 									)
-								 (caption file self #f #f) ;; the last two args are prj and loc respectively
 								 )
-							  )
 
-							 ;;((text table dump)
-							 ;; (log-data-parent)
-							 ;; )
-							 (else
-							  (log-data-parent))
+								;;((text table dump)
+								;; (parent-log-data)
+								;; )
+								(else
+								 (parent-log-data))
+								)
 							 )
 						  )
-						)
+					 )
 				  )
-
 ;--- model-method <dynamic-patch> (enable-service-growth! self service-name)
 (model-method <dynamic-patch> (enable-service-growth! self service-name)
 				  (enable-growth! (service self service-name)))
@@ -1999,7 +2014,7 @@ args can be  an update map or an update map and update equations
 ;--- model-method <habitat> (agent-prep self start end) Set preconditions
 ;                                                    for running
 (model-method (<habitat> <number> <number>) (agent-prep self start end)
-				  (agent-prep-parent start end)
+				  (parent-agent-prep start end)
 				  )
 
 
@@ -2008,7 +2023,7 @@ args can be  an update map or an update map and update equations
 
 ;;; (model-method <habitat> (initialise self args)
 ;;; 				  (set-state-variables self (list 'scale #f))
-;;; 				  (initialise-parent)
+;;; 				  (parent-initialise)
 ;;; 				  ;; call "parents" last
 ;;; 				  ;; to make the
 ;;; 				  ;; initialisation list
@@ -2256,52 +2271,57 @@ args can be  an update map or an update map and update equations
 
 ;--- (<habitat> <procedure>...) (log-data self logger format  targets)
 (model-method (<habitat> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (if (emit-and-record-if-absent logger self (my 'subjective-time))
-						(let ((ps (slot-ref logger 'file))
-								(p (slot-ref self 'projection-assoc-list)))
-						  (if (or (not p) (null? p))  (set! p (lambda (x) x)))
-						  (case format
-							 ((ps)
+				  (let ((kdebug (if #f kdebug dnl*))
+						  )
+					 
+					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+						  (let ((ps (slot-ref logger 'file))
+								  (p (slot-ref self 'projection-assoc-list)))
+							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+							 (case format
+								((ps)
 
-							  (let* ((symlist (services self))
-										(name (slot-ref self 'name))
-										(plist (slot-ref self 'patch-list))
-										(locs (centroid (map location plist)))
-										(ps (slot-ref logger 'file))
-										(p (slot-ref self 'projection-assoc-list)))
-								 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
+								 (let* ((symlist (services self))
+										  (name (slot-ref self 'name))
+										  (plist (slot-ref self 'patch-list))
+										  (locs (centroid (map location plist)))
+										  (ps (slot-ref logger 'file))
+										  (p (slot-ref self 'projection-assoc-list)))
+									(if (or (not p) (null? p))  (set! p (lambda (x) x)))
 									
-								 (ps 'moveto (list (p (car locs)) (p (cadr locs))))
-								 (if adjust-grey (ps 'setgray HABITATGREY))
-								 (ps 'Helvetica 12)
-								 (ps 'show (string-append " " (slot-ref self 'name)))								  
+									(ps 'moveto (list (p (car locs)) (p (cadr locs))))
+									(if adjust-grey (ps 'setgray HABITATGREY))
+									(ps 'Helvetica 12)
+									(ps 'show (string-append " " (slot-ref self 'name)))								  
+									
+									(let ((subs (slot-ref self 'active-subsidiary-agents)))
+									  (if (pair? subs)
+											(for-each (lambda (lpch)
+															(ps 'Helvetica 7)
+															(log-data lpch format targets p ps)
+															)
+														 subs))))
 								 
 								 (let ((subs (slot-ref self 'active-subsidiary-agents)))
-									(if (pair? subs)
-										 (for-each (lambda (lpch)
-														 (ps 'Helvetica 7)
-														 (map-log-data lpch format targets p ps)
-														 )
-													  subs))))
-							  
-							 (let ((subs (slot-ref self 'active-subsidiary-agents)))
-								(for-each (lambda (lpch)
-												(log-data lpch logger format targets ps p)
-												)
-											 (my 'patch-list)))
+									(for-each (lambda (lpch)
+													(log-data lpch logger format targets ps p)
+													)
+												 (my 'patch-list)))
+								 )
+								((dump)
+								 (with-output-to-port
+									  (lambda ()
+										 (dump self))))
+
+								((text table)
+								 (parent-log-data)
+
+								 ))
 							 )
-							 ((dump)
-							  (with-output-to-port
-									(lambda ()
-									  (dump self))))
-
-							 ((text table)
-							  (log-data-parent)
-
-							  ))
 						  )
-						)
+					 )
 				  )
+
 
 ;--- model-method (<habitat>) (spatial-scale self)
 (model-method (<habitat>) (spatial-scale self)

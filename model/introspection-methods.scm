@@ -74,17 +74,17 @@
 ;; 								 )
 ;; 				 'variables-may-be-set #t
 ;; 				 ))
-;;  (initialise-parent) ;; call "parents" last to make the
+;;  (parent-initialise) ;; call "parents" last to make the
 ;;  ;; initialisation xxxxxxxxxxxxxxxxxxxblist work
 ;;  (set-state-variables self args)
 ;;  )
 
 (model-method (<introspection> <number> <number>) (agent-prep self start end)
-				  (agent-prep-parent self start end) ;; parents should prep first
+				  (parent-agent-prep self start end) ;; parents should prep first
 				  )
 
 (model-method <introspection> (agent-shutdown self #!rest args)
-					 (agent-shutdown-parent)
+					 (parent-agent-shutdown)
 					 )
 
 (model-body <introspection>

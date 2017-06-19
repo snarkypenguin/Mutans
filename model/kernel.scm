@@ -68,6 +68,27 @@
 (define current-page #f)
 (define current-page-number 0)
 
+(define clock-started #f)
+
+(define unit-alist (list (cons "s"  1)
+								 (cons "min" min) (cons "mins" min)
+								 (cons "hour" hour) (cons "hours" hours)
+								 (cons "week" week) (cons "weeks" weeks)
+								 (cons "year" year) (cons "years" years)
+								 ))
+
+(define display-units "days")
+(define display-unit-value days)
+
+(define (set-kernel-display-units str)
+  (let ((a (assoc str unit-alist)))
+	 (if a
+		  (begin
+			 (set! display-units (car a))
+			 (set! display-unit-value (cadr a)))
+		  (abort "Bad kernel display unit"))))
+
+
 (define ACQ '()) ;; queue of things to insert before the next agent runs
 
 (define (terminating-condition-test . args)
@@ -93,6 +114,13 @@
 ;---------------------------------------------------
 ;               Kernel support
 ;---------------------------------------------------
+
+(define (examine-queue Q)
+  (for-each
+	(lambda (n x)
+	  (dnl* n (class-name (class-of x)) (taxon x) (subjective-time x) (agent-state x)))
+	  (seq (length Q)) Q))
+
 
 ;; remove an object from a list
 (define (excise obj lst)
@@ -175,7 +203,7 @@
 
 (define (interval t ddt stopat tlist)
   ;; tlist is a sorted queue of times to run
-  (kdebug 'kernel-scaffolding "Called interval, T =" t ", ddt =" ddt ", stops at" stopat ", tlist:" tlist)
+  (kdebug 'kernel-scaffolding "Called interval, T =" (/ t display-unit-value) ", ddt =" ddt ", stops at" stopat ", tlist:" tlist)
   (if (< (- stopat t) ddt)
 		(set! ddt (- stopat t)))
 
@@ -237,7 +265,7 @@
 			((not (or o<M M<o)) M) ;; must be equal
 			(o<H (insert-loop m H))
 			(H<o (insert-loop H M))
-			(#t (abort))))))
+			(#t (abort 'impossible-insert@-failure))))))
 	)
   )
 
@@ -367,7 +395,7 @@
 
 (define (hoodoo agent proc)
   (case (agent-state)
-	 ((terminated) (set! terminated-agents (cons agent terminated-agents)))
+	 ('terminated (set! terminated-agents (cons agent terminated-agents)))
 	 (else (dnl* "Bad hoodoo workin in" proc) (error "Impossible codepath" agent proc))))
 
 
@@ -389,8 +417,12 @@
 
 (define tracing-q 'not-yet-run)
 
+
 ;; This typically runs the agent at the head of the queue
 (define (queue t stop runqueue #!rest N)
+  (if (not clock-started)
+		(set! clock-started (real-time)))
+  
   (set! tracing-q (sort runqueue Qcmp))
   
   (if (eq? indicate-progress #t) (set! indicate-progress -1))
@@ -409,12 +441,23 @@
 		  (begin
 			 (set! indicate-progress t)
 			 (display "t = ")
-			 (display  (subjective-time (car q-rq)))
-			 (display " ")
-			 (display (string-append (number->string (round (* 100 (/ (subjective-time (car q-rq)) end)))) "%"))
-			 (if display-Q-length (display (string-append " " (number->string (length q-rq)) " agents")))
-			 (newline)
-			 )
+			 (if #t
+				  (display (scaled-time (subjective-time (car q-rq))))
+				  (begin
+					 (display (/ (subjective-time (car q-rq)) display-unit-value))
+					 (display " ")
+					 (display display-units)
+					 ))
+			 (display " (")
+			 (if #t
+				  (display (scaled-time-ratio (+ 1 (subjective-time (car q-rq))) (+ 1 (- (real-time) clock-started))))
+				  (begin
+					 (display (/(+ 1 (subjective-time (car q-rq))) (+ 1 (- (real-time) clock-started))))
+					 (display "s/s ")))
+			(display (string-append " -- "(number->string (round (* 100 (/ (subjective-time (car q-rq)) end)))) "%"))
+			(if display-Q-length (display (string-append " " (number->string (length q-rq)) " agents")))
+			(newline)
+			)
 		  )
 	 
 	 (cond
@@ -596,26 +639,26 @@ their model-body is running.
    ((symbol? query)
 	 ;;(dnl* "Dispatch to standard query:" query)
     (case query
-		((runqueue)
+		('runqueue
 		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>) (isa? client <introspection>))
 			  Q
 			  #f))
-		((time) (model-time Q +inf.0)) ;; current time in the model (the subjective-time of the head of the queue)
+		('time (model-time Q +inf.0)) ;; current time in the model (the subjective-time of the head of the queue)
 		
-		((acquire) ;; expects a list of agents to introduce into an agent's subsidiary list
+		('acquire ;; expects a list of agents to introduce into an agent's subsidiary list
 		 ;; (kernel-call Q caller 'acquire host-agent active? agent-list)
 		 (let ((okQ (filter (lambda (x) (isa? x <agent>)) (caddr args))))
 			(apply acquire-agents args)
 			))
 
-		((check)
+		('check
 		 (list client 'mate))
 
-		((check!)
+		('check!
 		 (list client 'mate!))
 		
 		
-		((find-agent)
+		('find-agent
 		 (let ((type (car args))) 
 			(filter (lambda (x)
 						 (let ((xtype (slot-ref x 'type)))
@@ -628,7 +671,7 @@ their model-body is running.
 								 )))
 					  Q)))
 
-		((locate)
+		('locate
 		 (let ((selector (car args))
 				 (location (cadr args))
 				 (radius (if (pair? (cddr args)) (caddr args) #t)))
@@ -636,22 +679,22 @@ their model-body is running.
 			(locate Q selector location radius)
 			))
 
-		((shutdown)
+		('shutdown
 		 (let ((A (if (pair? args) args (list args))))
 			(shutdown-agents A) ;; WAS HAVING ISSUES WITH A SINGLE AGENT BEING PASSED
 			(for-each (lambda (a) (set! Q (excise a Q))) A)
 			))
 
-		((remove) ;; expects a list of agents to be removed from the runqueue
+		('remove' ;; expects a list of agents to be removed from the runqueue
 		 (let ((A (if (pair? args) args (list args))))
 			(for-each (lambda (a) (set! Q (excise a Q))) A)
 			))
 
-		((containing-agents) ;; returns a list of agents which report as containing any of the list of arguments
+		('containing-agents ;; returns a list of agents which report as containing any of the list of arguments
 		 (error "i-contain is not implemented")
 		 (filter (lambda (x) (i-contain x args)) Q))
 
-		((providers?) ;; returns a list of agents which provide indicated things
+		('providers? ;; returns a list of agents which provide indicated things
 		 (cond
 		  ((and (pair? args) (pair? (car args)) (null? (cdr args))) (filter (lambda (x) (provides? x (car args))) Q))
 		  ((and (pair? args) (pair? (car args)) (not (null? (cdr args))))
@@ -659,36 +702,36 @@ their model-body is running.
 		  (#t (filter (lambda (x) (provides? x args)) Q)))
 		 )	
 
-		((agent-count) (length Q))
-		((next-agent)
+		('agent-count (length Q))
+		('next-agent
 		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
 			  (if (null? Q) Q (car Q))
 			  #f))
-		((min-time)
+		('min-time
 		 (if (null? Q) 0 (apply min (map subjective-time Q))))
-		((max-time)
+		('max-time
 		 (if (null? Q) 0 (apply max (map subjective-time Q))))
-		((mean-time)
+		('mean-time
 		 (if (null? Q)
 			  0
 			  (/ (apply + (map subjective-time Q)) (length Q))))
 
 
 		;;**********************************************************************************************************************
-		;; Access to values through the following mechanism may make distributed and concurrent processing more straightforward.
+		;; Accessing values through the following mechanism may make distributed and concurrent processing more straightforward.
 		;;**********************************************************************************************************************
 
-		((resource-value) ;; returns the value of a resource from a nominated agent -- (kernel 'resource-value other 'seeds)
+		('resource-value ;; returns the value of a resource from a nominated agent -- (kernel 'resource-value other 'seeds)
 		 (if (apply provides? args)
 			  (apply value args)
 			  #f))
 
-		((set-resource-value!) ;; sets the value of a resource from a nominated agent
+		('set-resource-value! ;; sets the value of a resource from a nominated agent
 		 (if (apply provides? args)
 			  (or (apply set-value! args) #t)
 			  #f))
 
-		((add-resource-value!) ;; adds to the value of a resource from a nominated agent
+		('add-resource-value! ;; adds to the value of a resource from a nominated agent
 		 (if (apply provides? args)
 			  (or (apply add! args) #t)
 			  #f))
@@ -766,6 +809,8 @@ their model-body is running.
   (kdebug 'prep "Prepping from" start "to" end "    with" Q)
   (set! Q (sort Q Qcmp))
   (kdebug 'prep "sorted queue")
+
+  (dnl* "Still need to organise a prep-agents call for offspring")
   
   ;;  (dnl* "Prepping from" start "to" end)
 ;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
@@ -773,7 +818,6 @@ their model-body is running.
   (for-each (lambda (x)
 				  (initialisation-checks x)
 				  (prep-activate Q x)) Q)
-  @
   )
 
 (definition-comment 'shutdown-agents "Tells each agent in Q to shutdown")
@@ -1003,10 +1047,11 @@ their model-body is running.
 								 local-run-agent-runqueue
 								 ) ;; end of the migration clause
 
-								;; Spawn to a different model representation ==========================
+								;; Spawn  ==========================
 								;; insert spawned offspring into the system, the agent handles the creation
 								;; of the offspring (appropriately enough)
-								('spawn
+								((spawn introduce introduce-new-agent) ;; There are multiple tags here so that
+								 ;; we can make the *calling* code clear.  Also note that 
 								 ;; Spawning implies correct execution of the timestep
 								 
 								 ;; Something like salmon will flag themselves as dead in their final spawning tick

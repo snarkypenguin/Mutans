@@ -13,7 +13,13 @@
 
 ;; This loads the framework
 ;;(include "framework") ;; this is for the time-probe macros
+
 (load "loadem.scm")
+
+
+;; Mention if slib is loaded
+(if SLIB (dnl* "*** SLIB is present ***"))
+
 
 ;-- Configure the informational output (e.g. for debugging)
 

@@ -207,7 +207,7 @@
 			 (begin
 				(dnl*  "The following slots need to be set for" (cnc obj) (slot-ref obj 'taxon))
 				(pp lst)
-				(abort)))
+				(abort 'uninitialised-slots lst)))
 		))
 
 
@@ -283,11 +283,18 @@
 
 (define ->map-output (lambda (x) x))
   
+(define Valid-location (lambda x #f)) ;; This must be set before the model runs
+
 ;; Page sizes should always be specified in mm 
 (define (set-model-domain! ll ur #!optional pagesize) ;; 10mm margins all around
   (set! Domain (list ll ur))
   (set! Range (map - ur ll))
-;  (add-ps-projection
+
+  (set! Valid-location (lambda (p) (and (<= (car ll) (car p))
+													 (<= (car p) (car ur))
+													 (<= (cadr ll) (cadr p))
+													 (<= (cadr p) (cadr ur)))))
+;  (add-ps-projection	
 ;	'model->ps
 ;	'ps->model
 ;	(list ll ur)
@@ -386,8 +393,8 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 												  (is-in (cadr R) (cadr (domain-transposed codomain))))
 											R
 											(begin
-											  (dnl* "Domain failure: " p "->" R "from" domain "to" codomain)
-											  ;;(oops)
+											  ;;(dnl* "Domain failure:" p "->" R "from" domain "to" codomain) ;; sometimes it just tries to dig outside the sandbox
+											  R
 											  ))))
 							((eq? p '1/scale) (map reciprocal (if inverse invscale scale)))
 							((eq? p 'scale) (if inverse invscale scale))

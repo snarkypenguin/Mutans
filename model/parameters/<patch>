@@ -2,7 +2,8 @@
 'Parameters
 (define <patch>-parameters
   (list
-    (list 'service-list '())
+	(list 'service-list '())
+	(list 'always-log #t)
   )
 )
 (set! global-parameter-alist (cons (cons <patch> <patch>-parameters) global-parameter-alist))

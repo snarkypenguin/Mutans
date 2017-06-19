@@ -355,9 +355,9 @@ constructors to generate it.
 				(uniq-loop (cdr l) (cons (car l) r))
 				(uniq-loop (cdr l) r)))))
 
-;----- (!filter selector lst) -- returns a list of those elements which fail the selector
-(define (!filter selector lst)
-  (filter (lambda x (not (apply selector x))) lst))
+;;;----- (!filter selector lst) -- returns a list of those elements which fail the selector
+;;(define (!filter selector lst)
+;;  (filter (lambda x (not (apply selector x))) lst))
 
 ;----- (pick-only type x) picks particular types of object from a list
 (define (pick-only type x)

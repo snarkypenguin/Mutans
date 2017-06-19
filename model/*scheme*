@@ -1,103 +1,1256 @@
-Gambit v4.8.7
+(load "model")
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 2505600 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
 
-> (load "model")
-params/boik.tgz is not a parameter file: params/boik.tgz
-params/<plant>.~1~ is not a parameter file: params/<plant>.~1~
-creation ==> Creating agent <patch> ch3cell (name gridcell-0,0 type cell representation #f rep #<procedure #2 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-0,1 type cell representation #f rep #<procedure #3 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-0,2 type cell representation #f rep #<procedure #4 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-1,0 type cell representation #f rep #<procedure #5 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-1,1 type cell representation #f rep #<procedure #6 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-1,2 type cell representation #f rep #<procedure #7 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-2,0 type cell representation #f rep #<procedure #8 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-2,1 type cell representation #f rep #<procedure #9 closure>)
-creation ==> Creating agent <patch> ch3cell (name gridcell-2,2 type cell representation #f rep #<procedure #10 closure>)
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-2909.648766277112 -1837.8633349844192) mass 35.72207612688463)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-1946.291109367402 -3217.020128560296) mass 33.4745364083684)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #11 closure> location (-2532.0557185140415 -2408.0999301943893) mass 10.956474509776267)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-3004.147588289971 240.54129282771373) mass 14.93828167607137)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-2898.8118556684035 172.25343990808256) mass 39.81674362017836)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #12 closure> location (-3154.145963318264 592.9459374707087) mass 35.54966159964205)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-2263.1640712586523 2497.5559084423885) mass 32.52936579662098)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-3558.985415163675 1467.024336275892) mass 14.181130684370917)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #13 closure> location (-2742.6304431788467 1949.7296545523611) mass 32.29073764674213)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (140.11538874916755 -2285.5672851665863) mass 33.19442376597788)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (-1091.1994471609326 -3225.1157359276135) mass 38.7746878213098)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #14 closure> location (315.80784714036463 -2087.6844411339525) mass 29.488613678522327)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (928.4972595813292 409.69095239781745) mass 13.097002891399107)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (-115.44553209391188 617.0512483331049) mass 28.845747413559693)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #15 closure> location (-359.5894022832148 819.1279990548792) mass 22.85146755704313)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (-737.5418023692199 2335.347145644996) mass 31.15629463468429)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (1041.026570958441 2821.766699414578) mass 30.45603339673368)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #16 closure> location (1005.3640835722281 2287.6806983346087) mass 13.863932100054313)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (3494.7581083769182 -3183.6408124764657) mass 19.288741928073186)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (1621.6923234313736 -1928.3010816868916) mass 25.050521434868795)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #17 closure> location (1889.1506931146941 -3407.1397484943896) mass 37.44759642963765)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (3295.5343089697735 1191.380728736332) mass 17.79882391499248)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (2415.5470324758867 592.1338058923911) mass 38.063227396260785)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #18 closure> location (1938.3983680947827 433.82422305537375) mass 36.2556406509069)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (2475.666855587323 1511.0040921459095) mass 23.080902148696513)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (3238.1362888804515 2965.7671272939915) mass 16.021107431126374)
-!
-tree...creation ==> Creating agent <example-plant> B.exemplarii (habitat #<procedure #19 closure> location (1271.3957079803356 1853.364612883851) mass 19.80545936374356)
-!
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
 Run with (Doit Q) to run from the start to the end
 
 Run with (doit Q n) to run for n days (not necessarily n ticks!)
              so you can run the next step in a similar fashion
 
 Close up shop with (shutdown-agents Q) -- this closes files and things.
-Loaded: <example-plant>:27 <example-plant>:26 <example-plant>:25 gridcell-2,2 <example-plant>:24 <example-plant>:23 <example-plant>:22 gridcell-2,1 <example-plant>:21 <example-plant>:20 <example-plant>:19 gridcell-2,0 <example-plant>:18 <example-plant>:17 <example-plant>:16 gridcell-1,2 <example-plant>:15 <example-plant>:14 <example-plant>:13 gridcell-1,1 <example-plant>:12 <example-plant>:11 <example-plant>:10 gridcell-1,0 <example-plant>:9 <example-plant>:8 <example-plant>:7 gridcell-0,2 <example-plant>:6 <example-plant>:5 <example-plant>:4 gridcell-0,1 <example-plant>:3 <example-plant>:2 gridcell-0,0 <example-plant>:1
-"/home/randall/Thesis/Example-Model/model/model"
-> (Doit Q)
-running ==> running <example-plant>:27 at 0.
-run-agent ==> In run-agent
-model-body ==> The body for  <example-plant>  is
-((kdnl* 'model-body "pm 1")
- (let ((dt (apply min (*parent-bodies '*))))
-   (kdnl* 'model-body "pm 2")
-   (if (uninitialised? self 'peak-mass) (set-my! 'peak-mass (my 'mass)))
-   (if (uninitialised? self 'leaf-area) (set-my! 'leaf-area (leaf-area self)))
-   (let ((mass (my 'mass)) (pkmass (my 'peak-mass)))
-     (kdnl* 'model-body "pm 3")
-     (if (and (>= mass (my 'fruiting-mass)) (> fruiting-prob (random-real)))
-         (add-fruit self (my 'cell) (power mass 2/3)))
-     (if (< mass (* (my 'mort-mass) pkmass))
-         (die self)
-         (begin
-           (set! mass (grow dt mass))
-           (set-my! 'mass mass)
-           (if (> mass pkmass) (set-my! 'peak-kmass mass)))))
-   (kdnl* 'model-body "pm 4")
-   dt))
-model-body ==> pm 1
-model-body ==> cp *
-model-body ==> call-parent-methods returns  ()
-*** ERROR IN #<procedure #20>, "plant-methods.scm"@505.1 -- Wrong number of arguments passed to procedure
-(min)
+Runtime data can be printed with (times)
+Loaded: map-maker:43 carnivore:42 herbivore:41 herbivore:40 carnivore:39 herbivore:38 herbivore:37 carnivore:36 herbivore:35 herbivore:34 carnivore:33 herbivore:32 herbivore:31 carnivore:30 herbivore:29 herbivore:28 carnivore:27 herbivore:26 herbivore:25 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> (load "model")(set! end 1) (Doit Q)(shutdown-agents Q)
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 2505600 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Runtime data can be printed with (times)
+Loaded: map-maker:43 carnivore:42 herbivore:41 herbivore:40 carnivore:39 herbivore:38 herbivore:37 carnivore:36 herbivore:35 herbivore:34 carnivore:33 herbivore:32 herbivore:31 carnivore:30 herbivore:29 herbivore:28 carnivore:27 herbivore:26 herbivore:25 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> > Ok.
+Prepping 
+Still need to organise a prep-agents call for offspring 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+Running 
+t = 0 0% 55 agents
+(log-* introspection-trace) [ map-maker:43 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,0 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,0 : <patch> ] in log-data 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+  C-c C-c*** INTERRUPTED IN >=
 1> 
+> (load "model")(set! end 1) (Doit Q)(shutdown-agents Q)
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 2505600 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Runtime data can be printed with (times)
+Loaded: map-maker:43 carnivore:42 herbivore:41 herbivore:40 carnivore:39 herbivore:38 herbivore:37 carnivore:36 herbivore:35 herbivore:34 carnivore:33 herbivore:32 herbivore:31 carnivore:30 herbivore:29 herbivore:28 carnivore:27 herbivore:26 herbivore:25 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> > Ok.
+Prepping 
+Still need to organise a prep-agents call for offspring 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+Running 
+t = 0 0% 55 agents
+(log-* introspection-trace) [ map-maker:43 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,0 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,0 : <patch> ] in log-data 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+  C-c C-c*** INTERRUPTED IN assq
+1> 
+> (map +/- (sequence 20))
+(1 -2 -3 4 -5 -6 7 -8 9 -10 11 12 13 -14 -15 -16 17 18 19 20)
+> (length (filter negative? (map +/- (sequence 2000))))
+1002
+> (length (filter negative? (map +/- (sequence 2000))))
+999
+> (length (filter negative? (map +/- (sequence 2000))))
+981
+> (length (filter negative? (map +/- (sequence 2000))))
+994
+> (length (filter negative? (map +/- (sequence 2000))))
+994
+> (length (filter negative? (map +/- (sequence 2000))))
+1006
+> (length (filter negative? (map +/- (sequence 2000))))
+1015
+> (length (filter negative? (map +/- (sequence 2000))))
+964
+> (length (filter negative? (map +/- (sequence 2000))))
+1017
+> (length (filter negative? (map +/- (sequence 2000))))
+1006
+> (load "model")(set! end 1) (Doit Q)(shutdown-agents Q)
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 2505600 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Runtime data can be printed with (times)
+Loaded: map-maker:115 carnivore:114 herbivore:113 herbivore:112 carnivore:111 herbivore:110 herbivore:109 carnivore:108 herbivore:107 herbivore:106 carnivore:105 herbivore:104 herbivore:103 carnivore:102 herbivore:101 herbivore:100 carnivore:99 herbivore:98 herbivore:97 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:96 B.exemplarii:95 B.exemplarii:94 B.exemplarii:93 B.exemplarii:92 B.exemplarii:91 B.exemplarii:90 B.exemplarii:89 B.exemplarii:88 B.exemplarii:87 B.exemplarii:86 B.exemplarii:85 B.exemplarii:84 B.exemplarii:83 B.exemplarii:82 B.exemplarii:81 B.exemplarii:80 B.exemplarii:79 B.exemplarii:78 B.exemplarii:77 B.exemplarii:76 B.exemplarii:75 B.exemplarii:74 B.exemplarii:73 B.exemplarii:72 B.exemplarii:71 B.exemplarii:70 B.exemplarii:69 B.exemplarii:68 B.exemplarii:67 B.exemplarii:66 B.exemplarii:65 B.exemplarii:64 B.exemplarii:63 B.exemplarii:62 B.exemplarii:61 B.exemplarii:60 B.exemplarii:59 B.exemplarii:58 B.exemplarii:57 B.exemplarii:56 B.exemplarii:55 B.exemplarii:54 B.exemplarii:53 B.exemplarii:52 B.exemplarii:51 B.exemplarii:50 B.exemplarii:49 B.exemplarii:48 B.exemplarii:47 B.exemplarii:46 B.exemplarii:45 B.exemplarii:44 B.exemplarii:43 B.exemplarii:42 B.exemplarii:41 B.exemplarii:40 B.exemplarii:39 B.exemplarii:38 B.exemplarii:37 B.exemplarii:36 B.exemplarii:35 B.exemplarii:34 B.exemplarii:33 B.exemplarii:32 B.exemplarii:31 B.exemplarii:30 B.exemplarii:29 B.exemplarii:28 B.exemplarii:27 B.exemplarii:26 B.exemplarii:25 B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> > Ok.
+Prepping 
+Still need to organise a prep-agents call for offspring 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+Running 
+t = 0 0% 127 agents
+(log-* introspection-trace) [ map-maker:115 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,0 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,0 : <patch> ] in log-data 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+  C-c C-c*** INTERRUPTED IN assq
+1> 
+> (load "model")(set! end 1) (Doit Q)(shutdown-agents Q)
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 2505600 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Runtime data can be printed with (times)
+Loaded: map-maker:115 carnivore:114 herbivore:113 herbivore:112 carnivore:111 herbivore:110 herbivore:109 carnivore:108 herbivore:107 herbivore:106 carnivore:105 herbivore:104 herbivore:103 carnivore:102 herbivore:101 herbivore:100 carnivore:99 herbivore:98 herbivore:97 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:96 B.exemplarii:95 B.exemplarii:94 B.exemplarii:93 B.exemplarii:92 B.exemplarii:91 B.exemplarii:90 B.exemplarii:89 B.exemplarii:88 B.exemplarii:87 B.exemplarii:86 B.exemplarii:85 B.exemplarii:84 B.exemplarii:83 B.exemplarii:82 B.exemplarii:81 B.exemplarii:80 B.exemplarii:79 B.exemplarii:78 B.exemplarii:77 B.exemplarii:76 B.exemplarii:75 B.exemplarii:74 B.exemplarii:73 B.exemplarii:72 B.exemplarii:71 B.exemplarii:70 B.exemplarii:69 B.exemplarii:68 B.exemplarii:67 B.exemplarii:66 B.exemplarii:65 B.exemplarii:64 B.exemplarii:63 B.exemplarii:62 B.exemplarii:61 B.exemplarii:60 B.exemplarii:59 B.exemplarii:58 B.exemplarii:57 B.exemplarii:56 B.exemplarii:55 B.exemplarii:54 B.exemplarii:53 B.exemplarii:52 B.exemplarii:51 B.exemplarii:50 B.exemplarii:49 B.exemplarii:48 B.exemplarii:47 B.exemplarii:46 B.exemplarii:45 B.exemplarii:44 B.exemplarii:43 B.exemplarii:42 B.exemplarii:41 B.exemplarii:40 B.exemplarii:39 B.exemplarii:38 B.exemplarii:37 B.exemplarii:36 B.exemplarii:35 B.exemplarii:34 B.exemplarii:33 B.exemplarii:32 B.exemplarii:31 B.exemplarii:30 B.exemplarii:29 B.exemplarii:28 B.exemplarii:27 B.exemplarii:26 B.exemplarii:25 B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> > Ok.
+Prepping 
+Still need to organise a prep-agents call for offspring 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+Running 
+t = 0 0% 127 agents
+(log-* introspection-trace) [ map-maker:115 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,0 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,0 : <patch> ] in log-data 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+  C-c C-c*** INTERRUPTED IN >=
+1> 
+> (load "model") (Doit Q)(shutdown-agents Q)
+parameters/juvenile-herbivore.~1~ is not a parameter file: parameters/juvenile-herbivore.~1~ 
+***** Running from 0 to 4924800 
+The stage
+The set
+Making a 2 x 3 grid with a bbox (0 0 -50) (1000 1500 50) 
+stepsizes 500. 500. 
+Arden
+ ... and their fruit
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+parameter-lookup <example-plant> B.exemplarii fruit-decay 
+parameter-lookup <example-plant> B.exemplarii seed-decay 
+
+The players
+NOT DONE YET (specific-model.scm)
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (28.346464646464646 28.346464646464646) 
+Page (595.2757575757576 841.89) -> ((28.346464646464646 28.346464646464646) (538.5828282828282 785.1970707070707)) 
+Printing area -> (28.346464646464646 28.346464646464646) x (532.9135353535354 785.1970707070707) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+*****************************
+Domain ((0 0 -50) (1000 1500 50)) -> ((0 0) (1000 1500)) 
+Default margins -> (.028346464646464647 .028346464646464647) 
+Page (595.2757575757576 841.89) -> ((.028346464646464647 .028346464646464647) (595.2190646464646 841.8333070707071)) 
+Printing area -> (.028346464646464647 .028346464646464647) x (561.2316535353535 841.8333070707071) 
+*****************************
+Run with (Doit Q) to run from the start to the end
+
+Run with (doit Q n) to run for n days (not necessarily n ticks!)
+             so you can run the next step in a similar fashion
+
+Close up shop with (shutdown-agents Q) -- this closes files and things.
+Runtime data can be printed with (times)
+Loaded: map-maker:115 carnivore:114 herbivore:113 herbivore:112 carnivore:111 herbivore:110 herbivore:109 carnivore:108 herbivore:107 herbivore:106 carnivore:105 herbivore:104 herbivore:103 carnivore:102 herbivore:101 herbivore:100 carnivore:99 herbivore:98 herbivore:97 B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B._ex._seeds B._ex._fruit B.exemplarii:96 B.exemplarii:95 B.exemplarii:94 B.exemplarii:93 B.exemplarii:92 B.exemplarii:91 B.exemplarii:90 B.exemplarii:89 B.exemplarii:88 B.exemplarii:87 B.exemplarii:86 B.exemplarii:85 B.exemplarii:84 B.exemplarii:83 B.exemplarii:82 B.exemplarii:81 B.exemplarii:80 B.exemplarii:79 B.exemplarii:78 B.exemplarii:77 B.exemplarii:76 B.exemplarii:75 B.exemplarii:74 B.exemplarii:73 B.exemplarii:72 B.exemplarii:71 B.exemplarii:70 B.exemplarii:69 B.exemplarii:68 B.exemplarii:67 B.exemplarii:66 B.exemplarii:65 B.exemplarii:64 B.exemplarii:63 B.exemplarii:62 B.exemplarii:61 B.exemplarii:60 B.exemplarii:59 B.exemplarii:58 B.exemplarii:57 B.exemplarii:56 B.exemplarii:55 B.exemplarii:54 B.exemplarii:53 B.exemplarii:52 B.exemplarii:51 B.exemplarii:50 B.exemplarii:49 B.exemplarii:48 B.exemplarii:47 B.exemplarii:46 B.exemplarii:45 B.exemplarii:44 B.exemplarii:43 B.exemplarii:42 B.exemplarii:41 B.exemplarii:40 B.exemplarii:39 B.exemplarii:38 B.exemplarii:37 B.exemplarii:36 B.exemplarii:35 B.exemplarii:34 B.exemplarii:33 B.exemplarii:32 B.exemplarii:31 B.exemplarii:30 B.exemplarii:29 B.exemplarii:28 B.exemplarii:27 B.exemplarii:26 B.exemplarii:25 B.exemplarii:24 B.exemplarii:23 B.exemplarii:22 B.exemplarii:21 B.exemplarii:20 B.exemplarii:19 B.exemplarii:18 B.exemplarii:17 B.exemplarii:16 B.exemplarii:15 B.exemplarii:14 B.exemplarii:13 B.exemplarii:12 B.exemplarii:11 B.exemplarii:10 B.exemplarii:9 B.exemplarii:8 B.exemplarii:7 B.exemplarii:6 B.exemplarii:5 B.exemplarii:4 B.exemplarii:3 B.exemplarii:2 B.exemplarii:1 
+> Ok.
+Prepping 
+Still need to organise a prep-agents call for offspring 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+parameter-lookup <example-plant> B.exemplarii seeds-per-fruit 
+Running 
+t = 0 0% 127 agents
+(log-* introspection-trace) [ map-maker:115 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore carnivore adult-herbivore juvenile-herbivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-1,0 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,2 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,1 : <patch> ] in log-data 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-* log-patch) [ gridcell-0,0 : <patch> ] in log-data 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 86400 2% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 172800 4% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 259200 5% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 345600 7% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 432000 9% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 518400 11% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 604800 12% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 691200 14% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 777600 16% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 864000 18% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 950400 19% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1036800 21% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1123200 23% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1209600 25% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1296000 26% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1382400 28% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1468800 30% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1555200 32% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1641600 33% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1728000 35% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1814400 37% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 1900800 39% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 1987200 40% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2073600 42% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 2160000 44% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2246400 46% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 2332800 47% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2419200 49% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+(log-* introspection-trace) [ map-maker:115 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+t = 2505600 51% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2592000 53% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 2678400 54% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2764800 56% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 2851200 58% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 2937600 60% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3024000 61% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3110400 63% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3196800 65% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3283200 67% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3369600 68% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3456000 70% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3542400 72% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3628800 74% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3715200 75% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3801600 77% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 3888000 79% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 3974400 81% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 4060800 82% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 4147200 84% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 4233600 86% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 4320000 88% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 4406400 89% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 4492800 91% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 4579200 93% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 4665600 95% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+t = 4752000 96% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+t = 4838400 98% 127 agents
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+NO BREEDING OR EATING IN CARNIVORES 
+NO BREEDING IN HERBIVORES 
+(log-* introspection-trace) [ map-maker:115 : <log-map> ] Introspection: model-body 
+(log-* introspection-trace)       list:      (ch3cell ch3cell ch3cell ch3cell ch3cell ch3cell juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore juvenile-herbivore adult-herbivore carnivore B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii B.exemplarii) 
+(log-* introspection-trace)       schedule:  ()  
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+(log-horrible-screaming patch) (<patch> <log-map> <symbol> <list>) format ps 
+Remember to run (shutdown-agents Q) 
+> (load "model") (Doit Q)(shutdown-agents Q)
