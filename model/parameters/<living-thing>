@@ -1,0 +1,9 @@
+; -*- mode: scheme; -*-
+'Parameters
+(define <thing>-parameters
+  (list
+	 (list 'age 0)   ;; arbitrary, I know.
+	 (list 'decay 0) ;; Typically for exponential decay
+  )
+)
+(set! global-parameter-alist (cons (cons <thing> <thing>-parameters) global-parameter-alist))

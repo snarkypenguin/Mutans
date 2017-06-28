@@ -1,0 +1,85 @@
+; -*- mode: scheme; -*-
+'Parameters
+
+(define jh-longevity (* 92.1 weeks))
+;(define jh-max-age (* 92 weeks))
+(define jh-min-age (* 2 weeks))
+
+(define jh-min-mass (* 0.5 kg))
+(define jh-max-mass (* 40 kg))
+(define jh-mass-at-age (mass-at-age-function jh-min-mass jh-min-age jh-max-mass jh-longevity))
+
+(define J.herbivore-parameters ;; Parameters for Botanicus exemplarii
+  (list
+	 (list 'note "Simple animal approximating the adult herbivores in Chapter 3")
+	 (list 'dt (* 1 day))
+    (list 'type 'herbivore)
+	 (list 'representation 'simple-individual)
+	 (list 'provides '())
+	 (list 'requires '(fruit))
+	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
+	 (list 'population-switch (/ (* 1000 kg) hectare));; if the density is greater
+	                                                   ;; than 1000 kg in a hectare
+	 (list 'maintenance-list '())
+    (list 'population-switch #f) ;; not a simple switch 
+	 
+	 (list 'foodlist (list 'fruit)) ;; <plant> will be added when the mass is great enough
+
+	 ;; age, mass & peak-mass are all uninitialised.  We'll do that in the model-body
+	 (list 'age '($ (+ jh-min-age (* (edf (random-real)) (- jh-longevity jh-min-age)))))     ;; becomes an adult at nearly two years old
+
+    (list 'mass-at-age  jh-mass-at-age)
+
+    (list 'min-age jh-min-age)
+    (list 'max-age '($ (+ week (* (edf (random-real)) jh-longevity))))
+    (list 'longevity jh-longevity)
+
+    (list 'max-mass jh-max-mass)
+    (list 'min-mass jh-min-mass)
+	 (list 'mass #f) ;; Calculate at the beginning of the first step
+	 
+	 (list 'max-speed (* 12 (/ meters second)))
+	 (list 'hunt-speed (* 11 (/ meters second)))
+	 (list 'search-speed (* 1 (/ meters second)))
+	 (list 'forage-speed (* 0.8 (/ meters second)))
+	 (list 'wander-speed (* 2 (/ meters second)))
+
+	 (list 'adult-diet-mass (* 30 kg))
+
+	 (list 'omega-ind (/ 1 (* 60 weeks))) 
+	 (list 'hunger-limit (* 3 days)) ;; this is $\Omega_{H}$ or $\Omega_{J}$ or 
+
+	 (list 'eat-radius (* 10 m))
+	 (list 'search-radius (* 350 m))
+	 (list 'distance-cost (/ 2 km))
+	 (list 'crowded-level (/ 14 hectare))
+	 (list 'migrate-param 0.001)
+	 (list 'max-satiety 12)
+	 (list 'satiety-rate (/ 3 day))
+	 (list 'sated-quantity 4)
+	 (list 'food-density-limit (* 2000 (/ kg (* m m)))) ;; used to trigger migration
+	 ;; The following are multiplied by the number of kg or fruit to give points
+	 (list 'food-satiety-rate (lambda (x) (/ (* 12 kg) x))) ;; how many points tree is worth derated by mass of animal
+	 (list 'tree-satiety-rate (lambda (x) (/ (* 3 kg) x))) ;; how many points tree is worth derated by mass of animal
+	 (list 'fruit-satiety-rate (lambda (x) (ceiling (/ 1 x)))) ;; 
+
+	 ;; *** all of the parameters and functions related to growth here are plucked out of thin air.
+	 ;; *** They may be quite inconsistent
+
+	 (list 'sex '($ (if (even? (random-integer 2)) 'female 'male)))
+	 (list 'reproduction-prob 0)
+    (list 'reproduction-mass (* 60 kg))
+    (list 'reproduction-period 1) ;; continuous
+    (list 'reproduction-offset 0)
+    (list 'reproduction-ct 1)
+    ;;(list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
+
+	 (list 'foragespeed (/ (* 600 m) day))
+
+	 (list 'speed 0)
+	 (list 'direction '(0 0))
+	 ;; the following should be passed in the initialisation:
+	 ;;    mass, location, habitat, 
+))
+;; Remember: the first argument of the second cons has to be a string representing the taxon name
+(set! global-parameter-alist (cons (cons "juvenile-herbivore" J.herbivore-parameters) global-parameter-alist))

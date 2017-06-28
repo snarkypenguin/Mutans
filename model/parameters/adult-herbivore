@@ -1,0 +1,75 @@
+; -*- mode: scheme; -*-
+'Parameters
+
+
+(define ah-longevity (* 17 years))
+(define ah-min-age (* 92 weeks))
+(define ah-max-mass (* 150 kg))
+(define ah-min-mass (* 40 kg))
+
+(define ah-mass-at-age (mass-at-age-function ah-min-mass ah-min-age ah-max-mass ah-longevity ))
+
+(define A.herbivore-parameters 
+  (list
+	 (list 'note "Simple animal approximating the adult herbivores in Chapter 3")
+	 (list 'dt (* 1 day))
+    (list 'type 'herbivore)
+	 (list 'representation 'simple-individual)
+	 (list 'provides '())
+	 (list 'requires '("B.exemplarii")
+	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
+	 (list 'population-switch (/ (* 1000 kg) hectare)));; if the density is greater
+	                                                   ;; than 1000 kg in a hectare
+	 (list 'maintenance-list '())
+    (list 'population-switch #f) ;; not a simple switch 
+
+	 ;; age, mass & peak-mass are all uninitialised.  We'll do that in the model-body
+
+	 (list 'age '($ (+ ah-min-age (pprnd (* 60 weeks)))))
+	 (list 'longevity ah-longevity)
+    (list 'max-age '($ (+ ah-min-age (* (edf (random-real)) (- ah-longevity ah-min-age))))) ;; This deviates from the paper---no explicit
+	                              ;; mortality apart from starvation was specified
+											;; 
+    (list 'mass-at-age  (mass-at-age-function ah-min-mass ah-min-age ah-max-mass ah-longevity ))
+	 (list 'mass #f) ;; Calculate at the beginning of the first step
+
+    (list 'max-mass ah-max-mass)
+
+	 (list 'foodlist '(<plant> "B.exemplarii"))
+	 (list 'omega-ind (/ 1 (* 60 weeks))) 
+	 (list 'hunger-limit (* 8 days)) ;; this is $\Omega_{H}$ or $\Omega_{J}$ ...
+	 (list 'eat-radius (* 50 m))
+	 (list 'search-radius (* 500 m))
+	 (list 'distance-cost (/ 1.5 km))
+	 (list 'crowded-level (/ 6 hectare))
+	 (list 'migrate-param 0.001)
+
+	 (list 'max-satiety 12)
+	 (list 'sated-quantity 4)
+	 (list 'satiety-rate (/ 3 day))
+	 (list 'food-satiety-rate 2)
+
+	 (list 'max-speed (* 15 (/ meters second)))
+	 (list 'hunt-speed (* 12 (/ meters second)))
+	 (list 'search-speed (* 1.5 (/ meters second)))
+	 (list 'forage-speed (* 1 (/ meters second)))
+	 (list 'wander-speed (* 2.5 (/ meters second)))
+
+	 (list 'sex '($ (if (even? (random-integer 2)) 'female 'male)))
+    (list 'reproduction-prob 0.9)
+	 (list 'last-reproduced '($ (* year (random-real)))) ;; annual, but not in sync
+	 (list 'reproduction-age (* 2 years))
+    (list 'reproduction-mass (* 60 kg))
+    (list 'reproduction-period year) ;; continuous
+    (list 'reproduction-ct 2)
+    ;;(list 'reproduction-mechanism '<uninitialised>)
+
+	 (list 'foragespeed (/ (* 650 m) day))
+
+	 (list 'speed 0)
+	 (list 'direction '(0 0))
+	 ;; the following should be passed in the initialisation:
+	 ;;    mass, location, habitat, 
+))
+;; Remember: the first argument of the second cons has to be a string representing the taxon name
+(set! global-parameter-alist (cons (cons "adult-herbivore" A.herbivore-parameters) global-parameter-alist))
