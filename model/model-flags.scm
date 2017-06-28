@@ -48,7 +48,7 @@ the predicate kdebug? with a list of tags, such as
 ;(add-kdebug-msg-tag 'trace-model-methods)
 ;(add-kdebug-msg-tag 'trace-model-body)
 ;(add-kdebug-msg-tag 'introspection*)
-(add-kdebug-msg-tag 'log*)
+;(add-kdebug-msg-tag 'log*)
 ;(add-kdebug-msg-tag '<ecoservice>-method)
 ;(add-kdebug-msg-tag '<ecoservice>-body)
 ;(add-kdebug-msg-tag 'introspection-trace)

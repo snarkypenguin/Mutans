@@ -67,7 +67,7 @@
     (list 'reproduction-offset 0)
     ;;(list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
     (list 'fruiting-rate (/ 28 (* 10 kg)))
-    (list 'seeds-per-fruit 60)
+    (list 'seeds-per-fruit 30)
 	 (list 'speed 0)
 	 (list 'direction '(0 0))
 	 ;; The following should be passed in the initialisation:
@@ -81,7 +81,7 @@
 
 	 (list 'seed-decay 0) ;; no decay at all
 
-	 (list 'seed-germination-prob 0.01)          ;; using the seed ecoservice
+	 (list 'seed-germination-prob 0.001)          ;; using the seed ecoservice
 	 (list 'fluke-seed-germination-prob (* 1/60 0.0001)) ;; chance of a fruit that hasn't been eaten germinating a seed
   )
 )

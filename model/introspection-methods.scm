@@ -67,9 +67,9 @@
 
 ;; 								 ;; animal things
 ;; 								 domain-attraction food-attraction 
-;; 								 near-food-attraction searchspeed
-;; 								 wanderspeed foragespeed	
-;; 								 movementspeed foodlist homelist
+;; 								 near-food-attraction search-speed
+;; 								 wander-speed forage-speed	
+;; 								 movement-speed foodlist homelist
 ;; 								 breedlist habitat
 ;; 								 )
 ;; 				 'variables-may-be-set #t
@@ -89,7 +89,7 @@
 
 (model-body <introspection>
 				(kdebug '(introspection-trace)
-						 "[" (my 'name) ":" (cnc self) "]"
+						 "[" (my 'name) ":" (cnc self) " at " (subjective-time self) "]"
 						 "Introspection: model-body")
 
 

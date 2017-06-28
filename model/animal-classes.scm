@@ -103,7 +103,18 @@
 						                   ;; properly, this is handled by a monitor agent
 						 search-radius
 						 eat-radius    ;; the radius within which we will consider food to be accessible immediately
+						 capture-radius  ;; the radius within which we will consider prey to be captured
+						 endurance       ;; used in playing out chases between predator and prey
+						 chase-duration  ;;
+						 recovery-time
+						 elapsed-recovery-required ;; the amount of time actually spent recovering. max-speed is 0.75 usual if this is positive.
+						 predator-bias
+						 prey-bias 
 						 distance-cost
+						 current-interest ;; prioritised list indicating the factors at play in decision making
+						 ;; State variable indicates what "mode" of behaviour is dominant.
+						 ;; Suggest '(any rest sleep forage hunt seek-mate seek-shelter drive-off-opponent)
+						 activity-dt ;; an a-list of timesteps suitable for different activities
 						 )
   ) ;; lists of attributes it looks for for eating, denning and breeding
 
@@ -118,12 +129,17 @@
   ;; lists of attributes it looks for for eating, denning
   ;; and breeding
   (state-variables
-	current-interest
-	movementspeed
-	searchspeed 
-	foragespeed
-	wanderspeed
-	objective
+	movement-speed ;; current speed to travel at
+
+	hunt-speed     ;; (max) speed to use when "hunting" -- for a c'vore, this is probably pursuit, for h'vore it's browsing
+                  ;;                                           __
+	search-speed   ;; (max) speed used when searching for !food   \__  These are different so that we can use different 
+	forage-speed   ;; (max) speed when looking/catching for food__/    types of searching (ambush, vs tracking for example)
+
+	wander-speed   ;; speed when the animal is just moving about, not necessarily foraging or looking for a mate
+
+	objective      ;; for eating, mating, driving off.....
+
 	near-food-attraction
 	))
 
@@ -136,7 +152,8 @@
 	omega-ind ;; individual mortality
 
 	adult-diet-mass
-	prey-list ;; actual entities that can be used as food
+
+	prey-list ;; actual entities that can be used as food -- objective may be set from a value in this list
 
 	food-density-limit ;; used to trigger migration
 	last-reproduced

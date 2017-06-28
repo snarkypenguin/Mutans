@@ -31,6 +31,13 @@
 ;;--> (+ a (* (/ (- A a) (* -2 (exp 1))) (log (- 1 (/ (- mass m) (- M m))))))
 
 
+(define (random-direction #!optional n)
+  (if (not n) (set! n 3))
+  (let* ((v (map (lambda (x) (+/- (random-real))) (sequence n)))
+			(nv (normalise v)))
+	 (if (and (not (pair? nv))(nan? nv)) (random-direction n) nv)))
+
+
 (define ($mass-at-age-function m a M A)
   (lambda (age)
 	 (cond

@@ -4,12 +4,14 @@
 		  (list
 			  (list 'active-subsidiary-agents '())
 			  (list 'agent-body-ran #f)
+			  (list 'no-model-body #f) ;; This needs to be true for some agent classes, such as <log-data> and <log-map>
 			  (list 'agent-epsilon (* 1e-6 seconds))
 			  (list 'agent-schedule '())
-			  (list 'agent-state 'ready-for-prep )
+			  (list 'agent-state 'ready-for-prep ) ;; This must only be changed if you *really* understand what you are doing!
 			  (list 'counter 0)
 			  (list 'subjective-time 0) ;; we assume we start at t=0, but this may not be the case
 			  (list 'dt (* seconds 1.0))
+			  (list 'unused-time 0)
 			  (list 'jiggle 0)
 			  (list 'maintenance-list '()) ;; this is a list of funcs
 			  (list 'model->local '($ (cdr (assoc 'I *default-projections*))))

@@ -25,6 +25,8 @@
 (define cm 1/100)
 (define dm 1/10)
 (define m 1)
+(define metres 1)
+(define meters 1)
 (define km 1000)
 
 ;; area

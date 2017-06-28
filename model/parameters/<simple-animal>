@@ -12,7 +12,44 @@
     ;;(list 'domain-attraction '<uninitialised>)
     ;;(list 'food-attraction '<uninitialised>)
     ;;(list 'nominal-growth-rate '<uninitialised>)
-    ;;(list 'population-switch '<uninitialised>)
+	;;(list 'population-switch '<uninitialised>)
+	(list 'recovery-time (* 40 minutes)) ;; for both
+	(list 'chase-duration 0) ;; both
+	(list 'catch-radius (* 5 m))
+	(list 'eat-radius (* 5 m)) ;; more appropriate for diffuse foodstuffs (e.g. grazing)
+;	(list 'endurance (* 1 minutes)) ;; stalking predator 
+;	(list 'endurance (* 10 minutes)) ;; pursuit predator 
+;	(list 'endurance (* 10 minutes)) ;; prey
+;	(list 'predator-bias)
+;	(list 'prey-bias)
+	(list 'predator-bias 1/3) ;;   the actual probability of capture will be 1/3 * (1 - 2/3) = 1/9 ~ 0.1111...
+	(list 'prey-bias 2/3)     ;; 
+
+	(list 'activity-dt (list (cons 'flee  (* 60 seconds))
+									 (cons 'forage  (* 3 hours))
+									 (cons 'hunting  (* 10 seconds))
+									 (cons 'eating  (* 15 minutes))
+									 (cons 'seek-mate  (* 1 day))
+									 (cons 'mate  (* 5 minutes))
+									 (cons 'seek-shelter  (* 1/2 day))
+									 (cons 'fight  (* 20 seconds))
+									 (cons 'tend-offspring  (* 20 minutes))
+									 (cons 'rest  (* 10 minutes)) ;; used when recovering
+									 (cons 'sleep  (* 6 hours))
+									 (cons '* (* 1 day))))
+
+	;; Capture occurs when the predator draws below its bias, and the
+	;; prey draws above its bias In this way and from the point of view
+	;; of participants, the bias works the same way for each: larger
+	;; values for their own bias value is good, larger values for the
+	;; other is bad.  Ties are resolved in favour of the prey, so a
+	;; pair of biases both equal to 1 will result in a hungry predator.
+
+	;; This approach is quite simplistic: there ought to be distinct
+	;; biases for each pairings of taxons --- as it is, the bias
+	;; specified will be used both as predator and as prey, and it is
+	;; not sensitive to species differences [interactions may be more
+	;; advantageous to one side or the other, depending on species]
   )
 )
 (set! global-parameter-alist (cons (cons <simple-animal> <simple-animal>-parameters) global-parameter-alist))

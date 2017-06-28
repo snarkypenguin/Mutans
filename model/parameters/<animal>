@@ -4,12 +4,20 @@
   (list
 	(list 'current-interest '())
 	(list 'last-reproduced +inf.0) ;; since they haven't reproduce yet by default
-	 ;;(list 'movementspeed '<uninitialised>)
-    ;;(list 'searchspeed '<uninitialised>)
-    ;;(list 'foragespeed '<uninitialised>)
-    ;;(list 'wanderspeed '<uninitialised>)
-    ;;(list 'objective '<uninitialised>)
-    ;;(list 'near-food-attraction '<uninitialised>)
-  )
+	;;(list 'movementspeed '<uninitialised>)
+	;;(list 'searchspeed '<uninitialised>)
+	;;(list 'foragespeed '<uninitialised>)
+	;;(list 'wanderspeed '<uninitialised>)
+	;;(list 'objective '<uninitialised>)
+	;;(list 'near-food-attraction '<uninitialised>)
+
+	(list 'eat-radius (* 1 m))  ;; the radius within which we will consider food to be accessible immediately
+	(list 'capture-radius (* 1 m))  ;; the radius within which we will consider prey to be captured
+	;;(list 'endurance '<uninitialised>)  ;; used in playing out chases between predator and prey
+	(list 'chase-duration 0)   ;; How long a chase has taken so far
+	(list 'recovery-time '<uninitialised>)
+	(list 'elapsed-recovery-required 0)  ;; the amount of time actually spent recovering. max-speed is 0.75 usual if this is positive.
+	)
 )
+
 (set! global-parameter-alist (cons (cons <animal> <animal>-parameters) global-parameter-alist))

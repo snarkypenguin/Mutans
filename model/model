@@ -23,9 +23,15 @@
 
 ;-- Configure the informational output (e.g. for debugging)
 
-(kdebug-production! #t) ;; bypass all kdebug messages (they can be slow to process)
+(enable-timers)
+;(disable-timers)
 
 (set! indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
+
+
+(kdebug-message-state #t) ;; if #f this suppresses the messages, kdebug? still works
+(kdebug-production! #f) ;; if #t bypass all kdebug bits (they can be slow to process)
+(kdebug-wildcards! #f) ;; use wildcard tests (slower)
 
 (clear-kdebug-msg-tags)
 ;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
@@ -36,11 +42,21 @@
 ;(add-kdebug-msg-tag 'fruit)
 ;(add-kdebug-msg-tag 'seeds)
 ;(add-kdebug-msg-tag 'run)
-(add-kdebug-msg-tag 'PSsst)
+;(add-kdebug-msg-tag 'PSsst)
+
+;;(add-kdebug-msg-tag 'q-manipulation)
+;;(add-kdebug-msg-tag 'track-run-agent)
+;;(add-kdebug-msg-tag 'run-agent)
+;;(add-kdebug-msg-tag 'run-agent-result)
+;;(add-kdebug-msg-tag 'run)
+;;(add-kdebug-msg-tag 'running)
+;;(add-kdebug-msg-tag 'temporal-check)
+;;(add-kdebug-msg-tag 'passing-control-to-model)
+
+
 ;(debugkdebug #t)
 ;(debugkdebug #f)
 
-(kdebug-message-state #f)
 
 ;; This needs to be done before we start loading agent into things,
 ;; else they may set up their filenames incorrectly

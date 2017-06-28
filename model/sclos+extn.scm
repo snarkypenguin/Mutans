@@ -250,6 +250,9 @@ communication (without cheating)."
 						 dont-log
 						 always-log
 						 agent-body-ran
+						 no-model-body
+						 ;; this needs to be true if the agent does
+						 ;; not implement its own model-body
 
 						 ;; a list of things the agent "provides"
 						 provides 
@@ -326,8 +329,8 @@ communication (without cheating)."
   (let ((s (class-slots-of ent))
 		  )
 	 (if (member 'dont-log s)
-		  (let ((dont (slot-ref ent 'dont-log))
-				  (donot (if (list? dont) dont (list dont))))
+		  (let* ((dont (slot-ref ent 'dont-log))
+					(donot (if (list? dont) dont (list dont))))
 			 (map (lambda (x)
 					  (list x (slot-ref ent x)))
 					(!filter (lambda (y) (member y donot)) s)))

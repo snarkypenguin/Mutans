@@ -1314,39 +1314,18 @@ via their containing patch.
 						  0.0
 						  (apply + (map (lambda (y) (capacity y)) ss)))))
 
-;--- model-body <patch>
-(model-body <patch>
-						(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
-
-						;;(dnl* (slot-ref self 'name))
-
-						;;; (if (not (null? (my 'active-subsidiary-agents)))
-						;;; (run-subsidiary-agents self
-						;;; 							   t dt (my 'active-subsidiary-agents) run (my 'kernel))
-
-						;;; 	  (for-each (lambda (x)
-						;;; 					  (run x t (+ t dt) (my 'kernel))
-						;;; 					  )
-						;;; 					(my 'active-subsidiary-agents))
-
-
-
-
-						;;; 	  )
-						(call-parents)
-						dt
-						)
-
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
+
 (model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
 				  (let ((kdebug (if #f kdebug dnl*))
 						  )
 					 
 					 (kdebug '(log-horrible-screaming patch) (map cnc (list self logger format targets)) 'format: format)
 					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
-						  (let ((file (slot-ref logger 'file))
-								  (p (composite-prj_src->dst self logger))
-								  )
+						  (let* ((file (slot-ref logger 'file))
+									(p (composite-prj_src->dst self logger))
+									(frob (kdebug '(viscious-angsty-wombats)))
+									)
 							 (if (not (procedure? p)) (set! p (lambda (x) x)))
 							 (kdebug '(log-* log-patch) "[" (my 'name) ":"
 										(cnc self) "]" "in log-data")
@@ -1388,7 +1367,7 @@ via their containing patch.
 									  (file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
 									  (file 'comment (string-append "service list: " (object->string slist)))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-									  (log-map-polygon logger (perimeter self) 'grey)
+									  (log-map-polygon logger (perimeter self) format 'grey)
 									  )
 									 
 									 (#t (error "Bad representation for output" (cnc (my 'rep))))
@@ -1439,29 +1418,32 @@ via their containing patch.
 				  )
 
 
+;-- patch note methods and model body
 
-;-- patch* note methods and model body
-
-(model-method <patch*> (initialisation-checks self)
+(model-method <patch> (initialisation-checks self)
 				  (if (uninitialised? (my 'notepad))
 						(set-my! 'notepad (create <blackboard> (string-append (name self) "-notepad") 'label 'not-runninge 'message-list '()))))
 
-(model-method <patch*> (query self cmd #!rest args)
+(model-method <patch> (query self cmd #!rest args)
 				  (apply query (cons (my 'notepad) (cons cmd args))))
 
-(model-body <patch*>
+;--- model-body <patch>
+(model-body <patch>
 				(call-parents)
-				(let* ((caretaker (slot-ref self 'caretaker))
-						 (result (if (procedure? caretaker)
-										 (caretaker self t dt)
-										 dt))
-						 )
-				  (if (or (null? result) (number? result))
-						dt
-						(append (list 'introduce-new-agents dt)
-								  result)
+				(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
+				(if (procedure? (my 'caretaker))
+					 (let* ((caretaker (slot-ref self 'caretaker))
+							  (result (if (procedure? caretaker)
+											  (caretaker self t dt)
+											  dt))
+							  )
+						(if (or (null? result) (number? result))
+							 dt
+							 result)
 						)
-				  ))
+					 dt)
+					)
+
 
 ;-- dynamic-patch methods and body
 
@@ -1869,7 +1851,7 @@ args can be  an update map or an update map and update equations
 										 (file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
 										 (file 'comment (string-append "Projected ordinates:" (object->string (map psprj (perimeter self)))))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-										 (log-map-polygon logger (perimeter self) 'grey)
+										 (log-map-polygon logger (perimeter self) format 'grey)
 										 )
 										
 										(#t (error "Bad representation for output" (cnc (my 'rep))))

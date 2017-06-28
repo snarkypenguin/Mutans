@@ -4,9 +4,10 @@
   (list
     ;;(list 'mass '<uninitialised>)
     ;;(list 'dim '<uninitialised>)
-    ;;(list 'location '<uninitialised>)
-    ;;(list 'direction '<uninitialised>)
-    ;;(list 'speed '<uninitialised>)
+    ;;(list 'location '<uninitialised>) ;; Yeah. We know its velocity, but not its position.  Heisenberg, hey?
+	(list 'direction '($ (reverse (cons 0 (random-direction 2)))))
+	(list 'speed 0)
+	(list 'max-speed lightspeed) ;; Definitely not +inf.0!
   )
 )
 (set! global-parameter-alist (cons (cons <thing> <thing>-parameters) global-parameter-alist))

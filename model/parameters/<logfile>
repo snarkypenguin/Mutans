@@ -4,6 +4,7 @@
 	(list
 	 (list 'format 'text)
 	 (list 'file-type "data")
+	 (list 'no-model-body #t)
 	)
 )
 (set! global-parameter-alist (cons (cons <logfile> <logfile>-parameters) global-parameter-alist))

@@ -31,7 +31,7 @@
 
 ;-  Code 
 
-; The timer routines are not particularly dependedn on anything else except for the
+; The timer routines are not particularly dependent on anything else except for the
 ;; assq-append routine
   
 (define start-timer #f)
@@ -45,66 +45,74 @@
 (define purge-timers #f)
 (define timer-keys #f)
 (define timer-data #f)
+(define timer-status #f)
 (define enable-timers #f)
 (define disable-timers #f)
 
-  
-(let* ((stopwatches '())
+(let* ((stopwatches '()) ;; of the form '((key start|stop timevec_n) ... (key start timevec_0)
 		 (nop (lambda x (void)))
-		 (keys '())
-		 (stag (lambda (tag s) (string->symbol (string-append (symbol->string tag) "|" s))))
+		 (uniq (lambda (lst) ;; returns the unique elements w.r.t. eq?: should be sorted
+					(cond
+					 ((null? lst) '())
+					 ((null? (cdr lst)) lst)
+					 ((not (equal? (car lst) (cadr lst))) (cons (car lst) (uniq (cdr lst))))
+					 (else (uniq (cdr lst))))
+					))
+		 
 		 (purge (lambda () (set! stopwatches '())))
 		 (intervals (lambda (which key)
-						  (let* ((startlst (assq (stag key "start") stopwatches))
-									(endlst   (assq (stag key "stop") stopwatches))
+						  (let* ((lst (filter (lambda (x) (eq? key (car x))) stopwatches))
+									(startlst (filter (lambda (x) (eq? (cadr x) 'start)) stopwatches))
+									(endlst   (filter (lambda (x) (eq? (cadr x) 'stop)) stopwatches))
 									(n (min (length startlst) (length endlst)))
 									)
-							 (if (and (pair? startlst) (pair? endlst))
-								  (map (lambda (a z)
-											(let ((i (case which
-														  ((0 cpu) 0)
-														  ((1 system sys) 1)
-														  ((2 real clock) 2)
-														  (else (error "Bad selector for call to aggregate-time" which)))
-														))
-											  (- (f64vector-ref z i) (f64vector-ref a i))))
-										 (list-head (cdr startlst) n) (list-head (cdr endlst) n))
-								  0))))
+								(if (and (pair? startlst) (pair? endlst))
+									 (map (lambda (a z)
+											  (let ((i (case which
+															 ((0 cpu) 0)
+															 ((1 system sys) 1)
+															 ((2 real clock) 2)
+															 (else (error "Bad selector for call to aggregate-time" which)))
+														  ))
+												 (- (f64vector-ref z i) (f64vector-ref a i))))
+											(list-head (cdr startlst) n) (list-head (cdr endlst) n))
+									 0))))
 
-		 (aggregate	(lambda (which key)
+		 (aggregate	(lambda (key #!optional which)
+						  (set! which (if which which 0))
 						  (APPLY + (intervals which key))))
 
 		 (record (lambda (key) 
-					  (let* ((startlst (assq (stag key "start") stopwatches))
-								(endlst   (assq (stag key "stop") stopwatches))
-								(start (assq (stag key "start") stopwatches))
-								(stop (assq (stag key "stop") stopwatches)))
+					  (let* ((lst (filter (lambda (x) (eq? key (car x))) stopwatches))
+								(startlst (filter (lambda (x) (eq? (cadr x) 'start)) stopwatches))
+								(endlst   (filter (lambda (x) (eq? (cadr x) 'stop)) stopwatches))
+								(n (min (length startlst) (length endlst)))
+								)
 						 (cond
 						  ((and start stop) (list start stop))
 						  (start (list start '()))
 						  (#t #f)))))
-		 (data stopwatches)				 
-		 (dump (lambda () (pp stopwatches)))
-		 (keylist (lambda () keys))
+		 
+		 (data (reverse stopwatches))
+		 (dump (lambda () (pp (reverse stopwatches))))
+		 (keylist (lambda () (uniq (sort (map car stopwatches) (lambda (x y) (string<=? (symbol->string x) (symbol->string y)))))) )
 
 		 ;; WARNING -- there is nothing to stop multiple starts on a tag,
 		 ;; followed by multiple stops, such as might occur in a recursive
 		 ;; routine. This may be a useful thing, or not.
 
+		 (add-entry (lambda (tag entry #!optional comment)
+						  (set! stopwatches (cons (list tag entry (process-times) comment) stopwatches))
+						  ))
+						
 		 (start 
-		  (lambda (tag)
-			 (if (not (member tag (map car stopwatches)))
-				  (set! keys (cons tag keys)))
-			 (let* ((s (stag tag "start"))
-					  (t (assq s stopwatches)))
-				(set! stopwatches (assq-append stopwatches s (process-times))))))
+		  (lambda (tag #!optional comment) (add-entry tag 'start comment)
+					 ))
+
 		 (stop
-		  (lambda (tag)
-			 (if (not (member tag (map car stopwatches)))
-				  (set! keys (cons tag keys)))
-			 (let* ((s (stag tag "stop"))
-					  (t (assq s stopwatches)))
-			 (set! stopwatches (assq-append stopwatches s (process-times))))))
+		  (lambda (tag #!optional comment) (add-entry tag 'stop comment)
+					 ))
+		 
 		 (enable (lambda ()
 					  (set! timer-keys keylist)
 					  (set! start-timer start)
@@ -127,12 +135,26 @@
 					  (set! purge-timers  nop)
 					))
 		 )
+  ;; let* body ---
   (set! disable-timers disable)
   (set! enable-timers enable)
-
-  ;(enable)
-  (disable)
+  (set! timer-status (lambda () (not (eq? start-timer nop))))
   )
+
+
+(enable-timers)
+;(disable-timers)
+
+
+(define (timer-report)
+  (let ((timers (timer-keys)))
+	 (for-each
+	  (lambda (key)
+		 (display key)
+		 (display ": ")
+		 (display (aggregate-time key))
+		 (newline))
+	  timers)))
 
 
 

@@ -51,6 +51,10 @@
 	  (#t (loop cpl (cdr cllist))))))
 
 
+
+(model-method <agent> (change-taxon self taxon)
+				 (apply-parameters self (slot-ref self 'taxon)))
+
 ;(include "heritability")
 
 (model-method <agent> (change-taxon self taxon)
@@ -99,6 +103,12 @@
 	 (apply append (map list (list-head symlist n) (list-head objlist n)))))
 
 
+(model-method <agent> (modal-dt self #!optional prospective-dt)
+				  (if (number? prospective-dt)
+						prospective-dt
+						(my 'dt))) ;; if not modal use default
+
+
 ;-- Define/allocate new classes
 
 ;--- substrate
@@ -132,6 +142,7 @@
 												)))
 				  ;; Now do something with  the status-list!
 				  dt))
+
 
 
 
@@ -371,76 +382,9 @@ commonly viewed as just a simple extension of sclos.
 ;----- (initialise) 
 
 
-;;; (agent-initialisation-method <agent> (initargs) '(no-default-values)
-;;; 				  (kdebug '(track-init) "<agent> initialise---")
-;;; 				  ;;(dnl* "In <agent> initialise:" (slot-ref self '<agent>-initialised))
-
-;;; 				  ;;(pp args)
-;;; 				  ;;(dnl "agent")
-;;; 				  (slot-set! self '<agent>-initialised #t)
-
-;;; 				  (initialise-parent) ;; the only parent is <object>
-
-;;; 				  (set-state-variables ;; We set some reasonable default values for
-;;; 					;; some of the slots
-;;; 					self (list
-;;; 							'active-subsidiary-agents '()
-;;; 							'agent-body-ran #f
-;;; 							'agent-epsilon 1e-6
-;;; 							'agent-schedule '()
-;;; 							'agent-state 'ready-for-prep 
-;;; 							'counter 0
-;;; 							'dt 1.0
-;;; 							'jiggle LastJiggle
-;;; 							'maintenance-list '() ;; this is a list of funcs
-;;; 							'migration-test  (lambda args #f) ;; Don't migrate by default
-;;; 							'name '<nameless>
-;;; 							'needs-parent-initialisers #f ;; can be #f, 1 (primaries only), or #t (all)
-;;; 							'needs-parent-bodies #f
-;;; 							'note ""
-;;; 							'priority DefaultPriority
-;;; 							'state-flags '()
-;;; 							'subjective-time 0.0
-;;; 							'subsidiary-agents '()
-;;; 							))
-;;; 				  ;; call "parents" last to make the initialisation list work
-;;; 				  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args
-
-;;; 				  (let ((initslots (evens initargs)))
-;;; 					 (if (member 'type initslots)
-;;; 						  (apply-parameters self (slot-ref self 'type))))
-;;; 				  )
-
-
-;;; ;;; (model-method (<agent>) (set-parameters self type-name)
-;;; ;;; 				  (set! type-name (if (string? type-name) type-name (object->string type-name)))
-;;; ;;; 				  (let* ((type (string->symbol type-name))
-;;; ;;; 							(fname (string-append "parameters/" type-name))
-;;; ;;; 							(param-list (if (file-exists? fname) (with-input-from-file fname read-all) '()))
-;;; ;;; 						  )
-;;; ;;; 					 (slot-set! self 'type type)
-;;; ;;; 					 (for-each
-;;; ;;; 					  (lambda (setting)
-;;; ;;; 						 (if (has-slot? self (car setting))
-;;; ;;; 							  (let ((len (length setting))
-;;; ;;; 									  (slot (car setting))
-;;; ;;; 									  (implicit-lists #f)
-;;; ;;; 									  )
-;;; ;;; 								 (cond
-;;; ;;; 								  ((= 1 len) (slot-set! self slot #t))
-;;; ;;; 								  ((= 2 len) (slot-set! self slot (cadr setting)))
-;;; ;;; 								  (implicit-lists (slot-set! self slot (cdr setting)))
-;;; ;;; 								  (#t (error "parameter has more than one value!" type-name settings))))))
-;;; ;;; 					  param-list)))
-
-
 (model-method (<agent>) (initialisation-checks self)
 				  (void)
 				  )
-				  
-						
-
-
 
 (model-method (<thing> <procedure>) (ps-dump self ps projection)
 				  (dnl "in thing ps-dump")
@@ -505,47 +449,15 @@ commonly viewed as just a simple extension of sclos.
 					((has-slot? self 'mass-at-age)
 					 (/ (- ((my 'mass-at-age) (my 'age))
 							 ((my 'mass-at-age) (my 'age)))
-						 (my 'dt))
+						 (my 'dt)) ;; Not measured modally
 					 )
 
 					(else
 					 (/ (- (my 'max-mass) (my 'mass)) (my 'longevity)))))
 
 
-
-
-;;; ;;; (model-method <living-thing> (age-at-mass self mass #!optional eps) ;; This should rarely be used  -- it is expensive
-;;; ;;; 				  "This requires a monotonic mass-at-age function. No warranties apply."
-;;; ;;; 				  (error "This does not really work")
-;;; ;;; 				  (let ((maa (my 'mass-at-age))
-;;; ;;; 						  (age (my 'age))
-;;; ;;; 						  (mass (my 'mass))
-;;; ;;; 						  (L (my 'longevity))
-;;; ;;; 						  )
-;;; ;;; 					 (if (not eps) (set! eps (* (/ 0.005 2) L))); We assume that half a percent of longevity is ok for most of the lifespan -- +/- 2mo out of 70yr
-
-;;; ;;; 					 (if (uninitialised? age) ;; set an initial age using the mass at age function
-;;; ;;; 						  (set-my! 'age
-;;; ;;; 									  (let loop ((m (my 'min-mass))
-;;; ;;; 													 (M (my 'max-mass))
-;;; ;;; 													 (a 0)
-;;; ;;; 													 (A L)
-;;; ;;; 													 )
-;;; ;;; 										 (let* ((p (/ (+ A a) 2.))
-;;; ;;; 												  (w (maa p)))
-;;; ;;; 											(cond
-;;; ;;; 											 ((and (<= (- w eps) mass) (<= mass (+ w eps))) ;; mass is within eps of test point
-;;; ;;; 											  p)
-;;; ;;; 											 ((< w mass) (loop (w M p A)))
-;;; ;;; 											 ((< mass w) (loop (m w a p)))
-;;; ;;; 											 (else (abort 'bad-mojo)))))))))
-					 
-
-
 (model-method <agent> (kernel-check self #!rest args)
 				  ((slot-ref self 'kernel) 'check self args))
-
-
 
 (model-method <agent> (provides self)
 				  (list-copy (append (list (cnc self) (my 'taxon))
@@ -589,20 +501,25 @@ commonly viewed as just a simple extension of sclos.
 ;(model-method <agent> (agent-prep self start end)
 (model-method (<agent> <number> <number>) (agent-prep self start end)
 				  (kdebug 'prep (slot-ref self 'name) "entered prep: " start end)
-				  (if (slot-ref-self 'timestep-schedule)
+				  (if (slot-ref self 'timestep-schedule)
 						(slot-set! self 'timestep-schedule
 									  (unique (sort (slot-ref self 'timestep-schedule) <)))
 						(slot-set! self 'timestep-schedule '()))
 
 				  ;; ensures no duplicate entries
 				  (if (eq? (slot-ref self 'agent-state) 'ready-for-prep)
-						(slot-set! self 'agent-state 'ready-to-run)
+						(begin
+						  (slot-set! self 'agent-state 'ready-to-run)
+						  (slot-set! self 'subjective-time start)
+						  (initialisation-checks self))
 						(error (string-append
 								  (name self)
 								  " has been instructed to prep but it's state is "
 								  (slot-ref self 'agent-state)))
 						))
 
+
+;----- Termination can happen from any state  */
 
 ;; Termination can happen from any state
 (model-method <agent> (agent-shutdown self #!rest args) 
@@ -989,7 +906,6 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 						(let ((p (slot-ref self 'subsidiary-agents))
 								(q (slot-ref self 'active-subsidiary-agents))
 								)
-						  
 						  (for-each
 							(lambda (a)
 							  (if (list? p) (set! p (q-insert p a Qcmp)))
@@ -1072,7 +988,15 @@ The arguments are
 ;; parent-body.
 
 ;; if it ever hits the agent body, it just returns the dt passed in.
-(add-method run-model-body (make-method (list <agent> <number> <number>) (lambda (run-parent self T dt) dt))) 
+
+(add-method run-model-body (make-method (list <agent> <number> <number>) (lambda (run-parent self T dt) 'ok))) 
+
+"
+The 'run' method does the actual business of chaining to the model body, managing the update of 
+the agent's subjective time, ensuring that agents with timestep schedules do not accidentally 
+run past a scheduled tick, enforcing the arrow of time, catching some types of error (some of 
+which would also be caught in run-agent)
+"
 
 ;; *** AGENTS RUN HERE ***
 (add-method
@@ -1082,7 +1006,7 @@ The arguments are
   (lambda (run-parent self T pstop pkernel)
 	 (kdebug 'bigseparatorfor-run "###################################################################################")
 	 (kdebug 'bigseparatorfor-run "## Running"  (name self) "in " T pstop "with" (slot-ref self 'timestep-schedule) "pending\n")
-	 (kdebug 'bigseparatorfor-run "##       @"  (subjective-time self) "+" (slot-ref self 'dt))
+	 (kdebug 'bigseparatorfor-run "##       @"  (subjective-time self) "+" (modal-dt self))
 	 (let ((my (lambda (x) (slot-ref self x)))
 			 (set-my! (lambda (x y) (slot-set! self x y)))
 			 (kernel (slot-ref self 'kernel)))
@@ -1091,218 +1015,158 @@ The arguments are
 		;;			 (slot-set! self 'introspection-targets (pkernel 'find-agents (slot-ref self 'introspection-selector))))
 
 		;;(set-kernel! self pkernel)
-		(kdebug 'run-model-body "<agent>" (cnc self))
+		(kdebug '(run run-model-body) "RUNNING <agent>" (cnc self))
 		(kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
 		;;(dnl* (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "About to dispatch control to model body")
 		(let ((t T))
 		  (let ((stop pstop))
 			 (let ((kernel pkernel))
+
 				(let ((ttr (begin
 								 (set-my! 'timestep-schedule
 											 (prune-local-time-queue
 											  (my 'subjective-time)
 											  (my 'timestep-schedule)))
 								 (my 'timestep-schedule))))
-				  (let ((dt (interval t (slot-ref self 'dt) stop ttr)))
+				  (let ((dt (interval t (modal-dt self) stop ttr)))
 					 (let ((subj-time (my 'subjective-time)))
 						(if (< (+ t dt) subj-time)
 							 (begin
 								(dnl* "Trying to go back in time" (cnc (class-of self)) (slot-ref self 'name) (slot-ref self 'taxon) '@ t "+" dt "with a subjective time of" subj-time)
 								(kdebug (list 'run (slot-ref self 'name) (slot-ref self 'taxon)) "... running from" t "to" (+ t dt) ", a step of" dt)
-								'ok ;; report it and just skip this attempt
+								'wait ;; report it and just skip this attempt
 							 ))
 
 						(let ((DT 0))
 						  (set-my! 'kernel kernel)
-						  (if (not (= t subj-time))
+						  (if (= t subj-time)
+								(set! DT dt)
 								(begin
 								  (dnl* "Adjusting dt" (cnc (class-of self)) (slot-ref self 'name) 'st subj-time 'T t DT dt)
-								  (set! dt (- (+ t dt) subj-time))))
-						  (cond
-							((< subj-time t)
-							 (if temporal-fascist
-								  (begin
-									 (kdebug 'temporal-check "[" (my 'name) ":"(cnc self) "]"
-												"a/an" (my 'representation)
-												"is lost in time at" subj-time "or" t)
-									 'missing-time)
-								  ((letrec
-										 ((loop-through-time
-											(lambda (st ddt)
-											  (kdebug 'passing-control-to-model
-														 "["(my 'name)":"(cnc self)"]"
-														 "Passing control to the model at" t 
-														 "for" (if (< st t)
-																	  ddt
-																	  (- (+ t dt) subj-time)))
-											  ;;*** Control passes to run-model-body here ***
-											  (let ((m (run-model-body
-															self
-															subj-time
-															(if (< st t)
-																 ddt
-																 (- (+ t dt)
-																	 subj-time)))))
-												 ;;*** Deal with the returned value appropriately ***
-												 (cond
-												  ((eqv? m #!void)
-													(error (string-append
-															  "The model body for "
-															  (cnc
-																self)
-															  " returned an error: #!void")))
-												  ((eqv? dt #!void)
-													(error (string-append
-															  "dt for "
-															  (cnc
-																self)
-															  " is somehow #!void (error)")))
-												  ((eqv? DT #!void)
-													(error (string-append
-															  "DT for "
-															  (cnc
-																self)
-															  " is somehow #!void (error)")))
-												  ((number? m)
-													(set! DT (+ DT m))
-													(set! st (+ st ddt))
-													(set! subj_time st)
-													(cond
-													 ((< st t)
-													  (loop-through-time st (min (- t
-																							  subj-time)
-																						  (my 'dt))))
-													 ((< st (+ t dt))
-													  (loop-through-time
-														st
-														(min (- t subj-time)
-															  (my 'dt)
-															  dt)))
-													 (#t #!void))
-													((or (symbol? m) (list? m))
-													 (kdebug 'run-trap "BORK!!!" m))
-													(#t (kdebug 'run-trap "BORK!!!" m)))
-												  (#t #!void))
-
-												 m))
-											))
-									  loop-through-time)
-									subj-time
-									(min (- t subj-time) (my 'dt)))))
-							((and (> dt 0.) (>= subj-time (+ t dt)))
-							 (kdebug 'temporal-check "["
-										(my 'name)
-										":"
-										(cnc self)
-										"]"
-										"a/an"
-										(my 'representation)
-										"is driving a DeLorian."
-										"  Expected subjective-time to be"
-										t
-										"but it was"
-										subj-time
-										"and dt ="
-										dt)
-							 'back-to-the-future)
-							(#t
-							 (kdebug 'passing-control-to-model
-										"["
-										(my 'name)
-										":"
-										(cnc self)
-										"]"
-										"Passing control to the model at"
-										t
-										"for"
-										dt)
+								  (set! DT (- (+ t dt) subj-time)))
+								)
+						  ;;(dnl* "TIME" (name self) (subjective-time self) t dt DT)
+						  (let ((return-with
+									(cond
+									 ((< subj-time t) ;; The agent is really behind where it ought to be
+									  (if temporal-fascist
+											(begin
+											  (kdebug 'temporal-check "[" (my 'name) ":"(cnc self) "]"
+														 "a/an" (my 'representation)
+														 "is lost in time at" subj-time "or" t)
+											  'missing-time)
+											(run run-parent self subj-time (+ t DT) pkernel)))
+									 ((and (> DT 0.) (>= subj-time (+ t DT)))
+									  (kdebug 'temporal-check "["
+												 (my 'name)
+												 ":"
+												 (cnc self)
+												 "]"
+												 "a/an"
+												 (my 'representation)
+												 "is driving a DeLorian."
+												 "  Expected subjective-time to be"
+												 t
+												 "but it was"
+												 subj-time
+												 "and dt ="
+												 dt)
+									  'back-to-the-future)
+									 (#t
+									  (kdebug 'passing-control-to-model
+												 "["
+												 (my 'name)
+												 ":"
+												 (cnc self)
+												 "]"
+												 "Passing control to the model at"
+												 t
+												 "for"
+												 dt "/" DT)
 
 							 ;;; (let ((m (if (isa? self <agent>)
 							 ;;; 				  (run-model-body self t dt)
 							 ;;; 				  dt)))
-							 (let ((m (if (isa? self <agent>)
-											  (begin
-												 (run-model-body self t dt) ;;; The model runs before its subsidiaries or components
-												 
-												 ;;  The model returns the amount of time it actually ran for
-												 (kdebug '(nesting run-model-body) (cnc self)
-															"Running at " t "+" dt "[" (my 'dt) "]")
-												 (if (< dt 0.0) (error 'bad-dt))
-												 (begin
-													(kdebug 'track-subjective-times
-															  "[" (my 'name) ":" (cnc self) "]"
-															  " running at " (my 'subjective-time) ":" t)
-													
-													(if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
-														 (run-subsidiary-agents self t dt run kernel))
-													
-													(if (pair? (my 'maintenance-list))
-														 (let ((ml (my 'maintenance-list)))
-															;; Now run any agent representations which
-															;; have indicated that they need data
-															;; maintained
-															(for-each
-															 (lambda (x)
-																(x t dt self))
-															 ml)
-															))
-
-													;; deal with any changes in the entity's
-													;; representation, or the general configuration of the
-													;; model as a whole
-
-													;; prefix a symbol ('migrate, for
-													;; example) to the return value if it needs to change,
-													;; last bit should be "return"
-													
-													(let ((mtrb ((my 'migration-test) self t dt)))
-													  ;; we don't want to make calls to a closure that has vanished
-													  (if blue-meanie (set-my! 'kernel #f))  
-													  
-													  (if mtrb
-															(if (pair? return)
-																 (cons mtrb return)
-																 (cons mtrb (list dt)))
-															dt))
-													)
-												 dt))))
-								(if (not (number? m)) (error "Did not get a numeric return from run-model-body"  m))
-
-								(set! DT (+ DT m))
-								m))
-							)
-						  (if (zero? DT)
-								(and (dnl "*******************************")
-									  (error "BAD TICK")))
-
-						  (kdebug 'trace-time-update "SUBJECTIVE TIME FOR" (name self) "IS" (slot-ref self 'subjective-time) "; t =" t "DT =" DT "; dt =" dt)
-						  (kdebug 'trace-time-update "has-slot? subjective-time" (has-slot? self 'subjective-time))
+									  (let ((m (if (isa? self <agent>)
+														(let ((result (run-model-body self t DT))) ;;; The model runs before its subsidiaries or components
+														  ;(dnl* "MODEL BODY FOR" (cnc self) "RETURNED" result)  
+														  ;;  The model returns the amount of time it actually ran for
+														  (kdebug '(nesting run-model-body) (cnc self)
+																	 "Running at " t "+" DT "[" (modal-dt self) "]")
+														  (cond
+															((and (number? result) (< result 0.0)) (error 'bad-dt))
+															((and (number? result) (> result DT)) (error 'executed-too-long!))
+															((and (number? result) (<= DT result))
+;															 (set! self 'subjective-time (+ (slot-ref self 'subjective-time) DT))
+															 (set! result 'ok)
+															 DT
+															 )
+															((eq? result 'ok)
+;															 (set! self 'subjective-time (+ (slot-ref self 'subjective-time) DT))
+															 DT
+															 )
+															(#t
+															 "not a number, probably a symbol or symbol and list"))
+														  
+														  (kdebug 'track-subjective-times
+																	 "[" (my 'name) ":" (cnc self) "]"
+																	 " running at " (my 'subjective-time) ":" t)
+														  
+														  (if (pair? (my 'active-subsidiary-agents))       ;;; Any agent can act as a kernel
+																(run-subsidiary-agents self t DT run kernel))
+														  
+														  (if (pair? (my 'maintenance-list))
+																(let ((ml (my 'maintenance-list)))
+																  ;; Now run any agent representations which
+																  ;; have indicated that they need data
+																  ;; maintained
+																  (for-each
+																	(lambda (x)
+																	  (x t DT self))
+																	ml)
+																  ))
 
 
-						  (if (has-slot? self 'subjective-time) ;; Anything (<agent> or otherwise) should have its time updated
-								(begin
-								  (kdebug 'trace-time-update "UPDATING...")
-								  (slot-set!
-									self 'subjective-time
-									(+ DT (my 'subjective-time)))
-								  (kdebug 'trace-time-update "..." (slot-ref self 'subjective-time))
-								  ))
+														  ;; deal with any changes in the entity's
+														  ;; representation, or the general configuration of the
+														  ;; model as a whole
 
-						  (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
+														  ;; prefix a symbol ('migrate, for
+														  ;; example) to the return value if it needs to change,
+														  ;; last bit should be "return"
+														  (if blue-meanie (set-my! 'kernel #f))
+														  result)
+														'not-an-agent)
+												  ))
 
-						  (kdebug '(nesting run)
-									 (cnc self)
-									 (name self)
-									 "Leaving run after a tick of "
-									 DT
-									 " @ "
-									 (my 'subjective-time)
-									 "["
-									 (my 'dt)
-									 "]")
-						  'ok)))))))
+										 (kdebug 'run "Returning " m " to run-agent")
+										 (if (number? m) 'ok m)
+										 ))
+									 ))
+								  )
+							 (kdebug 'trace-time-update "SUBJECTIVE TIME FOR" (name self) "IS" (slot-ref self 'subjective-time) "; t =" t "DT =" DT "; dt =" dt)
+							 (kdebug 'trace-time-update "has-slot? subjective-time" (has-slot? self 'subjective-time))
+
+
+							 (if (has-slot? self 'subjective-time) ;; Anything derived from <agent> should have a subjective-time and have it updated
+								  (begin
+									 (kdebug '(run trace-time-update) "UPDATING...")
+									 (slot-set! self 'subjective-time (+ DT (my 'subjective-time)))
+									 (kdebug '(run trace-time-update) "..." (slot-ref self 'subjective-time))
+									 )
+								  (END
+									(dnl* "SO WHAT TIME DO *YOU* /THINK/ IT IS?."))
+								  )
+
+							 (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
+
+							 (kdebug '(nesting run) (cnc self) (name self)
+										"Leaving run after a tick of " DT " @ " (my 'subjective-time)
+										"[" (modal-dt self) "]")
+							 return-with)))))))
 		))
-  ))
+	 ))
+ )
 
 
 
@@ -1399,7 +1263,8 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 
 (model-body <blackboard>
-				dt
+;;				(call-parents)
+				'ok
 				)
 
 
@@ -1459,8 +1324,8 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 				(track-location! self t (my 'location)) ;; even if they
 				;; aren't
 				;; moving
-				(call-parents)
-				dt
+;;				(call-parents)
+				'ok
 				)
 
 
@@ -1556,6 +1421,7 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 ;---- environment methods
 
 (model-body <environment> ;; does nothing.
+;;				(call-parents)
 				)
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)

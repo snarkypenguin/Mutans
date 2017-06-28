@@ -67,7 +67,7 @@
   )
 
 (define (default-growth-rate self)
-  (let ((dt (my 'dt)))
+  (let ((dt (modal-dt self)))
 	 (lambda x
 		(/ (- ((my 'mass-at-age) (my 'age))
 				((my 'mass-at-age) (+ (my 'age) dt)))
@@ -115,7 +115,7 @@
 						 (lambda x
 							(let ((maa (my 'mass-at-age))
 									(a (my 'age))
-									(dt (my 'dt)))
+									(dt (my 'dt))) ;; Need a default dt for this!
 							(/ (- (maa a)
 									(maa (+ dt a)))
 								dt)))
@@ -230,7 +230,7 @@
 				  (* (leaf-area self) (my 'leaf-mass)))
 
 
-(model-body <plant>
+(model-body%% <plant>
 	;;(dnl* kdebug '(trace-bodies plant-running)  (cnc self) (name self) "@" t "/" dt)
 
 	;; Calculate water requirements
@@ -247,99 +247,98 @@
 
 	(kdebug 'model-body (name self) "plant 1")
 	(start-timer 'plant-model-body)
-	(if (<= (my 'counter) 0)
-		 (begin
-			(void)
-			))
 
 	(kdebug 'model-body "plant 0")
 	(stop-timer 'plant-model-body)
-	(set! dt (call-parents))
-	(start-timer 'plant-model-body)
-		 
-	(let ((return
-			 (cond
-			  ;; DEAD AGENT
-			  ((eq? (agent-state self) 'dead)
-				(set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
-				(if (< (my 'mass) (* 0.2 (my 'peak-mass)))
-					 (list 'remove dt)
-					 dt))
-			  ;; LIVE AGENT
-			  (else 
-				(let* ((available-water (if ignore-water +inf.0 (value (slot-ref self 'water-service) 'value)))
-						 (pi (acos -1.0))
-						 (waterstress (my 'water-stress))
-						 (lai (my 'lai))
-						 (r (plant-radius self))
-						 (waterneeds (* (my 'water-use) lai pi r r)) ;; lai buy
-						 (stressed (my 'water-stress-effect))
-						 (age (my 'age))
-						 (max-age (my 'max-age))
-						 (longevity (my 'longevity))
-						 (mass (my 'mass))
-						 (mass-at-age (my 'mass-at-age))
-						 (deltaM (- (mass-at-age (+ age dt)) (mass-at-age age)))
-						 (pmort (let ((pm (my 'probability-of-mortality)))
-									 (if (procedure? pm) (pm age) pm)))
-						 )
+	(let ((parent-return (call-parents)))
+	  (start-timer 'plant-model-body)
 
-				  (kdebug 'model-body "plant 2")
+	  (let ((return
+				(cond
+				 ;; DEAD AGENT
+				 ((eq? (agent-state self) 'dead)
+				  (set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
+				  (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
+						(list 'remove)
+						dt))
+				 ;; LIVE AGENT
+				 (else 
+				  (let* ((available-water (if ignore-water +inf.0 (value (slot-ref self 'water-service) 'value)))
+							(pi (acos -1.0))
+							(waterstress (my 'water-stress))
+							(lai (my 'lai))
+							(r (plant-radius self))
+							(waterneeds (* (my 'water-use) lai pi r r)) ;; lai buy
+							(stressed (my 'water-stress-effect))
+							(age (my 'age))
+							(max-age (my 'max-age))
+							(longevity (my 'longevity))
+							(mass (my 'mass))
+							(mass-at-age (my 'mass-at-age))
+							(deltaM (- (mass-at-age (+ age dt)) (mass-at-age age)))
+							(pmort (let ((pm (my 'probability-of-mortality)))
+										(if (procedure? pm) (pm age) pm)))
+							)
+
+					 (kdebug 'model-body "plant 2")
 
 ;(dnl* "Processing <plant> model-body")
 ;(dnl* (name self) "Mass delta" deltaM "at age" age"/" max-age "dt" dt)
 
-				  (set-my! 'age (+ age dt))
+					 (set-my! 'age (+ age dt))
 
-				  ;; set water stress level and update hydrology
+					 ;; set water stress level and update hydrology
 
-				  (set! waterstress (water-stress-level available-water waterneeds))
+					 (set! waterstress (water-stress-level available-water waterneeds))
 ;(dnl* "water stress" waterstress)
 
-				  (kdebug 'model-body "plant 3")
+					 (kdebug 'model-body "plant 3")
 
-				  (do-fruiting self t dt)
+					 (do-fruiting self t dt)
 
-				  ;; THIS (cond ...) RETURNS THE dt VALUE!!!
-				  (cond	;; determine if the plant dies this step
-					((not (number? dt))
-					 dt)
-					((or (not (number? pmort)) (and (number? pmort) (< pmort (random-real)))) ;; 
-;(dnl* "regrow <plant> if necessary" (my 'forage-damage))
-					 (if (> (my 'forage-damage) 0)
-						  (let ((regrowth (min (my 'forage-damage) (* (my 'regrowth-rate) dt))))
-							 (set-my! 'forage-damage (max 0 (- (my 'forage-damage) regrowth)))
+					 ;; THIS (cond ...) RETURNS THE dt VALUE!!!
+					 (cond	;; determine if the plant dies this step
+					  ((not (number? dt))
+						(dnl* 'NOT-A-NUMBER!)
+						dt)
+					  ((or (not (number? pmort)) (and (number? pmort) (< pmort (random-real)))) ;; 
+						;;(dnl* "regrow <plant> if necessary" (my 'forage-damage))
+						(if (> (my 'forage-damage) 0)
+							 (let ((regrowth (min (my 'forage-damage) (* (my 'regrowth-rate) dt))))
+								(set-my! 'forage-damage (max 0 (- (my 'forage-damage) regrowth)))
+								)
+							 (begin ;; only grow when the forage-damage has been repaired
+								(if (= mass (+ mass deltaM))
+									 (dnl* "no growth at " (scaled-time age) " -> " (scaled-time (+ age dt)))
+									 ;;((dnl* "adjust <plant> mass" mass deltaM)
+									 (set-my! 'mass (+ mass deltaM)))
+								)
 							 )
-						  (begin ;; only grow when the forage-damage has been repaired
-							 (if (= mass (+ mass deltaM))
-								  (dnl* "no growth at " (scaled-time age) " -> " (scaled-time (+ age dt)))
-								  ;;((dnl* "adjust <plant> mass" mass deltaM)
-								  (set-my! 'mass (+ mass deltaM)))
-							 )
-						  )
 
-					 ;;		 (if (or (not (my 'water-stress-effect))
-					 ;;					(< (my 'water-stress) 1))
-					 ;;			  ;;			  (slot-set! self 'mass (+ mass (* dt (my 'growth-rate)))) ;; linear growth
-					 ;;			  (slot-set! self 'mass dMatA) ;; keep decreased growth effects
-					 ;;			  )
-					 
-					 (if (< (my 'peak-mass) (my 'mass))
-						  (set-my! 'peak-mass (my 'mass)))
+						;;		 (if (or (not (my 'water-stress-effect))
+						;;					(< (my 'water-stress) 1))
+						;;			  ;;			  (slot-set! self 'mass (+ mass (* dt (my 'growth-rate)))) ;; linear growth
+						;;			  (slot-set! self 'mass dMatA) ;; keep decreased growth effects
+						;;			  )
+						
+						(if (< (my 'peak-mass) (my 'mass))
+							 (set-my! 'peak-mass (my 'mass)))
 
-					 (kdebug 'model-body "plant 4b")
-					 dt)
-					(else
-					 					 (dnl* (taxon self) "I feel happy!" age '> max-age)
-					 (die self)
-					 dt) ;; it's a stick, plant dies here.
-					)
-				  )
+						(kdebug 'model-body "plant 4b")
+						dt)
+					  (else
+						(dnl* (taxon self) "I feel happy!" age '> max-age)
+						(die self)
+						dt) ;; it's a stick, plant dies here.
+					  )
+					 )
+				  ))
 				))
-			 ))
-	  (stop-timer 'plant-model-body)
-	  return
+		 (stop-timer 'plant-model-body)
+		 return
+		 )
 	  )
+	dt
 	)
 
 
@@ -432,18 +431,18 @@
   
 
 (model-method (<plant> <log-introspection> <symbol> <list>)
-				  (log-data self logger fmt targets)
+				  (log-data self logger format targets)
 				  (let ((file (slot-ref logger 'file))
 						  (leading-entry #f)
 						  (needs-newline #f)
 						  )
-					 ;;(dnl* "****"  (cnc logger) (cnc self) (name self) fmt  (symbol? fmt) (eq? fmt 'ps))
+					 ;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
 					 
 					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (begin
 							 ;; this handles "whole of agent" bits, like perimeters
 							 (cond
-							  ((member fmt '(ps))
+							  ((member format '(ps))
 								(let* (;(ply (make-circle-perimeter
 										 ;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'circle-facets)))
 										 ;(prj (composite-prj_src->dst self logger))
@@ -463,12 +462,12 @@
 								 (kdebug '(log-* log-plant) "[" (my 'name) ":"
 											(cnc self) "]" "checking" field)
 								 ;;(dnl* "  " (cnc self) (if (has-slot? self field) "has" "doesn't have") field)
-								 (if (not (symbol? fmt)) (buggrit))
+								 (if (not (symbol? format)) (buggrit))
 								 (if (has-slot? self field)
 									  (letrec ((r (slot-ref self field)))
 										 #t
-										 ;;(dnl* "   processing" field "for" fmt "format")
-										 (case fmt
+										 ;;(dnl* "   processing" field "for" format "format")
+										 (case format
 											((ps)
 											 (set! needs-newline #t)
 											 (file 'show (string-append
@@ -599,39 +598,42 @@
 				  
 
 
-(model-body <example-plant>
-	(start-timer 'example-plant-model-body)
+(model-body%% <example-plant>
+				(start-timer 'example-plant-model-body)
 				
 ;	(if (<= (my 'counter) 0)
 ;		 (initialisation-checks self))
-	
+				
 ;(dnl* "Processing <example-plant> model-body")
-	;; This is here so the parent bodies do not get executed when it ought to die.
-	(let ((m (my 'mass))
-			(pkmass (my 'peak-mass))
-			(mm (my 'mort-mass))
-			(mp (my 'mort-prob)) (draw (random-real)))
+				;; This is here so the parent bodies do not get executed when it ought to die.
+				(let ((m (my 'mass))
+						(pkmass (my 'peak-mass))
+						(mm (my 'mort-mass))
+						(mp (my 'mort-prob))
+						(draw (random-real)))
+				  (let ((return
+							(cond
+							 ;; DEAD AGENT
+							 ((eq? (agent-state self) 'dead)
+							  (set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
+							  (let ((r (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
+												(list 'remove)
+												dt)))
+								 (dnl* "DEAD-->" *r)
+								 r))
 
-	  (let ((return
-				(cond
-				 ;; DEAD AGENT
-				 ((eq? (agent-state self) 'dead)
-				  (set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
-				  (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
-						(list 'remove dt)
-						dt))
-				 (else
-				  (if #f;(or (< m (* pkmass mm)) (< draw mp))
-						(begin
+							 (else
+							  (if #f;(or (< m (* pkmass mm)) (< draw mp))
+									(begin
 ;(dnl* "Die:" m pkmass mm (* mm pkmass)  draw "/" mp)
-						  (die self)
-						  (dnl* "I'm not dead yet....")
-						  dt)
-						(begin
-						  (stop-timer 'example-plant-model-body)
-						  (set! dt (call-parents))
-						  (start-timer 'example-plant-model-body)
-						  
+									  (die self)
+									  (dnl* "I'm not dead yet....")
+									  dt)
+									(begin
+									  (stop-timer 'example-plant-model-body)
+									  (let ((parent-returns (call-parents)))
+										 (start-timer 'example-plant-model-body)
+										 
 						  ;;; (dnl* "Fruiting?" (name self))
 						  ;;; (if (isa? self <example-plant>)
 						  ;;; 		(begin
@@ -639,19 +641,21 @@
 						  ;;; 		  (do-fruiting self t dt)
 						  ;;; 		  ))
 
-						  (let ((age (my 'age))) ;; This masks the generic method (age...) within the body of the let
-							 (if (> age (my 'longevity))
-								  (begin
-									 (dnl* "I think I'll go for a walk...")
-									 (die self) ;; too old.
-								  dt)
-							 ))
-						))
-				 ))
-			  ))
-		 (stop-timer 'example-plant-model-body)
-		 return
-		 )))
+										 (let ((age (my 'age))) ;; This masks the generic method (age...) within the body of the let
+											(if (> age (my 'longevity))
+												 (begin
+													(dnl* "I think I'll go for a walk...")
+													(die self)
+													) ;; too old.
+												 dt)
+											))
+									  ))
+							  ))
+							))
+					 (stop-timer 'example-plant-model-body)
+					 return
+					 ))
+	)
 
 (model-method <example-plant> (add-fruit self fruiting-area)
 				  (let ((cell (my 'habitat))

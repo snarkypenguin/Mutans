@@ -66,6 +66,9 @@
 ;; false (#t/#f) and controls whether or not timing information is
 ;; collected.
 
+(define-macro (END . body)
+  `(begin ,@body (error "c.f. 'Mort', 'Reaper Man', 'Soul Music', 'Hogfather' and 'Thief of Time'")))
+
 ;--- (time-probe name . body) macro
 (define-macro (time-probe name . body)
   `(let* ((x_x_name ,name)
@@ -476,101 +479,38 @@
 							result)
 						 )))
 
+(define-macro (model-method%% #!rest madness)
+  ;; Call like (model-method classname (mname args) #!rest body) where
+  ;; the args doesn't include the call-parent-method and 'self' is
+  ;; the placeholder
+  (case (length madness)
+	 ((0)
+	  (Error "model-method: There is nothing here!" madness))
+	 ((1) (Error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got" (cons 'model-method madness)))
+	 ((2) (Error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got " (cons 'model-method madness)))
+	 )
+  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+		(Error "model-method: bad (mname mm-margs...) in (model-method ...) "
+				 (caadr madness)))
+  (if (not (eq? (cadadr madness) 'self))
+		(Error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
+				 (caadr madness)))
 
+  (let* ((classlst (if (list? (car madness))
+							  (car madness)
+							  (list (car madness))))
+			(mname (caadr madness))
+			(mm-args (cddadr madness))
+			(body (cddr madness))
+			(tag (string->symbol (string-append (symbol->string mname) "-" (symbol->string (car classlst)))))
+			)
+	 
+	 `(model-method ,classlst (,mname ,@mm-args)
+						 (let* ((result (begin (start-timer ',tag) ,@body)))
+							(stop-timer ',tag)
+							result)
+						 )))
 
-
-
-;;; ;; This version tracks time
-;;; (define-macro (model-method% #!rest madness)
-;;;   ;; Call like (model-method classname (mname args) #!rest body) where
-;;;   ;; the args doesn't include the call-parent-method and 'self' is
-;;;   ;; the placeholder
-;;;   (case (length madness)
-;;; 	 ((0)
-;;; 	  (Error "model-method: There is nothing here!" madness))
-;;; 	 ((1) (Error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got" (cons 'model-method madness)))
-;;; 	 ((2) (Error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got " (cons 'model-method madness)))
-;;; 	 )
-;;;   (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
-;;; 		(Error "model-method: bad (mname mm-margs...) in (model-method ...) "
-;;; 				 (caadr madness)))
-;;;   (if (not (eq? (cadadr madness) 'self))
-;;; 		(Error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
-;;; 				 (caadr madness)))
-
-;;;   (let* ((classlst (if (list? (car madness))
-;;; 							  (car madness)
-;;; 							  (list (car madness))))
-;;; 			(mname (caadr madness))
-;;; 			(mm-margs (cddadr madness))
-;;; 			(body (cddr madness))
-;;; 			(method-id (string-append  (object->string classlst) ": "(object->string mname) " " (object->string mm-margs)))
-;;; 			)
-
-;;; 	 (if #f (begin ;; set to #t to announce method definitions
-;;; 										  (dnl "************************************************************")
-;;; 										  (dnl (load 'current-file)": Defining method: " classlst mname)
-;;; 										  (pp body)))
-
-;;; 	 (if (and #t (not (generic-method-register 'type? ',mname)))
-;;; 		  (begin
-;;; 			 (display "********* Instantiating the method (")
-;;; 			 (display ',mname)
-;;; 			 (display " ...) ********* before the method has been declared\n")
-;;; 			 (Error "instantiating without declaration" ',mname))
-;;; 		  (let ((txt `(let* ((M (make-method
-;;; 										 (list ,@classlst) ;; make-method returns a function....
-;;; 										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
-;;; 											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Entering" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>"))
-
-;;; 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
-;;; 											;;; 		 (call-parents ;; this returns amount of time used for each parent in the list
-;;; 											;;; 		  (lambda plist
-;;; 											;;; 			 (let* ((parents (if (or (eqv? plist 'all) (eqv? plist '*)) (parent-classes self) plist))
-;;; 											;;; 					  (methods (get-methods parents ,mname self t dt))
-;;; 											;;; 					  )
-;;; 											;;; 				(map (lambda (x) (x self t dt)) methods))))
-;;; 											 		 )
-;;; 											  ;; provides ,parent-mname for arbitrary sets .. may be called more than once, and with different sets of parents
-											  
-;;; 											  ;; this provides the setter and getter for this entities variables (they can be passed about too)
-;;; 											  (let ((my (lambda (x) (slot-ref self x))) 
-;;; 													  (set-my! (lambda (x y)
-;;; 																	 (slot-set! self x y)))
-;;; 													  ;; it also provides a kernel call function (if it is an <agent> rather than an <object>)
-;;; 													  (kernel (if (member 'kernel (map car (class-slots (class-of self))))
-;;; 																	  (slot-ref self 'kernel)
-;;; 																	  #f))
-;;; 													  (method-id ,method-id)
-;;; 													  (%%%-timer-start-%%% (process-times))
-;;; 													  (%%%-timer-stop-%%% #f)
-;;; 													  )
-												 
-;;; 												 (let* ((mm-result
-;;; 															(begin
-;;; 															  (set! %%%-timer-stop-%%% (process-times))
-;;; 															  (set! %%%-time-register-%%% (cons (list ',formals %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-;;; 															  (kdebug 'trace-model-methods "Running" method-id (if (agent? self) (slot-ref self 'name) "<object>") (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
-;;; 															  dt ;; If there is no body, then we just assume that doing nothing is easy.
-;;; 															  ,@body) ))
-												 
-;;; 													(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Leaving" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>") "with" mm-result)
-;;; 													mm-result)
-;;; 												 )
-;;; 											  )
-;;; 											))
-;;; 										))
-;;; 							 (add-method ,mname M)
-;;; 							 (method-register 'add M ',mname )
-;;; 							 )
-;;; 						 ))
-;;; 			 (if #f;; set to #t to display the expanded method (useful for debugging
-;;; 				  (begin
-;;; 					 (dnl "------------------------------------------------------------")
-;;; 					 (pp txt)))
-
-;;; 			 (if #f (dnl "************************************************************")) ;;; set it to #t to make output pretty
-;;; 			 txt))))
 
 
 (define-macro (model-method #!rest madness)
@@ -633,7 +573,18 @@
 																	  (slot-ref self 'kernel)
 																	  #f))
 													  (method-id ,method-id)
-													  )
+													  (my-class (if (pair? ',classlst) (car ',classlst) ,classlst))
+													  ;; The aboveis an example of of how one might add a "builtin" for every model-method 
+													  ;;for all agents.  Not that it will be present in *all* agents, so care should be taken to
+													  ;; make sure that they handle missing slots appropriately. Also notice how it handles the
+													  ;; classlst parameter
+													  
+													  ;; Similarly, this would define a local variable (which is only valid while the method runs).
+													  ;;   (my-taxon (slot-ref self 'taxon))
+													  ;;
+													  ;; The advantage with these is that we can potentially reduce the number of function invocations
+													  ;; by permanently recording frequently used values.  
+													 )
 												 
 												 (let ((mm-result
 														  (begin
@@ -650,9 +601,9 @@
 							 (method-register 'add M ',mname )
 							 )
 						 ))
-			 (if #f;; set to #t to display the expanded method (useful for debugging
+			 (if (member ',mname '()) 
 				  (begin
-					 (dnl "------------------------------------------------------------")
+					 (dnl ";------------------------------------------------------------;")
 					 (pp txt)))
 
 			 (if #f (dnl "************************************************************")) ;;; set it to #t to make output pretty
@@ -661,8 +612,15 @@
 
 
 "*** The biggest differences between an model-method and a model-body is
-that model-methods do not keep track of a kernel, and model bodies should return 
-how much time they have actually used."
+that model-methods do not necessarily have access to the kernel.
+
+The function that provides an agent's kernel access is assigned to the
+'kernel slot at the beginning of its model-body.  If the global
+boolean flag 'blue-meanie' is set to true, the slot is set to false
+when then the agent leaves its model body with the result that any of
+the agent's model-methods invoked while the model-body is not running
+will not have access to the kernel.
+"
 
 ;; model-body% records timing, model-body does not
 
@@ -674,54 +632,15 @@ how much time they have actually used."
 									(set! %%%-time-register-%%% (cons (list 'model-body ',myclass %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
 									result))))
 
+;; model-body%% records timing in a different way, model-body does not
 
-;;; (define-macro (model-body% myclass #!rest body)
-;;;   (if #f (begin ;; set to #t to announce the model bodies
-;;; 									  (dnl "************************************************************")
-;;; 									  (dnl (load 'current-file)": Defining body: " myclass) (pp body)))
-;;;   (if (not (symbol? myclass))
-;;; 		(aborts "model-body: the class " myclass " should be an atom"))
-;;;   (if (eqv? myclass 'self) (error "No, I don't think that _self_ is a class...." myclass ) )
+(define-macro (model-body%% myclass #!rest body)
+  (let ((tag (string->symbol (string-append (symbol->string myclass) "-model-body"))))
+	 `(model-body ,myclass 		
+					  (let ((result (begin (start-timer ',tag)	,@body)))
+						 (stop-timer ',tag)
+						 result))))
 
-;;;   (let ((method-id (string-append (object->string myclass) ": model-body")))
-;;; 		  `(if (and #t (not (generic-method-register 'type? 'run-model-body)))
-;;; 				 (Error "instantiating model-body with a declaration of run-model-body"))
-;;; 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
-;;; 														 (lambda (call-parents self t dt)
-;;; 															;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
-;;; 															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body) (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies (construct-symbol (slot-ref self 'name))) (slot-ref self 'name) "Entering" (class-name-of ,myclass) "model-body at time" t "+" dt)
-;;; 															(let* ((method-id ,method-id)
-;;; 																	 (my (lambda (x) (slot-ref self x)))
-;;; 																	 (set-my! (lambda (x y) (slot-set! self x y)))
-;;; 																	 (initialised? (lambda () (slot-ref! self 'initialised)))
-;;; 																	 (initialised! (lambda () (slot-set! self 'initialised #t)))
-;;; 																	 (initialise (lambda  state (dnl* (cnc self) "/" (my 'name) "called initialise in body?")))
-;;; 																	 (reset-taxon (lambda (newtax) (slot-set! self 'taxon newtax)))
-;;; 																	 (kernel (slot-ref self 'kernel))
-;;; 																	 (%%%-timer-start-%%% (process-times))
-;;; 																	 (%%%-timer-stop-%%% #f)
-;;; 																	 )
-;;; 															  (kdebug 'time-team "Entering wrapper with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-;;; 															  (if (> (abs (- (slot-ref self 'subjective-time) t)) (slot-ref self 'agent-epsilon))
-;;; 																	(error "Too much lost time! Possibly uncontrolled numeric error or a bug\n" 'st: (slot-ref self 'subjective-time) 't: t ))
-;;; 															  (set! dt (min (my 'dt) dt))
-
-;;; 															  (kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-;;; 															  (let ((body-result
-;;; 																		(begin
-;;; 																		  (kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'trace-model-body) "Running model body for " method-id (if (agent? self) (slot-ref self 'name) "<object>") " at " t '/ (slot-ref self 'subjective-time) '+ dt)
-;;; 																		  dt ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
-;;; 																		  ,@body
-;;; 																		  ))
-;;; 																	  )
-;;; 																 (set! %%%-timer-stop-%%% (process-times))
-;;; 																 (set! %%%-time-register-%%% (cons (list 'model-body ',myclass %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-																 
-;;; 																 (kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
-;;; 																 (kdebug 'model-body "returns with dt" dt " and with result" body-result)
-
-;;; 																 (cond
-;;; 																  ((symbol? dt) ;; return a control symbol to the kernel
 
 (define-macro (model-body myclass #!rest body)
   (if #f (begin ;; set to #t to announce the model bodies
@@ -743,14 +662,26 @@ how much time they have actually used."
 																	  (slot-ref self 'name) "Entering"
 																	  (class-name-of ,myclass) "model-body at time" t "+" dt)
 															(letrec ((no-parent-body (lambda args (set! call-parents no-parent-body) dt)))
-															  (let* ((method-id ,method-id)
-																		(my (lambda (x) (slot-ref self x)))
+															  (let* ((my (lambda (x) (slot-ref self x)))
 																		(set-my! (lambda (x y) (slot-set! self x y)))
 																		(initialised? (lambda () (slot-ref! self 'initialised)))
 																		(initialised! (lambda () (slot-set! self 'initialised #t)))
 																		(initialise (lambda  state (dnl* (cnc self) "/" (my 'name) "called initialise in body?")))
 																		(reset-taxon (lambda (newtax) (slot-set! self 'taxon newtax)))
+																		(my-class ,myclass)
+																		(method-id ,method-id)
 																		(kernel (slot-ref self 'kernel))
+																		;; This is an example of of how one might add a "builtin" for the model bodies of all agents.
+																		;; Not that it will be present in *all* agents, so care should be taken to
+																		;; make sure that they handle missing slots appropriately.
+																		;;    (my-class (let ((c (car ,classlst))) (lambda () c)))
+																		;; NOTE: my-class is already defined for model-bodies and for model-methods
+																		
+																		;; Similarly, this would define a local variable (which is only valid while the method runs).
+																		;;   (my-taxon (slot-ref self 'taxon))
+																		;;
+																		;; The advantage with these is that we can potentially reduce the number of function invocations
+																		;; by permanently recording frequently used values.  
 																		)
 																 (kdebug 'time-team "Entering wrapper with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
 																 (if (> (abs (- (slot-ref self 'subjective-time) t)) (slot-ref self 'agent-epsilon))
@@ -779,8 +710,9 @@ how much time they have actually used."
 
 																	(if (and (number? dt) (> dt 0)
 																				(not (slot-ref self 'agent-body-ran)) ;; this ensures that the update only happens once per timestep
-																				(eq? ,myclass (class-of self)) ;; this restricts the block to executing in the 'outermost'
-																				)                             ;; model body (that of the the first argument in the (create ...) call)
+																				(or (my 'no-model-body)
+																					 (eq? ,myclass (class-of self)) ;; this restricts the block to executing in the 'outermost'
+																				))                             ;; model body (that of the the first argument in the (create ...) call)
 																		 (begin
 																			;; DO NOT CHANGE THE SUBJECTIVE TIME -- it is handled in the "run" method in framework-methods.  If
 																			;; times are not being adjusted, it indicates that there is a break in the chaining back through parent model-bodies

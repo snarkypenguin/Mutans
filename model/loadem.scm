@@ -4,6 +4,10 @@
 							  ;;(display fn)(newline)
 							  fn))
 
+
+(define slib-gambit.init "/usr/share/slib/gambit.init")
+(define SLIB #f)
+
 ;; Must happen before framework  or they have no effect
 (load "preamble.scm")
 ;(load 'print-loading)
@@ -14,9 +18,6 @@
 (for-each load (map sym->scm '(sclos+extn)))
 
 (for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript)))
-
-(define slib-gambit.init "/usr/share/slib/gambit.init")
-(define SLIB #f)
 
 ;(load "support.o1")
 

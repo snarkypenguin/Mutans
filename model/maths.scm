@@ -38,6 +38,12 @@
 		(/ (log x) ln10))))
 
 
+(define (normalise vec)
+  (let ((len (sqrt (apply + (map sqr vec)))))
+	 (if (zero? len)
+		  +nan.0
+		  (map (lambda (x) (/ x len)) vec))))
+
 (define maths-dnl*
   (lambda X
 	 (let ((out (if (and (pair? X) (port? (car (reverse X))))

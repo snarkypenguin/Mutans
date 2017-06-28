@@ -4,6 +4,7 @@
 (define <log-map>-parameters
   (list
   	 (list 'type 'log-data)
+	 (list 'no-model-body #t)
 	 (list 'format 'ps)
 	 (list 'file-type "ps")
 	 (list 'output-projection 'ps)

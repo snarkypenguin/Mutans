@@ -44,12 +44,12 @@ Animals will usually be initialised like so:
          'food->mass-conversion-rate 14.0 ;; N kg to make 1kg of body mass
          'mass->food-conversion-rate 18.0  ;; 1 kg of body mass is worth this much
 
-         ;'searchspeed 20 ;; units per day
-         ;'searchspeed 40 ;; units per day
-         'searchspeed 30 ;; units per day
-         'foragespeed 15 ;; units per day
-         'wanderspeed 20 ;; units per day
-         'movementspeed 40 ;; units per day
+         ;'search-speed 20 ;; units per day
+         ;'search-speed 40 ;; units per day
+         'search-speed 30 ;; units per day
+         'forage-speed 15 ;; units per day
+         'wander-speed 20 ;; units per day
+         'movement-speed 40 ;; units per day
 
          'habitat H 
 

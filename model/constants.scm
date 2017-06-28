@@ -48,6 +48,8 @@
 
 (define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
 
+(define lightspeed (* 299792458e8 (/ m second)))
+
 ;; Used as the placeholder for uninitialised things in classes
 (define uninitialised (lambda args (abort 'uninitialised-function)))
 

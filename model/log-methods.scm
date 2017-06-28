@@ -1,6 +1,15 @@
 (include "framework")
 ;-  Identification and Changes
 
+(warning "I really need to separate the logging from the file handling.  
+At the moment we have the <logfile> branch and the <snapshot> branch; this
+needs to change: the creation of a logging agent needs to have a 
+file-handling class (logfile, snapshot, or output?) --- everything is 
+routed through these, and page-preamble and emit-page (called for each timestep)
+do the appropriate thing.")
+
+
+
 (define (stopit #!rest args) (void))
 
 (define DONT-FILTER-TARGET-VARIABLES #t)
@@ -85,9 +94,9 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;; 								 ;; animal things
 ;; 								 domain-attraction food-attraction 
-;; 								 near-food-attraction searchspeed
-;; 								 wanderspeed foragespeed	
-;; 								 movementspeed foodlist homelist
+;; 								 near-food-attraction search-speed
+;; 								 wander-speed forage-speed	
+;; 								 movement-speed foodlist homelist
 ;; 								 breedlist habitat
 
 ;; 				 'variables-may-be-set #t
@@ -109,55 +118,37 @@ close pages and emit 'showpage' for postscript stuff.
 
 (model-body% <log-introspection>
    (let ((kdebug (if #f kdebug dnl*)))
-		(kdebug '(log-* introspection-trace)
-				  "[" (my 'name) ":" (cnc self) "]"
-				  "Introspection: model-body")
-		;; (if (<= (my 'counter) 0)
-		;; 	 (begin
+	  (call-parents)
+	  (kdebug '(log-* introspection-trace)
+				 "[" (my 'name) ":" (cnc self) "@" (subjective-time self) "]"
+				 "Log-introspection: model-body")
 
-				;; (if (my 'output-projection)
-				;; 	 (let ((->out (my 'output-projection))
-				;; 			 (m->l (my 'model->local)))
-				  
-				;; 		(cond
-				;; 		 ((member ->out '(ps PS postscript Postscript PostScript POSTSCRIPT))
-				;; 		  (set-my! 'model->local (lambda (p) (map mm->points (m->l p)))))
-				;; 		 ((procedure? ->out)
-				;; 		  (set-my! 'model->local (lambda (p) (-> out (m->l p)))))
-				;; 		 ((symbol? ->out)
-				;; 		  (error "Unrecognised symbol for the output mapping" name ->outb))
+	  (let ((sched (my 'timestep-schedule))
+			  )
+		 
+		 (if (kdebug? 'introspection-trace)
+			  (pp (dumpslots self)))
+		 
+		 (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
+						  (- (car sched) t)
+						  dt))
 
-				;; 		 (set-my! 'output-projection #f) ;; Done, no need to do anything else
-				;; 		 )))
-				;; ))
+		 (kdebug '(log-* introspection-trace)
+					"      list:     " (map name (my-list self)))
+		 (kdebug '(log-* introspection-trace)
+					"      schedule: "
+					(list-head (my 'timestep-schedule) 3)
+					(if (> (length (my 'timestep-schedule)) 3)
+						 '... ""))
+		 
+		 (set-my! 'variables-may-be-set #f)
+		 (emit-page self)
 
-
-		(let ((sched (my 'timestep-schedule))
-				)
-		  
-		  (if (kdebug? 'introspection-trace)
-				(pp (dumpslots self)))
-		  
-		  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
-							(- (car sched) t)
-							dt))
-
-		  (kdebug '(log-* introspection-trace)
-					 "      list:     " (map taxon (my-list self)))
-		  (kdebug '(log-* introspection-trace)
-					 "      schedule: "
-					 (list-head (my 'timestep-schedule) 3)
-					 (if (> (length (my 'timestep-schedule)) 3)
-						  '... ""))
-		  
-		  (set-my! 'variables-may-be-set #f)
-		  (emit-page self)
-
-		  ;;(skip-parent-body)
-		  (call-parents) ;; parent body sets the time step used
-		  dt
-		  )
-		))
+		 ;;(skip-parent-body)
+		 (call-parents) ;; parent body sets the time step used
+		 dt
+		 )
+	  ))
 
 
 (model-method (<log-introspection>) (my-list self)
@@ -403,20 +394,19 @@ close pages and emit 'showpage' for postscript stuff.
 	(else (error "Bad colour" C))
 	))
 		 
-
-
-
-;---- log-map methods (inherits from <snapshot>)
- 
-(model-method (<log-map> <list>) ;; colours can be #t/#f simple names, in [0.-1.], [0,255], or rgb as fp or int
-				  (log-map-polygon self ms-poly #!optional colour)
-				  (let* ((perimeter (map (lambda (x) (model->local self x)) ms-poly))
+;; This does not care if it is a <log-map> or a <log-map*>
+(model-method (<log-map> <list> <symbol>) (log-map-polygon self model-space-poly format #!optional colour)
+				  (let* ((perimeter (map (lambda (x) (model->local self x)) model-space-poly))
 							(col (colour-mapping colour))
-							(ps (my 'file))
-							)
+							(fh (my 'file)))
+					 (case format
+						('ps
+						 (fh 'comment (string-append "log-map-polygon " (object->string perimeter)))
+						 (plot-polygon fh map:linewidth col perimeter))
+						(else
+						 (error "Only postscript is supported at the moment" (bummer))))))
 
-					 (ps 'comment (string-append "log-map-polygon " (object->string perimeter)))
-					 (plot-polygon ps map:linewidth col perimeter)))
+
 
 
 ;(use-parent-body <log-map>)

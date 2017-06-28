@@ -52,9 +52,9 @@
 
 ;; 							  ;; animal things
 ;; 							  domain-attraction food-attraction 
-;; 							  near-food-attraction searchspeed
-;; 							  wanderspeed foragespeed	
-;; 							  movementspeed foodlist homelist
+;; 							  near-food-attraction search-speed
+;; 							  wander-speed forage-speed	
+;; 							  movement-speed foodlist homelist
 ;; 							  breedlist habitat
 ;; 							  )
 ;; 			  )

@@ -94,7 +94,7 @@ direction"
 
 (define-class <thing>
   (inherits-from <tracked-agent> <projection>)
-  (state-variables mass dim location direction speed))
+  (state-variables mass dim location direction speed max-speed))
 
 (define-class <living-thing>
   (inherits-from <thing>)

@@ -18,8 +18,38 @@
 ;;	 s)
 ;;  )
 
+
+;; A sequence of integers
+;; (seq 2) => (0 1) 
+;; (seq 0) => ()
+;; (seq -2) => (-1 0)
+(define (seq n)
+  (define (rseq n) (if (<= n 0) '() (cons (- n 1) (rseq (- n 1)))))
+  (if (< n 0) (map - (rseq (- n))) (reverse (rseq n))))
+
+
+
+;; returns the elements with "even" indices
+;; (evens '(a b c d)) => (a c)
+(define (evens* lst)
+  (map (lambda (x) (list-ref lst x)) (filter even? (seq (length lst)))))
+
+;; returns the elements with "odd" indices
+;; (odds '(a b c d e) => (b d)
+(define (odds* lst)
+  (map (lambda (x) (list-ref lst x)) (filter odd? (seq (length lst)))))
+
+;; These are faster, but not robust w.r.t. line length
+(define (evens lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (evens (cddr lst)) '()))))
+(define (odds lst) (if (null? lst) '() (if (pair? (cdr lst)) (evens (cdr lst)) '())))
+
+
+
+(define abc (map (lambda (a) (list->string (list a)))
+					  (map (lambda (x) (integer->char (+ (char->integer #\a) x)))
+							 (seq 26))))
+
 (define (scaleT T)
-  (* 0.1 
   (cond
 	((< T 600) T)
 	((< T hour) (/ T 600))
@@ -27,7 +57,7 @@
 	((< T week) (/ T days))
 	((< T year) (/ T weeks))
 	(else (/ T years))
-	)))
+	))
 
 (define (scaleTS T)
   (cond
@@ -40,10 +70,10 @@
   ))
 
 (define (scaled-time T)
-  (string-append ((if SLIB (lambda (x) (sprintf "%.2f" x)) number->string) (scaleT T)) " " (scaleTS T)))
+  (string-append ((if SLIB (lambda (x) (sprintf 16 "%.2f" x)) number->string) (scaleT T)) " " (scaleTS T)))
 
 (define (scaled-time-ratio T E)
-  (string-append ((if SLIB (lambda (x) (sprintf "%.2f" x)) number->string) (/ (scaleT T) (scaleT E))) " " (scaleTS T)"/"(scaleTS E)))
+  (string-append ((if SLIB (lambda (x) (sprintf 16 "%.2f" x)) number->string) (/ (scaleT T) (scaleT E))) " " (scaleTS T)"/"(scaleTS E)))
 
 (define (pp-to-string p)
   (with-output-to-string '()
@@ -301,30 +331,6 @@
 
 (define (aborts . args)
   (abort (apply string-append (map o->s args))))
-
-;; A sequence of integers
-;; (seq 2) => (0 1) 
-;; (seq 0) => ()
-;; (seq -2) => (-1 0)
-(define (seq n)
-  (define (rseq n) (if (<= n 0) '() (cons (- n 1) (rseq (- n 1)))))
-  (if (< n 0) (map - (rseq (- n))) (reverse (rseq n))))
-
-
-
-;; returns the elements with "even" indices
-;; (evens '(a b c d)) => (a c)
-(define (evens* lst)
-  (map (lambda (x) (list-ref lst x)) (filter even? (seq (length lst)))))
-
-;; returns the elements with "odd" indices
-;; (odds '(a b c d e) => (b d)
-(define (odds* lst)
-  (map (lambda (x) (list-ref lst x)) (filter odd? (seq (length lst)))))
-
-;; These are faster, but not robust w.r.t. line length
-(define (evens lst) (if (null? lst) '() (cons (car lst) (if (pair? (cdr lst)) (evens (cddr lst)) '()))))
-(define (odds lst) (if (null? lst) '() (if (pair? (cdr lst)) (evens (cdr lst)) '())))
 
 ;; true if the list l is comprised of atoms
 (define (simple-list? l)	

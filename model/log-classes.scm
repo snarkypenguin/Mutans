@@ -67,7 +67,6 @@
   (state-variables)
   )
 
-
 (define-class <log-data> (inherits-from <logfile>)
 										 (state-variables)
 										 )
