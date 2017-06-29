@@ -188,6 +188,11 @@
   (no-state-variables)
   )
 
+(define-class <input-output-port>
+  (inherits-from <input-port> <output-port>)
+  (no-state-variables))
+
+
 ;-- include a bunch of things in the class register
 
 ;; Finally register sclos classes and the basic extensions
@@ -205,6 +210,7 @@
 (register-unique class <vector>)
 (register-unique class <char>)
 (register-unique class <string>)
+(register-unique class <input-output-port>)
 (register-unique class <input-port>)
 (register-unique class <output-port>)
 (register-unique class <class>)
@@ -214,7 +220,6 @@
 (register-unique class <entity-class>)
 (register-unique class <generic>)
 (register-unique class <method>)
-
 
 (define not-an-object (list <method> <generic> <entity-class> <procedure-class> <primitive-object> <top> <class>))
 
@@ -269,6 +274,7 @@ communication (without cheating)."
 						 )
   )
 
+(define (input-output-port? p) (and (input-port? p) (output-port? p)))
 
 (define (classes-of-supers x)
   (if (class? x)
@@ -309,6 +315,7 @@ communication (without cheating)."
 	 ))
 
 
+;; This wraps (and masks) the sclos class-of function
 (define general-class-of
   (let* ((primitive-class-of class-of)
 			(co (lambda (x)
@@ -318,6 +325,8 @@ communication (without cheating)."
 					 ((rational? x)    <rational>)
 					 ((real? x)        <real>)
 					 ((complex? x)     <complex>)
+					 ((input-output-port? x)
+					  <input-output-port>)
 					 (#t (primitive-class-of x))))))
 	 (set! class-of co)))
 
@@ -845,8 +854,9 @@ and so it is excluded.
 
 (define *uninitialisable*
   (list <top> <class> <procedure-class> <entity-class> <generic>
-		  <method> <generic> <primitive-object> <class> <pair>
-		  <vector> <string> <list> <input-port> <output-port>
+		  <method> <generic> <primitive-object> <class> 
+		  <pair> <vector> <string> <list>
+		  <input-output-port> <input-port> <output-port>
 		  <null> <boolean> <symbol> <procedure> <number> <char> 
 		  ))
 

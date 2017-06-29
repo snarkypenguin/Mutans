@@ -81,6 +81,57 @@ into agent's *internal* coordinates.  There must also be a
 corresponding local->model to map the other
 direction"
 
+
+(define-class <file>
+  (inherits-from <projection>) ;; there must be support for an mapping into output space
+  (state-variables file filename))
+
+(define-class <output>
+  (inherits-from <file>)
+  (no-state-variables)
+  )
+
+(define-class <output*>
+  (inherits-from <output>)
+  (state-variables basename filetype filename-timescale)
+  )
+
+
+(define-class <input>
+  (inherits-from <file>) ;; there must be support for an input mapping into modelspace
+  (no-state-variables)
+)
+
+(define-class <output*>
+  (inherits-from <output>)
+  (state-variables basename filetype filename-timescale)
+  )
+
+
+(define-class <txt-output>  ;; one big file
+  (inherits-from <output>)
+  (no-state-variables)
+  )
+					  
+(define-class <txt-output*> ;; small files
+  (inherits-from <output*>)
+  (state-variables))
+					  
+(define-class <tbl-output>
+  (inherits-from <output>)
+  (state-variables fields types))
+
+(define-class <tbl-output*>
+  (inherits-from <output*>)
+  (state-variables fields types))
+
+(define-class <ps-output>
+  (inherits-from <output>))
+					  
+(define-class <ps-output*>
+  (inherits-from <output*>))
+					  
+
 ;;; (define-class <mem-agent>
 ;;;   (inherits-from <agent>)
 ;;;   (state-variables memory)

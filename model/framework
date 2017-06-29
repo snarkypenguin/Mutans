@@ -53,6 +53,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(define-macro (assert tst #!rest msg)
+  (if #t
+		`(if (not ,tst)
+			  (begin
+				 (display "Assertion ")
+				 (display ',tst)
+				 (display " failed\n")
+				 (if (not (null? (list ,@msg))) (begin (apply display (list ,@msg))(newline)))
+				 (abort)))
+		))
+		
+
 
 
 

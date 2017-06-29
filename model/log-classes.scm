@@ -14,6 +14,7 @@
 
 ;;; |#
 
+
 (define logger-tags '())
 
 (define-class <log-introspection> (inherits-from <introspection>  <projection>)
@@ -35,7 +36,6 @@
 ;;  to the filename
 ;;- the introspection list is the list of agent to be looked at
 ;;- the timestep schedule is the set of times to run at
-
 
 (define-class <logfile> (inherits-from <log-introspection>)
   (state-variables)
