@@ -43,6 +43,9 @@
 	habitat            ;; #f or a patch/landscape/habitat thing
 	population-switch
 
+	mass-radius ;;  scalar or function which converts a leaf mass to a
+	            ;;; radius (indicative of vegetation growth or loss)
+
 	plot-circle-facets ;; number of facets -- useful for differentiating species
 	plot-magnification ;; less than one contracts, 
 	))

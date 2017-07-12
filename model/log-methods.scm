@@ -2,13 +2,11 @@
 ;-  Identification and Changes
 
 (warning "I really need to separate the logging from the file handling.  
-At the moment we have the <logfile> branch and the <snapshot> branch; this
+At the moment we have the <logfile> branch and the <log-datafile> branch; this
 needs to change: the creation of a logging agent needs to have a 
 file-handling class (logfile, snapshot, or output?) --- everything is 
 routed through these, and page-preamble and emit-page (called for each timestep)
 do the appropriate thing.")
-
-
 
 (define (stopit #!rest args) (void))
 
@@ -41,7 +39,7 @@ close pages and emit 'showpage' for postscript stuff.
   ;; the filename-timescale will be a number of seconds which  the time variable will be divided by, such as 'days'
   (let ((field-width 12)) ;; this may need to be increased 
 	 (if (string? filename)
-		  (if time
+		  (if (and time (number? filename-timescale))
 				(string-append filename "-" (pno (inexact->exact (/ time filename-timescale)) 12) "." filetype) 
 				(string-append filename "." filetype))
 		  #f)))
@@ -72,7 +70,7 @@ close pages and emit 'showpage' for postscript stuff.
 ;; 								 agent-epsilon local-projection inv-local-projection counter 
 ;; 								 migration-test state-flags
 ;; 								 dont-log timestep-schedule kernel
-								 
+
 ;; 								 ;; log agent things
 ;; 								 introspection-targets
 ;; 								 timestep-epsilon 
@@ -107,48 +105,48 @@ close pages and emit 'showpage' for postscript stuff.
 ;;  )
 
 (model-method <log-introspection> (initialisation-checks self)
-				(if (uninitialised? (my 'filename-timescale))
-					 (set-my! 'filename-timescale 6))
+				  (if (uninitialised? (my 'filename-timescale))
+						(set-my! 'filename-timescale 6))
 
-				(if (uninitialised? (my 'report-time-table))
-					 (begin
-						;;(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
-						(slot-set! self 'report-time-table (make-table))))
-)				  
+				  (if (uninitialised? (my 'report-time-table))
+						(begin
+						  ;;(warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
+						  (slot-set! self 'report-time-table (make-table))))
+				  )				  
 
 (model-body% <log-introspection>
-   (let ((kdebug (if #f kdebug dnl*)))
-	  (call-parents)
-	  (kdebug '(log-* introspection-trace)
-				 "[" (my 'name) ":" (cnc self) "@" (subjective-time self) "]"
-				 "Log-introspection: model-body")
+				 (let ((kdebug (if #f kdebug dnl*)))
+					(call-parents)
+					(kdebug '(log-* introspection-trace)
+							  "[" (my 'name) ":" (cnc self) "@" (subjective-time self) "]"
+							  "Log-introspection: model-body")
 
-	  (let ((sched (my 'timestep-schedule))
-			  )
-		 
-		 (if (kdebug? 'introspection-trace)
-			  (pp (dumpslots self)))
-		 
-		 (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
-						  (- (car sched) t)
-						  dt))
+					(let ((sched (my 'timestep-schedule))
+							)
+					  
+					  (if (kdebug? 'introspection-trace)
+							(pp (dumpslots self)))
+					  
+					  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
+										(- (car sched) t)
+										dt))
 
-		 (kdebug '(log-* introspection-trace)
-					"      list:     " (map name (my-list self)))
-		 (kdebug '(log-* introspection-trace)
-					"      schedule: "
-					(list-head (my 'timestep-schedule) 3)
-					(if (> (length (my 'timestep-schedule)) 3)
-						 '... ""))
-		 
-		 (set-my! 'variables-may-be-set #f)
-		 (emit-page self)
+					  (kdebug '(log-* introspection-trace)
+								 "      list:     " (map name (my-list self)))
+					  (kdebug '(log-* introspection-trace)
+								 "      schedule: "
+								 (list-head (my 'timestep-schedule) 3)
+								 (if (> (length (my 'timestep-schedule)) 3)
+									  '... ""))
+					  
+					  (set-my! 'variables-may-be-set #f)
+					  (emit-page self)
 
-		 ;;(skip-parent-body)
-		 (call-parents) ;; parent body sets the time step used
-		 dt
-		 )
-	  ))
+					  ;;(skip-parent-body)
+					  (call-parents) ;; parent body sets the time step used
+					  dt
+					  )
+					))
 
 
 (model-method (<log-introspection>) (my-list self)
@@ -174,16 +172,21 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 (model-method <log-introspection> (agent-shutdown self #!rest args)
-				  (let ((file (my 'file)))
-					 (if (and (my 'file)
-								 (output-port? (my 'file))
-								 (not (memq (my 'file)
-												(list (current-output-port)
-														(current-error-port)))))
-						  (close-output-port file))
-					 (set-my! 'file #f)
-					 (parent-agent-shutdown)
-					 ))
+	      (let ((file (my 'file)))
+		(if (my 'file)
+		    (cond
+		     ((and (output-port? (my 'file))
+			   (not (memq (my 'file)
+				      (list (current-output-port)
+					    (current-error-port)))))
+		      (close-output-port file))
+		     ((postscript? (my 'file))
+		      ((my 'file) 'close))
+		     (else #f)))
+		
+		(set-my! 'file #f)
+		(parent-agent-shutdown)
+		))
 
 (model-method (<log-introspection> <list>) (set-variables! self lst)
 				  (if (and (my 'variables-may-be-set) (list? lst))
@@ -225,16 +228,7 @@ close pages and emit 'showpage' for postscript stuff.
 							"Introspection: emit-page")
 				  (kdebug '(log-*) (my-list self))				  
 				  (let ((format (my 'format)))
-;					 (dnl* "ERR: in model-method:<log-introspection> (emit-page self)" (cnc self))
-;					 (dnl* "     format" format "... heading into preamble")
-					 (page-preamble self self format) ;; for snapshots,
-																 ;; this will be
-																 ;; "opening", for
-																 ;; logfiles, it will
-																 ;; only open the
-																 ;; first time
-
-;					 (dnl* "ERR: about to dispatch to targets: " (map cnc (my-list self)))
+					 (page-preamble self self format) 
 					 (let ((proc (lambda (ila)
 										(kdebug '(log-* introspection-trace) " ==> processing "
 												 (cnc ila) " "  (procedure? ila))
@@ -245,27 +239,19 @@ close pages and emit 'showpage' for postscript stuff.
 										)))
 						(for-each proc (my-list self))
 						)
-;					 (dnl* "ERR: about to run epilogue")
+					 (dnl* "Ummm, about to run epilogue")
 					 (page-epilogue self self (slot-ref self 'format))
-;					 (dnl* "ERR: leaving emit page")
+					 (dnl* "Uhh, leaving emit page")
 					 
 					 )
 				  )
 
 
-;---- snapshot methods -- <snapshot>s open a new file each time they run model-body
-
-;; (agent-initialisation-method <snapshot> (args) (no-default-variables)
-;; 				  (parent-initialise) ;; call "parents" last to make the
-;; 											 ;; initialisation list work
-;; 				  (set-state-variables self (list 'type snapshot 'lastfile #f
-;; 												 'currentfile #f))
-;; 				  (set-state-variables self args)
-;; 				  )
-
-(model-method <snapshot> (page-preamble self logger format)
+(model-method <logfile> (page-preamble self logger format)
+				  "for unadorned <logfile> entities this merely handles the opening of files as needed"
+				  
 				  (kdebug '(introspection snapshot)"[" (my 'name) ":"
-							(cnc self) "]" "<snapshot> is preparing to dump")
+							 (cnc self) "]" "<log-file> is preparing to dump")
 				  (let ((filename (my 'filename))
 						  (filetype (my 'filetype))
 						  (file (my 'file))
@@ -273,85 +259,79 @@ close pages and emit 'showpage' for postscript stuff.
 						  )
 
 					 (cond ;; Check for error conditions
-					  ((not (or (and (not filename) (not (string? filename))) (string? filename)))
-						(error (string-append (my 'name)" has a filename which "
-													 "is neither false, nor a string.")))
-
-					  ((not (or (and (not filetype) (not (string? filename))) (string? filetype)))
-						(error (string-append (my 'name) " has a filetype which "
-													 "is neither false, nor a string.")))
-
-					  ((not (number? t))
-						(error (string-append (my 'name) " has a subjective time "
-													 "which is not a number.")))
-					  )
-
-					 (kdebug '(introspection logfile) "[" (my 'name) ":"
-							  (cnc self) "]" "is opening a log file" "(" filename ")")
-
-					 ;; Open a new file
-					 (cond
-					  ((not file)
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype)
- 																	 (my 'filename-timescale) t))) ;; t is time
-						  (kdebug '(introspection snapshot) "[" (my 'name) ":"
-									(cnc self) "]" "opening" fn)
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
-						  (if (or (not (string? fn) (not fn) (zero? (string-length fn))))
-								(set! file (current-output-port))
-								(set! file (open-output-file fn)))
-;;						  (set-default-font self file)
-						  ))
-					  ((memq file (list (current-output-port) (current-error-port)))
-						;; do nothing really
-						(kdebug '(introspection snapshot) "[" (my 'name) ":"
-								 (cnc self) "]"
-								 "is writing to stdout or stderr")
-						#!void
-						)
-					  (else 
-						(kdebug '(introspection  snapshot) "[" (my 'name) ":"
-								 (cnc self) "]" " "
-								 "has hit page-preamble with a file that is still open."
-								 "\nThis is an error.\nClosing the file ("
-								 (my 'lastfile) ") and continuing.")
-						(close-output-port file)
-						(set-my! 'file #f)
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype) t)))
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
-						  (if (or (not fn) (and (string? fn) (zero? (string-length fn))))
-								(set! file (current-output-port))
-								(set! file (open-output-file fn)))
-;;						  (set-default-font self file)
-						  )
-						)
-					  )
-					 
-					 (set-my! 'file file)
-;;					 (set-default-font self file)
-
-					 (kdebug '(introspection logfile) "[" (my 'name) ":"
-							  (cnc self) "]" "opened" file)
+					  ((or (eq? filename #f) (string? filename)) 'ok)
+					  ((or (eq? filetype #f) (string? filetype)) 'ok)
+					  ((number? t) 'ok)
+					  (else (dnl* "The values for filename, filetype and the subjective-time do not map to a valid filename")
+							  (abort)))
 					 )
+
+				  (kdebug '(introspection logfile) "[" (my 'name) ":"
+							 (cnc self) "]" "is opening a log file" "(" filename ")")
+
+				  ;; Open a new file
+				  (cond
+					((not file)
+					 (let ((fn (introspection-filename (my 'filename)
+																  (my 'filetype)
+																  (my 'filename-timescale) t))) ;; t is time
+						(kdebug '(introspection snapshot) "[" (my 'name) ":"
+								  (cnc self) "]" "opening" fn)
+						;; A filename that doesn't map well indicates that we are going to stdout
+						(if (or (not (string? fn) (not fn) (zero? (string-length fn))))
+							 (set! file (current-output-port))
+							 (set! file (open-output-file fn)))
+						;; (set-default-font self file)
+						))
+					((memq file (list (current-output-port) (current-error-port)))
+					 ;; do nothing really
+					 (kdebug '(introspection snapshot) "[" (my 'name) ":"
+								(cnc self) "]"
+								"is writing to stdout or stderr")
+					 #!void
+					 )
+					((and file (eq? (my 'separate-pages) #t))
+					 (let ((fn (introspection-filename (my 'filename)
+																  (my 'filetype) t))
+							 (newfile #f))
+
+						(set! newfile
+								(cond
+								 ((postscript? file) (make-ps fn '(Helvetica Times-Roman)))
+								 ((text? file) (make-text fn))
+								 (else (lambda (f) (make-text (current-output-port))))))
+
+						(if (not (member newfile (list (current-output-port) (current-error-port))))
+							 (close-output file))
+						(warning "This bit here isn't quite right")
+						(set-my! 'file newfile)
+						(set! file newfile)
+						)
+					 )
+					(else
+					 (if (not (my 'file))
+						  (let ((fn (introspection-filename (my 'filename)
+																		(my 'filetype))))
+							 (if (and (not (file-handle? file)) (or (not fn) (and (string? fn) (zero? (string-length fn)))))
+								  (set! file (current-output-port))
+								  (set! file (open-output-file fn)))
+							 ;;						  (set-default-font self file)
+							 (set-my! 'file file)
+							 ))
+					 )
+					)
+
+
+				  (if (postscript? (my 'file))
+						(ps 'emit-page-start))
+
+				  ;;					 (set-default-font self file)
+				  
+				  (kdebug '(introspection logfile) "[" (my 'name) ":"
+							 (cnc self) "]" "opened" file)
 				  )
 
-(model-method <snapshot> (page-epilogue self logger format)
-				  (let ((file (my 'file)))
-					 (if (and file (not (memq file (list (current-output-port)
-																	 (current-error-port)))))
-						  (begin
-							 (kdebug '(introspection snapshot) "[" (my 'name) ":"
-									  (cnc self) "]"
-									  "is closing the output port")
-							 (close-output-port file)
-							 (set-my! 'file #f)))))
 
-
-;(use-parent-body <snapshot>)
 
 (define (colour-mapping C)
   (cond
@@ -412,8 +392,9 @@ close pages and emit 'showpage' for postscript stuff.
 ;(use-parent-body <log-map>)
 
 (model-method (<log-map> <log-introspection> <symbol>) (page-preamble self logger format)
-				  ;; This *must* replace it's parent from <snapshot> since
+				  ;; This *must* replace it's parent from <log-datafile> since
 				  ;; it doesn't work with a traditional port
+				  (kdebug '(page-boundary) "page-preamble " (name self) " " (name logger) " " format  " # " (my 'pagecount))
 				  (kdebug '(log-* log-map) (name self) "[" (my 'name) ":"
 							(cnc self) "]" "in page-preamble")
 				  (let ((filename (my 'filename))
@@ -436,6 +417,9 @@ close pages and emit 'showpage' for postscript stuff.
 						(error (string-append (my 'name) " has a subjective time "
 													 "which is not a number.")))
 					  ;; The following are specific to the "map" classes
+					  ((member format '(pbm pgm ppm pfm pvm))
+						(error "<log-map> only supports postscript at the moment"))
+
 					  ((eqv? format 'png)
 						(error "<log-map> only supports postscript at the moment"))
 
@@ -452,23 +436,22 @@ close pages and emit 'showpage' for postscript stuff.
 						(error "Currently <log-map> only supports postscript." format))
 					  )
 
-					 ;; Open a new file
 					 (cond
 					  ((memq file (list (current-output-port) (current-error-port)))
 						;; do nothing really
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (cnc self) "]" "has nothing to do")
+								  (cnc self) "]" "has nothing to do")
 						#!void
 						)
-					  ((not (output-port? file))
+					  ((not (*output-port? file))
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
 								 (cnc self) "]" "<log-map>" "is preparing to dump")
+
+						(dnl* "=============== OPENING A FILE ================" file)
 						
 						(let ((fn (if (number? (my 'filename-timescale))
 										  (introspection-filename (my 'filename) (my 'filetype) (my 'filename-timescale) t)
 										  (introspection-filename (my 'filename) (my 'filetype) t))))
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
 						  (if (not fn)
 								(void)
 								(if (and (string? fn) (zero? (string-length fn)))
@@ -479,42 +462,44 @@ close pages and emit 'showpage' for postscript stuff.
 						(kdebug '(introspection log-map) "[" (my 'name) ":"
 								 (cnc self) "]" "returning from preamble")
 						)
-					  (else 
-						(kdebug '(introspection log-map) "[" (my 'name) ":"
-								 (cnc self) "]"
-								 " Good, we've hit page-preamble with a file "
-								 "that is still open.\nClosing the file (" 
-								 (my 'lastfile) ") and opening a new one.")
-						(if (output-port? file)
-							 (close-output-port file))
-						(set-my! 'file #f)
-						(let ((fn (introspection-filename (my 'filename)
-																	 (my 'filetype) t)))
-						  (set-my! 'lastfile (my 'currentfile))
-						  (set-my! 'currentfile fn)
-						  (if (or (not fn) (string? fn) (zero? (string-length fn)))
-								(abort "Oh. Bother.")
-								(set! file (make-ps fn '(Helvetica))))
-						  )
+					  ((my 'use-separate-files) 
+					  	(let ((fn (introspection-filename (my 'filename)
+					  												 (my 'filetype) t)))
+						  (if (not (string=? fn) (my 'current-filename))
+								(begin
+								  (cond
+									((output-port? file) (close-output-port file))
+									((*output-port? file) (file 'close)))
+								  (set-my! 'file #f)
+
+								  (if (or (not fn) (string? fn) (zero? (string-length fn)))
+										(abort "Oh. Bother.")
+										(set! file (make-ps fn '(Helvetica))))
+								  )
+								))
 						)
 					  )
-
 
 					 (set-my! 'file file)))
 
 (model-method (<log-map> <log-introspection> <symbol>) (page-epilogue self logger format)
-				  ;; This *must* replace it's parent from <snapshot> since
+				  ;; This *must* replace it's parent from <log-datafile> since
 				  ;; it doesn't work with a traditional port
-				  (kdebug '(log-* log-map) (name self) "[" (my 'name) ":"
-							(cnc self) "]" "has page-epilogue")
-				  (let ((file (my 'file))
-						  (name (my 'currentfile)))
-					 (if file
-						  (begin
-							 (file 'close)
-							 (set-my! 'file #f)))
-					 )
-				  )
+				  (dnl* "IN LOG-MAP EPILOGUE")
+				  (parent-page-epilogue)
+				  (if (my 'use-separate-files)
+						(begin
+						  (kdebug '(page-boundary) "page-epilogue " (name self) " " (name logger) " " format " # " (my 'pagecount))
+						  (kdebug '(log-* log-map) (name self) "[" (my 'name) ":"
+									 (cnc self) "]" "has page-epilogue")
+						  (let ((file (my 'file)))
+							 (if file
+								  (begin
+									 (file 'close)
+									 (set-my! 'file #f)))
+							 )
+						  )
+						))
 
 
 ;; This logs to an open file
@@ -545,8 +530,9 @@ close pages and emit 'showpage' for postscript stuff.
 ;---- logfile methods -- <logfile>s open a single file and use that till they finish running
 
 (model-method <logfile> (page-preamble self logger format)
+				  (kdebug '(page-boundary) "page-preamble " (name self) " " (name logger) " " format)
 				  (kdebug '(introspection logfile) "[" (my 'name) ":"
-							(cnc self) "]" "<logfile> is preparing to dump, file is currently" (my 'filename) (my 'file))
+							(cnc self) "]" "<logfile> is preparing to dump, file is currently" (my 'filename) (my 'file) " # " (my 'pagecount))
 
 				  (let ((filename (my 'filename))
 						  (file (my 'file))
@@ -584,6 +570,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 (model-method <logfile> (page-epilogue self logger format)
+				  (kdebug '(page-boundary) "page-epilogue " (name self) " " (name logger) " " format " # " (my 'pagecount))
 				  (kdebug 'logfile-issues "In: logfile epilogue filename " (my 'filename) "and file" (my 'file))
 				  (kdebug '(introspection logfile) "[" (my 'name) ":"
 							(cnc self) "]" "has finished a dump")
@@ -642,12 +629,14 @@ close pages and emit 'showpage' for postscript stuff.
 (model-method <log-data> (agent-shutdown self #!rest args)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
 							(cnc self) "]" "in agent-shutdown")
-				  (if (and (my 'file) (output-port? (my 'file))
+				  (if (and (my 'file) (*output-port? (my 'file))
 							  (not (memq (my 'file)
 											 (list (current-output-port)
 													 (current-error-port)))))
-						(begin
-						  (close-output-port (my 'file))
+						(let ((file (my 'file)))
+						  (cond
+							((output-port? file) (close-output-port file))
+							((*output-port? file) (file 'close)))
 						  (set-my! 'file #f) ;; leave it the way it should be left
 						  ))
 				  (parent-agent-shutdown) ;; Parents should shutdown last
@@ -661,8 +650,8 @@ close pages and emit 'showpage' for postscript stuff.
 				  (kdebug 'log-issues "In: log-data, after logfile preamble filename " (my 'filename) "and file" (my 'file))
 
 				  (kdebug 'log-init "Logfile is" (my 'filename)
-							"(output-port?" (my 'file) ") =" (output-port? (my 'file)))
-				  (if (not (output-port? (my 'file)))
+							"(*output-port?" (my 'file) ") =" (*output-port? (my 'file)))
+				  (if (not (*output-port? (my 'file)))
 						(abort "Serious problems getting an output port for "
 								 (my 'name)))
 
@@ -781,7 +770,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 (model-method (<log-data> <log-introspection> <symbol>) (page-epilogue self logger format)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
-							(cnc self) "]" "in page-epilogue")
+							 (cnc self) "]" "in page-epilogue")
 				  (let ((ml (my-list self)))
 					 (if (and (pair? ml)
 								 (pair? (cdr ml)))

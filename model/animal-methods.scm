@@ -87,8 +87,9 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 						(if (>= (my 'period-of-hunger) (my 'hunger-limit))
 							 (begin
 								(die self)
+								(set-agent-state! self 'dead)
 								(dnl* (name self) "starved" (agent-state self))
-								'remove)
+								'ok)
 							 
 							 (let ((satiety (- (my 'satiety) (my 'satiety-rate)))
 									 (sated-quantity (my 'sated-quantity))
@@ -284,8 +285,10 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 						(let ((file (slot-ref logger 'file))
 								)
 						  (kdebug '(log-* log-animal) ":" targets)
-						  (case format
-							 ((ps)
+						  (cond 
+							((postscript? file)
+							 ;; might be a case statement here for different formats within the postscript doc
+							  (file 'comment (name self) " " (taxon self) " " (subjective-time self) " " (location self) " " (agent-state self) )
 							  (let ((track (my 'track))
 									  (tracks (my 'tracked-paths))
 									  (prj (composite-prj_src->dst self logger))
@@ -365,7 +368,9 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					 ;; body for juvenile herbivores
 
 					 (cond
-					  ((member (my 'agent-state) '(terminated))
+					  ((or
+						 (member (my 'queue-state) '(terminated))
+						 (member (my 'agent-state) '(terminated)))
 						(list 'remove))
 					  ((list? parent-returns)
 						parent-returns)
@@ -604,7 +609,8 @@ with the following differences:
 			  (cond
 				((pair? (my 'offspring)) ;; Must return offspring to the kernel
 				 (list 'introduce (my 'offspring)) )
-				((member (my 'agent-state) '(terminated))
+				((or (member (my 'queue-state) '(terminated))
+					  (member (my 'agent-state) '(terminated)))
 				 (list 'remove self))
 				((member (my 'agent-state) '(dead)) ;; bodies hang around: set decay-rate to +inf.0 for immediate eviction
 				 (error "Ought not be here....")
@@ -766,7 +772,9 @@ with the following differences:
 	 (cond ;; body for adult herbivores
 	  ((eqv? (agent-state self) 'dead)
 		dt)
-	  ((not (eqv? (agent-state self) 'terminated))
+	  ((not (or (eqv? (agent-state self) 'terminated)
+					(eqv? (queue-state self) 'terminated)
+					))
 		(let ((age (my 'age))
 				(mass (my 'mass))
 				(here (my 'location))
@@ -834,12 +842,14 @@ with the following differences:
 							 )
 						  (wander-around self dt locus 0.85 (my 'forage-speed)))
 					 ))
-				  ))
+				  )
 			 )
-		  )
+		)
+	  )
 
 	 (cond ;; work out what to send back....
-		  ((member (my 'agent-state) '(terminated))
+	  ((or (member (my 'agent-state) '(terminated))
+			 (member (my 'queue-state) '(terminated)))
 			(list 'remove))
 
 		  ((>= (+ (my 'age) dt) (my 'longevity))
@@ -972,7 +982,8 @@ with the following differences:
 				  
 
 				  (cond ;; work out what to send back....
-					((member (my 'agent-state) '(terminated))
+					((or (member (my 'agent-state) '(terminated))
+						  (member (my 'queue-state) '(terminated)))
 					 (list 'remove))
 
 					((>= (+ (my 'age) dt) (my 'longevity))

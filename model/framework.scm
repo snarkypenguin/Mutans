@@ -14,7 +14,7 @@
 
 ;-  Code 
 
-(define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state)))
+(define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state queue-state)))
 
 ;; The functions returned by mass-at-age-function and age-at-mass-function will
 ;; return an imaginary value for a mass or age which lies outside the defined

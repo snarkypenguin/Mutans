@@ -3,6 +3,23 @@
 ; Test model configuration
 ;-  Code 
 
+;; Omit the following or adjust them for local conditions, they are
+;; needed for SLIB
+
+(setenv "GAMBIT_IMPLEMENTATION_PATH" "/usr/lib/gambit-c/")
+(setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/")
+
+;; SLIB can be a bit of a devil to set up.  You need to run something like
+;;
+;;      # gambit
+;;      > (load "/usr/lib/gambit-c/gambit.init")
+;;      > (load "mklibcat.scm")
+;;
+;; when you are installing it. The important thing here is that the
+;; SCHEME_LIBRARY_PATH is where SLIB is located and the
+;; *_IMPLEMENTATION_PATH is where the scheme implementation's files
+;; are.
+
 
 ;; comment this out if you want "predictable" rng sequences
 (random-source-randomize! default-random-source)
@@ -34,6 +51,7 @@
 (kdebug-wildcards! #f) ;; use wildcard tests (slower)
 
 (clear-kdebug-msg-tags)
+
 ;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
 ;(define kdebug kdebug?)        ;; We might later convert it to a macro that just "disappears"
 
@@ -80,9 +98,6 @@
 (define missing-value 0+1e-347i)
 ;; things arrived at by mortality are 
 ;; likely to be inexact
-
-(define Q '())  ;; This is the queue which holds the agents
-					 ;; in the simulation
 
 ;-- Set kernel flags ----------------------------------------------------
 
@@ -147,7 +162,8 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 
 
 ;; Run till end without pause.  If you are a penguin, run without paws.
-(define (Doit q)
+(define (Doit q #!optional nend)
+  (if nend (set! end nend))
   (display "Ok.\n")
   (let ((state (kdebug-message-state))
 		  )

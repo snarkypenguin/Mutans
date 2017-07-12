@@ -1,3 +1,4 @@
+; -*- mode: scheme; -*-
 ;-   Identification and Changes
 
 ;--
@@ -70,6 +71,13 @@
 
 ;(define enabled-modify-queue-with #t); ;; This is potentially very dangerous to code/model stability
 
+;#############################################################
+(define Q '())  ;; This is the queue which holds the agents
+					 ;; at the start of the simulation
+;#############################################################
+
+
+
 (define Mortuary '());; We collect terminated agent here.  Termination *ought* to call shutdown!
 
 
@@ -99,7 +107,8 @@
 (define (terminating-condition-test . args)
   #f)
 
-(define valid-agent-states '(ready-for-prep ready-to-run running dead suspended terminated ))
+(define valid-agent-states '(ready-for-prep active dead terminated ))
+(define valid-queue-states '(ready-for-prep ready-to-run running suspended terminated ))
 
 ;; ready-for-prep means that the agent has been created, but has not been inserted into the runqueue
 ;; ready-to-run means that the agent is active and may be run by the scheduler
@@ -307,46 +316,45 @@
 
 
 ;; This returns the queue, and it must be called using the global variable Q like so: (set! Q (q-insert Q ...))
-(define (Q-Insert Q rec reccmp)
-  (if (memq (slot-ref rec 'agent-state) '(ready-to-run running suspended))
-		(begin
-		  (start-timer 'q-insert)
-		  (let ((result 
-					(cond
-					 ((not (isa? rec <agent>)) (error "Passed a non-agent to q-insert" rec))
-					 ((eq? (slot-ref rec 'agent-state) 'terminated)
-					  (hoodoo rec "q-insert 1")
-					  Q)
-					 (#t
-					  (let ((j (slot-ref rec 'jiggle))
-							  )
-						 (if (pair? Q) (set! Q (excise rec Q)))
-						 
-						 (if (or (eq? j #t) (number? j))
-							  (if (or (boolean? j) (and (positive? j) (< j 1.0)))
-									(set-jiggle! rec (abs (random-real)))
-									)
-							  (begin
-								 (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
-						 
-						 (stop-timer 'q-insert)
-						 (let ((ix (insert@ Q rec reccmp)))
-							(start-timer 'q-insert)
-							(if (number? ix)
-								 (append (list-head Q ix) (cons rec (list-tail Q ix)))
-								 (error "bad return from insert@" ix))))
-					  )
-					 ))
-				  )
-			 (stop-timer 'q-insert)
-			 result))
-		(if (eq? (slot-ref rec 'agent-state) 'terminated)
-			 (begin
-				(hoodoo rec "q-insert 2")
-				Q)
-			 (append Q (list rec))) ;; we stick them at the end of the list to keep them in the system
-		))
-
+;;(define (broken-Q-Insert Q rec reccmp)
+;;  (if (memq (slot-ref rec 'agent-state) '(ready-to-run running suspended))
+;;		(begin
+;;		  (start-timer 'q-insert)
+;;		  (let ((result 
+;;					(cond
+;;					 ((not (isa? rec <agent>)) (error "Passed a non-agent to q-insert" rec))
+;;					 ((eq? (slot-ref rec 'agent-state) 'terminated)
+;;					  (hoodoo rec "q-insert 1")
+;;					  Q)
+;;					 (#t
+;;					  (let ((j (slot-ref rec 'jiggle))
+;;							  )
+;;						 (if (pair? Q) (set! Q (excise rec Q)))
+;;						 
+;;						 (if (or (eq? j #t) (number? j))
+;;							  (if (or (boolean? j) (and (positive? j) (< j 1.0)))
+;;									(set-jiggle! rec (abs (random-real)))
+;;									)
+;;							  (begin
+;;								 (set-jiggle! rec 0))) ;; Coerce non-numerics to zero
+;;						 
+;;						 (stop-timer 'q-insert)
+;;						 (let ((ix (insert@ Q rec reccmp)))
+;;							(start-timer 'q-insert)
+;;							(if (number? ix)
+;;								 (append (list-head Q ix) (cons rec (list-tail Q ix)))
+;;								 (error "bad return from insert@" ix))))
+;;					  )
+;;					 ))
+;;				  )
+;;			 (stop-timer 'q-insert)
+;;			 result))
+;;		(if (eq? (slot-ref rec 'agent-state) 'terminated)
+;;			 (begin
+;;				(hoodoo rec "q-insert 2")
+;;				Q)
+;;			 (append Q (list rec))) ;; we stick them at the end of the list to keep them in the system
+;;		))
 
 (define q-insert QI)
 
@@ -838,7 +846,8 @@ their model-body is running.
 		(let ((kernel (lambda x (apply kernel-call (cons pq-rq (cons q-entry x )))))
 				)
 		  (kdebug 'prep "Prepping in apply" (name q-entry))
-		  (slot-set! q-entry 'agent-state 'ready-to-run)
+		  (slot-set! q-entry 'queue-state 'ready-to-run)
+		  (slot-set! q-entry 'agent-state 'active)
 		  ;;(agent-prep q-entry start end)
 		  )
 		(and (kdebug 'complaint q-entry "is not an agent: cannot prep") #f)
@@ -952,7 +961,7 @@ different than the one passed in, particularly if there is a lot of
 breeding/death or  monitors have changed representations of 
 components.
 
-run-agent begins by checking the state of the agent, only 'running 'dead and 'ready-to-run
+run-agent begins by checking the queue-state of the agent, only 'running 'ready-to-run
 states are accepted.
 
 A copy of the incoming queue is made and the agent is removed from the head of the queue.
@@ -1022,7 +1031,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 		(set! N (if (null? N) #f (car N)))
 
 		(cond
-		 ((member (slot-ref (car run-agent-runqueue) 'agent-state) '(terminated))
+		 ((member (slot-ref (car run-agent-runqueue) 'queue-state) '(terminated))
 		  (hoodoo (car run-agent-runqueue) "run-agent")
 		  (kdebug '(run-agent terminated) "Dropping " (cnc (car run-agent-runqueue)) (taxon (car run-agent-runqueue)))
 		  (cdr run-agent-runqueue)
@@ -1040,13 +1049,12 @@ the agent to the runqueue (one must edit the code to suppress the error)
 		  (let* ((local-run-agent-runqueue run-agent-runqueue)
 					(process (if (and (not (null? local-run-agent-runqueue)) (list? local-run-agent-runqueue)) (car local-run-agent-runqueue) #f)) 
 					;; ... either false or the lambda to run
-					(agent-state (if process (slot-ref process 'agent-state) #f))
+					(queue-state (if process (slot-ref process 'queue-state) #f))
 					)
 			 (kdebug '(run-agent top-of-the-queue) (cnc (car local-run-agent-runqueue)) (taxon (car local-run-agent-runqueue)) (subjective-time (car local-run-agent-runqueue)) agent-state)
-			 (or (eqv? agent-state 'running) ;; if any of the next three steps are true it continues with the next step (the "if")
-				  (eqv? agent-state 'dead);; dead is like running, but not alive ;-)
-				  (eqv? agent-state 'ready-to-run)
-				  (and (eqv? agent-state 'ready-for-prep)
+			 (or (eqv? queue-state 'running) ;; if any of the next three steps are true it continues with the next step (the "if")
+				  (eqv? queue-state 'ready-to-run)
+				  (and (eqv? queue-state 'ready-for-prep)
 						 (abort (string-append
 									"Attempted to run " 
 									(cnc process) ":"
@@ -1054,7 +1062,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 				  (abort (string-append
 							 "Attempted to run " 
 							 (cnc process) ":"(name process)
-							 " when it is in the state " (object->string agent-state))))
+							 " when it is in the state " (object->string queue-state))))
 
 			 (if (and process (kdebug? 'running)) (dnl* "Running" (name process) "at" t))
 
@@ -1081,7 +1089,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 					  
 					  (result (cond
 								  ((symbol? process)  'bad-runqueue)
-								  ((eqv? agent-state 'suspended)
+								  ((eqv? queue-state 'suspended)
 									;; A suspended agent "consumes" its
 									;; time without doing anything, except
 									;; update its subj. time.
@@ -1219,7 +1227,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								
 								;; Something like salmon will flag themselves as dead in their final spawning tick
 								;; 'terminated indicates that the agent should be removed, 'dead will be reinserted 
-								(if (not (eq? (slot-ref process 'agent-state) 'terminated)) ;;(not (member (slot-ref process 'agent-state) '(terminated)))
+								(if (not (eq? (slot-ref process 'queue-state) 'terminated)) ;;(not (member (slot-ref process 'queue-state) '(terminated)))
 									 ;; Either insert the agent into the runqueue again, or into the Mortuary
 									 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
 									 (begin
@@ -1324,9 +1332,10 @@ the agent to the runqueue (one must edit the code to suppress the error)
 ;-  The End 
 
 ;;; Local Variables: 
+;;; comment-end: ""
+;;; comment-start: "; "
 ;;; mode: scheme
-;;; outline-regexp: ";-+" 
-;;; comment-column:0
-;;; comment-start: ";;; "  
-;;; comment-end:"\n" 
-;;; End: 
+;;; outline-regexp: ";-+"
+;;; comment-column: 0
+;;; End:
+

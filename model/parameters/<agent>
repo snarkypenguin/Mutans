@@ -8,6 +8,7 @@
 			  (list 'agent-epsilon (* 1e-6 seconds))
 			  (list 'agent-schedule '())
 			  (list 'agent-state 'ready-for-prep ) ;; This must only be changed if you *really* understand what you are doing!
+			  (list 'queue-state 'ready-for-prep ) ;; This must only be changed if you *really* understand what you are doing!
 			  (list 'counter 0)
 			  (list 'subjective-time 0) ;; we assume we start at t=0, but this may not be the case
 			  (list 'dt (* seconds 1.0))

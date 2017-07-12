@@ -770,6 +770,16 @@
 (define (random-angle)
   (* pi (- (* (random-real) 2.0) 1)))
 
+(define (random-displacement #!optional d)
+  (cond
+	((not d)	(random-displacement 1.0))
+
+	(else
+	 (let ((theta (random-angle))
+			 (d (random-real))
+			 )
+		  (list (* d (cos theta)) (* d sin theta))))))
+
 (define (rotated-velocity v theta)
   (rotated-vector v theta))
 

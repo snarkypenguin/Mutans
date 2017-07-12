@@ -1332,6 +1332,7 @@ via their containing patch.
 							 
 							 (case format
 								((ps)
+								 (file 'comment (name self) " " (taxon self) " " (subjective-time self) " " (agent-state self) )
 								 (file 'push-font (my 'default-font) (my 'default-size))
 								 (let* ((symlist (services self))
 										  (name (slot-ref self 'name))

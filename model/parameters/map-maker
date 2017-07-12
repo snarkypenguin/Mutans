@@ -5,7 +5,10 @@
 (define map-maker-parameters
   (list
 	(list 'format 'ps)
-	(list 'filename "map") ;; the time is inserted between the "filename" and the "filetype"
+	(list 'filename "map")
+	;; the time is inserted between the "filename" and the "filetype"
+	;; if the timestep is specified
+	
 	(list 'filetype "ps")
   )
 )

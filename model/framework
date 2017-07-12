@@ -667,6 +667,11 @@ will not have access to the kernel.
 				 (Error "instantiating model-body with a declaration of run-model-body"))
 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
 														 (lambda (call-parents self t dt)
+															(let ((ccd (slot-ref self 'current-class-depth)))
+															  (if (and (zero? ccd)
+																		  (member (slot-ref self 'queue-state) '(ready-to-run)))
+																	(slot-set! self 'queue-state 'running))
+															  (slot-set! self 'current-class-depth (+ ccd 1)))
 															;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
 															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body)
 																			  (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies
@@ -710,7 +715,7 @@ will not have access to the kernel.
 																								(if (agent? self) (slot-ref self 'name) "<object>")
 																								" at " t '/ (slot-ref self 'subjective-time) '+ dt)
 																			 ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
-																			 (if (not (eqv? (agent-state self) 'suspended))
+																			 (if (not (eqv? (queue-state self) 'suspended))
 																				  (begin
 																					 dt
 																					 ,@body)
@@ -724,19 +729,30 @@ will not have access to the kernel.
 																				(not (slot-ref self 'agent-body-ran)) ;; this ensures that the update only happens once per timestep
 																				(or (my 'no-model-body)
 																					 (eq? ,myclass (class-of self)) ;; this restricts the block to executing in the 'outermost'
-																				))                             ;; model body (that of the the first argument in the (create ...) call)
+																					 ))                             ;; model body (that of the the first argument in the (create ...) call)
 																		 (begin
 																			;; DO NOT CHANGE THE SUBJECTIVE TIME -- it is handled in the "run" method in framework-methods.  If
 																			;; times are not being adjusted, it indicates that there is a break in the chaining back through parent model-bodies
 
 																			;; The counter variable can be used as an indicator for conditional initialisation -- it is only zero on the
 																			;; first pass through an agent's chain of model bodies.
-																			(slot-set! self 'counter
-																						  (+ 1 (slot-ref self 'counter)))
 																			(slot-set! self 'agent-body-ran #t))
 																		 )
 																	(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon))
 																					  (construct-symbol (cnc self) 'body) 'trace-model-body) "Leaving" (cnc self)": " self "with" body-result)
+
+
+																	(let ((ccd (slot-ref self 'current-class-depth)))
+																	  (slot-set! self 'current-class-depth (- ccd 1))
+																	  (cond
+																		((< ccd 0) (dnl* "Impossible class depth") (abort))
+																		((zero? ccd)
+																		 (slot-set! self 'counter (+ 1 (slot-ref self 'counter)))
+																		 (if (not (member (slot-ref self 'queue-state) '(terminated suspended)))
+																			  (slot-set! self 'queue-state 'ready-to-run))
+																		 )
+																		))
+
 																	body-result
 																	)
 																 ))

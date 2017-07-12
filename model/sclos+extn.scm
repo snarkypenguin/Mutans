@@ -183,6 +183,7 @@
   (inherits-from <number>)
   (no-state-variables)
   )
+
 (define-class <complex>
   (inherits-from <number>)
   (no-state-variables)
@@ -190,8 +191,8 @@
 
 (define-class <input-output-port>
   (inherits-from <input-port> <output-port>)
-  (no-state-variables))
-
+  (no-state-variables)
+  )
 
 ;-- include a bunch of things in the class register
 
@@ -210,9 +211,9 @@
 (register-unique class <vector>)
 (register-unique class <char>)
 (register-unique class <string>)
-(register-unique class <input-output-port>)
 (register-unique class <input-port>)
 (register-unique class <output-port>)
+(register-unique class <input-output-port>)
 (register-unique class <class>)
 (register-unique class <top>)
 (register-unique class <primitive-object>)
@@ -244,7 +245,9 @@ communication (without cheating)."
 
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
-  (state-variables name taxon representation agent-state
+  (state-variables name taxon representation
+						 queue-state agent-state
+						 current-class-depth
 						 note
 						 kernel
 						 subjective-time priority jiggle 
@@ -252,6 +255,9 @@ communication (without cheating)."
 						 migration-test timestep-schedule counter
 						 state-flags
 						 agent-epsilon
+						 default-font
+						 default-size
+						 default-colour
 						 dont-log
 						 always-log
 						 agent-body-ran
@@ -274,7 +280,6 @@ communication (without cheating)."
 						 )
   )
 
-(define (input-output-port? p) (and (input-port? p) (output-port? p)))
 
 (define (classes-of-supers x)
   (if (class? x)
@@ -315,7 +320,6 @@ communication (without cheating)."
 	 ))
 
 
-;; This wraps (and masks) the sclos class-of function
 (define general-class-of
   (let* ((primitive-class-of class-of)
 			(co (lambda (x)
@@ -325,8 +329,6 @@ communication (without cheating)."
 					 ((rational? x)    <rational>)
 					 ((real? x)        <real>)
 					 ((complex? x)     <complex>)
-					 ((input-output-port? x)
-					  <input-output-port>)
 					 (#t (primitive-class-of x))))))
 	 (set! class-of co)))
 
@@ -414,6 +416,21 @@ communication (without cheating)."
 	(else #f)
 	)
   )
+
+(define (input-output-port? x)
+  (and (port? x) (input-port? x)(output-port? x)))
+
+(define (file-handle? x)
+  (or (output-port? x)
+      (input-port? x)
+      (postscript? x)))
+  
+
+(define (close-output handle)
+  (cond
+   ((postscript? handle) (handle 'close))
+   ((output-port? handle) (close-output-port handle))
+   (else (display "Bad argument to (close-output ...)" handle) (abort))))
 
 (define (parent-classes? x)
   (map class-name-of (parent-classes x)))
@@ -854,8 +871,8 @@ and so it is excluded.
 
 (define *uninitialisable*
   (list <top> <class> <procedure-class> <entity-class> <generic>
-		  <method> <generic> <primitive-object> <class> 
-		  <pair> <vector> <string> <list>
+		  <method> <generic> <primitive-object> <class> <pair>
+		  <vector> <string> <list>
 		  <input-output-port> <input-port> <output-port>
 		  <null> <boolean> <symbol> <procedure> <number> <char> 
 		  ))
@@ -1163,6 +1180,9 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 
 	 (slot-set! instance 'subjective-time 0)
 	 (slot-set! instance 'counter 0)
+	 (slot-set! instance 'queue-state 'ready-for-prep)
+	 (slot-set! instance 'agent-state 'ready-for-prep)
+	 (slot-set! instance 'current-class-depth 0) ;; 0 is the "leafmost" class
 
 	 ;; subjective time must be set either in the taxon, in the
     ;; statevars, or explicitly after initialisation

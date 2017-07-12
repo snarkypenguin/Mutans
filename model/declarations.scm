@@ -70,6 +70,7 @@
 (declare-method pp-a "'pretty-print' an agent")
 (declare-method prey-present "returns a list of the animal's prey in a suitable locality")
 (declare-method ps-dump "Dumps some agent to an open ps file")
+(declare-method queue-state "like agent-state, but says what the agent is doing queue-wise")
 (declare-method radius "inner radius (inscribed circle)")
 (declare-method Radius "outer radius (containing circle)")
 (declare-method random-point "returns a random point within the object")
@@ -96,6 +97,7 @@
 (declare-method set-local->model! "Sets the default projection for mapping into model space from a submodel")
 (declare-method set-model->local! "Sets the default projection for mapping into a submodel's space")
 (declare-method set-population-dynamics! "Sets things up for population dynamics using differential equations and rk4*")
+(declare-method set-queue-state! "like set-agent-state, but says what the agent is doing queue-wise")
 (declare-method set-radius! "sets the radius for circles")
 (declare-method set-services! "set-services!") ;; sets value
 (declare-method set-sex! "set the sex of the animal")

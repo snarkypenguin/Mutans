@@ -14,7 +14,6 @@
 
 ;;; |#
 
-
 (define logger-tags '())
 
 (define-class <log-introspection> (inherits-from <introspection>  <projection>)
@@ -22,7 +21,6 @@
 										 variables-may-be-set missing-val show-field-name
 										 preamble-state introspection-targets
 										 report-time-table ;output-projection
-										 default-font default-size
 										 ;; These last two are here because it is
 										 ;; entirely likely that there will be
 										 ;; tex, latex and eps-text formats for production
@@ -38,7 +36,16 @@
 ;;- the timestep schedule is the set of times to run at
 
 (define-class <logfile> (inherits-from <log-introspection>)
-  (state-variables)
+  (state-variables pagecount
+						 preamble-state introspection-targets
+						 include-key
+						 separate-pages ;; -- #t indicates that you want
+   ;; each page in a separate file
+   ;; These last two are here because it is
+   ;; entirely likely that there will be
+   ;; tex, latex and eps-text formats for production
+   ;; quality output
+   )   
   
   )
 ;;- file is the output handle
@@ -49,8 +56,8 @@
 ;;  to the filename
 
 
-(define-class <snapshot> (inherits-from <log-introspection>)
-									  (state-variables lastfile currentfile))
+;(define-class <snapshot> (inherits-from <log-introspection>)
+;									  (state-variables pagecount use-separate-files))
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout
 ;;- if append-time is not false it must either be true or the size of
@@ -63,13 +70,13 @@
 ;; and the log-data
 
 
-(define-class <log-map> (inherits-from <snapshot>)
+(define-class <log-map> (inherits-from <logfile>)
   (state-variables)
   )
 
 (define-class <log-data> (inherits-from <logfile>)
-										 (state-variables)
-										 )
+  (state-variables)
+  )
 
 
 (define-class <log-statistics> (inherits-from <log-data>)
