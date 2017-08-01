@@ -46,121 +46,6 @@
 	 (map (lambda (x) (list x (slot-ref obj x))) names)))
 
 
-;-- Define abstract-register ... routine to create registers
-
-;; Registers to associate  classes, methods and objects with their name.
-(define (abstract-register thingtype thingname . unique-names)
-  (letrec ((register '())
-  			  (bind-string-to-closure (lambda x x))
-			  )
-	 (lambda args
-		(if (null? args)
-			 (list-copy register)
-			 (letrec ((cmd (car args))
-						 (opts (if (null? (cdr args)) #f (cdr args))))
-
-				(if (and #f opts) (dnl* "TOME:" unique-names cmd opts (assq (car opts) register)))
-
-				(if (and  unique-names (eqv? cmd 'add) opts (assq (car opts) register))
-					 (dnl* unique-names "Attempting to re-register a " thingtype "/" thingname ":" args)
-					 )
-				(cond
-				 ((not (symbol? cmd))
-				  (abort "+++DIVISION BY DRIED FROG IN THE CARD CATALOG+++" cmd))
-				 ((eqv? cmd 'help)
-				  (dnl* "'help")
-				  (dnl* "passing no arguments or 'get returns a copy of the register")
-				  (dnl* "'reg returns the register")
-				  (dnl* "'flush or 'clear  sets the register to null")
-				  (dnl* "'dump prints the register")
-				  (dnl* "'add" thingtype (string-append thingtype "name") "description")
-				  (dnl* "'add-unique" thingtype (string-append thingtype "name") "description")
-				  (dnl* "'name?" thingtype "- not" thingname)
-				  (dnl* "'type?" thingname)
-				  (dnl* "'rec/name" thingtype)
-				  (dnl* "'rec/type" thingtype)
-				  (dnl* "'rec?" thingname thingtype "or the print string")
-				  )
-
-				 ((eqv? cmd 'reg) register)
-				 ((eqv? cmd 'get)
-				  (list-copy register)
-				  )
-
-				 ((member cmd '(flush clear))
-				  (set! register '()))
-
-
-				 ((eqv? cmd 'dump)
-				  (for-each pp register)
-				  )
-
-				 ((eqv? cmd 'add-unique)
-				  (bind-string-to-closure (car opts))
-				  (if (not (assq (car opts) register))
-						(set! register ;; save things as lists
-								(acons (car opts) (cdr opts) register)))
-				  (car opts)
-				  )
-
-				 ((eqv? cmd 'add)
-				  (bind-string-to-closure (car opts))
-				  (set! register ;; save things as lists
-						  (acons (car opts) (cdr opts) register))
-				  (car opts)
-				  )
-
-				 ((and (member cmd '(name? name)) opts)
-				  (let ((a (assq (car opts) register)))
-					 (and a (cadr a))))
-
-				 ((and (member cmd '(rec? record?)) opts)
-				  (let ((a (filter (lambda (x) (or (eqv? (car x) (car opts))
-															  (string=? (object->string (car x))(object->string (car opts)))
-															  (string=? (object->string (cdr x)) (object->string (car opts)))
-															  )) register)))
-					 (if (null? a) #f a)) )
-
-				 ((and (member cmd '(rec/type record-by-type rec-by-type rb-type)) opts)
-				  (let ((a (assq (car opts) register)))
-					 a))
-
-				 ((and (member cmd '(type? type)) opts)
-				  (let ((a (filter (lambda (x)
-											(eqv? (car opts) (cadr x)))
-										 register)))
-					 a
-					 ))
-
-				 ((and (member cmd '(rec/type record-by-name rec-by-name rb-name)) opts)
-				  (let ((a (filter (lambda (x)
-											(eqv? (car opts) (cadr x)))
-										 register)))
-					 (and a (car a))))
-
-				 (else
-				  (dnl* "Called a " thingtype "/" thingname "register with " cmd )
-				  (pp (cdr args))
-				  (display "... Didn't really work, was that a real command?\n")
-				  (error "\n\n+++BANANA UNDERFLOW ERROR+++\n" args))
-				 )
-				)
-			 )
-		)
-	 )
-  )
-
-;-- define class-register generic-method-register method-register object-register and agent-register
-
-;; classes ought to be unique
-(define class-register (abstract-register "class" "class-name" #t))
-
-;; We can (must) have many methods of the same name, like "dump"
-(define generic-method-register (abstract-register "generic-method" "generic-method-name" #t))
-(define method-register (abstract-register "method" "method-name"))
-(define object-register (abstract-register "object" "object-name"))
-(define agent-register (abstract-register "agent" "agent-name"))
-
 ;; make missing classes
 
 ;; This comes here since we might want the registers available for sclos.scm
@@ -196,7 +81,10 @@
 
 ;-- include a bunch of things in the class register
 
+(load "registers.scm")
+
 ;; Finally register sclos classes and the basic extensions
+
 (register-unique class <pair>)
 (register-unique class <list>);
 (register-unique class <null>)
@@ -367,7 +255,15 @@ communication (without cheating)."
 
 ;--- (define (primitive-object? a)
 (define (primitive-object? a)
-  (and (%instance? a) #t))
+  (or (null? a)
+		(boolean? a)
+		(number? a)
+		(pair? a)
+		(symbol? a)
+		(procedure? a)
+		(string? a)
+		(vector? a)
+		(and (%instance? a) #t)))
 
 ;--- (define (instance? a)
 (define (instance? a)
@@ -396,8 +292,9 @@ communication (without cheating)."
 (define (class? a)
   (if (member a (list <top> <class> <procedure-class> <entity-class>))
 		#t
-		(and (equal? (class-slots-of a) '(direct-supers direct-slots cpl slots nfields field-initialisers getters-n-setters))))
-  )
+		(equal? (class-slots-of a) (class-slots-of <object>))
+			  ))
+
 
 
 ;--- (define (object? a)
@@ -407,6 +304,9 @@ communication (without cheating)."
 ;--- (define (agent? a)
 (define (agent? a)
   (and (%instance? a) (isa? a <agent>) #t))
+
+(define (is-class? o c)
+  (isa? o c))
 
 ;--- (define (has-slot? a k)
 (define (has-slot? a k)
@@ -444,6 +344,25 @@ communication (without cheating)."
   (map (lambda (x) (cons x (slot-ref a x))) (class-slots-of a)))
 
 
+(define pi (acos -1.))
+(define 2pi (* 2.0 pi))
+(define pi*2 2pi)
+(define tau 2pi)
+(define sqrt2pi (sqrt 2pi))
+
+;(define e (exp 1))
+(define e*2 (* 2 e))
+(define e*-2 (* -2 e))
+
+(define 100pi 314)
+(define 10000pi 31416)
+
+(define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
+(define lightspeed 299792458);  (/ m second), by the definition of a metre.
+
+
+;; Used as the placeholder for uninitialised things in classes
+(define uninitialised (lambda args (abort 'uninitialised-function)))
 ;--- (define (uninitialised? x #!rest y)
 "There are three things used to indicate an uninitialised value: 
    * the function of arbitrary arguments, uninitialised
@@ -554,10 +473,17 @@ handles mixed lists.  Whether that is a good idea is a matter of practicality ve
 
 (define no-slot-in-object 'no-slot-in-object)
 
+
+"NOTE: 'isa' functions take the agent first, then the class.  'is-' functions go the other way.
+The primary reason for this is that the 'is-' functions are geared toward filtering lists of agents
+and the isa functions are geared toward seeing if an agent 'isa' class/
+"
+
+
 ;; The *is- and *has- routines return predicate functions
 (define (*is-class? targetclass #!rest plural)
   (set! targetclass (cons targetclass plural))
-  ;; this odd way of specifying arguments  ensures at last one arg
+  ;; this odd way of specifying arguments  ensures at least one arg
   (let ((targets (filter class? targetclass)))
 	 (lambda (x)
 		(null=#f (if (eq? x 'inspect)
@@ -743,7 +669,7 @@ and so it is excluded.
 
 
   The second form returns applicable methods common to both the class
-  of this-agent and its parents (but not *grandparents...).
+  of this-agent and some of its parents.
 
   "
 
@@ -758,11 +684,21 @@ and so it is excluded.
 				(loop (cons (car l) r) (cdr l))))))
 
 ;--- (apply-method methd obj #!rest args) -- Applies methd to obj with appropriate arguments
-(define (apply-method methd obj #!rest args)
-  ;;((method-procedure (cadr rm)) (lambda x x) Rob)
-  (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
-  (if methd
-		(apply (method-procedure methd) (cons (lambda x x) (cons obj args)))))
+(define (apply-method2 methd args)
+  (if (and methd (pair? args) (list? args) ) ;; it is a valid thing
+		;;  In the following the (lambda x x) plays the role of the (absent) parent call
+		(let ((allarg (cons (lambda x (void)) args)))
+;;		  (dnl* allarg)
+		  (apply (method-procedure methd) (cons (lambda x (void)) args)))
+		(abort))
+  )
+
+;--- (apply-method methd obj #!rest args) -- Applies methd to obj with appropriate arguments
+;; Use like (apply-method mthd ob 3 14 15 'rad)
+(define (apply-method methd #!rest args)
+  (dnl* "APPLY-METHOD:" args)
+  (if (null? args) (abort "Missing 'self' argument (apply-method)"))
+  (apply-method2 methd args))
 
 
 ;; ;--- (define (old-call-all-initialisers self #!rest args) --- this is explicit since it is so common.
@@ -778,89 +714,119 @@ and so it is excluded.
 
 
 
-;--- (get-methods class-restriction methd self #!rest args(define (get-methods class-restriction methd self #!rest args) ;; if class-restriction is null return all methods, else restrict to list
-(define (get-methods class-restriction methd self #!rest args) ;; if class-restriction is null return all methods, else restrict to list
-  (kdebug 'get-methods class-restriction)
-  (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
-  (set! class-restriction (if (procedure? class-restriction) (list class-restriction) class-restriction))
+(define (get-methods% methd #!rest signature) ;; This returns the methods in the "natural" order
+  (if (null? signature) (begin (dnl* "Missing 'self' argument (get-method%)") (abort)))
+  (if (not (isa? methd <generic>)) (begin (dnl* "The argument in the 'method' position is not a <generic> method.") (abort)))
+  (let ((cm (compute-methods methd)))
+	 (if (procedure? cm)
+		  (let ((ML (cm signature)))
+			 (if (> (length ML) 1)
+				  (reverse (cdr (sortless-unique (cm signature)))) ;; The cdr prunes the one which is (most likely) calling
+				  '())))))
 
-  (sortless-unique
-	(let ((mine ((compute-methods methd) (cons self args))))
-	  (cond
-		((null? mine)
-		 (dnl* "Missing method?" (method-register 'rec? mine)))
-		((list? class-restriction)
-		 (apply append (map (lambda (x) (apply get-methods (cons x (cons methd (cons self args))))) class-restriction))
-		 )
-		((member class-restriction '(* all ()))
-		 mine)
-		((primitive-object? class-restriction) ;; single class
-		 
-		 (let ((theirs (apply compute-methods (cons methd (cons (allocate-instance class-restriction) args)))))
-			(filter (lambda (x) (member x theirs)) mine)))
-		(#t mine)
+;--- (get-methods class-restriction methd self #!rest signature)
+;; with class-restrictions, the order of the methods returned corresponds to the restrictions
+;; without restrictions, it corresponds to the "natural" order
+;; signature is of the form '(method self arg...)
+(define (get-methods$ class-restriction #!rest signature) ;; if class-restriction is null return all methods, else restrict to list
+  (if (isa? class-restriction <generic>)
+		(apply get-methods%  (cons class-restriction signature))
+		(begin
+		  (if (< (length signature) 2) (begin (dnl* "The call must at least have a method and a self variable.") (abort)))
+		  (if (not (is-class? (car signature) <generic>)) (begin (dnl* "The argument in the 'method' position is not a <generic> method.") (abort)))
+		  (if (member class-restriction '(() * all))
+				(set! class-restriction '())
+				(set! class-restriction (if (procedure? class-restriction) (list class-restriction) class-restriction)) )
+
+		  (sortless-unique
+			(if (member class-restriction '(() * all))
+				 (apply get-methods% signature)
+				 (apply append (map (lambda (x) (apply get-methods% (cons (car signature) (cons (allocate-instance x) (cddr signature))))) class-restriction)))))
 		))
-	)
-  )
+
+;--- (get-methods class-restriction methd self #!rest signature) ;; This always returns methods in the "natural" order
+;; signature is of the form '(method self arg...)
+(define (get-methods class-restriction #!rest signature) ;; if class-restriction is null return all methods, else restrict to list
+  (if (isa? class-restriction <generic>)
+		(apply get-methods%  (cons class-restriction signature))
+		(begin
+		  (if (< (length signature) 2) (begin (dnl* "The call must at least have a method and a self variable") (abort)))
+		  (if (not (is-class? (car signature) <generic>)) (begin (dnl* "The argument in the 'method' position is not a <generic> method.") (abort)))
+
+		  (let ((m (apply get-methods% signature)))
+			 (if (member class-restriction '(() * all))
+				  m
+				  (let ((M (apply get-methods$ (cons class-restriction signature))))
+					 ;;			 (dnl* M)
+					 (filter (lambda (x) (member x M)) m))
+				  )
+			 ))))
 
 
-;--- (define (call-parent-methods classes methd self #!rest args)
+;; (apply-method (car (get-methods% name (car Q))) (car Q))
+;;->  (apply-method (car (get-methods% the-method object) object))
+;; (map (lambda (x) (apply-method x (car Q))) gg)
+;; (map (lambda (x) (apply-method x (car Q) 4)) gg)
+;; (map (lambda (x) (apply apply-method (cons x (cons (car Q) (list 4))))) gg)
+;;-> (let ((signature (cons agent args)))
+;;->   (map (lambda (meth) (apply apply-method (cons meth signature) (get-methods [] signature signature)
+;;->   )
+;(define (X-call-all-parent-methods methd #!rest signature)
+;  (let ((invitations (apply get-methods% (cons methd signature))))
+;	 (dnl* 'invitations invitations)
+;	 (if (null? invitations)
+;		  '()
+;		  (let ((rsvp
+;					(map (lambda (x) (apply apply-method (cons x signature))) invitations)))
+;			 (dnl* rsvp)
+;			 rsvp))))
 
-(define (call-parent-methods classes methd self #!rest args)
-  (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
-  (let ((n (if (pair? classes) (length classes) +inf.0)))
-	 (set! classes (cond
-						 ((null? classes) #f);
-						 ((eq? classes 'all) (parent-classes self))
-						 ((eq? classes '*) (parent-classes self))
-						 ((eq? classes 'none) #f) ;; in case we have a 
-						 (#t classes)))
-	 (if (pair? classes)
-		  (let* ((ml (apply get-methods (cons classes (cons methd (cons self args)))))
-					(result
-					 (map
-					  (lambda (x)
-						 (if (or (generic-method-register 'rec? x)
-									(method-register 'rec? x)
-									)
-							  (begin 
-								 (kdebug 'model-body "applying method " (or (generic-method-register 'rec? x) (method-register 'rec? x) ))
-								 (apply apply-method (cons x (cons self args))))
-							  (begin
-								 (kdebug 'model-body "Did not apply method, it wasn't in the registers")
-								 #f)
-							  )
-						 )
-					  classes)
-					 ))
-			 (kdebug 'model-body "call-parent-methods returns " result)
-			 result)
-		  #t
-		  ) )
-  )
-
-(define (call-parents& classes methd self #!rest args)
-  (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
-  (let ((pname (lambda (x)
-					  (cond
-						((class? x) (class-name-of x))
-						((instance? x) (class-name-of (class-of x)))
-						(#t x)))))
-	 (kdebug 'model-body "calling parents" (if (pair? classes) (map pname classes) (pname classes)))
-	 (let ((result
-			  (call-parent-methods classes methd self args)
-			  ))
-		(kdebug 'model-method "... yields " result)
-		result)
-	 ))
+(define invites '())
+(define (call-all-parent-methods #!rest signature)
+;;                                             signature is of the form '(method self arg...)
+  (let ((invitations (apply get-methods% signature)))
+	 (set! invites invitations)
+	 (if (null? invitations)
+		  '()
+		  (let ((rsvp
+					(map (lambda (x) (apply-method2 x (cdr signature))) invitations))
+				  )
+			 rsvp))))
 
 
-;--- (define (call-first-method classes methd self #!rest args) -- the most/least restrictive match
-(define (call-first-method classes methd self #!rest args) ;; The following routine is very similar to the parent-"meth"
-  (if (and (pair? args) (pair? (car args)) (null? (cdr args))) (set! args (car args)))
-  (let* ((ml (apply get-methods(cons classes (cons methd (cons self args)))))
+(define (call-parent-methods$ class-restriction #!rest signature)
+;;                                                           signature is of the form '(method self arg...)
+  (let ((invitations (apply get-methods$ (cons class-restriction signature))))
+	 (if (null? invitations)
+		  '()
+		  (let ((rsvp (map
+							(lambda (x)
+							  (apply-method2 x  (cdr signature)))
+							invitations)))
+			 rsvp))))
+
+
+(define (call-parent-methods class-restriction #!rest signature)
+  (let* ((invitations (apply get-methods (cons class-restriction signature))))
+	 (if (null? invitations)
+		  '()
+		  (let ((rsvp (map
+							(lambda (x)
+							  (apply-method2  x (cdr signature)))
+							invitations)))
+			 rsvp))))
+
+	 
+
+
+;--- (define (call-first-method classes methd self #!rest signature) -- the most/least restrictive match
+(define (call-first-method classes methd #!rest signature) ;; The following routine is very similar to the parent-"meth"
+  (if (null? signature) (begin (dnl* "Missing 'self' argument (call-first-method)") (abort)))
+
+  (if (and (pair? signature) (pair? (car signature)) (null? (cdr signature))) (set! signature (car signature)))
+  (let* ((ml (apply get-methods(cons classes (cons methd (cons self signature)))))
 			)
-	 (apply apply-method (cons (car ml) (cons self args)))))
+	 (apply apply-method (cons (car ml) (cons self signature)))))
 
 
 ;-- Instantiating and initialising
@@ -1023,7 +989,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 ;; This returns a list of the form (key ...) where the "value" is
 ;; often a list containing a single number.
 (define (parameter-lookup class taxon key)
-  (dnl* 'parameter-lookup (class-name class) taxon key)
+;;  (dnl* 'parameter-lookup (class-name class) taxon key)
   (if (not (and (isa? class <class>)
 					 (string? taxon)
 					 (symbol? key)))
@@ -1120,8 +1086,10 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 
 
-(define alort #f)
-(define clort #f)
+(define last-object-created #f)
+(define last-object-classes-used #f)
+
+
 ;; Both create and create- make <objects> and things derived from <object>
 ;; This version does not apply a taxon specific initialisation
 (define (create- class #!rest statevars)
@@ -1134,10 +1102,10 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (let* ((instance (allocate-instance  class))
 			  (the-classes (!filter (lambda (x) (member x *uninitialisable*)) (parent-classes class)))
 			  )
-		(set! alort instance)
-		(set! clort the-classes)
+		(set! last-object-created instance)
+		(set! last-object-classes-used the-classes)
 		
-		(kdebug 'initialisation-C-- (class-name-of (class-of alort)))
+		(kdebug 'initialisation-C-- (class-name-of (class-of last-object-created)))
 		(kdebug 'initialisation-P-- (map class-name-of the-classes))
 
 		(object-register 'add instance class)
@@ -1171,6 +1139,12 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define (create class taxon #!rest statevars)
   (if (and (= (length statevars) 1) (list? (car statevars)))
 		(set! statevars (car statevars)))
+  (if (not (string? taxon))
+		(begin
+		  (dnl* "The indicated taxon for" class
+				  "is a symbol.  Taxa should always be specified as strings,")
+        (dnl* "and this is treated as a fatal error." class taxon)
+		  (abort)))
 
   (let* ((instance (create- class statevars))
 			)

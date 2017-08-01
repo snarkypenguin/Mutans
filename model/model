@@ -45,11 +45,41 @@
 
 (set! indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
 
+(define kdebug-mode 'full/no-wildcards)
 
-(kdebug-message-state #t) ;; if #f this suppresses the messages, kdebug? still works
-(kdebug-production! #f) ;; if #t bypass all kdebug bits (they can be slow to process)
-(kdebug-wildcards! #f) ;; use wildcard tests (slower)
+(case 'full
+  ((full)
+	(kdebug-development! #t) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #t) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #t) ;; use wildcard tests (slower)
+	)
+  ((full/no-wildcards)
+	(kdebug-development! #t) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #t) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #f) ;; use wildcard tests (slower)
+	)
+  ((record)
+	(kdebug-development! #t) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #f) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #t) ;; use wildcard tests (slower)
+	)
+  ((record/no-wildcards)
+	(kdebug-development! #t) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #f) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #f) ;; use wildcard tests (slower)
+	)
+  ((production)
+	(kdebug-development! #f) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #f) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #f) ;; use wildcard tests (slower)
+	)
+  (else
+	(kdebug-development! #t) ;; if #t bypass all kdebug bits (they can be slow to process)
+	(kdebug-message-state #f) ;; if #f this suppresses the messages, kdebug? still works
+	(kdebug-wildcards! #f) ;; use wildcard tests (slower)
+	))
 
+	
 (clear-kdebug-msg-tags)
 
 ;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
@@ -184,7 +214,9 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 	 (set! endqueuetime (process-times))
 	 (kdebug-message-state state)
 	 
-	 (dnl* "Remember to run (shutdown-agents Q)")
+	 (if #f
+		  (dnl* "Remember to run (shutdown-agents Q)")
+		  (shutdown-agents Q))
 	 )
   )
 

@@ -12,6 +12,7 @@
     (list 'seed-queue '())
     (list 'mort-mass 0.17) ;; a proportion which will be multiplied by peak mass
     (list 'mort-prob '0.001)
+	 (list 'regrowth-rate-multiplier 1.35) ;; the plants in the example are even more responsive than just <plants>
   )
 )
 (set! global-parameter-alist (cons (cons <example-plant> <example-plant>-parameters) global-parameter-alist))

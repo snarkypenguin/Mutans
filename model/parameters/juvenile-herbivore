@@ -12,7 +12,14 @@
 (define J.herbivore-parameters ;; Parameters for Botanicus exemplarii
   (list
 	 (list 'note "Simple animal approximating the adult herbivores in Chapter 3")
-	 (list 'dt (* 1 day))
+	 (list 'default-color ps-cyan)
+	 (list 'map-color ps-cyan)
+	 (list 'map-contrast-color ps-orange)
+
+	 (list 'glyph herbi-glyph)
+	 (list 'scale/slot (lambda (self) (min 1.0 (* 1.5 (/ (abs (slot-ref self 'mass)) 60)))))
+
+	 (list 'dt (* 8 hours))
     (list 'type 'herbivore)
 	 (list 'representation 'simple-individual)
 	 (list 'provides '())
@@ -43,12 +50,14 @@
 	 (list 'search-speed (* 1 (/ meters second)))
 	 (list 'forage-speed (* 0.8 (/ meters second)))
 	 (list 'wander-speed (* 2 (/ meters second)))
-
+	 (list 'endurance (* 12 minutes))
+	 (list 'recovery-time (* 1 hour))
+	 
 	 (list 'adult-diet-mass (* 30 kg))
 
 	 (list 'omega-ind (/ 1 (* 60 weeks))) 
 	 (list 'hunger-limit (* 3 days)) ;; this is $\Omega_{H}$ or $\Omega_{J}$ or 
-
+	 
 	 (list 'eat-radius (* 10 m))
 	 (list 'search-radius (* 350 m))
 	 (list 'distance-cost (/ 2 km))
@@ -57,6 +66,8 @@
 	 (list 'max-satiety 12)
 	 (list 'satiety-rate (/ 3 day))
 	 (list 'sated-quantity 4)
+	 (list 'foodlist '(fruit))
+	 (list 'predatorlist (list <acarn>))
 	 (list 'food-density-limit (* 2000 (/ kg (* m m)))) ;; used to trigger migration
 	 ;; The following are multiplied by the number of kg or fruit to give points
 	 (list 'food-satiety-rate (lambda (x) (/ (* 12 kg) x))) ;; how many points tree is worth derated by mass of animal

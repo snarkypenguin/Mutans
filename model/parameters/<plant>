@@ -2,48 +2,54 @@
 'Parameters
 (define <plant>-parameters
   (list
-	 (list 'note "<plant> is based on data from the One Oak project.")
-	 (list 'dt (* 1 day))
-    (list 'type 'plant)
-	 (list 'representation 'individual)
-	 (list 'I-need '(water)) ;; for maintenance ... vector of values/sgetters  passed in, updated passed back
-	 (list 'requires '(water))
-	 (list 'provides '(fruit seeds vegetation))
-    ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
-	 (list 'population-switch (/ (* 10000 kg)  hectare));; if the density is greater than 10000 kg plants in a hectare
-	 (list 'maintenance-list '())
-    ;;(list 'population-switch '<uninitialised>)
+	(list 'note "<plant> is based on data from the One Oak project.")
+	(list 'default-color ps-green)
+	(list 'foliage-color ps-green)
+	(list 'radius-color ps-dark-green)
+	(list 'dt (* 1 day))
+	(list 'type 'plant)
+	(list 'representation 'individual)
+	(list 'I-need '(water)) ;; for maintenance ... vector of values/sgetters  passed in, updated passed back
+	(list 'requires '(water))
+	(list 'provides '(fruit seeds vegetation))
+	;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
+	(list 'population-switch (/ (* 10000 kg)  hectare));; if the density is greater than 10000 kg plants in a hectare
+	(list 'maintenance-list '())
+	;;(list 'population-switch '<uninitialised>)
 
-	 (list 'plot-magnification 3)
-	 ;;(list 'plot-magnification 40)
-	 (list 'plot-circle-facets 12)
-	 (list 'plot-magnificaton 1)
-	 (list 'circle-facets 9)
+	(list 'glyph 8) ;; numeric glyphs are converted to unit circles with the indicated number of facets
+	(list 'plot-magnification 3)
+	;;(list 'plot-magnification 40)
+	(list 'plot-circle-facets 12)
+	(list 'plot-magnificaton 1)
+	(list 'circle-facets 9)
 
-	 (list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
-    (list 'max-age +inf.0) ;; they don't die by default
-    (list 'max-mass (* 150 kg))
-	 (list 'mass 'none)
-    (list 'lai 1.7)
-    (list 'water-stress-effect #t) ;; changes fruiting 
-    (list 'water-stress 0)
-    (list 'water-use 4/5)
+	(list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
+	(list 'max-age +inf.0) ;; they don't die by default
+	(list 'max-mass (* 150 kg))
+	(list 'mass 'none)
+	(list 'lai 1.7)
+	(list 'water-stress-effect #t) ;; changes fruiting 
+	(list 'water-stress 0)
+	(list 'water-use 4/5)
 
-	 (list 'mass-at-age uninitialised)
+	(list 'mass-at-age uninitialised)
 
-	 (list 'growth-rate (lambda (m stress) (if (> stress 1) 0 (min (/ 0.1 week)  (/ 900.0 (+ (* m m) 1)))))) ;; example
-    (list 'age '<uninitialised>)
-	 ;;(list 'leaf-area '<uninitialised>) ;; real leaf area
-    (list 'reproduction-mass (* 18 kg))
-    (list 'reproduction-period 0) ;; continuous
-    (list 'reproduction-offset 0)
-    (list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
-    (list 'fruiting-rate (/ 0.1 (* 10 kg)))
-    (list 'seeds-per-fruit 60)
-	 (list 'speed 0)
-	 (list 'direction '(0 0))
-	 ;; The following should be passed in the initialisation:
-	 ;;    mass, location, habitat, water-*, age, lai
-  )
+	(list 'growth-rate (lambda (m stress) (if (> stress 1) 0 (min (/ 0.1 week)  (/ 900.0 (+ (* m m) 1)))))) ;; example
+	(list 'regrowth-rate-multiplier 1.2 "This posits that the plants in the model put a little extra effort into growth when they have been damaged -- no references")
+	(list 'age '<uninitialised>)
+	;;(list 'leaf-area '<uninitialised>) ;; real leaf area
+	(list 'reproduction-mass (* 18 kg))
+	(list 'reproduction-period 0) ;; continuous
+	(list 'reproduction-offset 0)
+	(list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
+	(list 'fruiting-rate (/ 0.1 (* 10 kg)))
+	(list 'seeds-per-fruit 60)
+	(list 'speed 0)
+	(list 'direction '(0 0))
+	(list 'forage-damage 0) ;; start with a clean slate
+	;; The following should be passed in the initialisation:
+	;;    mass, location, habitat, water-*, age, lai
+	)
 )
 (set! global-parameter-alist (cons (cons <plant> <plant>-parameters) global-parameter-alist))

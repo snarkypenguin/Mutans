@@ -81,6 +81,7 @@
 
 (model-method (<introspection> <number> <number>) (agent-prep self start end)
 				  (parent-agent-prep self start end) ;; parents should prep first
+				  #t
 				  )
 
 (model-method <introspection> (agent-shutdown self #!rest args)

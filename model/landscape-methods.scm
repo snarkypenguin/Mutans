@@ -198,7 +198,8 @@
 								 (number->string (slot-ref obj 'subjective-time))))
 		  (ps 'show (string-append " "
 						 (slot-ref obj 'name) " at "
-						 (number->string (slot-ref obj 'subjective-time)))))
+						 ((if #t scaled-time number->string) (slot-ref obj 'subjective-time))
+						 )))
 	 (ps 'pop-font)
 	 )
 
@@ -340,7 +341,7 @@
 				  '())
 
 (model-body <environment>
-				(call-parents)
+				(call-all-parents)
 				dt)
 
 (model-method (<environment> <list>) (contains? self loc)
@@ -463,7 +464,7 @@ via their containing patch.
 								  )
 								))
 
-						(call-parents) ;; chain to <agent>
+						(call-all-parents) ;; chain to <agent>
 						;;(parent-body)
 						dt
 						)
@@ -1317,63 +1318,58 @@ via their containing patch.
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
 
 (model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-				  (let ((kdebug (if #f kdebug dnl*))
-						  )
-					 
-					 (kdebug '(log-horrible-screaming patch) (map cnc (list self logger format targets)) 'format: format)
-					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
-						  (let* ((file (slot-ref logger 'file))
-									(p (composite-prj_src->dst self logger))
-									(frob (kdebug '(viscious-angsty-wombats)))
-									)
-							 (if (not (procedure? p)) (set! p (lambda (x) x)))
-							 (kdebug '(log-* log-patch) "[" (my 'name) ":"
-										(cnc self) "]" "in log-data")
-							 
-							 (case format
-								((ps)
-								 (file 'comment (name self) " " (taxon self) " " (subjective-time self) " " (agent-state self) )
-								 (file 'push-font (my 'default-font) (my 'default-size))
-								 (let* ((symlist (services self))
-										  (name (slot-ref self 'name))
-										  (R (car (p (make-list 2 (radius self)))))
-										  ;; this will fail if the projection is not a linear-map
-										  (L (p (list-head (location self) 2)))
-										  (slist (slot-ref self 'service-list))
-										  (n (+ 1 (length slist))) ;; slist is
-										  (perim (perimeter self))
-										  ;; becoming
-										  ;; circular??
-										  ;; ....******
-										  (ns (length slist))
-										  (mm-xoffset 2)
-										  (mm-yoffset 2)
-										  (p^t (list-transpose perim))
-										  (Left (apply min (car p^t)))
-										  (Right (apply max (car p^t)))
-										  (Up (apply max (cadr p^t)))
-										  (Down (apply min (cadr p^t)))
-										  (ploc (location self))
-										  (psprj (composite-prj_src->dst self logger))
-										  (psloc (psprj ploc))
-										  )
-									(file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name)) (object->string (list Left Down Right Up))))
-									
-									(if adjust-grey (file 'setgray PATCHGREY))
-									(cond
-									 ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
-											(eq? (class-of (my 'rep)) <polygon>))
-									  (file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
-									  (file 'comment (string-append "Native ordinates: " (object->string (perimeter self))))
-									  (file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
-									  (file 'comment (string-append "service list: " (object->string slist)))
+				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						(let* ((file (slot-ref logger 'file))
+								 (p (composite-prj_src->dst self logger))
+								 )
+						  (if (not (procedure? p)) (set! p (lambda (x) x)))
+						  (kdebug '(log-* log-patch) "[" (my 'name) ":"
+									 (cnc self) "]" "in log-data")
+						  
+						  (case format
+							 ((ps)
+							  (file 'comment (name self) " " (taxon self) " " (subjective-time self) " " (agent-state self) )
+							  (file 'push-font (my 'default-font) (my 'default-size))
+							  (let* ((symlist (services self))
+										(name (slot-ref self 'name))
+										(R (car (p (make-list 2 (radius self)))))
+										;; this will fail if the projection is not a linear-map
+										(L (p (list-head (location self) 2)))
+										(slist (slot-ref self 'service-list))
+										(n (+ 1 (length slist))) ;; slist is
+										(perim (perimeter self))
+										;; becoming
+										;; circular??
+										;; ....******
+										(ns (length slist))
+										(mm-xoffset 2)
+										(mm-yoffset 2)
+										(p^t (list-transpose perim))
+										(Left (apply min (car p^t)))
+										(Right (apply max (car p^t)))
+										(Up (apply max (cadr p^t)))
+										(Down (apply min (cadr p^t)))
+										(ploc (location self))
+										(psprj (composite-prj_src->dst self logger))
+										(psloc (psprj ploc))
+										)
+								 (file 'Comment (string-append "in log-data for <patch> " (object->string (my 'name)) (object->string (list Left Down Right Up))))
+								 
+								 (if adjust-grey (file 'setgray PATCHGREY))
+								 (cond
+								  ((or (member (class-of (my 'rep)) (list <polygon> <circle>))
+										 (eq? (class-of (my 'rep)) <polygon>))
+									(file 'comment (string-append "<patch> footprint for " (cnc (my 'rep)) ": " (object->string (my 'name))))
+									(file 'comment (string-append "Native ordinates: " (object->string (perimeter self))))
+									(file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
+									(file 'comment (string-append "service list: " (object->string slist)))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-									  (log-map-polygon logger (perimeter self) format 'grey)
-									  )
-									 
-									 (#t (error "Bad representation for output" (cnc (my 'rep))))
-									 )
-									
+									(log-map-polygon logger (perimeter self) format 'grey)
+									)
+								  
+								  (#t (error "Bad representation for output" (cnc (my 'rep))))
+								  )
+								 
 								 ;;; (file 'moveto (p (map + L
 								 ;;; 							  (list (+ mm-xoffset
 								 ;;; 										  (* 0.2 R))
@@ -1381,41 +1377,40 @@ via their containing patch.
 								 ;;; 										  (/ ns 2.0)))
 								 ;;; 							  )))
 
-									(file 'comment (string-append "Left Up = " (object->string (psprj (list Left Up)))))
-									(file 'moveto (psprj (list Left Up)))
-									(file 'linefeed 1)
-									(if (null? slist) (file 'linefeed 1))
-									(file 'push-color '(0.5 1.0 0.5))
-									(file 'show-table (map
-															 (lambda (x) (string-append " "
-																								 (slot-ref x 'name)
-																								 " = " (pno (value x))))
-															 slist))
-									(file 'pop-color)
-									(caption file self #f #f) ;; the last two args are prj and loc respectively
-									(file 'pop-font)
-									))
+								 (file 'comment (string-append "Left Up = " (object->string (psprj (list Left Up)))))
+								 (file 'moveto (psprj (list Left Up)))
+								 (file 'linefeed 1)
+								 (if (null? slist) (file 'linefeed 1))
+								 (file 'push-color '(0.5 1.0 0.5))
+								 (file 'show-table (map
+														  (lambda (x) (string-append " "
+																							  (slot-ref x 'name)
+																							  " = " (pno (value x))))
+														  slist))
+								 (file 'pop-color)
+								 (caption file self #f #f) ;; the last two args are prj and loc respectively
+								 (file 'pop-font)
+								 ))
 
 
-								;;((text table dump)
-								;; (parent-log-data)
-								;; )
-								(else
-								 (display (my 'name) file)
-								 (for-each 
-								  (lambda (x)
-									 (display " " file)
-									 (if (agent? x)
-										  (display (value x))
-										  (display x)))
-								  (map (lambda (x) (value x)) (my 'service-list)))
-								 (newline file)
-								 ;;(parent-log-data)	
-								 )
-								)
+							 ;;((text table dump)
+							 ;; (parent-log-data)
+							 ;; )
+							 (else
+							  (display (my 'name) file)
+							  (for-each 
+								(lambda (x)
+								  (display " " file)
+								  (if (agent? x)
+										(display (value x))
+										(display x)))
+								(map (lambda (x) (value x)) (my 'service-list)))
+							  (newline file)
+							  ;;(parent-log-data)	
+							  )
 							 )
 						  )
-					 )
+						)
 				  )
 
 
@@ -1430,7 +1425,7 @@ via their containing patch.
 
 ;--- model-body <patch>
 (model-body <patch>
-				(call-parents)
+				(call-all-parents)
 				(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
 				(if (procedure? (my 'caretaker))
 					 (let* ((caretaker (slot-ref self 'caretaker))
@@ -1792,7 +1787,7 @@ args can be  an update map or an update map and update equations
 				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
 					 (for-each (lambda (x y) 
-<									 (if (not (eqv? x 'service-list))
+									 (if (not (eqv? x 'service-list))
 										  (begin
 											 (display (make-string (+ 2 count) #\space))
 											 (display x)
@@ -1930,7 +1925,7 @@ args can be  an update map or an update map and update equations
 ;; This is to keep the "run" chain consistent
 (model-body <landscape>
 						(kdebug '(model-bodies landscape-running nested-habitat)  (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
-						(call-parents) ;; chain to <environment>
+						(call-all-parents) ;; chain to <environment>
 						(kdebug '(nested-habitat)  "after parent body ->" (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
 						dt
 						)
@@ -1998,6 +1993,7 @@ args can be  an update map or an update map and update equations
 ;                                                    for running
 (model-method (<habitat> <number> <number>) (agent-prep self start end)
 				  (parent-agent-prep start end)
+				  #t
 				  )
 
 
@@ -2347,7 +2343,7 @@ args can be  an update map or an update map and update equations
 ;--- model-body <habitat>
 (model-body <habitat*>
 	(kdebug '(model-bodies habitat-running) (cnc self) (name self) "@" t)
-	(call-parents)
+	(call-all-parents)
 
 	(let ((gp (my 'global-patch)))
 	  (run-agents self t dt (list gp) run (my 'kernel)) ;; execute patch model body for global patch *after* subsidiary patches

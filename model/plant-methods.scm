@@ -56,7 +56,7 @@
 															 )
 															more)))))
 				 )
-		 (dnl* "Tree:" (name t) "at" locus "in" (name patch))
+		 ;;(dnl* "Tree:" (name t) "at" locus "in" (name patch))
 		 (slot-set! t 'mass ((slot-ref t 'mass-at-age) (agefunc)))
 		 
 		 ;; (slot-set! c ') ;;Does the habitat (patch) need to know of the trees?
@@ -73,24 +73,35 @@
 				((my 'mass-at-age) (+ (my 'age) dt)))
 			dt))))
 
-
 (model-method <plant> (initialisation-checks self)
+	(kdebug '(<plant> initialisation) "IN <plant> initialisation-checks")
 	(parent-initialisation-checks)
-	(let ((age (my 'age))
-			(maa (my 'mass-at-age))
-			(mass (my 'mass))
-			(max-age (my 'max-age))
-			(L (my 'longevity))
-			)
 
-	(if (uninitialised? (my 'max-age)) (set-my! 'max-age +inf.0))
-	(if (<= max-age age) (set-my! 'max-age (/ (+ age L) 2)))
+	(set-my! 'mass ((my 'mass-at-age) (my 'age)))
 
-	(if (uninitialised? (my 'mass-at-age))
-		 (error "the mass-at-age function must be defined in a parameter file, or in the create call for " (cnc self) (taxon self)))
+	(if (uninitialised? self 'mass-radius)
+		 (set-my! 'mass-radius (std-mass-radius-function)))
 	
-	;;(dnl* (my 'name) (my 'age) (my 'mass))
-	;(set-my! 'mass ((slot-ref self 'mass-at-age) (slot-ref self 'age)))
+	(let* ((age (my 'age))
+			 (age-at-instantiation age)
+			 (maa (my 'mass-at-age))
+			 (mass (my 'mass))
+			 (max-age (my 'max-age))
+			 (L (my 'longevity))
+			 )
+
+	  (kdebug '(<plant> initialisation) 'age age 'mass mass)
+
+	  (set-my! 'mass mass)
+
+	  (if (uninitialised? (my 'max-age)) (set-my! 'max-age +inf.0))
+	  (if (<= max-age age) (set-my! 'max-age (/ (+ age L) 2)))
+
+	  (if (uninitialised? (my 'mass-at-age))
+			(error "the mass-at-age function must be defined in a parameter file, or in the create call for " (cnc self) (taxon self)))
+	
+	  ;;(dnl* (my 'name) (my 'age) (my 'mass))
+     ;;(set-my! 'mass ((slot-ref self 'mass-at-age) (slot-ref self 'age)))
 
 	(cond
 	 ((not (number? mass))
@@ -102,11 +113,14 @@
 	  'reset)
 	 (else 'ok))
 
-	(if (uninitialised#? self 'forage-damage)
-		 (set-my! 'forage-damage 0))
+	(kdebug '(<plant> initialisation) '--> 'age age 'mass mass)
 
-	(if (uninitialised#? self 'peak-mass)
+	(if (or (uninitialised#? self 'peak-mass) (< (my 'peak-mass) (my 'mass)))
 		 (set-my! 'peak-mass (my 'mass)))
+
+	(if (uninitialised? self 'regrowth-rate-multiplier)
+		 (set-my 'regrowth-rate-multiplier 1.5))
+
 
 	(if (uninitialised#? self 'leaf-area)
 		 (let ((dmass (my 'growth-rate)))
@@ -120,11 +134,27 @@
 									(maa (+ dt a)))
 								dt)))
 						 ))
-        (let ((dm (if (procedure? dmass) (dmass (my 'mass) 0) dmass)))
-             (set-my! 'regrowth-rate (* 1.8 dm)))
 
 		  (set-my! 'leaf-area (plant-leaf-area self))
 	))))
+
+(model-method <plant> (agent-prep self start end)
+				  (parent-agent-prep)
+
+				  (initialisation-checks self)
+
+				  (set-uninitialised-slots self '(peak-mass water-stress water-use reproduction-mechanism forage-damage ) 0)
+				  (set-uninitialised-slots self '(water-stress-effect) #f)
+				  (set-uninitialised-slots self '(glyph) 18)
+				  (set-uninitialised-slots self '(plot-magnification) pi)
+				  (fail-on-uninitialised-slots self '(decay-rate leaf-mass omega-ind max-mass lai reproduction-mass
+																				 fruiting-probability fruiting-mass fruiting-rate
+																				 growth-rate seeds-per-fruit mass-radius))
+				  #t
+				  )
+
+
+
 
 (model-method <plant> (mass self)
 				  (slot-ref self 'mass))
@@ -186,11 +216,11 @@
 				  (ps 'show-table
 						(list (string-append "<plant>" (name self))
 								(string-append "mass =" (number->string (my 'mass)))
-								(string-append "radius =" (number->string (plant-radius self)))
+								(string-append "radius =" (number->string (radius self)))
 								))
 				  (ps 'moveto (projection (local->model self (my 'location))))
 				  (adjusted-plot-polygon ps 0.4 0.5 #f (lambda (x) x)
-												 (map projection (make-circle-perimeter (my 'location) (* 250 (plant-radius self)))))
+												 (map projection (make-circle-perimeter (my 'location) (* 250 (radius self)))))
 				  )
 
 
@@ -208,6 +238,7 @@
 				  )
 
 (model-method <plant> (lose-foliage self leafmass)
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (let* ((la (leaf-area self))
 							(leaf-area-foraged (/ leafmass (my 'leaf-mass)))
 							)
@@ -220,20 +251,25 @@
 							 (set-my! 'forage-damage la)
 							 la))))
 												 
-(model-method <plant> (plant-radius self)
+(model-method <plant> (radius self)
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (plant-mass->radius (slot-ref self 'mass)))
 
 (model-method <plant> (leaf-area self)
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (- (my 'leaf-area) (my 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
 
 (model-method <plant> (leaf-mass self)
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (* (leaf-area self) (my 'leaf-mass)))
 
 (model-method <plant> (pristine-leaf-mass self) ;; does not take forage damage into account
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (* (my 'leaf-area) (my 'leaf-mass))) 
 
 
 (model-body%% <plant>
+				  ;;(dnl* (cnc self) "model-body")
 	;;(dnl* kdebug '(trace-bodies plant-running)  (cnc self) (name self) "@" t "/" dt)
 
 	;; Calculate water requirements
@@ -253,16 +289,27 @@
 
 	(kdebug 'model-body "plant 0")
 	(stop-timer 'plant-model-body)
-	(let ((parent-return (call-parents)))
+	
+	(if (not (my 'mass))
+		 (set-my! 'mass ((my 'mass-at-age) (my 'age))))
+
+	(let ((parent-return (call-all-parents)))
 	  (start-timer 'plant-model-body)
+
+	  (if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
+
+	  (set-my! 'leaf-area (plant-leaf-area self))
 
 	  (let ((return
 				(cond
 				 ;; DEAD AGENT
-				 ((eq? (agent-state self) 'dead)
+				 ((dead? self)
 				  (set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
 				  (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
-						(list 'remove)
+						(begin
+						  (set-my! 'agent-state 'terminated)
+						  (set-my! 'queue-state 'terminated)
+						  (list 'remove))
 						dt))
 				 ;; LIVE AGENT
 				 (else 
@@ -270,7 +317,7 @@
 							(pi (acos -1.0))
 							(waterstress (my 'water-stress))
 							(lai (my 'lai))
-							(r (plant-radius self))
+							(r (radius self))
 							(waterneeds (* (my 'water-use) lai pi r r)) ;; lai buy
 							(stressed (my 'water-stress-effect))
 							(age (my 'age))
@@ -302,17 +349,17 @@
 					 ;; THIS (cond ...) RETURNS THE dt VALUE!!!
 					 (cond	;; determine if the plant dies this step
 					  ((not (number? dt))
-						(dnl* 'NOT-A-NUMBER!)
+						;;(dnl* 'NOT-A-NUMBER!)
 						dt)
 					  ((or (not (number? pmort)) (and (number? pmort) (< pmort (random-real)))) ;; 
-						;;(dnl* "regrow <plant> if necessary" (my 'forage-damage))
+
 						(if (> (my 'forage-damage) 0)
-							 (let ((regrowth (min (my 'forage-damage) (* (my 'regrowth-rate) dt))))
+							 (let ((regrowth (min (my 'forage-damage) (* (my 'regrowth-rate-multiplier) dt))))
 								(set-my! 'forage-damage (max 0 (- (my 'forage-damage) regrowth)))
 								)
 							 (begin ;; only grow when the forage-damage has been repaired
 								(if (= mass (+ mass deltaM))
-									 (dnl* "no growth at " (scaled-time age) " -> " (scaled-time (+ age dt)))
+									 ;;(dnl* "no growth at " (scaled-time age) " -> " (scaled-time (+ age dt)))
 									 ;;((dnl* "adjust <plant> mass" mass deltaM)
 									 (set-my! 'mass (+ mass deltaM)))
 								)
@@ -330,7 +377,7 @@
 						(kdebug 'model-body "plant 4b")
 						dt)
 					  (else
-						(dnl* (taxon self) "I feel happy!" age '> max-age)
+						;;(dnl* (taxon self) "I feel happy!" age '> max-age)
 						(die self)
 						dt) ;; it's a stick, plant dies here.
 					  )
@@ -410,8 +457,13 @@
 		  (error "location for plant is not in indicated environment" loc env))))
 
 
-(define (mass-radius-function decay)
+(define (exp-mass-radius-function decay)
 	(lambda (X x) (* X (exp (* -decay (- X x))))))
+
+(define (std-mass-radius-function #!rest forget)
+  (lambda (X x)
+	 (* 1/2 (+ (plant-mass->radius X) (plant-mass->radius x)))))
+
 
 ;--- Only logging methods below
 ;              _
@@ -428,26 +480,62 @@
 ;         --___--
 
 (define (plot-plant tree logger file)
-  (let* ((inner-facets (slot-ref tree 'circle-facets))
-			(outer-facets (+ 3 (slot-ref tree 'circle-facets)))
+  (let* ((inner-glyph (slot-ref tree 'glyph))
+			(outer-glyph (+ 3 (slot-ref tree 'glyph)))
 			(scale 1.5)
 			(mass-radius (let ((mr (slot-ref tree 'mass-radius)))
-				       (cond
-					((procedure? mr) mr)
-					((number? mr) (lambda (X x) (* mr x)))
-					(else (lambda (X x) (* 1 x))))))
-					
-			(iply (make-circle-perimeter
-					(slot-ref tree 'location) (* scale (plant-radius tree)) inner-facets))
-			(oply (make-circle-perimeter
-					(slot-ref tree 'location) (* scale (mass-radius (leaf-mass tree)))  outer-facets)) ;; we convert the 
+								(cond
+								 ((procedure? mr) mr)
+								 ((number? mr) (lambda (X x) (* mr X x)))
+								 (else (lambda (X x) (* 1 x))))))
+			
+			(iply (if (number? inner-glyph)
+						 (make-circle-perimeter
+						  (slot-ref tree 'location) (* scale (radius tree)) inner-glyph)
+						 (translate-glyph (slot-ref tree 'location)
+												(rescale-glyph (* scale (radius tree))
+																	inner-glyph))
+						 ))
+			(oply (if (number? outer-glyph)
+						 (make-circle-perimeter
+						  (slot-ref tree 'location)
+						  (* scale (mass-radius (pristine-leaf-mass tree) (leaf-mass tree)))
+						  outer-glyph)
+						 (translate-glyph (slot-ref tree 'location)
+												(rescale-glyph (* scale
+												 (mass-radius
+												  (pristine-leaf-mass tree)
+												  (leaf-mass tree)))
+																	outer-glyph))
+						 ))
 			(prj (composite-prj_src->dst tree logger))
 			)
 
-	 (adjusted-plot-polygon file 0.25 0.0 #f prj iply)
-	 (adjusted-plot-polygon file 0.1 0.0 #f prj oply)
+	 (let ((dead (slot-ref tree 'dead-color))
+			 (radcol (slot-ref tree 'radius-color))
+			 (folcol (map (lambda (x y) (/ (+ x y) 2.0)) (slot-ref tree 'foliage-color) (slot-ref tree 'stress-color)))
+			 )
+		
+	 (if (dead? tree)
+		  (begin
+			 (file 'comment " " (name tree) " " (location tree))
+			 (file 'push-color (slot-ref tree 'dead-color))
+			 (adjusted-plot-polygon file 0.1 dead #t prj oply)
+			 (adjusted-plot-polygon file 0.25 dead #f prj iply)
+			 (file 'pop-color)
+			 )
+		  (begin
+			 (file 'comment " " (name tree) " " (location tree))
+			 (file 'push-color folcol)
+			 (adjusted-plot-polygon file 0.1 folcol #t prj oply)
+			 (file 'push-color radcol)
+			 (adjusted-plot-polygon file 0.25 radcol #f prj iply)
+			 (file 'pop-color)
+			 (file 'pop-color)
+			 )
+		  )
 	 )
-  )
+  ))
   
 
 (model-method (<plant> <log-introspection> <symbol> <list>)
@@ -463,12 +551,12 @@
 		      ;; this handles "whole of agent" bits, like perimeters
 		      (cond
 		       ((postscript? file)
-			(let* (;(ply (make-circle-perimeter
-;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'circle-facets)))
-;(prj (composite-prj_src->dst self logger))
-;(pply (map prj ply))
+			(let* (;;(ply (make-circle-perimeter
+					 ;;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'glyph)))
+					 ;;(prj (composite-prj_src->dst self logger))
+					 ;;(pply (map prj ply))
 			       )
-			  
+
 			  (plot-plant self logger file)
 			  ;;(adjusted-plot-polygon file 0.4 0.0 #f prj ply)
 			  ))
@@ -489,6 +577,14 @@
 			       ;;(dnl* "   processing" field "for" format "format")
 			       (cond
 				 ((postscript? file)
+				  (set! needs-newline #t)
+				  (file 'show (string-append
+					       (if (string? r)
+						   r
+						   (object->string r)) " "))
+				  #t
+				  )
+				 ((text? file)
 				  (set! needs-newline #t)
 				  (file 'show (string-append
 					       (if (string? r)
@@ -540,10 +636,6 @@
 				 targets
 				 (filter (not-memq (slot-ref logger 'dont-log)) targets)))
 		       )
-
-
-
-
 		      )
 		    ;;(dnl* "Did not process" (name self))
 		    )
@@ -588,9 +680,10 @@
 
 
 (model-method <example-plant> (initialisation-checks self)
-	(parent-initialisation-checks)
-	;(call-parents)
+	(if (not (my 'mass)) (set-my! 'mass ((my 'mass-at-age) (my 'age))))
 
+	(parent-initialisation-checks)
+	
 	(if (and (has-slot? self 'mort-mass) (or (not (number? (my 'mort-mass))) (negative? (my 'mort-mass))))
 		 (set-my! 'mort-mass ((my 'mass-at-age) (my 'longevity))))
 	)
@@ -620,6 +713,7 @@
 
 (model-body%% <example-plant>
 				(start-timer 'example-plant-model-body)
+				(call-all-parents)
 				
 ;	(if (<= (my 'counter) 0)
 ;		 (initialisation-checks self))
@@ -634,12 +728,12 @@
 				  (let ((return
 							(cond
 							 ;; DEAD AGENT
-							 ((eq? (agent-state self) 'dead)
+							 ((dead? self)
 							  (set-my! 'mass (* (my 'mass) (exp (* (my 'decay-rate) dt))))
 							  (let ((r (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
 												(list 'remove)
 												dt)))
-								 (dnl* "DEAD-->" *r)
+								 ;;(dnl* "DEAD-->" *r)
 								 r))
 
 							 (else
@@ -647,24 +741,16 @@
 									(begin
 ;(dnl* "Die:" m pkmass mm (* mm pkmass)  draw "/" mp)
 									  (die self)
-									  (dnl* "I'm not dead yet....")
+;;									  (dnl* "I'm not dead yet....")
 									  dt)
 									(begin
 									  (stop-timer 'example-plant-model-body)
-									  (let ((parent-returns (call-parents)))
+									  (let ((parent-returns (call-all-parents)))
 										 (start-timer 'example-plant-model-body)
-										 
-						  ;;; (dnl* "Fruiting?" (name self))
-						  ;;; (if (isa? self <example-plant>)
-						  ;;; 		(begin
-						  ;;; 		  (dnl* "... yup")
-						  ;;; 		  (do-fruiting self t dt)
-						  ;;; 		  ))
-
 										 (let ((age (my 'age))) ;; This masks the generic method (age...) within the body of the let
 											(if (> age (my 'longevity))
 												 (begin
-													(dnl* "I think I'll go for a walk...")
+;;													(dnl* "I think I'll go for a walk...")
 													(die self)
 													) ;; too old.
 												 dt)

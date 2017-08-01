@@ -26,12 +26,32 @@
 
 ;-- First,  space
 
-(add-kdebug-msg-tag 'page-boundary)
+;; (add-kdebug-msg-tag 'page-boundary)
+;; (add-kdebug-msg-tag (construct-symbol '<jherb> 'methods))
+;; (add-kdebug-msg-tag (construct-symbol '<aherb> 'methods))
+;; (add-kdebug-msg-tag (construct-symbol '<acarn> 'methods))
+;; (add-kdebug-msg-tag '<animal>-methods)
+;; (add-kdebug-msg-tag '<tracked-agent>-methods)
+;; (add-kdebug-msg-tag '<thing>-methods)
+;; (add-kdebug-msg-tag (construct-symbol '<jherb> 'model-body))
+;; (add-kdebug-msg-tag (construct-symbol '<aherb> 'model-body))
+;; (add-kdebug-msg-tag (construct-symbol '<acarn> 'model-body))
+;; (add-kdebug-msg-tag '<animal>-model-body)
+;; (add-kdebug-msg-tag '<tracked-agent>)
+;; (add-kdebug-msg-tag '<thing>-model-body)
+;; (add-kdebug-msg-tag '<tracked-agent>)
+
+(kdebug-development! #f) ;; suppress debugging messages
+
 
 ;(define Model-Domain '((-500 -500 -50) (500 500 50)))
 (define Model-Domain '((0 0 -50) (1000 1500 50)))
+
+;(define Model-Domain '((0 0 -50) (200 300 10)))
 ;; takes the ll, ur and any z component
 (set-model-domain! (car Model-Domain) (cadr Model-Domain) isoA4)
+
+(define domain-centre (list-head (map + (map (lambda (x) (/ x 2)) (map - (cadr Model-Domain) (car Model-Domain))) (car Model-Domain)) 2))
 
 
 "Note that the parameter files are all loaded at this point, references to
@@ -57,7 +77,7 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 ;-- ...and time
 
 (define start 0) ;; day zero
-(define end (* 21 days))
+(define end (* 81 days))
 ;(define end (* 12 days)) ;; of christmas y'know
 ;(define end (* 29 days)) 
 ;(define end (* 51 days)) ;; 
@@ -73,21 +93,27 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (disable-timers)
 
 
+
 ;--  the cast....
 (dnl "The stage") ;-------------------------------------------------------------------
 
-(define N 1) ;; Number cells along the "east-west" axis
-(define M 1) ;; Number cells along the "north-south" axis
+(define N 2) ;; Number cells along the "east-west" axis
+(define M 3) ;; Number cells along the "north-south" axis
 
 ;; calculate area of patch, divide by number of clusters,
 ;; calculate radius of a circle with the same area and use that as the basis
 ;; for the clustering radius
 
-(define chains-per-patch 4)
-(define clusters-per-chain 4) ;; 
 (define cluster-radius (* 50 m))
-(define trees-per-cluster 3)
 (define seeding-radius (* cluster-radius 2.5))
+
+(define chains-per-patch 4)
+(define clusters-per-chain 3) ;; 
+(define trees-per-cluster 4)
+
+;(define chains-per-patch 1)
+;(define clusters-per-chain 1) ;; 
+;(define trees-per-cluster 1)
 
 
 ;; ;; This returns a list of locations and masses
@@ -114,34 +140,37 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 										(* 10 (sqrt (+ (* x x) (* y y))))))
 								  'dt (* 1 days)
 								  'caretaker (lambda (self t dt)
-													;; The number of seeds is attenuated by the ecoservice;
-													;; here, we potentially germinate some....
-													(let* ((seeds (value self 'seeds))
-															 (fruit (value self 'fruit))
-															 (fg (* fruit fruit-germination-rate))
-															 (sgerminated (inexact->exact (truncate (* seed-germination-rate seeds))))
-															 (fgerminated (inexact->exact (truncate fg)))
-															 )
-													  (if (> (+ sgerminated fgerminated) 0)
-															(begin
-															  (dnl* "**** total number:" (+ seeds (* fruit 0+1i)))
-															  (set-value! self 'seeds (- seeds sgerminated))
-															  (set-value! self 'fruit (- fruit fgerminated))
-															  (dnl* "**** total number:" (+ sgerminated (* fgerminated 0+1i)))
-															  (let* ((indices (seq (+ fgerminated sgerminated)))
-																		(result 
-																		 (map
-																		  (lambda (i)
-																			 (create <example-plant> "B.exemplarii"
-																						'location (random-point-in-box (perimeter self))
-																						'domain self 'habitat self
-																						'age 0)
-																			 )
-																		  indices)))
-																 (list 'introduce result)))
-															'())
-													  )
-													)
+								  					;; The number of seeds is attenuated by the ecoservice;
+								  					;; here, we potentially germinate some....
+								  					(let* ((seeds (value self 'seeds))
+								  							 (fruit (value self 'fruit))
+								  							 (fg (* fruit fruit-germination-rate))
+								  							 (sgerminated (inexact->exact (truncate (* seed-germination-rate seeds))))
+								  							 (fgerminated (inexact->exact (truncate fg)))
+								  							 )
+								  					  (if (> (+ sgerminated fgerminated) 0)
+								  							(begin
+								  							  (set-value! self 'seeds (- seeds sgerminated))
+								  							  (set-value! self 'fruit (- fruit fgerminated))
+															  (if #t
+																	(begin
+																	  (dnl* "Caretaker| total number of seeds and fruit:" (+ seeds (* fruit 0+1i)))
+																	  (dnl* "         |                      germinates:" (+ sgerminated (* fgerminated 0+1i)))
+																	))
+								  							  (let* ((indices (seq (+ fgerminated sgerminated)))
+								  										(result 
+								  										 (map
+								  										  (lambda (i)
+								  											 (create <example-plant> "B.exemplarii"
+								  														'location (random-point-in-box (perimeter self))
+								  														'domain self 'habitat self
+								  														'age (* 30 years) 'mass 140.1)
+								  											 )
+								  										  indices)))
+								  								 (list 'introduce result)))
+								  							'())
+								  					  )
+								  					)
 								  )
 					))
 	 grid))
@@ -197,14 +226,18 @@ on for a chain with a lenght equal to the number of cells we are using.
 			)
 	 (apply append chains)))
 
-(define tree-configuration 'onetree)
+;(define tree-configuration 'wasteland)
+(define tree-configuration 'bush)
+;(define tree-configuration 'manytrees)
 
 
 (define trees
   (case tree-configuration
+	 ((wasteland)
+	  '())
 	 ((onetree)
 	  (let ((t (create <example-plant> "B.exemplarii"
-							 'age (* 36 years) 'location '(500 500)
+							 'age (* 36 years) 'age-at-instantiation (* 36 years) 'location domain-centre
 							 'domain (car patchlist) 'habitat (car patchlist))))
 		 (set! Q (q-insert Q t Qcmp))
 		 (list t))) ;; mass is set using the mass-at-age function in the agent-prep stage
@@ -292,42 +325,49 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if #t
 		 (for-each
 		  (lambda (i)
-			 (let ((j (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
 					 )
-				(slot-set! j 'habitat p)
-				(slot-set! j 'domain p)
-				(slot-set! j 'location (map + (location p) (list (- (pprnd 200) (pprnd 200)) (- (pprnd 100) (pprnd 100)))))
-				(set! Q (q-insert Q j Qcmp))
-				(set! HJ (cons j HJ))
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
+				(slot-set! a 'habitat p)
+				(slot-set! a 'domain p)
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
+				(set! Q (q-insert Q a Qcmp))
+				(set! HJ (cons a HJ))
 				))
-		  (seq 16)))
+		  ;;(seq 24/8)
+		  (list 1/1)
+		  ))
 
 	(if #t
 		 (for-each
 		  (lambda (i)
 			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
 					 )
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
 				(slot-set! a 'habitat p)
 				(slot-set! a 'domain p)
-				(slot-set! a 'location (map + (location p) (list (- (pprnd 200) (pprnd 200)) (- (pprnd 200) (pprnd 200)))))
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
 				(set! Q (q-insert Q a Qcmp))
 				(set! HA (cons a HA))
 				))
-		  (seq 4))
+		  ;;(seq 24/12)
+		  (seq 2)
+		  )
 		 )
 
 	(if #f
 		 (for-each
 		  (lambda (i)
-			 (let ((c (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
+			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
 					 )
-				(slot-set! c 'habitat p)
-				(slot-set! c 'domain p)
-				(slot-set! c 'location (map + (location p) (list (- (pprnd 200) (pprnd 200)) (- (pprnd 300) (pprnd 300)))))
-				(set! Q (q-insert Q c Qcmp))
-				(set! CA (cons c CA))
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
+				(slot-set! a 'habitat p)
+				(slot-set! a 'domain p)
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
+				(set! Q (q-insert Q a Qcmp))
+				(set! CA (cons a CA))
 				))
-		  (seq  2))
+		  (seq  0/24))
 		 )
 	)
  patchlist)
@@ -349,7 +389,6 @@ on for a chain with a lenght equal to the number of cells we are using.
 ;;(for-each (lambda (p) (set! Q (q-insert Q p Qcmp))) patchlist)
 
 
-
 (define tdlog
   (if #t
 		(let ((tdlog (create <log-data> "tree-logger" 'filename "tree-data"
@@ -359,7 +398,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 									'dt (* 5 days)
 									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'leaf-area 'forage-damage)
 									'introspection-targets (list <plant>))))
-						 ;; there will be more trees, so we want a mechanism that adapts
+		  ;; there will be more trees, so we want a mechanism that adapts
 		  (set! Q (q-insert Q tdlog Qcmp)) ;; these will go in earlier than the others 
 		  tdlog
 		  )
@@ -367,11 +406,11 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define adlog
   (if #f
-		(let ((adlog (create <log-data> "animal-logger" 'filename "animal-data"
-									'dt (* 5 days)
-									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'sated-time 'period-of-hunger)
+		(let ((adlog (create <log-data> "animal-logger" 'filename "animal-data" 'format 'text
+									'dt (* 4 hours)
+									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'location 'direction 'sated-time 'period-of-hunger)
 									'introspection-targets (list <animal>))))
-						 ;; there will be more trees, so we want a mechanism that adapts
+		  ;; there will be more trees, so we want a mechanism that adapts
 		  (set! Q (q-insert Q adlog Qcmp)) ;; these will go in earlier than the others 
 		  adlog
 		  )
@@ -379,13 +418,13 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define sdlog
   (if #f
-		(let ((sdlog (create <log-data> "service-logger" 'filename "service-data"
-								  ;;'file (current-output-port)
-								  ;; Recall: internally time---end for example---is in seconds.
-								  ;;		 'timestep-schedule (map (lambda (x) (* x day)) (seq (+ 1 (/ end day)))) 
-								  'dt (* 5 days)
-								  'variables (list 'name 'subjective-time 'value)
-								  'introspection-targets ecological-services)))
+		(let ((sdlog (create <log-data> "service-logger" 'filename "service-data" 'format 'text
+									;;'file (current-output-port)
+									;; Recall: internally time---end for example---is in seconds.
+									;;		 'timestep-schedule (map (lambda (x) (* x day)) (seq (+ 1 (/ end day)))) 
+									'dt (* 5 days)
+									'variables (list 'name 'subjective-time 'value)
+									'introspection-targets ecological-services)))
 		  ;; We specify these by list since the number of services stays the same
 		  (set! Q (q-insert Q sdlog Qcmp)) ;; these will go in earlier than the others 
 		  sdlog
@@ -394,15 +433,16 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define pslog
   (if #t
-      ;;                                       model  page  margin                           
+		;;                                       model  page  margin                           
 		(let ((mapping (map:domain-to-postscript Domain isoA4 10))) ;; NOTE page dimensions are *always* specified in mm.
 		  (let ((pslog
-					(create <log-map> "map-maker" 'filename "domain-map"
+					(create <log-map> "map-maker" 'filename "domain-map.ps" 'format 'ps
 							  ;; Recall: internally time---end for example---is in seconds.
 							  ;;			 'timestep-schedule (map (lambda (x) (* x 4 weeks)) (seq (+ 1 (/ end (* 4 weeks)))))
 							  'model->local mapping
 							  'local->model (mapping 'inverse)
 							  'dt (* 5 days)
+							  'filename-timescale days
 							  'introspection-targets (append (list <patch> <example-plant> <aherb> <jherb>) patchlist)
 							  )))
 			 (set! Q (q-insert Q pslog Qcmp)) ;; these will go in earlier than the others 
@@ -420,7 +460,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 
 (define (ps-check filename)
-  (let ((ps (make-ps filename '(Helvetica))))
+  (let ((ps (make-postscript filename '(Helvetica))))
 	 (ps 'moveto 300 300)
 	 (ps 'display (string-append "File: " filename))
 	 (map (lambda (x) (dnl* (name x)) (ps-dump x ps)) (filter (*has-slot? 'location) Q))

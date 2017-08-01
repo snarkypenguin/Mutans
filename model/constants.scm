@@ -31,29 +31,9 @@
 
 ;-  Code 
 
-;-- Mathematical constants
 
-;;(define pi (acos -1.))
-(define 2pi (* 2.0 pi))
-(define pi*2 2pi)
-(define tau 2pi)
-(define sqrt2pi (sqrt 2pi))
-
-;(define e (exp 1))
-(define e*2 (* 2 e))
-(define e*-2 (* -2 e))
-
-(define 100pi 314)
-(define 10000pi 31416)
-
-(define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
-
-(define lightspeed (* 299792458e8 (/ m second)))
-
-;; Used as the placeholder for uninitialised things in classes
-(define uninitialised (lambda args (abort 'uninitialised-function)))
-
-
+;; For constants that do not fit in the maths.scm or units.scm files.
+;; Note: uninitialised and <uninitialised> are defined in preamble.scm.
 
 ;-  The End 
 

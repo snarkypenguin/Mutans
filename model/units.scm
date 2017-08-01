@@ -4,13 +4,13 @@
 ;***************** UNITS ******************
 ;; The following are for use in multiplicative expressions
 
-
-
 ;; time
 (define second 1)
 (define seconds second)
+(define secs seconds)
 (define minute (* 60 seconds))
 (define minutes minute)
+(define mins minutes)
 (define hour (* 60 minutes))
 (define hours hour)
 (define day (* 24 hours))
@@ -62,7 +62,14 @@
 (define yard 0.9144)
 (define yards yard)
 (define mile 1609.344)
+(define mi mile)
 (define miles mile)
+
+(define nautical-miles (* 1852 m))
+(define n.mi nautical-miles)
+(define nmi nautical-miles)
+
+(define lightspeed (* 299792458e8 (/ m second)))
 
 ;; Times are based on the astronomical julian year
 

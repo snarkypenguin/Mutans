@@ -22,6 +22,18 @@
 ;;(load "utils.scm")
 ;;(load "constants.scm")
 
+(define postscript-handle-list '())
+(define (postscript? f) (and (member f postscript-handle-list) #t))
+
+;- Text files using similar call mechanisms to the postscript handler
+
+
+(define text-handle-list '())
+(define (text? f) (and (member f text-handle-list) #t))
+
+(define (file-handle? x)
+  (or (postscript? x) (text? x)))
+
 (define ps-black 0.0)
 (define ps-dark-grey 0.33)
 (define ps-grey 0.5)
@@ -32,47 +44,45 @@
 (define ps-green '(0.0 1.0 0.0))
 (define ps-blue '(0.0 0.0 1.0))
 (define ps-yellow '(1.0 1.0 0.0))
+(define ps-brown '(165/256 42/256 42/256))
 (define ps-cyan '(0.0 1.0 1.0))
 (define ps-magenta '(1.0 0.0 1.0))
 
-(define ps-pale-red '(1.0 0.66 0.66))
-(define ps-pale-green '(0.66 1.0 0.66))
-(define ps-pale-blue '(0.66 0.66 1.0))
-(define ps-pale-yellow '(1.0 1.0 0.66))
-(define ps-pale-cyan '(0.66 1.0 1.0))
-(define ps-pale-magenta '(1.0 0.66 1.0))
+(define ps-pale-red '(1.0 0.88 0.88))
+(define ps-pale-green '(0.88 1.0 0.88))
+(define ps-pale-blue '(0.88 0.88 1.0))
+(define ps-pale-yellow '(1.0 1.0 0.88))
+(define ps-pale-brown '(210/256 200/256 240/256))
+(define ps-pale-cyan '(0.88 1.0 1.0))
+(define ps-pale-magenta '(1.0 0.88 1.0))
+
+(define ps-light-red '(1.0 0.66 0.66))
+(define ps-light-green '(0.66 1.0 0.66))
+(define ps-light-blue '(0.66 0.66 1.0))
+(define ps-light-yellow '(1.0 1.0 0.66))
+(define ps-light-brown '(210/256 180/256 140/256))
+(define ps-light-cyan '(0.66 1.0 1.0))
+(define ps-light-magenta '(1.0 0.66 1.0))
 
 (define ps-mid-red (list 0.66 0.0 0.0))
 (define ps-mid-green (list 0.0 0.66 0.0))
 (define ps-mid-blue (list 0.0 0.0 0.66))
 (define ps-mid-magenta (list 0.66 0.0 0.66))
 (define ps-mid-yellow (list 0.66 0.66 0.0))
+(define ps-mid-brown '(210/256 105/256 30/256))
 (define ps-mid-cyan (list 0.0 0.66 0.66))
 
 (define ps-dark-red (list 0.33 0.0 0.0))
 (define ps-dark-green (list 0.0 0.33 0.0))
 (define ps-dark-blue (list 0.0 0.0 0.33))
 (define ps-dark-magenta (list 0.33 0.0 0.33))
+(define ps-dark-brown '(139/256 69/256 19/256))
 (define ps-dark-yellow (list 0.33 0.33 0.0))
 (define ps-dark-cyan (list 0.0 0.33 0.33))
 
 (define ps-orange (list 1.0 0.5 0.0))
 (define ps-rose (list 1.0 0.0 0.5))
 (define ps-springgreen (list 0.5 1.0 0.0))
-(define ps-purple (list 0.5 0.0 1.0 ))
-(define ps-limegreen (list 0.0 1.0 0.5))
-(define ps-seablue (list 0.0 0.5 1.0 ))
-
-(define ps-dark-orange (list 0.66 0.33 0.0))
-(define ps-dark-rose (list 0.66 0.0 0.33))
-(define ps-dark-springgreen (list 0.33 0.66 0.0))
-(define ps-dark-purple (list 0.33 0.0 0.66 ))
-(define ps-dark-limegreen (list 0.0 0.66 0.33))
-(define ps-dark-seablue (list 0.0 0.33 0.66 ))
-
-(define ps-Rgb (list 1.0 0.33 0.33))
-(define ps-rGb (list 0.33 1.00  0.33))
-(define ps-rgB (list 0.33 0.33 1.00))
 
 
 (define (make-it-a-string s) 
@@ -174,28 +184,28 @@
    (else
     (let ((tv (ps-list-ref* lst ix)))
       (if (atom? tv)
-	  ;; indices fully resolve an element
-	  (let* ((short-ix (reverse (cdr (reverse ix))))
-		 (tv (ps-list-ref* lst short-ix)))
-	    (list-set! tv (car (reverse ix)) vv))
-	  (if (= (length tv) (length vv))
-	      ;; it's ok, do it
-	      (ps-list-set* (map (lambda (x) (ps-list-ref* x (car ix)) lst) (cdr ix)) vv)
-	      (abort "The value list does not have the indicated number of elements"))))
+			 ;; indices fully resolve an element
+			 (let* ((short-ix (reverse (cdr (reverse ix))))
+					  (tv (ps-list-ref* lst short-ix)))
+				(list-set! tv (car (reverse ix)) vv))
+			 (if (= (length tv) (length vv))
+				  ;; it's ok, do it
+				  (ps-list-set* (map (lambda (x) (ps-list-ref* x (car ix)) lst) (cdr ix)) vv)
+				  (abort "The value list does not have the indicated number of elements"))))
     )))
 
 (define (ps-make-list* . dims)
   (let ((defval 0))
     (if (and (pair? dims) (pair? (car dims))) 
-	(begin
-	  (if (pair? (cdr dims))
-	      (set! defval (cadr dims)))
+		  (begin
+			 (if (pair? (cdr dims))
+				  (set! defval (cadr dims)))
 
-	  (set! dims (car dims))))
+			 (set! dims (car dims))))
 
     (if (null? (cdr dims))
-	(make-list (car dims) defval)
-	(map (lambda (x) (ps-make-list* (cdr dims) defval)) (make-list (car dims) )))))
+		  (make-list (car dims) defval)
+		  (map (lambda (x) (ps-make-list* (cdr dims) defval)) (make-list (car dims) )))))
 
 (define (ps-simple-list? l)	
   (apply ps-andf (map atom? l)))
@@ -209,15 +219,15 @@
 (define (transpose-list-matrix A)
   (if (ps-list-matrix? A) 
       (let* ((dima (list (length A) (length (car A))))
-	     (B (ps-make-list* (list (cadr dima) (car dima)) 0)))
-	(for-each
-	 (lambda (i) 
-	   (for-each
-	    (lambda (j)
-	      (ps-list-set* B (list j i) (ps-list-ref* A (list i j))))
-	    (seq (cadr dima))))
-	 (seq (car dima)))
-	B)
+				 (B (ps-make-list* (list (cadr dima) (car dima)) 0)))
+		  (for-each
+			(lambda (i) 
+			  (for-each
+				(lambda (j)
+				  (ps-list-set* B (list j i) (ps-list-ref* A (list i j))))
+				(seq (cadr dima))))
+			(seq (car dima)))
+		  B)
       #f))
 
 (define (*-matrix a b)
@@ -227,11 +237,11 @@
    ((and (number? a) (ps-list-matrix? b)) (map (lambda (x) (map (lambda (y) (* a y)) x)) b))
    (else 
     (let* ((dima (list (length a) (length (car a))))
-	   (dimb (list (length b) (length (car b))))
-	   )
+			  (dimb (list (length b) (length (car b))))
+			  )
       (if (not (= (cadr dima) (car dimb)))
-	  (abort "incompatible matrices")
-	  (map (lambda (x) (map (lambda (y) (apply + (map * x y))) (transpose-list-matrix b))) a))))))
+			 (abort "incompatible matrices")
+			 (map (lambda (x) (map (lambda (y) (apply + (map * x y))) (transpose-list-matrix b))) a))))))
 
 
 
@@ -272,24 +282,27 @@
 
 
 
-(define (rotate-point-list theta pointlist)
-  (map (lambda (x) (let ((m (make-list-matrix `(,(cos theta) ,(- (sin theta))) `(,(sin theta) ,(cos theta)))))
-		     ;;???(*-matrix-vector m x)
-		     (*-matrix m x)
-		     ))
+(define (rotate-pointlist theta pointlist)
+  (map (lambda (x) (let ((m (make-list-matrix
+									  (list
+										(list (cos theta) (- (sin theta)))
+										(list (sin theta) (cos theta))))))
+							;;???(*-matrix-vector m x)
+							(*-matrix m x)
+							))
        pointlist))
 
 (define (adjust operator deviant pointlist)
   (if (and (pair? pointlist) (pair? (car pointlist)))
       (if (pair? deviant)
-	  (map (lambda (pt) (map (lambda (s o) (operator s o )) deviant pt)) pointlist)
-	  (map (lambda (pt) 
-		 (map (lambda (o) 
-			(operator deviant o)) pt)) pointlist)
-	  )
+			 (map (lambda (pt) (map (lambda (s o) (operator s o )) deviant pt)) pointlist)
+			 (map (lambda (pt) 
+					  (map (lambda (o) 
+								(operator deviant o)) pt)) pointlist)
+			 )
       (if (pair? deviant)
-	  (map operator deviant pointlist)
-	  (map (lambda (o) (operator deviant o)) pointlist))))
+			 (map operator deviant pointlist)
+			 (map (lambda (o) (operator deviant o)) pointlist))))
 
 
 (define (scale-pointlist k pointlist)
@@ -329,11 +342,11 @@
     (translate-pointlist 
      location 
      (scale-pointlist radius-pts 
-		      (map (lambda (x) 
-			     (list (cos (/ (* tau x) divisions)) 
-				   (sin (/ (* tau x) divisions))))
-			   (list-tabulate divisions (lambda (x) x))
-			   )))))
+							 (map (lambda (x) 
+									  (list (cos (/ (* tau x) divisions)) 
+											  (sin (/ (* tau x) divisions))))
+									(list-tabulate divisions (lambda (x) x))
+									)))))
 
 (define (deep-string->number lst) 
   (cond
@@ -358,12 +371,12 @@
     data))
 
 
-(define (adjusted-plot-polygon ps width greyvalue open-path project-point-fn point-list)
+(define (adjusted-plot-polygon ps width col open-path project-point-fn point-list)
   ;;  (display "Wakawackawaka!\n")
   (let ((plot (if project-point-fn (map project-point-fn point-list) point-list)))
 ;   (pp plot)
 ;   (display "With... a banana!\n")
-    (plot-polygon ps width greyvalue plot open-path)))
+    (plot-polygon ps width col plot open-path)))
 
 (define (adjusted-plot-filled-polygon ps width bordervalue interiorvalue project-point-fn point-list)
   (let ((plot (if project-point-fn (map project-point-fn point-list) point-list)))
@@ -377,8 +390,8 @@
   (lambda (ps rad x width whiteness #!optional filled)
     ;; (adjusted-plot-polygon pshandle width whiteness openpath? projectionfn pointlist) ;; whiteness is in [0,1]
     (if filled
-	(adjusted-plot-filled-polygon ps width whiteness #f #f 0.1 (make-circle x rad 120))
-	(adjusted-plot-polygon ps width whiteness #f #f (make-circle x rad 120))		)
+		  (adjusted-plot-filled-polygon ps width whiteness #f #f 0.1 (make-circle x rad 120))
+		  (adjusted-plot-polygon ps width whiteness #f #f (make-circle x rad 120))		)
 
     )
   )
@@ -390,51 +403,57 @@
 (define (set-font ps . args)
   (case (length args)
     ((1) (if (eq? (car args) 'reset)
-	     (set-font 'Times-Roman 12)
-	     (error "argument to set-font should either be 'reset or a font and size" args)))
+				 (set-font 'Times-Roman 12)
+				 (error "argument to set-font should either be 'reset or a font and size" args)))
     ((2)  (apply ps (cons  'font  args)))
     (else (error "Too many arguments to set-font" args))))
 
+(define (->real x)
+  (cond
+	((number? x) (* 1.0 x))
+	((list? x) (map ->real x))
+	(else x)))
+
 (define (set-color ps . args)
   (case (length args)
-    ((1 3) (if (eq? (car args) 'reset)
-	       (ps 'set-grey 0.0)
-	       (if (= 1 (length args))
-		   (ps  'setgrey (car args))
-		   (apply ps (cons 'setrgb args)))))
-
+    ((1 3)
+	  (if (eq? (car args)
+				  'reset)
+			(ps 'set-grey 0.0)
+			(if (= 1 (length args))
+				 (ps  'setgrey (car args))
+				 (apply ps (cons 'setrgb args)))))
     (else (error "argument to set-color should either be 'reset or a single number or a triplet" args))))
 
 (define set-colour set-color)
-		 
+
 (define (set-linewidth ps . args)
   (case (length args)
     ((1) (if (eq? (car args) 'reset)
-	     (ps 'font 'Times-Roman 12)
-	     (ps 'linewidth 0.2)))
+				 (ps 'font 'Times-Roman 12)
+				 (ps 'linewidth 0.2)))
     ((2)  (apply ps (cons  'font  args))
      (apply ps (cons 'linewidth args)))
     (else (error "Too many arguments to set-linewidth" args))))
 
-(define postscript-handle-list '())
-(define (postscript? f) (and (member f postscript-handle-list) #t))
-
-(define (make-ps port/filename fontlist)
+(define (make-postscript port/filename fontlist)
   (let ((file (cond
-	       ((output-port? port/filename) port/filename)
-	       (else (open-output-file port/filename))))
-	(fonts fontlist)
-	(pagescale '(1.0 1.0))
-	(pageoffset '(0 0))
-	(pagecount 0)
-	(font-stack '())
-	(color-stack '())
-	(width-stack '())
-	(marked #f)
-	)
+					((output-port? port/filename) port/filename)
+					(else (open-output-file port/filename))))
+		  (fonts fontlist)
+		  (pagescale '(1.0 1.0))
+		  (pageoffset '(0 0))
+		  (pagecount 0)
+		  (font-stack '())
+		  (color-stack '())
+		  (width-stack '())
+		  (marked #f)
+		  )
+
     (define (emit-page-start)
       (set! marked #t)
-      (ps-display (string-append "%%Page " (+ 1 pagecount) " "  (+ 1 pagecount) "\n")))
+		(let ((n (number->string (+ 1 pagecount))))
+		  (ps-display (string-append "%%Page " n " "  n "\n"))))
 
 
     (define (ps-display thing)
@@ -500,29 +519,29 @@
       (cond 
        ((null? pointlist) #f)
        ((and (list? pointlist) (list? (car pointlist)))
-	(let loop ((p pointlist))
-	  (if (not (null? p))
-	      (begin
-		(ps-pair-or-list cmd (car p))
-		(loop (cdr p))))))
+		  (let loop ((p pointlist))
+			 (if (not (null? p))
+				  (begin
+					 (ps-pair-or-list cmd (car p))
+					 (loop (cdr p))))))
        ((list? pointlist)
-	(display (car pointlist) file)
-	(display " " file)
-	(display (cadr pointlist) file)
-	(display " " file)
-	(display cmd file)
-	(display "\n" file))
+		  (display (car pointlist) file)
+		  (display " " file)
+		  (display (cadr pointlist) file)
+		  (display " " file)
+		  (display cmd file)
+		  (display "\n" file))
        (#t #f)))
     
     (define (font nfont size)
       (if (not (null? fonts))
-	  (begin
-	    (display "/" file)
-	    (display nfont file)
-	    (display " findfont\n" file)
-	    (display size file)
-	    (display " scalefont setfont\n" file))
-	  #f))
+			 (begin
+				(display "/" file)
+				(display nfont file)
+				(display " findfont\n" file)
+				(display size file)
+				(display " scalefont setfont\n" file))
+			 #f))
 
     (define (push-font nfont size)
       (set! font-stack (cons (list nfont size) font-stack))
@@ -531,9 +550,9 @@
     (define (pop-font)
       (if (pair? font-stack) (set! font-stack (cdr font-stack)))
       (if (null? font-stack)
-	  (font 'time-roman 12)
-	  (apply font (car font-stack))
-	  ))
+			 (font 'time-roman 12)
+			 (apply font (car font-stack))
+			 ))
     
     (define (times-roman size)
       (font "Times-Roman" size))
@@ -558,11 +577,11 @@
 
       (display "%%DocumentFonts: " file)
       (if (list? fonts)
-	  (map (lambda (x) 
-		 (display x file) 
-		 (display " " file)) fonts)
-	  (display fonts file)
-	  )
+			 (map (lambda (x) 
+					  (display x file) 
+					  (display " " file)) fonts)
+			 (display fonts file)
+			 )
       (display "\n" file)
       
       (ps-display "%%Pages: (atend)\n")
@@ -582,18 +601,15 @@
 
     (define (select-page vert horiz) ; in units of one page length or width
       (let ((v (* (/ 297 25.4) 72))
-	    (h (* (/ 210 25.4) 72))
-	    )
-	(set! pageoffset (list (* horiz h) (* vert v)))
-	))
+				(h (* (/ 210 25.4) 72))
+				)
+		  (set! pageoffset (list (* horiz h) (* vert v)))
+		  ))
     
 
-    (define (start-page label number)
+    (define (start-page #!rest args)
       (set! marked #t)
-      (display "%%Page: " file)
-      (display label file)
-      (display " " file)
-      (display number file)
+		(emit-page-start )
       (display "\n" file)
       (apply translate pageoffset)
       (apply scale pagescale)
@@ -601,6 +617,7 @@
     
     (define (end-page)
       #t
+		
 ;      (apply translate pageoffset)
 ;      (apply scale pagescale)
       )
@@ -642,16 +659,24 @@
       (set! marked #t)
       (for-each
        (lambda (x)
-	 (ps-display (string-append "%%   " (make-it-a-string x))))
+			(ps-display (string-append "%%   " (make-it-a-string x))))
        args)
       )
     
     (define (ps-Comment #!rest args)
       (set! marked #t)
+      (for-each
+       (lambda (x)
+			(ps-display (string-append "%%   " (make-it-a-string x) "\n%%")))
+       args)
+      )
+    
+    (define (ps-COMMENT #!rest args)
+      (set! marked #t)
       (ps-display "%%\n%%")
       (for-each
        (lambda (x)
-	 (ps-display (string-append "%%   " (make-it-a-string x))))
+			(ps-display (string-append "%%   " (make-it-a-string x))))
        args)
       (ps-display "%%\n%%")
       )
@@ -666,11 +691,11 @@
 
     (define (lineskip #!optional specific)
       (if (not specific) 
-	  (set! specific "OgHqQ")
-	  (cond
-	   ((string? specific) #t)
-	   ((list? specific) (set! specific (string-append map object->string specific)))
-	   (else (set! specific (object->string specific)))))
+			 (set! specific "OgHqQ")
+			 (cond
+			  ((string? specific) #t)
+			  ((list? specific) (set! specific (string-append map object->string specific)))
+			  (else (set! specific (object->string specific)))))
 
       (gsave)
       (show-charpath 'true specific)
@@ -692,17 +717,17 @@
     (define (pop-width)
       (if (pair? width-stack) (set! width-stack (cdr width-stack)))
       (if (null? width-stack)
-	  (setlinewidth 0.2)
-	  (setlinewidth (car width-stack))))
+			 (setlinewidth 0.2)
+			 (setlinewidth (car width-stack))))
 
 
     (define (setgray weight)
       (let* ((weight (cond
-		      ((number? weight) weight)
-		      ((and (list? weight) (= (length weight) 3))
-		       (apply + (map * weight '(0.2989 0.5870 0.1140))))
-		      (#t (error "Bad argument to setgray" weight)))))
-	(ps-1-arg "setgray" weight)))
+							 ((number? weight) (->real weight))
+							 ((and (list? weight) (= (length weight) 3))
+							  (apply + (map * weight '(0.2989 0.5870 0.1140))))
+							 (#t (error "Bad argument to setgray" weight)))))
+		  (ps-1-arg "setgray" weight)))
     
     (define (setrgb r g b)
       (ps-3-arg "setrgbcolor" r g b))
@@ -712,43 +737,45 @@
 
     (define push-color
       (lambda x
-	(let* ((x (if (and (pair? x) (pair? (car x))) (car x) x))
-	       (lx (length x))
-	       )
-	  (cond
-	   ((= lx 1)
-	    (set! color-stack (cons x color-stack))
-	    (apply setgray x))
-	   ((= lx 2)
-	    (set! color-stack (cons x color-stack))
-	    (apply setgray (cdr x))
-	    ((= lx 3) ;rgb
-	     (set! color-stack (cons x color-stack))
-	     (apply setrgb x)
-	     )
-	    ((= 4 lx) ;rgb or hsv
-	     (cond
-	      ((eq? (car x) 'rgb)
-	       (set! color-stack (cons (cdr x) color-stack))
-	       (apply setrgb (cdr x)))
-	      ((eq? (car x) 'hsv)
-	       (set! color-stack (cons x color-stack))
-	       (apply sethsv (cdr x)))
-	      (#t (error "Bad rgb/hsv spec, should be ('rgb r g b) or ('hsv h s v)" x))))
-	    (#t (error "Bad arguments for push-color" x))
-	    ))))
+		  (let* ((x (if (and (pair? x) (pair? (car x))) (car x) x))
+					(lx (length x))
+					)
+			 (cond
+			  ((and (pair? x) (pair? (car x)))
+				(apply push-color (car x)))
+			  ((= lx 1)
+				(set! color-stack (cons x color-stack))
+				(apply setgray x))
+			  ((= lx 2)
+				(set! color-stack (cons x color-stack))
+				(apply setgray (cdr x))
+				((= lx 3) ;rgb
+				 (set! color-stack (cons x color-stack))
+				 (apply setrgb x)
+				 )
+				((= 4 lx) ;rgb or hsv
+				 (cond
+				  ((eq? (car x) 'rgb)
+					(set! color-stack (cons (cdr x) color-stack))
+					(apply setrgb (cdr x)))
+				  ((eq? (car x) 'hsv)
+					(set! color-stack (cons x color-stack))
+					(apply sethsv (cdr x)))
+				  (#t (error "Bad rgb/hsv spec, should be ('rgb r g b) or ('hsv h s v)" x))))
+				(#t (error "Bad arguments for push-color" x))
+				))))
       )
 
     (define (pop-color)
       (if (pair? color-stack)
-	  (set! color-stack (cdr color-stack)))
+			 (set! color-stack (cdr color-stack)))
       (cond
        ((null? color-stack) (setgray 0))
        ((eq? (caar color-stack) 'hsv) (apply sethsv (cdar color-stack)))
        ((and (pair? (car color-stack)) (pair? (cdar color-stack)))
-	(apply setrgb (cdar color-stack)))
+		  (apply setrgb (cdar color-stack)))
        ((and (pair? (car color-stack)) (null? (cdar color-stack)))
-	(apply setgray (car color-stack)))
+		  (apply setgray (car color-stack)))
        (#t (error "What?"))))
 
     (define (stroke)
@@ -776,15 +803,15 @@
 
     (define (map-character c)
       (if (not (char? c))
-	  c
-	  (cond 
-	   ;;((eq? c #\ht) "\\t")
-	   ((eq? c #\tab) "\\t")
-	   ((eq? c #\newline) "\\n")
-	   ((eq? c #\return) "\\t")
-	   ((eq? c #\)) "\\)")
-	   ((eq? c #\() "\\(")
-	   (#t c))))
+			 c
+			 (cond 
+			  ;;((eq? c #\ht) "\\t")
+			  ((eq? c #\tab) "\\t")
+			  ((eq? c #\newline) "\\n")
+			  ((eq? c #\return) "\\t")
+			  ((eq? c #\)) "\\)")
+			  ((eq? c #\() "\\(")
+			  (#t c))))
 
     (define (show-map string)
       (set! marked #t)
@@ -792,16 +819,16 @@
     
     (define (show tlist) ;;; display text or numbers, for example
       (if (null? fonts)
-	  #f
-	  (begin
-	    (set! marked #t)
-	    (cond 
-	     ((string? tlist)
-	      (display (string-append "(" tlist ") show\n") file))
-	     ((number? tlist)
-	      (display (string-append "(" (number->string tlist) ") show\n") file))
-	     ((list? tlist) (map show tlist)))
-	    ))
+			 #f
+			 (begin
+				(set! marked #t)
+				(cond 
+				 ((string? tlist)
+				  (display (string-append "(" tlist ") show\n") file))
+				 ((number? tlist)
+				  (display (string-append "(" (number->string tlist) ") show\n") file))
+				 ((list? tlist) (map show tlist)))
+				))
       )
 
     (define (show! tlist) ;; keeps the current pointer in the place it starts (at the beginning of the string)
@@ -813,16 +840,16 @@
 
     (define (show-charpath mode tlist)
       (if (null? fonts)
-	  #f
-	  (begin
-	    (set! marked #t)
-	    (cond 
-	     ((string? tlist)
-	      (display (string-append "(" tlist ")" (if mode " true " " false ") "charpath pathbbox\n") file))
-	     ((number? tlist)
-	      (display (string-append "(" (number->string tlist) ")" (if mode " true " " false ") "charpath pathbbox\n") file))
-	     ((list? tlist) (map show tlist)))
-	    ))
+			 #f
+			 (begin
+				(set! marked #t)
+				(cond 
+				 ((string? tlist)
+				  (display (string-append "(" tlist ")" (if mode " true " " false ") "charpath pathbbox\n") file))
+				 ((number? tlist)
+				  (display (string-append "(" (number->string tlist) ")" (if mode " true " " false ") "charpath pathbbox\n") file))
+				 ((list? tlist) (map show tlist)))
+				))
       )
 
     (define (make-place name)
@@ -907,140 +934,167 @@
     (define (show-table tlist)
       (for-each 
        (lambda (line)
-	 (currentpoint)
-	 (set! marked #t)
-	 (show line)
-	 (ps-display " moveto")
-	 (linefeed 1)
-	 )
+			(currentpoint)
+			(set! marked #t)
+			(show line)
+			(ps-display " moveto")
+			(linefeed 1)
+			)
        tlist))
     
 
     (emit-header)
 
     (letrec ((postscript-handle 
-	      (lambda x
-		(if (null? x)
-		    #f
-		    (let ((cmd (car x))
-			  (args (cdr x)))
-		      (cond
-		       ((eq? cmd 'file) file)
-		       ((eq? cmd 'close) 
-			(trailer)
-			(if marked (showpage))
-			(display "%%Pages: " file)
-			(display pagecount file)
-			(display "\n" file)
-			(close-output-port file)
-			(set! postscript-handle-list
-			      (filter (lambda (x) (not (eq? x file))) postscript-handle-list))
-			)
+				  (lambda x
+					 (if (null? x)
+						  #f
+						  (let ((cmd (car x))
+								  (args (cdr x)))
+							 (cond
+							  ((eq? cmd 'file) file)
+							  ((eq? cmd 'close) 
+								(trailer)
+								(if marked (showpage))
+								(display "%%Pages: " file)
+								(display pagecount file)
+								(display "\n" file)
+								(close-output-port file)
+								(set! postscript-handle-list
+										(filter (lambda (x) (not (eq? x file))) postscript-handle-list))
+								)
 
-		       ((eq? cmd 'display) (apply ps-display args))
-		       ((eq? cmd 'postscript) (apply ps-display args))
-		       ((eq? cmd 'comment) 
-			(apply ps-comment args)
-;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
-			)
-		       ((eq? cmd 'Comment) 
-			(apply ps-Comment args)
-;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
-			)
+							  ((eq? cmd 'display) (apply ps-display args))
+							  ((eq? cmd 'postscript) (apply ps-display args))
 
-		       ((eq? cmd 'emit-page-start) (emit-page-start))
-		       ((eq? cmd 'set-font) (apply font args))
-		       ((eq? cmd 'push-font) (push-font (car args) (cadr args)))
-		       ((eq? cmd 'pop-font) (pop-font))
+							  ((eq? cmd 'comment) 
+								(apply ps-comment args)
+;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
+								)
+							  ((eq? cmd 'Comment) 
+								(apply ps-Comment args)
+;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
+								)
+							  ((eq? cmd 'COMMENT) 
+								(apply ps-Comment args)
+;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
+								)
+
+							  ((eq? cmd 'emit-page-start) (emit-page-start))
+							  ((eq? cmd 'set-font) (apply font args))
+							  ((eq? cmd 'push-font) (push-font (car args) (cadr args)))
+							  ((eq? cmd 'pop-font) (pop-font))
 							  ;;; ((eq? cmd 'push-color)
 							  ;;; 	(if (= (length args) 1)
 							  ;;; 		 (push-color1 args)
 							  ;;; 		 (push-color2 args)))
 
-		       ((eq? cmd 'push-color) (apply push-color args))
-		       ((eq? cmd 'pop-color) (pop-color))
-		       ((eq? cmd 'push-colour) (apply push-color args))
-		       ((eq? cmd 'pop-colour) (pop-color))
-		       ((eq? cmd 'push-width) (push-width args))
-		       ((eq? cmd 'pop-width) (pop-width))
-		       ((eq? cmd 'font) (apply font args))
-		       ((eq? cmd 'Times-Roman) (apply font "Times-Roman" args))
-		       ((eq? cmd 'Times-Italic) (apply font "Times-Italic" args))
-		       ((eq? cmd 'Times-Bold) (apply font "Times-Bold" args))
-		       ((eq? cmd 'Helvetica) (apply font "Helvetica" args))
-		       ((eq? cmd 'Helvetica-Italic) (apply font "Helvetica-Italic" args))
-		       ((eq? cmd 'Helvetica-Bold) (apply font "Helvetica-Bold" args))
-		       
-		       ((eq? cmd 'show) (apply show args))
-		       ((eq? cmd 'show!) (apply show! args))
-		       ((eq? cmd 'show-charpath) (apply show-charpath args))
-		       ((eq? cmd 'show-centered) (apply show-centered args))
-		       ((eq? cmd 'show-right) (apply show-right args))
-		       ((eq? cmd 'show-centered!) (apply show-centered! args))
-		       ((eq? cmd 'show-right!) (apply show-right! args))
+							  ((eq? cmd 'set-color) (dnl* "use push-color, setgrey, setrgbcolor, or sethsvcolor"))
+							  ((eq? cmd 'push-color) (apply push-color (map ->real args)))
+							  ((eq? cmd 'pop-color) (pop-color))
+							  ((eq? cmd 'push-colour) (apply push-color (map ->realargs)))
+							  ((eq? cmd 'pop-colour) (pop-color))
+							  ((eq? cmd 'push-width) (push-width args))
+							  ((eq? cmd 'pop-width) (pop-width))
+							  ((eq? cmd 'font) (apply font args))
+							  ((eq? cmd 'Times-Roman) (apply font "Times-Roman" args))
+							  ((eq? cmd 'Times-Italic) (apply font "Times-Italic" args))
+							  ((eq? cmd 'Times-Bold) (apply font "Times-Bold" args))
+							  ((eq? cmd 'Helvetica) (apply font "Helvetica" args))
+							  ((eq? cmd 'Helvetica-Italic) (apply font "Helvetica-Italic" args))
+							  ((eq? cmd 'Helvetica-Bold) (apply font "Helvetica-Bold" args))
+							  
+							  ((eq? cmd 'show) (apply show args))
+							  ((eq? cmd 'show!) (apply show! args))
+							  ((eq? cmd 'show-charpath) (apply show-charpath args))
+							  ((eq? cmd 'show-centered) (apply show-centered args))
+							  ((eq? cmd 'show-right) (apply show-right args))
+							  ((eq? cmd 'show-centered!) (apply show-centered! args))
+							  ((eq? cmd 'show-right!) (apply show-right! args))
 
-		       ((eq? cmd 'show-table) (apply show-table args))
+							  ((eq? cmd 'show-table) (apply show-table args))
 
-		       ((eq? cmd 'start-page) (apply start-page args))
-		       ((eq? cmd 'end-page) (apply end-page args))
+							  ((eq? cmd 'start-page) (apply start-page args))
+							  ((eq? cmd 'end-page) (apply end-page args))
 
-		       ((eq? cmd 'gsave) (gsave))
-		       ((eq? cmd 'grestore) (grestore))
-		       ((eq? cmd 'showpage) (showpage))
+							  ((eq? cmd 'gsave) (gsave))
+							  ((eq? cmd 'grestore) (grestore))
+							  ((eq? cmd 'showpage) (showpage))
 
-		       ((eq? cmd 'moveto) (moveto args))
-		       ((eq? cmd 'rmoveto) (rmoveto args))
-		       ((eq? cmd 'lineto) (lineto args))
-		       ((eq? cmd 'rlineto) (rlineto args))
-		       ((eq? cmd 'closepath) (closepath))
-		       ((eq? cmd 'newpath) (newpath))
-		       ((eq? cmd 'exch) (exch))
+							  ((eq? cmd 'moveto) (moveto args))
+							  ((eq? cmd 'rmoveto) (rmoveto args))
+							  ((eq? cmd 'lineto) (lineto args))
+							  ((eq? cmd 'rlineto) (rlineto args))
+							  ((eq? cmd 'closepath) (closepath))
+							  ((eq? cmd 'newpath) (newpath))
+							  ((eq? cmd 'exch) (exch))
 
-		       ((eq? cmd 'lineweight) (apply setlinewidth args))
-		       ((eq? cmd 'setgrey) (apply setgray args))
-		       ((eq? cmd 'setrgbcolor) (apply setrgb args))
-		       ((eq? cmd 'setrgbcolour) (apply setrgb args))
-		       ((eq? cmd 'sethsvcolor) (apply sethsv args))
-		       ((eq? cmd 'sethsvcolour) (apply sethsv args))
-		       ((eq? cmd 'setlinewidth) (apply setlinewidth args))
-		       ((eq? cmd 'setgray) (apply setgray args))
-		       ((eq? cmd 'stroke) (stroke))
-		       ((eq? cmd 'fill) (fill))
+							  ((eq? cmd 'lineweight) (apply setlinewidth args))
+							  ((eq? cmd 'setgrey) (apply setgray (map ->real args)))
+							  ((eq? cmd 'setrgbcolor)
+								(if (pair? (car args)) (set! args (car args)))
+								(let ((args (map ->real args)))
+								  (if (= 1 (length args))
+										(apply setgray (car args))
+										(apply setrgb args))))
+							  ((eq? cmd 'setrgbcolour)
+								(if (pair? (car args)) (set! args (car args)))
+								(let ((args (map ->real args)))
+								  (if (= 1 (length args))
+										(apply setgray (car args))
+										(apply setrgb args))))
+							  ((eq? cmd 'sethsvcolor)
+								(if (pair? (car args)) (set! args (car args)))
+								(let ((args (map ->real args)))
+								  (if (= 1 (length args))
+										(apply setgray (car args))
+										(apply sethsv args))))
+							  ((eq? cmd 'sethsvcolour)
+								(if (pair? (car args)) (set! args (car args)))
+								(let ((args (map ->real args)))
+								  (if (= 1 (length args))
+										(apply setgray (car args))
+										(apply sethsv args))))
+							  ((eq? cmd 'setlinewidth) (apply setlinewidth args))
+							  ((eq? cmd 'setgray) (apply setgray (map ->real args)))
+							  ((eq? cmd 'stroke) (stroke))
+							  ((eq? cmd 'fill) (fill))
 
-		       ((eq? cmd 'rotate) (apply rotate args))
-		       ((eq? cmd 'translate) (apply translate args))
-		       ((eq? cmd 'scale) (apply scale args))
+							  ((eq? cmd 'rotate) (apply rotate args))
+							  ((eq? cmd 'translate) (apply translate args))
+							  ((eq? cmd 'scale) (apply scale args))
 
-		       ((eq? cmd 'arc) (apply arc args))
-		       ((eq? cmd 'arcn) (apply arcn args))
-		       ((eq? cmd 'pages) pagecount)
-		       ((eq? cmd 'define-units) (define-unitnames))
+							  ((eq? cmd 'arc) (apply arc args))
+							  ((eq? cmd 'arcn) (apply arcn args))
+							  ((eq? cmd 'pages) pagecount)
+							  ((eq? cmd 'define-units) (define-unitnames))
 
-		       ((eq? cmd 'make-place) (apply make-place args))
-		       ((eq? cmd 'set-place) (apply set-place args))
-		       ((eq? cmd 'place) (apply place args))
-		       ((eq? cmd 'column) (apply column args))
-		       ((eq? cmd 'row) (apply row args))
-		       ((eq? cmd 'linefeed) (apply linefeed args))
+							  ((eq? cmd 'make-place) (apply make-place args))
+							  ((eq? cmd 'set-place) (apply set-place args))
+							  ((eq? cmd 'place) (apply place args))
+							  ((eq? cmd 'column) (apply column args))
+							  ((eq? cmd 'row) (apply row args))
+							  ((eq? cmd 'linefeed) (apply linefeed args))
 
-		       (#t (map display cmd " is not recognised\n")))
-		      ))
-		)))
+							  (#t (map display cmd " is not recognised\n")))
+							 ))
+					 )))
       (font (car fontlist) 12) ;; Default is whatever is first in the fontlist at 12pt
       (set! postscript-handle-list (cons postscript-handle postscript-handle-list ))
       postscript-handle
       )
     ))
 
+(define make-ps make-postscript)
 
 ;; For example
 (define (graph-paper ps gridsize)
   (let* ((g (* 72 (/ gridsize 25.4)))
-	 (W (* (/ 210 25.4) 72))
-	 (H (* (/ 297 25.4) 72))
-	 (w W)
-	 (h H)
-	 )
+			(W (* (/ 210 25.4) 72))
+			(H (* (/ 297 25.4) 72))
+			(w W)
+			(h H)
+			)
 
     (set! w (* g (- (round (/ W g)) 4)))
     (set! h (* g (- (round (/ H g)) 8)))
@@ -1052,19 +1106,19 @@
 
     (let first ((i 0))
       (if (<= (* i g) w)
-	  (begin
-	    (ps 'moveto (* i g) 0)
-	    (ps 'rlineto 0 h)
-	    (first (+ 1  i))
-	    ))
+			 (begin
+				(ps 'moveto (* i g) 0)
+				(ps 'rlineto 0 h)
+				(first (+ 1  i))
+				))
       )
     (let second ((i 0))
       (if (<= (* i g) h)
-	  (begin
-	    (ps 'moveto 0 (* i g))
-	    (ps 'rlineto w 0)
-	    (second (+ 1  i))
-	    ))
+			 (begin
+				(ps 'moveto 0 (* i g))
+				(ps 'rlineto w 0)
+				(second (+ 1  i))
+				))
       
       )
     (ps 'stroke)
@@ -1075,7 +1129,7 @@
 
 
 (define (make-graph-paper filename gridsize)
-  (let* ((ps (make-ps filename '())))
+  (let* ((ps (make-postscript filename '())))
     (graph-paper ps gridsize)
     (ps 'showpage)
     (ps 'close)
@@ -1086,16 +1140,22 @@
   (ps 'moveto (car vlist))
   (let loop ((v (cdr vlist)))
     (if (null? v)
-	(if (or (null? open-polygon) (not (car open-polygon))) (ps 'closepath))
-	(if (and (list? v) 
-		 (list? (car v)) 
-		 (not (null? (car v))) 
-		 (apply ps-andf (map number? (car v))))
-	    (begin
-	      (ps 'lineto (caar v) (cadar v))
-	      (loop (cdr v))))))
+		  (if (or (null? open-polygon) (not (car open-polygon))) (ps 'closepath))
+		  (if (and (list? v) 
+					  (list? (car v)) 
+					  (not (null? (car v))) 
+					  (apply ps-andf (map number? (car v))))
+				(begin
+				  (ps 'lineto (caar v) (cadar v))
+				  (loop (cdr v))))))
 
-  (ps 'setgray weight)  
+  (cond
+	((number? weight) (ps 'setgray weight))
+	((and (list? weight) (< (length weight) 3))
+	 (ps 'setgray (car weight)))
+	((and (list? weight) (= (length weight) 3))
+	 (ps 'setrgbcolor weight))
+	)
   (ps 'setlinewidth border)
   (ps 'stroke)
   )
@@ -1105,145 +1165,185 @@
   (ps 'moveto (car vlist))
   (let loop ((v (cdr vlist)))
     (if (null? v)
-	(begin
-	  (ps 'closepath)
-	  (ps 'gsave))
-	(if (and (list? v) 
-		 (list? (car v)) 
-		 (not (null? (car v))) 
-		 (apply ps-andf (map number? (car v))))
-	    (	begin
-	      (ps 'lineto (caar v) (cadar v))
-	      (loop (cdr v))))))
-  (ps 'setgray pfill)
+		  (begin
+			 (ps 'closepath)
+			 (ps 'gsave))
+		  (if (and (list? v) 
+					  (list? (car v)) 
+					  (not (null? (car v))) 
+					  (apply ps-andf (map number? (car v))))
+				(begin
+				  (ps 'lineto (caar v) (cadar v))
+				  (loop (cdr v))))))
+  (cond
+	((number? weight) (ps 'setgray pfill))
+	((and (list? pfill) (< (length pfill) 3))
+	 (ps 'setgray (car pfill)))
+	((and (list? pfill) (= (length pfill) 3))
+	 (ps 'setrgbcolor pfill))
+	)
   (ps 'fill)
   (ps 'grestore)
-  (ps 'setgray bfill)
+
+  (cond
+	((number? weight) (ps 'setgray bfill))
+	((and (list? bfill) (< (length bfill) 3))
+	 (ps 'setgray (car bfill)))
+	((and (list? bfill) (= (length bfill) 3))
+	 (ps 'setrgbcolor bfill))
+	)
+
   (ps 'setlinewidth border)
   (ps 'stroke)
   )
 
 
-;- Text files using similar call mechanisms to the postscript handler
-
-
-(define textfile-handle-list '())
-(define (textfile? f) (and (member f textfile-handle-list) #t))
-
-(define make-textfile  port/filename #!rest discard)
+(define (make-text  port/filename #!rest discard)
   (let ((file (cond
-	       ((output-port? port/filename) port/filename)
-	       (else (open-output-file port/filename))))
-	;;(pagelength +inf.0)
-	(page-finished	#f)
-	(pagecount 0)
-	;(page-width +inf.0)
-	(left-margin 0)
-	(row 0)
-	(column 0)
-	)
+					((output-port? port/filename) port/filename)
+					(else (open-output-file port/filename))))
+		  ;;(pagelength +inf.0)
+		  (page-finished	#f)
+		  (pagecount 0)
+        ;;(page-width +inf.0)
+		  (left-margin 0)
+		  (row 0)
+		  (column 0)
+		  )
 
-    (define (*newpage) (newline) (set! column 0) (set! row 0) (set! pagecount (+ 1 pagecount)))
-    (define (*newline) (newline) (set! column 0) (set! row (+ row 1)))
+    (define (*newpage) (newline file) (set! column 0) (set! row 0) (set! pagecount (+ 1 pagecount)))
+    (define (*newline) (newline file) (set! column 0) (set! row (+ row 1)))
     
     (define (text-display txt #!rest args)
       (if (zero? pagecount) (set! pagecount 1))
-      (let* ((strargs (strtok (string-append (map make-it-a-string args))) "\n") ;; control for newlines
-	    (L (length strargs))
-	    (n 0)
-	    )
-	(for-each
-	 (lambda (line)
-	   (if (and (positive? left-margin)
-		    (zero? column))
-	       (set! line (string-append (make-string left-margin #\space) line)))
+      (let* ((strargs (strtok (apply string-append (map make-it-a-string args)) "\n")) ;; control for newlines
+				 (L (length strargs))
+				 (n 0)
+				 )
+		  (for-each
+			(lambda (line)
+			  (if (and (positive? left-margin)
+						  (zero? column))
+					(set! line (string-append (make-string left-margin #\space) line)))
 
-	   (display line file)
-	   (set! column (+ column (string-length line)))
-	   (if (< (+ n 1) L) (*newline))
-	   )
-	 strargs)))
+			  (display line file)
+			  (set! column (+ column (string-length line)))
+			  (if (< (+ n 1) L) (*newline))
+			  )
+			strargs)))
     
     (define (set-left-margin n)
       (set! left-margin (absolute-value n)))
 
     
+
     (define (show-table lst)
       (let ((C column))
-	(for-each (lambda (entry)
-		    (if (< column C)
-			(text-display (make-string (- C column) #\space)))
-		    (if (list? entry)
-			(begin
-			  (text-display (car entry))
-			  (*newline)
-			  (for-each
-			   (lambda (y)
-			     (text-display " ")
-			     (text-display y))
-			   (cdr entry))
-			  (*newline)
-			  )
-			(else
-			 (text-display entry)
-			 (*newline)))
-		    )
-		  lst)))
-			
+		  (for-each (lambda (entry)
+						  (if (< column C)
+								(text-display (make-string (- C column) #\space)))
+						  (if (list? entry)
+								(begin
+								  (text-display (car entry))
+								  (*newline)
+								  (for-each
+									(lambda (y)
+									  (text-display " ")
+									  (text-display y))
+									(cdr entry))
+								  (*newline)
+								  )
+								(else
+								 (text-display entry)
+								 (*newline)))
+						  )
+						lst)))
+	 
+	 (define (emit-page-start)
+		#t
+		)
+
     (define (start-page)
       (if (not page-finished)
-	  (*newpage))
+			 (end-page))
+		(emit-page-start)
       (set! page-finished #f))
 
     (define (end-page)
-      (*newpage)
+      (if (or (not (zero? row)) (not (zero? column)))
+			 (*newpage))
       (set! page-finished #t)
       )
 
     (define show-page end-page)
 
     (letrec ((text-handle 
-	      (lambda x
-		(if (null? x)
-		    #f
-		    (let ((cmd (car x))
-			  (args (cdr x)))
-		      (cond
-		       ((eq? cmd 'file) file)
-		       ((eq? cmd 'close) 
-			(close-output-port file)
-			(set! text-handle-list
-			      (filter (lambda (x) (not (eq? x file))) text-handle-list))
-			)
-		       ((eq? cmd 'emit-margin)
-			(if (positive? left-margin) (text-display (make-string left-margin #\space)))
-			(set! margin-emitted #t))
-		       ((eq? cmd 'display) (apply text-display args))
-		       ((eq? cmd 'text) (apply text-display args))
-		       ((eq? cmd 'comment) 
-                         (text-display (apply string-append (append (list "\n#\n# ") (map make-it-a-string args) (list "\n#\n"))))
-			)
-		       ((eq? cmd 'Comment) 
-                         (text-display (apply string-append (append (list "\n#\n# ") (map make-it-a-string args) (list "\n#\n"))))
-			)
-		       ((eq? cmd 'show-table) (apply show-table args))
+				  (lambda x
+					 (if (null? x)
+						  #f
+						  (let ((cmd (car x))
+								  (args (cdr x)))
+							 (cond
+							  ((eq? cmd 'file) file)
+							  ((eq? cmd 'close) 
+								(close-output-port file)
+								(set! text-handle-list
+										(filter (lambda (x) (not (eq? x file))) text-handle-list))
+								)
+							  ((eq? cmd 'emit-margin)
+								(if (positive? left-margin) (text-display (make-string left-margin #\space)))
+								(set! margin-emitted #t))
+							  ((eq? cmd 'display) (apply text-display args))
+							  ((eq? cmd 'text) (apply text-display args))
+							  ((eq? cmd 'comment) 
+								(text-display (apply string-append (append (list "# ") (map make-it-a-string args) (list "\n"))))
+								)
+							  ((eq? cmd 'Comment) 
+								(text-display (apply string-append (append (list "\n#\n# ") (map make-it-a-string args) (list "\n#\n"))))
+								)
+							  ((eq? cmd 'COMMENT) 
+								(text-display (apply string-append (append (list "\n#\n#\n# ") (map make-it-a-string args) (list "\n#\n#\n"))))
+								)
+							  ((eq? cmd 'show-table) (apply show-table args))
 
-		       ((eq? cmd 'start-page) (start-page))
-		       ((eq? cmd 'end-page) (end-page))
-		       ((eq? cmd 'showpage) (showpage))
-		       ((eq? cmd 'newline) (*newline file))
-		       ((eq? cmd 'linefeed) (*newline file))
-		       ((eq? cmd 'column) column)
-		       ((eq? cmd 'row) row)
-		       ((eq? cmd 'page) pagecount)
+							  ((member cmd '(page-start emit-page-start)) (start-page))
+							  ((eq? cmd 'end-page) (end-page))
+							  ((eq? cmd 'showpage) (showpage))
+							  ((eq? cmd 'newline) (*newline))
+							  ((eq? cmd 'linefeed) (*newline))
+							  ((eq? cmd 'column) column)
+							  ((eq? cmd 'row) row)
+							  ((eq? cmd 'page) pagecount)
+							  ((eq? cmd 'file) file)
+							  ((member cmd
+										  '(postscript set-font push-font pop-font
+															push-color pop-color push-colour pop-colour
+															push-width pop-width
+															font
+															Times-Roman Times-Italic Times-Bold
+															Helvetica Helvetica-Italic Helvetica-Bold
+															show show! show-charpath
+															show-centered show-right show-centered! show-right!
+															gsave grestore moveto rmoveto lineto rlineto
+															closepath newpath exch
 
-		       (#t (map display cmd " is not recognised\n")))
-		      ))
-		)))
+															lineweight setgrey setgray
+															setrgbcolor setrgbcolour sethsvcolor sethsvcolour
+															setlinewidth stroke
+															fill rotate translate scale
+															arc arcn
+															define-units
+															make-place
+															set-place
+															place))
+								'silent-acceptance)
+							  (#t (map display cmd " is not recognised\n")))
+							 ))
+					 )))
       (set! text-handle-list (cons text-handle text-handle-list ))
       text-handle
       )
-  
+	 ))
 
 
 
@@ -1257,3 +1357,5 @@
 ;;; comment-start: ";;; "
 ;;; comment-end:"" 
 ;;; End:
+
+

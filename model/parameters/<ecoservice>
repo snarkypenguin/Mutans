@@ -4,7 +4,7 @@
   (list
     (list 'running-externally #f)
     (list 'external-rep-list '())
-	 (list 'dt (* 6 hours))
+	 (list 'dt (* 12 hours))
     ;;(list 'ext-get '<uninitialised>)
     ;;(list 'ext-set! '<uninitialised>)
     ;;(list 'name '<uninitialised>)
@@ -13,7 +13,7 @@
     ;;(list 'value 0)
     ;;(list 'capacity +inf.0)
     ;;(list 'r '<uninitialised>)
-    (list 'delta-T-max (* 7 days))
+    (list 'delta-T-max (* 6 days))
     (list 'do-growth #f)
 	 ;;(list 'growth-model '<uninitialised>)
     (list 'history '())

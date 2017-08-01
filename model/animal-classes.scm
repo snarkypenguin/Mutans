@@ -9,7 +9,7 @@
 (define-class <simple-metabolism>
   (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
   (state-variables
-	mass
+	sex ;; Typically one of female, male, neuter, reproducing-..., non-reproducing-..., brooding-...
 	decay-rate
 	period-of-hunger ;; how long it's been hungry
 	hunger-limit ;; amount of time it can be hungry before death
@@ -24,34 +24,35 @@
 
 (define-class <metabolism>
   (inherits-from <agent>) ;; needs to be an agent so the agent's model-body can chain to the metabolism
-  (state-variables stomach-contents 
-						 mass            ;; kg
-						 decay-rate
-						 structural-prop ;; structural-mass increases as
-						 ;; mass increases -- all things
-						 ;; that have metabolism must have
-						 ;; mass
-						 structural-mass ;; the maximum amount it could eat
-						 ;; in a given period, assuming
-						 ;; aninfinite stomach
-						 max-consumption-rate ;; the amount of "stuff" or "stuff-equivalent" 
-						 ;; needed per kg per unit of time
-						 metabolic-rate
-						 starvation-level ;; death if
-						 ;; (mass/structural-mass) goes
-						 ;; below this value
-						 gut-size        ;; stomach capacity as a
-						 ;; proportion of structural-mass
-						 condition       ;; "fat" reserves
-						 food->condition-conversion-rate 
-						 condition->food-conversion-rate
-						 food->mass-conversion-rate
-						 mass->food-conversion-rate
-						 condition-conversion-rate
-						 mass-conversion-rate
-						 max-condition-rate
-						 max-growth-rate
-						 )
+  (state-variables 
+	sex ;; Typically one of female, male, neuter, reproducing-..., non-reproducing-..., brooding-...
+	decay-rate
+	structural-prop ;; structural-mass increases as
+	;; mass increases -- all things
+	;; that have metabolism must have
+	;; mass
+	structural-mass ;; the maximum amount it could eat
+	;; in a given period, assuming
+	;; aninfinite stomach
+	max-consumption-rate ;; the amount of "stuff" or "stuff-equivalent" 
+	;; needed per kg per unit of time
+	metabolic-rate
+	starvation-level ;; death if
+	;; (mass/structural-mass) goes
+	;; below this value
+	stomach-contents 
+	gut-size        ;; stomach capacity as a
+	;; proportion of structural-mass
+	condition       ;; "fat" reserves
+	food->condition-conversion-rate 
+	condition->food-conversion-rate
+	food->mass-conversion-rate
+	mass->food-conversion-rate
+	condition-conversion-rate
+	mass-conversion-rate
+	max-condition-rate
+	max-growth-rate
+	)
   )
 
 
@@ -87,35 +88,37 @@
 ;; the system
 
 (define-class <simple-animal>
-  (inherits-from <simple-metabolism> <living-thing>)
-  (state-variables sex  ;; we have mass here because things might eat them....
-						 domain-attraction
-						 homelist ;; categorical indicators of potential homes
-						 foodlist ;; categorical indicators of potential prey
+  (inherits-from <living-thing> <simple-metabolism>)
+  ;; Chaining to <living-thing> doesn't happen if we have <simple-metabolism> first!
+  (state-variables ;; we have mass here because things might eat them....
+	domain-attraction
+	homelist ;; specific and categorical indicators of potential homes
+	predatorlist ;; specific and categorical indicators of predators to be 
+	foodlist ;; categorical indicators of potential prey
 						          ;; implemented by calls to (*is?  ...)
-						 breedlist ;; if this is null, it assumes the animal breeds with its taxon.
+	breedlist ;; if this is null, it assumes the animal breeds with its taxon.
                              ;; Sex differences are checked only if the sex is 'female or 'male.
-
-						 age-at-instantiation ;; the age offspring are introduced to the system
-						 food-attraction
-						 nominal-growth-rate
-						 population-switch ;; nominal level at which it might pay to switch to analytic form
-						                   ;; properly, this is handled by a monitor agent
-						 search-radius
-						 eat-radius    ;; the radius within which we will consider food to be accessible immediately
-						 capture-radius  ;; the radius within which we will consider prey to be captured
-						 endurance       ;; used in playing out chases between predator and prey
-						 chase-duration  ;;
-						 recovery-time
-						 elapsed-recovery-required ;; the amount of time actually spent recovering. max-speed is 0.75 usual if this is positive.
-						 predator-bias
-						 prey-bias 
-						 distance-cost
-						 current-interest ;; prioritised list indicating the factors at play in decision making
-						 ;; State variable indicates what "mode" of behaviour is dominant.
-						 ;; Suggest '(any rest sleep forage hunt seek-mate seek-shelter drive-off-opponent)
-						 activity-dt ;; an a-list of timesteps suitable for different activities
-						 )
+	
+	age-at-instantiation ;; the age offspring are introduced to the system
+	food-attraction
+	baseline-growth-rate ;; modified by consumption, starvations, age .....
+	population-switch ;; nominal level at which it might pay to switch to analytic form
+	;; properly, this is handled by a monitor agent
+	search-radius
+	eat-radius    ;; the radius within which we will consider food to be accessible immediately
+	capture-radius  ;; the radius within which we will consider prey to be captured
+	endurance       ;; used in playing out chases between predator and prey
+	chase-duration  ;;
+	recovery-time
+	elapsed-recovery-required ;; the amount of time actually spent recovering. max-speed is 0.75 usual if this is positive.
+	predator-bias
+	prey-bias 
+	distance-cost
+	current-interest ;; prioritised list indicating the factors at play in decision making
+	;; State variable indicates what "mode" of behaviour is dominant.
+	;; Suggest '(any rest sleep forage hunt seek-mate seek-shelter drive-off-opponent)
+	activity-dt ;; an a-list of timesteps suitable for different activities
+	)
   ) ;; lists of attributes it looks for for eating, denning and breeding
 
 
@@ -156,6 +159,9 @@
 	prey-list ;; actual entities that can be used as food -- objective may be set from a value in this list
 
 	food-density-limit ;; used to trigger migration
+	crowded-level ;; used to keep space around individuals, perhaps
+	min-conspecific-density-limit ;; used to trigger migration
+	max-conspecific-density-limit ;; used to trigger migration
 	last-reproduced
 	reproduction-age
 	reproduction-mass
@@ -163,7 +169,6 @@
 ;;	reproduction-delay ;; from the start of the year
 	reproduction-period
 	reproduction-ct
-	crowded-level
 	migrate-param
 	offspring ;; usually null
 	))
@@ -172,7 +177,6 @@
 (define-class <jherb>
   (inherits-from <example-animal>)
   (state-variables
-  	adult-diet-mass ;;  when mass is over this value, they can eat trees as well
 	seedcount       ;;  just makes things a little quicker
 	seed-lag-list*  ;; time triggered, first el in each element is time to deposit seeds
 	tree-satiety-rate ;; how much needs to be eaten for one satiety point

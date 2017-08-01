@@ -12,12 +12,22 @@
 (load "preamble.scm")
 ;(load 'print-loading)
 
-(for-each load (map sym->scm '(sort wildmatch utils timer wildmatch tree-ring kdebug model-flags sclos)))
+;; "model-flags.scm" contains flags which have effect when the model
+;; is running either interpretively or as compiled code.  In
+;; particular, the flag "production-run" will cause the model-method
+;; and model-body macros to include argument checking code in some
+;; calls like (set-my ...) and (my ...).
+
+;; framework-flags.scm contains flags which only have effect during the
+;; initial parsing of the code.
+
+
+(for-each load (map sym->scm '(sort wildmatch utils timer wildmatch tree-ring kdebug model-flags sclos registers)))
 (include "framework") ;; must come before sclos+extn.scm
 
 (for-each load (map sym->scm '(sclos+extn)))
 
-(for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript)))
+(for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript glyphs)))
 
 ;(load "support.o1")
 

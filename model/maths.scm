@@ -28,8 +28,21 @@
 
 ;(load "constants.scm")
 
-(define pi (* 4 (atan 1)))
 (define e (exp 1))
+(define 1/e (/ 1 e))
+(define pi (acos -1))
+(define sqrt2pi (sqrt (* 2 pi)))
+(define e*2 (* 2 e))
+(define e*-2 (* -2 e))
+(define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
+
+(define 2pi (* 2.0 pi))
+(define pi*2 2pi)
+(define tau 2pi)
+(define sqrt2pi (sqrt 2pi))
+(define 100pi 314)
+(define 10000pi 31416)
+
 
 
 (define log10 ;; defined this way so it doesn't recalculate ln10
@@ -39,10 +52,12 @@
 
 
 (define (normalise vec)
-  (let ((len (sqrt (apply + (map sqr vec)))))
-	 (if (zero? len)
-		  +nan.0
-		  (map (lambda (x) (/ x len)) vec))))
+  (if (vector? vec)
+		(list->vector (normalise (vector->list vec)))
+		(let ((len (sqrt (apply + (map sqr vec)))))
+		  (if (zero? len)
+				+nan.0
+				(map (lambda (x) (/ x len)) vec)))))
 
 (define maths-dnl*
   (lambda X
@@ -343,7 +358,11 @@
 	((>= P_0 1) 1)
 	(else (/ (log (- (/ 1 P_0) 1)) (* 4 pi lmb)))))
 
-(define (power b e)
+
+(define (pow e x) ;; Quick and unsophisticated.
+  (exp (* x (log e))))
+
+(define (power b e) ;; Preserves exactness if possible
   (cond
 	((< e 0) (/ 1 (power b (- e))))
 	((zero? e) 1)
@@ -354,6 +373,28 @@
 	  (#t (* b (power b (- e 1)))))
 	 )
 	(else (exp (* e (log b))))))
+
+
+;	sourced from https://rosettacode.org/wiki/Gamma_function#Scheme
+
+(define gamma-lanczos
+  (let ((p '(676.5203681218851 -1259.1392167224028 771.32342877765313 
+             -176.61502916214059 12.507343278686905 -0.13857109526572012
+             9.9843695780195716e-6 1.5056327351493116e-7)))
+    (lambda (x)
+      (if (< x 0.5)
+        (/ pi (* (sin (* pi x)) (gamma-lanczos (- 1 x))))
+        (let* ((x2 (- x 1))
+               (t (+ x2 7 0.5))
+               (a (do ((ps p (cdr ps))
+                       (idx 0 (+ 1 idx))
+                       (res 0.99999999999980993 (+ res 
+                                                   (/ (car ps)
+                                                      (+ x2 idx 1)))))
+                    ((null? ps) res))))
+          (* (sqrt (* 2 pi)) (expt t (+ x2 0.5)) (exp (- t)) a)))))) ;
+ 
+(define gamma gamma-lanczos)
 
 
 (define (count n)
@@ -788,11 +829,11 @@
 		  (v (or (and (list? V) V) (and (vector? V) (vector->list V))))
 		  (n (length V)))
   (cond
-   ((= n 1) V)
-   ((= n 2)
+   ((eq? n 1) V)
+   ((eq? n 2)
 	 (let ((r (list (- (* (car v) (cos theta)) (* (cadr v) (sin theta)))
 						 (+ (* (cadr v) (cos theta)) (* (car v) (sin theta))))))
-		(if isvec (list->vector v) v)))
+		(if isvec (list->vector r) r)))
 ;;   ((and (list? axis) (eq? n (length axis)))
 ;;    ;; rotate v around the indicated axis as though it shared a root with v
 ;;    )
@@ -955,9 +996,6 @@
 
 
 
-(define (pow e x)
-  (exp (* x (log e))))
-
 (define (extend-arith-op-to-funcs op) 
   (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
 	 (lambda args
@@ -1046,6 +1084,27 @@
 )
 
 
+   ;;   This is a coarse approximation of the distance covered over time for a piecewise trajectory
+	;; 
+   ;;   If we assume a speed of v, a directional variability == 1 (true random walk) N steps will get us sqrt(N)vt away on average.
+	;;   With directional variability == 0 we get a (necessarily straight-line) distance of Nvt, this is an upper bound.  
+	;;   Playing to the law of averages and grossly oversimplifying, 
+	;;   we will say that r = (directional_variability * sqrt(N) + (1 - directional_variability) * N) * v * t
+	;; 
+
+	;; This is the effective radius for the given directional variability
+
+;; (define (directed-stagger* max-angle nominal-dt )
+;;   (lambda  (spd dir var dt)
+;; 	 (let* ((N (/ dt nominal-dt))
+;; 			  (rnd (nrnd 0 (pow (/ 1 sqrt2pi) (- N))))
+;; 			  (r (* spd dt (+ (* var (sqrt N)) (* N (- 1 var)))))
+;; 			  (theta (/ (* max-angle var rnd) N))
+;; 			  )
+;; 		(dnl* N rnd r theta)
+;; 		(if (zero? N) (abort))
+;; 		(list r (* spd dt) (rotated-vector dir theta)))))
+		
 
 
 

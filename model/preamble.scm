@@ -1,3 +1,32 @@
+
+;; (define-syntax define*
+;;   (lambda (X)
+;; 	 (syntax-case X (!rest !optional)
+;; 		((define* var) (syntax (define var (void))))
+;; 		((define* var val) (syntax (define var val)))
+;; 		((define* (proc) body ...) (syntax (define (proc) body ...)))
+;; 		((define* (proc !rest arg) body ...) (syntax (define proc (lambda arg body ...))))
+;; 		((define* (proc !optional arg) body ...)
+;; 		 (syntax
+;; 		  (define proc (lambda arg (let ((arg (if (null? arg) #f (car arg))))
+;; 											  body ...))))
+;; 		  )
+;; 		 )
+;; 		((define* (proc params ... !rest arg) body ...) (syntax (define proc (lambda arg body ...))))
+;; 		((define* (proc !optional arg !rest arg*) body ...)
+;; 		 (syntax
+;; 		  (define proc (lambda arg (lambda arg (let ((arg (if (null? arg) #f (car arg)))
+
+;; 																	)
+;; 															  body ...))))
+;; 		  )
+;; 		 )
+		
+;; 	)))
+
+
+
+
 (define *scheme-version* "gambit")
 (define *current-interpreter* (string->symbol *scheme-version*))
 (define argv command-line)
@@ -5,7 +34,11 @@
 (define currently-loading #f)
 (define true #t)
 (define false #f)
+
+;; These represent "uninitialised" things
+(define uninitialised (lambda args (abort 'uninitialised-function)))
 (define <uninitialised> '<uninitialised> )
+
 (define <nameless> '<nameless> )
 
 ;; Registers to associate  classes, methods and objects with their name.
@@ -64,6 +97,7 @@
 
 (define smart-load
   (let* ((oload load)
+			(verbose #f)
          (always-print-loading #f)
          (always-print-loaded #f)
          (always-load #f)
@@ -89,7 +123,13 @@
 
 					;; Load the file irrespective of whether it has been loaded before
 					((and (MEMB fn '(force force-load)) (not (null? args)))
-					 (for-each oload args))
+					 (for-each
+					  (lambda (f)
+						 (oload f)
+						 (if verbose
+							  (begin (display f) (newline))))
+					  args)
+					 )
 
 					;; The next two substantially change the behaviour ------
 					((EQ? fn 'revert!)
@@ -160,6 +200,16 @@
                ((EQ? fn '!print-loading)
 					 (display "Not printing currently loading files at each load.\n")
                 (set! always-print-loading #f))
+					;;--
+
+               ((EQ? fn 'verbose)
+					 (display "Print filename after loading it.\n")
+                (set! verbose #t))
+
+               ((EQ? fn '!verbose)
+					 (display "Don't print filename after loading it.\n")
+                (set! verbose #f))
+
 
 					;; Print help -----------------------------------------------
 					((EQ? fn 'help)
@@ -169,6 +219,8 @@
 						"by default.\n"
 						"The load procedure responds to a number of symbols:\n\n"
 						"help           this help message\n"
+						"verbose        always print the filename after it has loaded\n"
+						"verbose!       do not print the filename after it has loaded\n"
 						"revert!        revert to the original load procedure\n"
 						"flush!         flushes the list of loaded files\n"
 						"list-loading   returns the list of active files\n"
@@ -199,6 +251,9 @@
                 (if (or always-load (not (MEMB fn loaded)))
                     (begin
                       (oload fn)
+							 (if verbose
+								  (begin (display fn) (newline)))
+							 
                       (set! loading (cdr loading))
                       (set! loaded (cons fn loaded))
                       (if always-print-loaded (prload "loaded" loaded))))

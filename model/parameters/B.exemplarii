@@ -8,12 +8,19 @@
 											(* 5e-7 (- 1 (/ y B.ex-mass-max))))
 										 0 B.ex-longevity (* 4 weeks) 0.1))
 										 ;; step size is 4 wks, 0.1 is the initial size of the tree when we start tracking
+(define rowdy #t)
 
 (define B.exemplarii-parameters ;; Parameters for Botanicus exemplarii
   (list
 	 (list 'note "Simple plants approximating the trees in Chapter 2")
 	 (list 'reference "Based on data from the One Oak project.")
-	 (list 'dt (* 3 days))
+	 (list 'foliage-color ps-light-green)
+	 (list 'stress-color ps-yellow)
+	 (list 'radius-color ps-dark-green)
+	 (list 'default-color ps-green)
+	 (list 'map-color ps-green)
+	 (list 'map-contrast-color ps-red)
+	 (list 'dt (* 2.5 days))
     (list 'type 'plant)
 	 (list 'representation 'simple-individual)
 	 (list 'I-need '(water))
@@ -32,7 +39,11 @@
 ;	 (list 'omega-ind (/ 1 (* 4 years)))  ;;  the mortality rate is its reciprocal
 	 (list 'omega-ind  1/14000)  ;;  the mortality rate is its reciprocal
 
-	 (list 'age '($ (pprnd (* 4 years)))) 
+	 (list 'age '($ (let ((B.ex. (pprnd (* 4 years))))
+							(if rowdy
+								 (dnl* "Initialised tree age to" (/ B.ex. years) "years in the parameter file"))
+							(set! rowdy #f)
+							B.ex.)))
 
 	 (list 'mass-at-age B.ex-mass)
 
@@ -83,6 +94,8 @@
 
 	 (list 'seed-germination-prob 0.001)          ;; using the seed ecoservice
 	 (list 'fluke-seed-germination-prob (* 1/60 0.0001)) ;; chance of a fruit that hasn't been eaten germinating a seed
+
+	 (list 'regrowth-rate-multiplier 1.4) ;; the species B.ex. recovers faster than the rest of its genus
   )
 )
 (set! global-parameter-alist (cons (cons "B.exemplarii" B.exemplarii-parameters) global-parameter-alist))

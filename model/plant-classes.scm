@@ -16,6 +16,9 @@
 (define-class <plant>
   (inherits-from <model-maintenance> <living-thing>)
   (state-variables
+	stress-color ;; 
+	foliage-color ;; outer circle in plots
+	radius-color  ;; inner circle in plots
 	decay-rate  ;; usually somethings like -2/(* 20 days)
 	omega-ind ;; individual mortality
 	peak-mass ;; greatest mass attained
@@ -37,7 +40,7 @@
 
 	growth-rate        ;; 
 	forage-damage ;; to be subtracted from the canopy when calculating leaf-area
-	regrowth-rate ;; proportion of total leaf area regenerated per time period
+	regrowth-rate-multiplier ;; proportion of total leaf area regenerated per time period
 
 	seeds-per-fruit
 	habitat            ;; #f or a patch/landscape/habitat thing
@@ -55,8 +58,6 @@
   (inherits-from <plant>)
   (state-variables
 	;;location from <thing> too...
-	fruiting-mass
-	fruiting-prob
 	mort-mass
 	mort-prob
 	))

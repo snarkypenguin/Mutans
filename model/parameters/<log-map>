@@ -6,6 +6,8 @@
   	 (list 'type 'log-data)
 	 (list 'no-model-body #t)
 	 (list 'format 'ps)
+	 (list 'default-file-arguments '(Helvetica Helvetica-Italic Helvetica-Bold
+																  Times-Roman Times-Italic Times-Bold))
 	 (list 'file-type "ps")
 	 (list 'output-projection 'ps)
     (list 'model->local '($ (map:domain-to-postscript Domain isoA4 (* 10 mm))

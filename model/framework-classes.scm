@@ -75,6 +75,8 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
   (state-variables projection-assoc-list
 						 local->model model->local
 						 default-font default-size
+						 default-color
+						 map-color map-contrast-color
 						 ))
 "The model->local is a projection used to map model coordinates
 into agent's *internal* coordinates.  There must also be a
@@ -131,20 +133,34 @@ direction"
 
 (define-class <tracked-agent>
   (inherits-from <agent> <projection>)
-  (state-variables track tracked-paths track-schedule track-epsilon default-font default-size circle-facets plot-magnification))
+  (state-variables track
+						 location direction
+						 speed max-speed
+						 tracked-paths 
+						 track-datum ;; a value to be emitted with the track or #f
+						 ps-rad ;; a radius to use in plotting a tracked object's location
+						 default-font default-size
+						 glyph scale/slot plot-magnification))
 ;; "track" will either be a list like (... (t_k x_k y_k) ...) or false
-;; "tracked-paths" is a list of non-false traces or false
-;; This is the basic class to derive things that have a memory of their past.
+;; "tracked-paths" is a list of non-false traces or false This is the
+;; basic class to derive things that have a memory of their past.
+;; glyph is either a point list which notionally faces "east" a number
+;; which indicates the number of facets in a regular polyhedron, or a
+;; procedure which returns a point-list.  It is the responsibility of
+;; the agent to update the plot magnification appropriately.
 
 (define-class <thing>
   (inherits-from <tracked-agent> <projection>)
-  (state-variables mass dim location direction speed max-speed))
+  (state-variables mass dim))
 
 (define-class <living-thing>
   (inherits-from <thing>)
   (state-variables
+	ndt ;; nominal timestep for movement/decision making.  Used in the wander-around method
+	dead-color
 	age
 	age-at-instantiation ;; the age at which something is "born"
+
 	longevity ;; used for calculating the mass-at-age curve -- equivalent to the max-age of the species
 	max-age	;; This is either a precalculated hard-kill (corresponds, to genetic influence?) or a non-number
 	probability-of-mortality ;;; a number [typically compared against a (random-real) call] or a
@@ -155,13 +171,19 @@ direction"
 	habitat  ;; an landscape agent that encompasses a number of potential domains
 	         ;;    or a list that does the same thing ... not currently used
 	domain   ;; an environment of some sort (they have to live somewhere!)
+
+	environmental-threats ;; list of environmental conditions or entities that may be threatening.
+	;; In this instance, we might have bounding regions which indicate prevailing conditions (fire, flood...)
+	;; and may change fairly rapidly.  In the presence of environmental threats, the animals probably need
+	;; a very short timestep.
 	))
 
 (define-class <environment>
   (inherits-from <agent> <projection>)
-  (state-variables default-value minv maxv inner-radius outer-radius rep)) ;; minv and maxv form a bounding volume in however many dimensions
-
-
+  (state-variables default-value minv maxv inner-radius outer-radius rep)
+  ;; minv and maxv form a bounding volume in however many dimensions
+  ;; rep is usually something like a polygon, a DEM or something like that 
+  )
 
 (define-class <blackboard>
   (inherits-from <agent>) ;; 

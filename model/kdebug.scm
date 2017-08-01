@@ -36,6 +36,10 @@ The routines to manipulate the kernel messages are
    (set-kdebug-msg-collection B)   #t to collect messages #f otherwise
    (set-kdebug-msg-display B)      #t to display messages #f otherwise
 
+   (kdebug-development! B)         #t to enable kdebug, #f disables it
+   (kdebug-production! B)          #f to enable kdebug, #t disables it
+   (kdebug-wildcards! B)           #t to allow wildcards, #f otherwise
+   (kdebug-do-times! B)            #t to emit elapsed time in messages, or not
 
 
 Catch all messages:
@@ -137,8 +141,10 @@ Landscape/habitat/patch/ecoservice messages:
 (define set-kdebug-msg-collection #!void) ;; indicate that matched messages should be added to the collection-list or not
 (define set-kdebug-msg-display #!void) ;; indicat that matched messages should be displayed or not
 (define kdebug? #!void) ;; predicate that indicates if a kdebug would print
-(define kdebug-production! #!void) ;; set or unset production model (by-passes everything)
+(define kdebug-production! #!void) ;; set or unset production model (by-passes everything when set)
+(define kdebug-development! #!void) ;; unset or set production model (by-passes everything when set)
 (define kdebug-wildcards! #!void) ;; set or unset the use of wildcards in the tags
+(define kdebug-do-times! #!void) ;; 
 (define kdebug #!void)
 ;; like 
 ;;     (kdebug 'things "yadda yadda" mass)
@@ -157,9 +163,10 @@ Landscape/habitat/patch/ecoservice messages:
 (define (map->string s)
   (if (pair? s)
 		(map ->str s)
-		(->str s)))
+		(string-append (->str s) " ")))
 
-(let* ((production-state #f)
+(let* ((development-state #t)
+		 (timer #t)
 		 (use-wildcards #t)
 		 (dbgkdbg #f)
 		 (kdebug-msg-tags '())
@@ -168,59 +175,65 @@ Landscape/habitat/patch/ecoservice messages:
 		 (display-messages #t)
 		 (set-kdebug-msg-col (lambda (#!optional x) (set! collect-messages (if x #t #f))))
 		 (set-kdebug-msg-dsp (lambda (#!optional x) (set! display-messages (if x #t #f))))
-		 (kdebug-production (lambda (#!optional x) (set! production-state (if x #t #f))))
+		 (kdebug-production (lambda (#!optional x) (set! development-state (if x #f #t))))
+		 (kdebug-development (lambda (#!optional x) (set! development-state (if x #t #f))))
 		 (kdebug-wildcards (lambda (#!optional x) (set! use-wildcards (if x #t #f))))
 		 (kdebug%? (lambda (msg)
-						 (set! msg (map->string msg))
-						 (if production-state
+						 (if development-state
+							  (begin
+								 (set! msg (map->string msg))
+								 (if development-state
+									  (let* ((kmtags kdebug-msg-tags)
+												(result
+
+												 (if (pair? kmtags)
+													  (if use-wildcards ; use more capable system
+															(begin
+															  (or 
+																(apply orf (map
+																				(lambda (P)
+																				  (apply orf
+																							(map
+																							 (lambda (S) (wildmatch P S))
+																							 (if (list? msg) msg (list msg))	)
+																							))
+																				(if (list? kmtags) kmtags (list kmtags))))
+																(apply orf (map
+																				(lambda (P)
+																				  (apply orf
+																							(map
+																							 (lambda (S) (wildmatch P S))
+																							 (if (list? kmtags) kmtags (list kmtags)))
+																							))
+																				(if (list? msg) msg (list msg))))
+																))
+															(begin
+															  (or (member "*" kmtags)
+																	(and (string? msg) (member msg kmtags))
+																	(and (list? msg)	(not (null? (list-intersection msg kmtags))))))
+															)
+													  #f))
+												)
+										 (if dbgkdbg
+											  (begin
+												 (dnl "DEBUGGING kdebug:")
+												 (dnl "  kdebug-msg-tags: " kmtags)
+												 (dnl "   kdebug message: " msg)
+												 (dnl "           result: " result)
+												 ))
+										 result
+										 )))
 							  #f
-							  (let* ((kmtags kdebug-msg-tags)
-										(result
-										 (if (pair? kmtags)
-											  (if use-wildcards ; use more capable system
-													(begin
-													  (or 
-														(apply orf (map
-																		(lambda (P)
-																		  (apply orf
-																					(map
-																					 (lambda (S) (wildmatch P S))
-																					 msg)
-																					))
-																		kmtags))
-														(apply orf (map
-																		(lambda (P)
-																		  (apply orf
-																					(map
-																					 (lambda (S) (wildmatch P S))
-																					 kmtags)
-																					))
-																		msg))
-														))
-													(begin
-													  (or (member "*" kmtags)
-															(and (string? msg) (member msg kmtags))
-															(and (list? msg)	(not (null? (list-intersection msg kmtags))))))
-													)
-											  #f))
-											  )
-								 (if dbgkdbg
-									  (begin
-										 (dnl "DEBUGGING kdebug:")
-										 (dnl "  kdebug-msg-tags: " kmtags)
-										 (dnl "   kdebug message: " msg)
-										 (dnl "           result: " result)
-										 ))
-								 result
-								 ))
-						 ))
+						 )))
 		 (kms (lambda x (cond
 							  ((null? x) display-messages)
 							  ((car x) (set! display-messages #t))
 							  (#t (set! display-messages #f)))))
 		 (isa? (lambda (x)
-					(if production-state
-						 (member x kdebug-msg-tags))))
+					(if development-state
+						 (member x kdebug-msg-tags)
+						 #f)))
+		 (do-times (lambda (x) (set! timer (if x #t #f))))
 		 (copy (lambda ()
 					(list-copy kdebug-msg-tags)))
 		 (clear (lambda ()
@@ -239,14 +252,14 @@ Landscape/habitat/patch/ecoservice messages:
 						 (set! kdebug-message-list '())))
 		 (kdebug% (lambda (msg . args)
 						(set! msg (map->string msg))
-						
-						(if production-state
-							 (void)
+						(if development-state
 							 (begin
 								(if (kdebug%? msg)
 									 (let ((str (with-output-to-string
 													  '()
-													  (lambda () (display "kdebug: ")(display msg)(display " ---> ") (apply dnl* args)))))
+													  (lambda () (display "kdebug: ")(display msg)(display " ")
+																 (if timer (begin (display "(") (display (cpu-time)) (display "s elapsed) ")))
+																 (apply dnl* args)))))
 										(if display-messages
 											 (display str))
 										(set! kdebug-message-list (append kdebug-message-list (list str)))))))))
@@ -258,6 +271,7 @@ Landscape/habitat/patch/ecoservice messages:
   (set! debugkdebug dkd)
   (set! kdebug-message-state kms)
 
+  (set! kdebug-do-times! do-times)
   (set! kdebug-msg-tag? isa?)
   (set! get-kdebug-msg-tags copy)
   (set! set-kdebug-msg-tags set)
@@ -271,6 +285,7 @@ Landscape/habitat/patch/ecoservice messages:
   (set! kdebug kdebug%)
   (set! kdebug? kdebug%?)
   (set! kdebug-production! kdebug-production)
+  (set! kdebug-development! kdebug-development)
   (set! kdebug-wildcards! kdebug-wildcards)
 )
 

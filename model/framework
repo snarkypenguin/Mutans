@@ -36,8 +36,11 @@
 
 ;;; It is not hard to change it to catch specializer as well. 
 
-
-
+;(let ((loading-list (load 'loading-list)))
+;  (display ";;; Loading: ")
+;  (display loading-list)
+;  (newline))
+;
 
 
 
@@ -184,7 +187,7 @@
 					  ;;; 		 result))
 					  )
 				 ))
-	 (pp txt)
+	 ;;(pp txt)
 	 txt))
 
 
@@ -201,7 +204,7 @@
 												 (kdebug 'deep-debugging "Defining " ',formals " = " result)
 												 result))
 					  )))
-	 (pp txt)
+	 ;;(pp txt)
 	 txt))
 
 ;; Calls to a closure function are of the form (name t reqvar1 reqvar2 ....)
@@ -260,8 +263,10 @@
   `#!void)
 
 (define-macro (conditional-load yea-or-nay . body)
-  `(if ,yea-or-nay
-		 ,@body))
+  (if yea-or-nay
+		 `(let ()
+			 ,@body)
+		 ))
 
 (define-macro (code-variants:use select A B)
   (cond
@@ -271,8 +276,8 @@
 
 (define-macro (code-block-variants:use select A B)
   (cond
-	((member select '(first one 1)) `,@A)
-	((member select '(second two 2)) `,@B)
+	((member select '(first one 1)) `(let () ,@A))
+	((member select '(second two 2)) `(let () ,@B))
 	))
 
 (define-macro (with-exit name . body)
@@ -374,7 +379,7 @@
 
 
 (define-macro (define-class #!rest args)
-  (if #f (dnl (load 'current-file)": ""Defining class: " args)) ;; set to #t to display model classes
+  ;; (dnl (load 'current-file)": ""Defining class: " args)
   (let* ((cname (car args))
 			;;(icname (string->symbol (string-append "<" (symbol->string cname) ">")))
 			)
@@ -407,7 +412,7 @@
 
 
 (define-macro (declare-method #!rest args)
-  (if #f (dnl (load 'current-file) ": Declaring method: " args)) ;; set to #t to announce method declarations
+  ;;(dnl (load 'current-file) ": Declaring method: " args) ;; set to #t to announce method declarations
   (let ((cname (car args))
 		  (description (cadr args))
 		  )
@@ -551,10 +556,14 @@
 			(method-id (string-append  (object->string classlst) ": "(object->string mname) " " (object->string mm-margs)))
 			)
 
+;;	 (display "Dispatching parent calls with ")
+;;	 (display `',(string->symbol (string-append "parent-" (symbol->string mname))))
+;;	 (newline)
+
 	 (if #f (begin ;; set to #t to announce method definitions
-										  (dnl "************************************************************")
-										  (dnl (load 'current-file)": Defining method: " classlst mname)
-										  (pp body)))
+				  (dnl "************************************************************")
+				  (dnl (load 'current-file)": Defining method: " classlst mname)
+				  (pp body)))
 
 	 (if (and #t (not (generic-method-register 'type? ',mname)))
 		  (begin
@@ -565,27 +574,41 @@
 		  (let ((txt `(let* ((M (make-method
 										 (list ,@classlst) ;; make-method returns a function....
 										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
-											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Entering" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>"))
+											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Entering (" ',mname ',classlst  ") for" (cnc self))
 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
-													 (call-parents ;; this returns amount of time used for each parent in the list
-													  (lambda plist
-														 (let* ((parents (if (or (eqv? plist 'all) (eqv? plist '*)) (parent-classes self) plist))
-																  (methods (get-methods parents ,mname self t dt))
-																  )
-															(map (lambda (x) (x self t dt)) methods))))
-													 )
+													 (kdebug-state #f)
+													 (+kdebug! (lambda x (set! kdebug-state #t)))
+													 (-kdebug! (lambda x (set! kdebug-state #f)))
+													 (kdebug (lambda x (apply (if kdebug-state dnl* kdebug) x)))
+													 (call-all-parents
+													  (let ()
+														 (lambda x (call-all-parent-methods ,mname 'self ,@mm-margs))))
+													 (call-parents$
+													  (let ()
+														 (lambda restrictions (call-parent-methods$ restrictions ,mname  self ,@mm-margs))))
+													 (call-parents
+													  (let ()
+														 (lambda restrictions (call-parent-methods (list restrictions ,mname self ,@mm-margs)))))
+
 											  ;; provides ,parent-mname for arbitrary sets .. may be called more than once, and with different sets of parents
 											  
 											  ;; this provides the setter and getter for this entities variables (they can be passed about too)
-											  (let ((my (lambda (x) (slot-ref self x))) 
-													  (set-my! (lambda (x y)
-																	 (slot-set! self x y)))
-													  ;; it also provides a kernel call function (if it is an <agent> rather than an <object>)
-													  (kernel (if (member 'kernel (map car (class-slots (class-of self))))
-																	  (slot-ref self 'kernel)
-																	  #f))
-													  (method-id ,method-id)
-													  (my-class (if (pair? ',classlst) (car ',classlst) ,classlst))
+													 ,(if production-run
+															'(my (lambda (x) (slot-ref self x)))
+															'(my (lambda (x) (if (symbol? x) (slot-ref self x)
+																						(begin (dnl* "Passing" x "as the slotname in the" ',mname "method for" ',classlst)
+																								 (abort))))))
+													 ,(if production-run
+															'(set-my! (lambda (x y) (slot-set! self x y)))
+															'(set-my! (lambda (x y) (if (symbol? x) (slot-set! self x y)
+																								 (begin (dnl* "Passing" x "as the slotname in the" ',mname "method for" ',classlst)
+																										  (abort))))))
+													 ;; it also provides a kernel call function (if it is an <agent> rather than an <object>)
+													 (kernel (if (member 'kernel (map car (class-slots (class-of self))))
+																	 (slot-ref self 'kernel)
+																	 #f))
+													 (method-id ,method-id)
+													 (my-class (if (pair? ',classlst) (car ',classlst) ,classlst))
 													  ;; The aboveis an example of of how one might add a "builtin" for every model-method 
 													  ;;for all agents.  Not that it will be present in *all* agents, so care should be taken to
 													  ;; make sure that they handle missing slots appropriately. Also notice how it handles the
@@ -600,14 +623,14 @@
 												 
 												 (let ((mm-result
 														  (begin
-															 (kdebug 'trace-model-methods "Running" method-id (if (agent? self) (slot-ref self 'name) "<object>") (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
+															 (kdebug '(list ,(construct-symbol ',myclass 'model-method) model-methods (construct-symbol ,method-id)) "Running " method-id " for "  (cnc self) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
 															 dt ;; If there is no body, then we just assume that doing nothing is easy.
 															 ,@body) ))
-													(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'trace-model-method-blocks) "Leaving" ',mname (cnc self)":" (if (agent? self) (slot-ref self 'name) "<object>") "with" mm-result)
+													(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Leaving (" ',mname ',classlst ") for" (cnc self)  "with" mm-result)
 													mm-result)
 												 )
-											  )
-											))
+											)
+										 )
 										))
 							 (add-method ,mname M)
 							 (method-register 'add M ',mname )
@@ -656,31 +679,54 @@ will not have access to the kernel.
 
 (define-macro (model-body myclass #!rest body)
   (if #f (begin ;; set to #t to announce the model bodies
-									  (dnl "************************************************************")
-									  (dnl (load 'current-file)": Defining body: " myclass) (pp body)))
+  									  (dnl "************************************************************")
+  									  (dnl (load 'current-file)": Defining body: " myclass) (pp body)))
   (if (not (symbol? myclass))
 		(aborts "model-body: the class " myclass " should be an atom"))
   (if (eqv? myclass 'self) (error "No, I don't think that _self_ is a class...." myclass ) )
+
 
   (let ((method-id (string-append (object->string myclass) ": model-body")))
 		  `(if (and #t (not (generic-method-register 'type? 'run-model-body)))
 				 (Error "instantiating model-body with a declaration of run-model-body"))
 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
-														 (lambda (call-parents self t dt)
-															(let ((ccd (slot-ref self 'current-class-depth)))
+														 (lambda (parent-model-body self t dt)
+															(kdebug '(list ,(construct-symbol myclass 'model-body) model-bodies) "Running " ',myclass "model body"  (cnc self) (slot-ref self 'name) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
+															(let ((ccd (slot-ref self 'current-class-depth))
+																	)
+															  
+															  ;;(dnl* ',myclass (cnc self) (name self) "model body at" t)
 															  (if (and (zero? ccd)
 																		  (member (slot-ref self 'queue-state) '(ready-to-run)))
 																	(slot-set! self 'queue-state 'running))
 															  (slot-set! self 'current-class-depth (+ ccd 1)))
-															;;(dnl* "RUNNING" (slot-ref self 'name) t dt)
 															(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'model-body)
-																			  (construct-symbol (slot-ref self 'taxon)) 'trace-model-bodies
+																			  (construct-symbol (slot-ref self 'taxon)) 'model-bodies
 																			  (construct-symbol (slot-ref self 'name)))
 																	  (slot-ref self 'name) "Entering"
 																	  (class-name-of ,myclass) "model-body at time" t "+" dt)
 															(letrec ((no-parent-body (lambda args (set! call-parents no-parent-body) dt)))
-															  (let* ((my (lambda (x) (slot-ref self x)))
-																		(set-my! (lambda (x y) (slot-set! self x y)))
+															  (let* (
+																		,(if production-run
+																			  '(my (lambda (x) (slot-ref self x)))
+																			  '(my (lambda (x) (if (symbol? x) (slot-ref self x)
+																										  (begin (dnl* "Passing" x "as the slotname in the" ',mname "method for" ',classlst)
+																													(abort))))))
+																		,(if production-run
+																			  '(set-my! (lambda (x y) (slot-set! self x y)))
+																			  '(set-my! (lambda (x y) (if (symbol? x) (slot-set! self x y)
+																													(begin (dnl* "Passing" x "as the slotname in the" ',mname "method for" ',classlst)
+																															 (abort))))))
+																		(call-all-parents
+																		 (lambda x (call-all-parent-methods run-model-body (append (list self t dt) x))))
+																		(call-parents$
+																		 (lambda restrictions (apply call-parent-methods$ (cons restrictions (cons run-model-body (list self t dt))))))
+																		(call-parents
+																		 (lambda restrictions
+																			(apply call-parent-methods
+																					 (cons restrictions (cons run-model-body
+																							 (list self t dt))))))
+
 																		(initialised? (lambda () (slot-ref! self 'initialised)))
 																		(initialised! (lambda () (slot-set! self 'initialised #t)))
 																		(initialise (lambda  state (dnl* (cnc self) "/" (my 'name) "called initialise in body?")))
@@ -688,6 +734,7 @@ will not have access to the kernel.
 																		(my-class ,myclass)
 																		(method-id ,method-id)
 																		(kernel (slot-ref self 'kernel))
+																		
 																		;; This is an example of of how one might add a "builtin" for the model bodies of all agents.
 																		;; Not that it will be present in *all* agents, so care should be taken to
 																		;; make sure that they handle missing slots appropriately.
@@ -711,7 +758,7 @@ will not have access to the kernel.
 																		  (begin
 																			 (kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name))
 																								(construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body)
-																								'trace-model-body) "Running model body for " method-id
+																								'model-bodies) "Running model body for " method-id
 																								(if (agent? self) (slot-ref self 'name) "<object>")
 																								" at " t '/ (slot-ref self 'subjective-time) '+ dt)
 																			 ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
@@ -722,6 +769,17 @@ will not have access to the kernel.
 																				  dt)
 																			 ))
 																		 )
+																	(set! body-result 
+																			(if (and trap-model-bodies-with-bad-return-values (or (void? body-result) (null? body-result)))
+																				 (begin
+																					(dnl* "#### The model-body of" (cnc self) "returned a void or a null list! This is not recommended.  Returning dt")
+																					dt)
+																				 ))														
+
+																	(if (list? body-result)
+																		 (set! body-result (map (lambda (x) (if (or (null? x) (void? x)) dt x))
+																																  body-result)))
+																	
 																	(kdebug 'time-team "About to enter submodel with st of " (my 'subjective-time) ":" (my 'dt) "!" t ":"dt)
 																	(kdebug 'model-body "returns with dt" dt " and with result" body-result)
 
@@ -734,12 +792,14 @@ will not have access to the kernel.
 																			;; DO NOT CHANGE THE SUBJECTIVE TIME -- it is handled in the "run" method in framework-methods.  If
 																			;; times are not being adjusted, it indicates that there is a break in the chaining back through parent model-bodies
 
+
+																			
 																			;; The counter variable can be used as an indicator for conditional initialisation -- it is only zero on the
 																			;; first pass through an agent's chain of model bodies.
 																			(slot-set! self 'agent-body-ran #t))
 																		 )
 																	(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'name)) (construct-symbol (my 'taxon))
-																					  (construct-symbol (cnc self) 'body) 'trace-model-body) "Leaving" (cnc self)": " self "with" body-result)
+																					  (construct-symbol (cnc self) 'body) 'model-bodies) "Leaving" (cnc self)": " self "with" body-result)
 
 
 																	(let ((ccd (slot-ref self 'current-class-depth)))
@@ -753,6 +813,7 @@ will not have access to the kernel.
 																		 )
 																		))
 
+																	(kdebug (list ',(construct-symbol myclass 'model-body) 'model-bodies) "Leaving " ',myclass "model body"  (cnc self) (slot-ref self 'name) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
 																	body-result
 																	)
 																 ))
@@ -761,10 +822,11 @@ will not have access to the kernel.
 														 )
 										))
 							  (add-method run-model-body M)
-							  (method-register 'add M ',run-model-body)
+							  (method-register 'add M 'run-model-body)
 							  )
 						  ))
-			 (if #f ;; set to #t to emit the expanded model bodies (useful for debugging cryptic behaviour)
+;			 (if #f ;; set to #t to emit the expanded model bodies (useful for debugging cryptic behaviour)
+			 (if #f
 				  (begin
 					 (dnl "------------------------------------------------------------")
 					 (pp txt)))
@@ -776,7 +838,7 @@ will not have access to the kernel.
 ;; like model-body, but chains straight to parent
 (define-macro (use-parent-body myclass) 
   `(model-body ,myclass
-					(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'trace-model-body)
+					(kdebug (list (construct-symbol (cnc self)) (construct-symbol (my 'taxon)) (construct-symbol (cnc self) 'body) 'model-bodies)
 					 ',myclass (slot-ref self 'name) "is using its parents model-body")
 					(call-parents)))
 

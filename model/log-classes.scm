@@ -17,15 +17,16 @@
 (define logger-tags '())
 
 (define-class <log-introspection> (inherits-from <introspection>  <projection>)
-				  (state-variables file filename filetype filename-timescale format variables
-										 variables-may-be-set missing-val show-field-name
-										 preamble-state introspection-targets
-										 report-time-table ;output-projection
-										 ;; These last two are here because it is
-										 ;; entirely likely that there will be
-										 ;; tex, latex and eps-text formats for production
-										 ;; quality output
-										 ))
+  (state-variables file format variables
+						 filename
+						 variables-may-be-set missing-val show-field-name
+						 preamble-state introspection-targets
+						 report-time-table ;output-projection
+						 ;; These last two are here because it is
+						 ;; entirely likely that there will be
+						 ;; tex, latex and eps-text formats for production
+						 ;; quality output
+						 ))
 ;;- file is the output handle
 ;;  if filename is not a string, things go to stdout
 ;-  if append-time is not false it must either be true or the size of
@@ -36,10 +37,12 @@
 ;;- the timestep schedule is the set of times to run at
 
 (define-class <logfile> (inherits-from <log-introspection>)
-  (state-variables pagecount
-						 preamble-state introspection-targets
-						 include-key
-						 separate-pages ;; -- #t indicates that you want
+  (state-variables
+	pagecount
+	preamble-state introspection-targets
+	default-file-arguments
+	include-key
+	separate-pages ;; -- #t indicates that you want
    ;; each page in a separate file
    ;; These last two are here because it is
    ;; entirely likely that there will be
@@ -57,7 +60,7 @@
 
 
 ;(define-class <snapshot> (inherits-from <log-introspection>)
-;									  (state-variables pagecount use-separate-files))
+;									  (state-variables pagecount separate-pages))
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout
 ;;- if append-time is not false it must either be true or the size of

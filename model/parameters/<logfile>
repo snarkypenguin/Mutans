@@ -4,6 +4,7 @@
 	(list
 	 (list 'format 'text)
 	 (list 'file-type "data")
+	 (list 'default-file-arguments '())
 	 (list 'pagecount 1)
 	 (list 'no-model-body #t)
 	)

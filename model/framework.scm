@@ -282,8 +282,9 @@
   ;;; 			(mll (map:ll-ur->m ll))
   ;;; 			(mur (map:ll-ur->m ur))
   ;;; 			)
-(define Domain '<uninitialised>)
-(define Range '<uninitialised>)
+(define Domain <uninitialised>)
+(define Range <uninitialised>)
+
 (define PageSize isoA4) ;; default value
 
 (define default-margins 10) ;; implicitly in mm.
@@ -413,6 +414,7 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 									(if (not g)
 										 (set! g (linear-map domain codomain f)))
 									g)
+							((eq? p 'help) (dnl* "The symbols are '1/scale scale verbose quiet domain docomain inverse help show N d0 d1 D0 D1 and invscale"))
 							((eq? p 'show)
 							 (dnl "projection:")
 							 (dnl* " " 'N N)
@@ -424,7 +426,8 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 							 (dnl* " " 'invscale (if inverse invscale scale))
 							 (pp f))
 							(else (error "Bad argument to linear map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
-						f)))
+				 f)))
+  
 
 
 
@@ -571,13 +574,67 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 ;; Useful for growing things...
 
 (define  (nominal-growth-rate self dt #!optional check)
-  (let ((CK (and check (has-slot? self 'age)
-					  (has-slot? self 'mass) (has-slot! self 'mass-at-age))))
+  (let* ((CK (and check (has-slot? self 'age)
+						(has-slot? self 'mass) (has-slot! self 'mass-at-age)))
+			(mass-at-age (slot-ref self 'mass-at-age))
+			)
 	 (if (or CK (not check))
 		  (let ((age (slot-ref self 'age))
 				  (mass (slot-ref self 'mass)))
 			 (/ (- (mass-at-age age) (mass-at-age (+ age dt))) dt))
-		  (error "Bad nominal-growth-rate call"))))
+		  (error "Bad nominal-growth-rate call, missing age, mass or mass-at-age"))))
+
+
+(define (nominal-growth-rate* self dt)
+  (let ((m@a (slot-ref self 'mass-at-age))
+		  (age (slot-ref self 'age)))
+	 (/ (- (m@a (+ age week)) (m@a age)) week)))
+
+
+
+
+;; This returns a displacement vector, and would typically used in animal movement 
+;(-1 + sqrt(1 + 4.0 * dirvy * dirvy * speed * dt)) / (2.0 * dirvy * dirvy);
+
+(define (Xstoch-walk here there dt ndt var spd)
+  (let* ((dir (map - there here))
+			(delta_r (* (random-real) var pi))
+			(N (/ dt ndt))
+			;;(rad (var * sqrt(dt/ndt) + (1 - var) * N) * spd * dt);
+;			(radius (min (sqrt (apply + (map sqr (map - there here)))) (/ (+ (sqrt (+ 1 (*  var var spd dt))) -1) (* 2 var var))))
+			(radius (min (sqrt (apply + (map sqr (map - there here)))) (* (+ (* var  (sqrt N)) (* (- 1 var) N)) dt spd)))
+			(rp (simple-nrnd radius (sqrt radius) 0 (* dt spd)))
+;			(rp (simple-nrnd radius radius 0 (* dt spd)))
+;			(rp (+ radius (simple-nrnd (sqrt radius) radius 0 (* dt spd))))
+			(theta (* (- (* 2 (random-real)) 1) (sqr var) pi))
+			(displacement (map (lambda (x) (* rp x)) (rotated-vector (normalise dir) theta)))
+			)
+;;	 (dnl* 'delta_r delta_r 'N N 'radius radius 'rp rp 'theta theta)
+	 displacement))
+
+
+
+
+(define (stoch-walk here there dt ndt var spd)
+  (let* ((dir (normalise (map - there here)))
+			(N (/ dt ndt)) ;; notonal changes in direction
+			(radius (* spd (sqrt (/ (* 2 N) 2)) (gamma 3/2)))
+			(theta (* (- (* 2 (random-real)) 1) (sqr var) pi))
+			(rp (simple-nrnd radius (sqrt radius) 0 (* dt spd)))
+			(rw (map (lambda (x) (* (- 1 var) rp x)) (rotated-vector dir theta)))
+			(dw (map (lambda (x) (* var rp x)) dir))
+			)
+	 ;;(dnl* "[][][][]--- " 'here '-> there ":" 'direct dw 'random rw 'theta theta 'rad rp)
+	 (map + rw dw)))
+
+
+;; (define trials (map (lambda (x) (stoch-walk 12 2 0.5 '(1 0) 2)) (seq 2000)))
+;; (define trialdat (map vlen trials))
+;; (apply min trialdat)
+;; (apply max trialdat)
+;; (/ (apply + trialdat) (length trialdat))
+;; (histograph trialdat "stuff")
+
 
 ;-  The End 
 

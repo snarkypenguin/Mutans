@@ -9,6 +9,12 @@ composite matrix like
                         [C  D]
 
 
+
+other than to extract the lists and manipulate them directly.
+
+
+(A) returns the list representation of the matrix
+
 (A i j)  -- i and j can either be indices, or lists of indices
 	is the dereferencing operation
 
@@ -183,7 +189,8 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 
 (define matrix-element-map matrix-element-mapN)
 
-(define (*2m A B)
+
+(define (*2m A B) ;; 
   (let ((a (A)) (b ((B 'T))))
 	 (make-matrix (map (lambda (r) 
 			  (map (lambda (c) (apply + (map * r c))) b)
@@ -213,6 +220,9 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 	)))
 
 		
+(define (2d-rotation-matrix theta)
+  (make-matrix (list (list (cos theta) (- (sin theta)))
+							(list (sin theta) (cos theta)))))
 
 
 

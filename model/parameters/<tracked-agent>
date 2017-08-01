@@ -2,13 +2,21 @@
 'Parameters
 (define <tracked-agent>-parameters
   (list
-    (list 'track '()) ;; should either be an empty list or #f if tracking isn't required
-    (list 'tracked-paths #f)
+    (list 'track '()) ;; should either be an empty list to indicate an empty track or #f if tracking isn't required
+    (list 'tracked-paths '())  ;; segments of the path taken by the agent---new ones added in log-data
+	 ;; By default we will track all trackable agents.  Slows things down, but
+	 ;; it makes the likelihood of forgetting to set the flag much less.
+	 (list 'track-segments #t) 
     (list 'track-schedule '())
     (list 'track-epsilon (* 1e-6 seconds))
+	 (list 'default-color 0.5) ;; half-grey
 	 (list 'default-font 'Helvetica)
 	 (list 'default-size 6)
+	 (list 'glyph '((-0.5 -0.5)(0.5 -0.5)(0.5 0.5)(-0.5 0.5)(-0.5 -0.5)))
+	 (list 'scale/slot 1.0)
 	 (list 'plot-magnificaton 1)
+	 (list 'ps-rad (* 1.5 meters))
+	 (list 'track-datum '<tracked-agent>)
 	 (list 'circle-facets 3)
   )
 )

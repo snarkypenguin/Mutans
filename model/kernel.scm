@@ -79,6 +79,7 @@
 
 
 (define Mortuary '());; We collect terminated agent here.  Termination *ought* to call shutdown!
+(define Cemetary '());; We collect dead agents here when they are terminated.  Termination *ought* to call shutdown!
 
 
 (define clock-started #f)
@@ -862,8 +863,6 @@ their model-body is running.
 		  (set! Q (sort Q Qcmp))
 		  (kdebug 'prep "sorted queue")
 
-		  (dnl* "Still need to organise a prep-agents call for offspring")
-		  
 		  ;;  (dnl* "Prepping from" start "to" end)
 		  ;;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
 		  
@@ -1001,7 +1000,8 @@ If the result is a symbol, it is handled like so:
           immediately returned to tha calling closure, implicitly dropping the agent
           from the queue.
 
-A void result from a model body is treated as an error.
+A void or null result from a model body is treated like the symbol 'ok, but can be trapped by 
+setting the trap-model-bodies-with-bad-return-values variable to #t.
 
 A result consisting of a list must have one of the symbols 'spawn, 'introdouce 'remove, or 
 'migrate-representation as the first element of the list, or it is treated as a fatal error.
@@ -1055,10 +1055,8 @@ the agent to the runqueue (one must edit the code to suppress the error)
 			 (or (eqv? queue-state 'running) ;; if any of the next three steps are true it continues with the next step (the "if")
 				  (eqv? queue-state 'ready-to-run)
 				  (and (eqv? queue-state 'ready-for-prep)
-						 (abort (string-append
-									"Attempted to run " 
-									(cnc process) ":"
-									(name process) " before it has been prepped")))
+						 (agent-prep process t end)
+						 )
 				  (abort (string-append
 							 "Attempted to run " 
 							 (cnc process) ":"(name process)
@@ -1105,7 +1103,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								  ;; If the thing queued is actually an agent, run the agent
 								  ((isa? process <agent>) ;; equivalent to (member <agent> (class-cpl (class-of process)))
 									(let ((r (run process t stop kernel))) ;; (run ...) is in framework-methods.scm [search for 'AGENTS RUN HERE']
-									  (kdebug 'run-agent "Return from (run...):" r)
+									  (kdebug 'run-agent "Return from (run...):" (cnc r) r)
 									  (if (or lookit-running-names (kdebug? 'timing))
 											(kdebug 'track-run-agent (slot-ref process 'name)
 													  (slot-ref process 'subjective-time)
@@ -1121,6 +1119,8 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								 )
 					  )
 
+				;;(dnl* "RUN-AT RESULT:" result "process:" (agent-state process))
+				;; This let must return the "new" runqueue.  Any reinsertions, deletions or new insertions are handled here.
 				(let ((return-list
 						 (cond
 ;						  ((not (slot-ref process 'agent-body-ran))
@@ -1158,6 +1158,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								 local-run-agent-runqueue)
 
 								((eqv? result 'remove)
+								 (if (eq? (agent-state process) 'dead) (set! Cemetary (cons process Mortuary)))
 								 (agent-shutdown process)
 								 (set! Mortuary (cons process Mortuary))
 								 (set! local-run-agent-runqueue (excise process local-run-agent-runqueue))
@@ -1166,6 +1167,11 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								(else 
 								 (cons result local-run-agent-runqueue)))
 							  ))
+						  ((and (not trap-model-bodies-with-bad-return-values)
+								  (or (null? result) (void? result) (eq? 'ok? result)))
+							(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+							local-run-agent-runqueue)
+							
 						  ((eqv? result #!void)
 							(let ((s
 									 (string-append "A " (cnc process)
@@ -1174,7 +1180,8 @@ the agent to the runqueue (one must edit the code to suppress the error)
 							  ;;(Abort s)
 							  (abort s)
 							  ))
-						  ((list? result)
+						  ((pair? result)
+							;;(dnl* "####" (car result))
 							(if (kdebug? 'run-agent-result)
 								 (begin
 									(dnl* "####" (car result))
@@ -1183,19 +1190,32 @@ the agent to the runqueue (one must edit the code to suppress the error)
 							(case (car result)
 							  ;; Remove ===============================================================
 							  ('wait ;; did not run, already there (temporally)
+								;; (for-each
+								;;  (lambda (x)
+								;; 	(if (isa? x <agent>)
+								;; 		 (begin
+								;; 			(slot-set! x  'agent-state 'suspended)
+								;; 			(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp))			
+								;; 			) )
+								;; 	)
+								;;  (cdr result))
+								
 								(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
 								local-run-agent-runqueue
 								)
 							  ('remove ;; a list of agents
 								(kdebug '(q-manipulation remove) result)
-								(let* ((result (cadr result)))
-								  (let ((Xsection (intersection (cdr result) local-run-agent-runqueue)))		  
-									 (set! local-run-agent-runqueue (!filter (lambda (x) (member x Xsection))	local-run-agent-runqueue))
-									 )))
-
+								(if (pair? (cdr result))
+									 (let ((Xsection (intersection (cdr result) local-run-agent-runqueue)))		  
+										(set! local-run-agent-runqueue (!filter (lambda (x) (member x Xsection))	local-run-agent-runqueue)))
+									 (set! local-run-agent-runqueue (!filter (lambda (x) (eqv? x process)) local-run-agent-runqueue))
+									 )
+								local-run-agent-runqueue
+								)
 							  ;; Migrate to a different model representation ==========================
 							  ;; model migration implies correct execution of the timestep
 							  ('migrate ;; replace an agent with list of one or more agents
+								(dnl* "This is probably wrong here....")
 								(kdebug '(q-manipulation migrate) result)
 								(let* ((result (cadr result)))
 								  (for-each
@@ -1214,7 +1234,10 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								;; we can make the *calling* code clear.  Also note that 
 								;; Spawning implies correct execution of the timestep
 								(kdebug '(q-manipulation spawn introduce) result)
-								(dnl* '**** '(q-manipulation spawn introduce) result)
+								;;(dnl* '**** '(q-manipulation spawn introduce) result)
+
+
+
 
 								(let* ((result (cadr result)))
 								  (for-each
@@ -1255,34 +1278,51 @@ the agent to the runqueue (one must edit the code to suppress the error)
 													(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))))
 										 (cdr result))
 										)
-										((spawn introduce) ;; There are multiple tags here so that
-										 ;; we can make the *calling* code clear.  Also note that 
-										 ;; Spawning implies correct execution of the timestep
-										 (kdebug '(q-manipulation spawn introduce) result)
-										 (for-each
-										  (lambda (x)
-											 (if (isa? x <agent>)
-												  (begin
-													 (agent-prep x t end)
-													 (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))))
-										  (cdr result))
-										 )
-										(else (error "Bad command passed to 'modify in the kernel" (abort))))
+									  ((spawn introduce) ;; There are multiple tags here so that
+										;; we can make the *calling* code clear.  Also note that 
+										;; Spawning implies correct execution of the timestep
+										(kdebug '(q-manipulation spawn introduce) result)
+										(for-each
+										 (lambda (x)
+											(if (isa? x <agent>)
+												 (begin
+													(agent-prep x t end)
+													(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))))
+										 (cdr result))
+										)
+									  (else (error "Bad command passed to 'modify in the kernel" (abort))))
 									)
 								 (cadr result))
 								)
 
-							  (else (error "The frog has left the building!" (car result)))
-							  ) ; case
-
-							) ; cond clause
+							  (else ;;(error "The frog has left the building!" (car result))
+								(if (list? result)
+									 (begin
+										(if trap-model-bodies-with-bad-return-values
+											 (set! result (denull-and-flatten result))
+											 (set! result (map (lambda (x) (if (or (null? x) (void? x)) 'ok x)) (denull-and-flatten result)))))
+									 )
+								
+								(cond
+								 ((or (null? result)
+										(void? result))
+								  (dnl* "#!void or null returned by the model body of" (name process)
+										  " ... assuming that it ran correctly")
+								  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
+								 (else
+								  (dnl* "Inconceivable!"  (cnc process) (name process)  (string-append "[" (number->string t)", "(number->string stop)"]") (subjective-time process) '--> result)
+								  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
+								  )
+								 ); cond
+								); (else
+							  ) ; case (car result)
+							) ; cond clause: (pair? result)
 						  (#t
 							(if #t (error "We really should not be here...."))
 							(set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
-							local-run-agent-runqueue
 							)
-						  )
-						 ))
+						  ); (cond ...
+						 )) ;; let ((...))
 
 				  ;;(test-queue-size return-list N)
 				  (kdebug 'run-agent "Finished with run-agent" (name process)
@@ -1292,8 +1332,8 @@ the agent to the runqueue (one must edit the code to suppress the error)
 				  ;; another agent if there is out-of-band activity that requires a kernelcall.
 				  ;; This is the conservative option.
 				  
-				  return-list
-				  )
+				  local-run-agent-runqueue
+				  ) ; end of let
 				)
 			 )
 		  )

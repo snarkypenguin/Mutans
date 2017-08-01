@@ -22,7 +22,7 @@
 ;; Important routines which I Really Ought to Know ;;
 ;;---------------------------------------------------
 
-;; cpl... class precedence list
+;;; cpl... class precedence list
 ;;; (define-macro (isa? self . classtype)
 ;;;   (letrec ((orf (lambda x (if (null? x #f) (or (car x) (apply orf (cdr x)))))))
 ;;; 	 (let ((txt `(let ((ancestors (class-cpl (class-of ,self))))
@@ -44,6 +44,23 @@
 
 ;; This routine does the running since "run" has fixed up the ticks
 ;; It looks like (run-model-body me t dt) in code
+
+(define (my-map-color self)
+  (let ((mapcol (if (has-slot? self 'map-color) (slot-ref self 'map-color) #f))
+		  (defcol (if (has-slot? self 'default-color) (slot-ref self 'default-color) #f))
+		  )
+	 (or mapcol defcol 0)))
+
+(define (my-contrast-color self)
+  (let ((mapcol (if (has-slot? self 'map-contrast-color) (slot-ref self 'map-contrast-color) #f))
+		  (defcol (if (has-slot? self 'default-color) (slot-ref self 'default-color) #f))
+		  )
+	 (or mapcol defcol 0)))
+
+(define (my-default-color self)
+  (let ((defcol (if (has-slot? self 'default-color) (slot-ref self 'map-color) #f))
+		  )
+	 (or defcol 0)))
 
 (define (isa? me #!rest classes)
   (let loop ((cpl (class-cpl (class-of me)))
@@ -75,8 +92,8 @@
 
 ;; the list representation of a vector from s to d, but smart about <agent>s
 (define (vector-to s d)
-  (let ((src (if (isa? s <thing>) (slot-ref s 'location) s))
-		  (dst (if (isa? d <thing>) (slot-ref d 'location) d)))
+  (let ((src (if (isa? s <tracked-agent>>>) (slot-ref s 'location) s))
+		  (dst (if (isa? d <tracked-agent>>) (slot-ref d 'location) d)))
 	 (map - dst src)))
 
 (define (do-map-conversion pfn gfn)
@@ -98,7 +115,6 @@
 
 ;(model-method <agent> (dump% self)
 ;				  (dump% self 0))
-
 
 (model-method (<object>) (dump% self count)
 				  (set! count (cond
@@ -141,6 +157,20 @@ commonly viewed as just a simple extension of sclos.
 "
 ;---- <agent> methods
 ;----- (initialise) 
+
+
+(model-method (<agent>) (dead? self)
+				  (eq? (my 'agent-state) 'dead)
+				  )
+
+
+(model-method (<agent>) (terminate self)
+				  (set-my! 'agent-state 'terminated)
+				  (set-my! 'queue-state 'terminated))
+
+(model-method (<agent>) (terminated? self)
+				  (or (eq? (my 'agent-state) 'terminated)
+						(eq? (my 'queue-state) 'terminated)))
 
 
 (model-method (<agent>) (initialisation-checks self)
@@ -215,7 +245,8 @@ commonly viewed as just a simple extension of sclos.
 								  (name self)
 								  " has been instructed to prep but it's state is "
 								  (slot-ref self 'agent-state)))
-						))
+						)
+				  #t)
 
 
 ;----- Termination can happen from any state  */
@@ -238,7 +269,7 @@ commonly viewed as just a simple extension of sclos.
 
 
 
-(model-method (<agent> <log-introspection> <symbol> <list>) (log-data self logger format targets)
+(model-method (<agent> <log-data> <symbol> <list>) (log-data self logger format targets)
 				  (kdebug '(log-* log-data)
 							 (name self)
 							 "[" (my 'name) ":"
@@ -249,57 +280,61 @@ commonly viewed as just a simple extension of sclos.
 						  (spaced-out #f)
 						  (cntr 0)
 						  )
-
-					 (for-each ;; field in the variable list
-					  (lambda (field)
-						 (if show-field-name
-							  (begin
-								 (if (not spaced-out)
-									  (set! spaced-out #t)
-									  (display " " file))
-								 (display field file)))
-						 
-						 (cond
-						  ((has-slot? self field)
-							(kdebug '(log-* log-data logging-debug)      
-									  "  " (name self) (cnc self)
-									  "Dumping " field "=" (if (has-slot? self field)
-																		(slot-ref self field)
-																		"missing!"))
-							(if (not spaced-out)
-								 (set! spaced-out #t)
-								 (display " " file))
-							(display (slot-ref self field) file)
+					 (if (output-port? file) (abort))
+					 
+					 (cond
+					  ((not (member format '(ps postscript map gif png mpg)))
+						(for-each ;; field in the variable list
+						 (lambda (field)
+							(if show-field-name
+								 (begin
+									(if (not spaced-out)
+										 (set! spaced-out #t)
+										 (file 'display " "))
+									(file 'display field)))
+							
+							(cond
+							 ((has-slot? self field)
+							  (kdebug '(log-* log-data logging-debug)      
+										 "  " (name self) (cnc self)
+										 "Dumping " field "=" (if (has-slot? self field)
+																		  (slot-ref self field)
+																		  "missing!"))
+							  (if (not spaced-out)
+									(set! spaced-out #t)
+									(file 'display " "))
+							  (file 'display (slot-ref self field))
+							  )
+							 ((member field (extra-variable-list self))
+							  (kdebug '(log-* log-data logging-debug)
+										 "  " (name self) (cnc self)
+										 "Dumping extra " field "="
+										 (extra-variable self field))
+							  (if (not spaced-out)
+									(set! spaced-out #t)
+									(file 'display " "))
+							  (file 'display (extra-variable self field))
+							  )
+							 (missing-val
+							  (if (not spaced-out)
+									(set! spaced-out #t)
+ 								(file 'display " "))
+							  (file 'display missing-val))
+							 (else
+							  (if (not spaced-out)
+									(set! spaced-out #t)
+									(file 'display " "))
+							  )	
+							 )
 							)
-						  ((member field (extra-variable-list self))
-							(kdebug '(log-* log-data logging-debug)
-									  "  " (name self) (cnc self)
-									  "Dumping extra " field "="
-									  (extra-variable self field))
-							(if (not spaced-out)
-								 (set! spaced-out #t)
-								 (display " " file))
-							(display (extra-variable self field) file)
-							)
-						  (missing-val
-							(if (not spaced-out)
-								 (set! spaced-out #t)
-								 (display " " file))
-							(display missing-val file))
-						  (else
-							(if (not spaced-out)
-								 (set! spaced-out #t)
-								 (display " " file))
-							)	
-						  )
-						 )
-					  (unique (if #t targets
-									  (filter (not-member (my 'dont-log)) targets))))
-					 (newline file)
+							(unique (if #t targets
+											(filter (not-member (my 'dont-log)) targets))))
+						(file 'newline))
+					  ((member format '(ps))
+						#t)
 					 )
 				  )
-
-
+)
 
 ;----- (name) 
 
@@ -582,7 +617,7 @@ commonly viewed as just a simple extension of sclos.
 ;;; 	 (pp tst)))
 
 (model-body <model-maintenance>
-				;;(call-parents)
+				;;(call-all-parents)
 				(let ((status-list (map (lambda (kernel t dt maint-routine)
 												  (maint-routine kernel t dt))
 												(slot-ref self 'maintenance-list)
@@ -626,7 +661,6 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 	 "
 
 (model-method (<projection> <procedure>) (ps-dump self ps projection) 
-				  (dnl "In projection ps-dump")
 				  (ps 'show-table
 						(list "<projection>")))
 
@@ -674,6 +708,60 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 						  )
 					 (lambda (x) 
 						(m->l (l->m x)))))
+
+(model-method <tracked-agent> (location* self)
+				  (slot-ref self 'location))
+
+(model-method <tracked-agent> (location2 self)
+				  (list-head (slot-ref self 'location) 2))
+
+
+(model-method <tracked-agent> (location3 self)
+				  (list-head (slot-ref self 'location) 3))
+
+(model-method <tracked-agent> (location self)
+				  (case default-location-type
+					 ((*) (location* self))
+					 ((2 2d) (location2 self))
+					 ((3 3d map) (location3 self))
+					 (else (location* self))))
+
+
+(model-method (<tracked-agent> <log-map>) (plot-glyph self logger)
+				  (let ((glyph (my 'glyph))
+						  (dir (my 'direction))
+						  (scale/slot (my 'scale/slot))
+						  (prj (composite-prj_src->dst self logger))
+						  (file (slot-ref logger 'file))
+						  )
+					 (cond
+					  ((symbol? scale/slot) (set! scale/slot (my (my 'scale/slot))))
+					  ((procedure? scale/slot) (set! scale/slot (scale/slot self)))
+					  ((number? scale/slot) 'ok)
+					  (else (set! scale/slot 1.0)))
+						
+						  
+					 (if (procedure? glyph) (set! glyph (glyph self)))
+					 
+					 (if (< (abs (- 1.0 scale/slot)) 0.1)
+						  'ignore-scaling
+						  (set! glyph (rescale-glyph scale/slot glyph)))
+					 
+					 ;; calculate rotation to be applied to glyph and then rotate it
+					 (set! glyph (rotate-glyph (if (positive? (cadr dir)) (acos (car dir)) (- (acos (car dir))))
+														glyph))
+
+					 (set! glyph (translate-glyph (my 'location) glyph))
+					 
+					 (if (simple-glyph? glyph)
+						  (adjusted-plot-polygon file 0.175 (my 'map-color) #t prj glyph)
+						  (for-each
+							(lambda (g)
+							  (adjusted-plot-polygon file 0.1(my 'map-contrast-color) #f prj g)
+							  ) glyph))
+					 )
+				  )
+
 
 (define (local->model self location)
   (let ((p (slot-ref self 'local->model)))
@@ -919,29 +1007,22 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;;; (default-agent-initialisation <tracked-agent>
 ;;;   'track #f
 ;;;   'tracked-paths #f
-;;;   'track-schedule '()
-;;;   'track-epsilon 1e-6)
 
 ;;; (agent-initialisation-method <tracked-agent> () (
 ;;;   'track #f
 ;;;   'tracked-paths #f
-;;;   'track-schedule '()
-;;;   'track-epsilon 1e-6))
 
 
 ;; This records the track in the native ordinate space of the submodel!
 (model-method (<tracked-agent> <number> <pair>) (track-location! self t loc)
 				  (let ((myt (my 'track)))
-					 (if (and myt (not (list? myt)))
-						  (set! myt '()))
+					 (if (eq? myt #t) (set! myt '()))
 
-					 (set-my! 'track
-								 (if t
-									  (append myt (list (cons t loc)))
-									  (list (cons t loc))
-									  )
-								 ))
-				  )
+
+					 (set! myt (append myt (list (cons t loc)))) ;; t, (x y z) --> (t x y z)
+
+					 (set-my! 'track myt)
+					 ))
 
 (model-method (<tracked-agent>) (track self)
 				  (my 'track))
@@ -958,103 +1039,176 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 				  (let ((p (my 'tracked-paths))
 						  (t (my 'track)))
 					 (cond 
-					  ((and p t) (set-my! 'tracked-paths (cons p t)))
+					  ((and p t) (set-my! 'tracked-paths (append (list t) p)))
 					  (t (set-my! 'tracked-paths (list t))))
-					 (set-my! 'track #f)))
+					 
+					 (set-my! 'track '())
+					 ))
 
 (model-method (<tracked-agent>) (tracks self)
 				  (my 'tracked-paths))
 
 
-(model-body <tracked-agent>
-				(track-location! self t (my 'location)) ;; even if they
-				;; aren't
-				;; moving
-;;				(call-parents)
-				'ok
-				)
+;----- (map-log-track-segment
+(model-method (<tracked-agent> <list> <procedure>) (map-log-track-segment self track prj ps #!rest args)
+										 (let* ((m (if (pair? args) (car args) #f))
+												 (col (if (> (length args) 1) (cadr args) #f))
+												 (pr (lambda (x) (car (prj (list x 0)))))
+												 (map-color (if col col (my 'map-color)))
+												 (default-color (my 'default-color))
+												 )
+
+											(if (kdebug? '(map-log <tracked-agent>))
+												 (begin
+													(dnl* "In map-log-track-segment" (cnc self) (name self))
+													(dnl* "track:" (map cdr track))
+													(dnl* "projected track:" (map prj (map cdr track)))))
+
+											(if (eq? track #t) (set! track (my 'track))) ;; because we are lazy
+											(if (list? track)
+												 (let* ((xytrack (map txyz->xy track))
+														  (ptrack (map prj xytrack)))
+													
+													(if (>= (length ptrack) 2)
+														 (let ((startseg (list-head ptrack
+																							 (1- (length ptrack))))
+																 (finishseg (cdr ptrack)))
+															(for-each
+															 (lambda (ss fs)
+																(ps 'moveto ss)
+																(ps 'lineto fs)
+																(ps 'push-color map-color)
+																(ps 'stroke)
+																)
+															 startseg finishseg)
+															(ps 'Helvetica 4.5)
+															(ps 'moveto (prj (list-head (location self) 2)))
+
+															(ps 'push-color map-color)
+															(cond
+															 ;;; ((not m)
+															 ;;;  (ps 'show-centered "*")
+															 ;;;  ;;(ps-circle ps  (pr (my 'ps-rad) )
+															 ;;; 	;;			 (prj (list-head (location self) 2))
+															 ;;; 	;;			 1.2 0.0 )
+															 ;;;  )
+															 
+															 ((procedure? m)
+															  (ps 'show-centered (object->string (m)))
+															  ;;(ps-circle ps
+																;;			 (pr (my 'ps-rad))
+																;;			 (prj (list-head (location self) 2))
+																;;			 1.2 0.0 )
+															  )
+															 ((number? m)
+															  (ps 'show-centered (number->string m))
+															  ;;(ps-circle ps
+																;;			 (pr (min (my 'ps-rad)
+																;;						(* 0.25 pi
+																;;							(sqrt m))))
+																;;			 (prj (list-head (location self) 2))
+																;;			 1.2 0.0 )
+															  )
+															 ((string? m)
+															  (ps 'show-centered m)
+															  ;;(ps-circle ps  (pr (my 'ps-rad))
+																;;			 (prj (list-head (location self) 2))
+																;;			 1.2 0.0 )
+															  )
+															 )
+															(ps 'pop-color)
+															(set! map-color (if (number? map-color)
+																					  (* 0.85 map-color)
+																					  (map (lambda (x) (* 0.85 x)) map-color)))
+															(ps 'push-color map-color)
+															(ps 'stroke)
+															(ps 'pop-color)
+															)
+														 (or 'This-ought-to-emit-a-splot-for-a-starting-point #t)
+														 )
+													#t)
+												 #f)
+											))
 
 
+(model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)
+				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						(let ((file (slot-ref logger 'file))
+								)
+						  (kdebug '(log-* log-tracked-agent) ":" targets)
+						  (cond 
+							((postscript? file)
+							 ;; might be a case statement here for different formats within the postscript doc
+							 (file 'comment "Tracking " (name self) " " (taxon self) " " (subjective-time self) " " (location self) " " (agent-state self) )
+							 (let ((track (my 'track)) ;; track since last logging
+									 (tracks (my 'tracked-paths)) ;; collection of past tracks
+									 (prj (composite-prj_src->dst self logger))
+									 (datum (if (my 'track-datum) (my 'track-datum) (my 'name)))
+									 )
 
+								(if track
+									 (begin
+										(kdebug '(log-data map) "Calling map-log-track-segment for current track" track)
+										(map-log-track-segment self track prj file)
+										)
+									 )
+								
+								(if tracks
+									 (let loop ((n (length tracks))
+													(k 1.0)
+													(tr tracks))
+										(kdebug '(log-data map) "Calling map-log-track-segment with tracks" tracks)
+										(if (not (null? tr))
+											 (begin
+												;;(map-log-track-segment self (- n k) (car tr) prj file (+ AMINGREY (* (/ k n) (- AMAXGREY AMINGREY))))
+												(map-log-track-segment self (car tr) prj file)
+												(loop (- n 1) (1+ k) (cdr tr))))))
 
-;---- <thing> methods
+								(plot-glyph self logger);; We always plot ourselves at the end.
+								)
+							 )
+							)
 
-;;; (default-agent-initialisation <thing> 'dim #f 'location #f
-;;;   'direction #f
-;;;   'speed #f 'mass #f
-;;;   'track #f
-;;;   'tracked-paths #f)
+						  (if (and (my 'tracked-paths)
+									  (state-flag self 'tracked-paths))
+								(new-track! self))
+						  
+						  )
+						)
+				  )
 
-;----- (dim) 
-(model-method
- (<thing>)
-				 (dim self)
-					(slot-ref self 'dim))
-
-
-;----- (set-dim!) 
-(model-method
- (<thing> <number>)
-				 (set-dim! self n)
-					(if (not (integer? n))
-						 (error "thing:set-dim! -- bad integer")
-						 (slot-set! self 'dim n)))
-;----- (mass) 
-(model-method
- (<thing>)
- (mass self)
- (slot-ref self 'mass))
-
-
-;----- (set-mass!) 
-(model-method
- (<thing> <number>)
- (set-mass! self n)
- (if (or (not (number? n)) (negative? n))
-	  (error "thing:set-mass! -- bad number")
-	  (slot-set! self 'mass n)))
 
 ;----- (speed) 
-(model-method
- (<thing>)
-				 (speed self)
+(model-method (<tracked-agent>) (speed self)
 					(slot-ref self 'speed))
 
 
 ;----- (set-speed!) 
-(model-method 
- (<thing> <number>)
- (set-speed! self n)
+(model-method (<tracked-agent> <number>) (set-speed! self n)
  (if (not (number? n))
 	  (error "thing:set-speed! -- bad number")
-	  (slot-set! self 'speed n)))
+	  (slot-set! self 'speed (magnitude (min n (my 'max-speed))))))
 
 
 ;----- (location) 
-(model-method 
- (<thing>)
- (location self)
+(model-method (<tracked-agent>) (location self)
  (slot-ref self 'location))
 
 
 ;----- (set-location!) 
-(model-method 
- (<thing>)
- (set-location! self vec)
+(model-method (<tracked-agent>) (set-location! self vec)
  (slot-set! self 'location vec))
  
 
 ;----- (direction) 
-(model-method 
- (<thing>)
- (direction self)
+(model-method  (<tracked-agent>) (direction self)
  (slot-ref self 'direction))
 
 
 ;----- (set-direction!) 
-(model-method  (<thing> <list>) (set-direction! self vec)
+(model-method  (<tracked-agent> <list>) (set-direction! self vec)
    (if (pair? vec) 
-		 (let ((v (sqrt (apply + (map sqr vec)))))
+		 (let ((v (sqrt (apply + (map sqr (map (magnitude vec)))))))
 			(if (positive? v)
 				 (slot-set! self 'direction (map (lambda (x) (/ x v)) vec))))))
 
@@ -1063,7 +1217,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 
 
 
-(model-method (<thing> <procedure>) (ps-dump self ps projection)
+(model-method (<tracked-agent> <procedure>) (ps-dump self ps projection)
 				  (dnl "in thing ps-dump")
 				  (ps 'moveto (projection (local->model (location self))))
 				  (ps 'show-table
@@ -1075,10 +1229,56 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 								))
 				  (ps-dump-parent))
 
+
+(model-body <tracked-agent>
+				(call-all-parents)
+				(track-location! self t (my 'location)) ;; even if they
+				(set-my! 'speed (min (my 'speed) (my 'max-speed)))
+				;; aren't
+				;; moving
+				)
+
+
+;---- <thing> methods
+
+;;; (default-agent-initialisation <thing> 'dim #f 'location #f
+;;;   'direction #f
+;;;   'speed #f 'mass #f
+;;;   'track #f
+;;;   'tracked-paths #f)
+
+;----- (dim) 
+(model-method (<thing>) (dim self)
+					(slot-ref self 'dim))
+
+
+;----- (set-dim!) 
+(model-method (<thing> <number>)	 (set-dim! self n)
+					(if (not (integer? n))
+						 (error "thing:set-dim! -- bad integer")
+						 (slot-set! self 'dim n)))
+;----- (mass) 
+(model-method (<thing>) (mass self)
+ (slot-ref self 'mass))
+
+
+;----- (set-mass!) 
+(model-method (<thing> <number>) (set-mass! self n)
+ (if (or (not (number? n)) (negative? n))
+	  (error "thing:set-mass! -- bad number")
+	  (slot-set! self 'mass n)))
+
+
+(model-body <thing>
+				(call-all-parents)
+				'ok
+				)
+
+
 ; Living things
 
 (model-method (<living-thing> <procedure>) (ps-dump self ps projection)
-				  (call-parents)
+				  (call-all-parents)
 				  (ps 'moveto (projection (local->model (location self))))
 				  (ps 'show-table
 						(list (string-append "<thing>" (name self))
@@ -1105,15 +1305,35 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 																 decay-rate
 																 ))
 				  )
+(model-method <living-thing> (agent-prep self start end)
+				  (set-uninitialised-slots self '(age-at-instantiation) 0)
+				  (fail-on-uninitialised-slots self '(age mass-at-age))
+				  (set-uninitialised-slots self '(mass) ((my 'mass-at-age) (my 'age)))
+				  #t
+				  )
+				  
 
+
+;(model-method <living-thing> (mass-at-age self #!optional mymass)
+;						((my 'mass-at-age) (if mymass mymass (my 'mass))))
 
 (model-method <living-thing> (mass-at-age self #!optional mymass)
-						((my 'mass-at-age) (if mymass mymass (my 'mass))))
+				  (let ((M ((slot-ref self 'mass-at-age) (slot-ref self 'age))))
+					 (slot-set! self 'mass M)
+					 M)
+				  ;;; (let ((maa (if (not (uninitialised? (my 'mass-at-age)))
+				  ;;; 					  ((my 'mass-at-age) (if mymass mymass (my 'mass)))
+				  ;;; 					  (my 'mass))))
+				  ;;; 	 (dnl "*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*")
+				  ;;; 	 (dnl* (cnc self) (name self) (my 'mass-at-age) (my 'mass) maa)
+				  ;;; 	 (set-my! 'mass maa)
 
-(model-method <living-thing> (mass-at-age self #!optional mymass)
-				  (if (not (uninitialised? (my 'mass-at-age)))
-						((my 'mass-at-age) (if mymass mymass (my 'mass)))
-						(my 'mass)))
+				  ;;; 	 (if (and (number? maa) (positive? maa))
+				  ;;; 		  maa
+				  ;;; 		  (begin
+				  ;;; 			 (dnl* (cnc self) (name self) "is missing its Higgs bosons")
+				  ;;; 			 (abort))))
+)
 
 
 
@@ -1135,7 +1355,28 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 					 (/ (- (my 'max-mass) (my 'mass)) (my 'longevity)))))
 
 
+(model-method <living-thing> (look-for self targets #!optional rad)
+				  (if (not rad)
+						(if (has-slot? self 'search-radius)
+							 (set! rad (my 'search-radius))
+							 (set rad #t)))
 
+				  ;; move about looking for a region with whatever it is
+				  (let* ((here (my 'location))
+							(results
+							 (sort  (kernel 'locate (apply *provides-*? targets) here rad)
+									  (lambda (x y) (<= (distance (location x) here) (distance (location y) here)))))
+							)
+
+					 ;; Sort in order of proximity
+					 ;; is categorical rather than specific agents
+					 
+					 results
+					 ))
+
+(model-body <living-thing>
+				(call-all-parents)
+				)
 
 
 
@@ -1150,6 +1391,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;;; 					self (list 'message-list '()
 ;;; 								  'label ""
 ;;; 								  ))
+
 ;;; 				  (parent-initialise)
 ;;; 				  ;; call "parents" last to make the initialisation list work
 ;;; 				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
@@ -1192,7 +1434,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 
 
 (model-body <blackboard>
-;;				(call-parents)
+;;				(call-all-parents)
 				'ok
 				)
 
@@ -1200,7 +1442,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;---- environment methods
 
 (model-body <environment> ;; does nothing.
-;;				(call-parents)
+;;				(call-all-parents)
 				)
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)
@@ -1261,7 +1503,8 @@ The arguments are
 
 ;; if it ever hits the agent body, it just returns the dt passed in.
 
-(add-method run-model-body (make-method (list <agent> <number> <number>) (lambda (run-parent self T dt) 'ok))) 
+(add-method run-model-body (make-method (list <agent> <number> <number>)
+													 (lambda (run-parent self T dt) 'ok))) 
 
 "
 The 'run' method does the actual business of chaining to the model body, managing the update of 

@@ -4,6 +4,7 @@
   (list
 	 (list 'age 0)   ;; arbitrary, I know.
 	 (list 'decay 0) ;; Typically for exponential decay
+	 (list 'dead-color '(0.15 0.15 0.15)) ;; flags dead agents in maps-n-such
   )
 )
 (set! global-parameter-alist (cons (cons <thing> <thing>-parameters) global-parameter-alist))
