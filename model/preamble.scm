@@ -71,6 +71,26 @@
 					  (lambda (var . rest)
 						 (ge var))))
 
+
+(define (construct-symbol sym #!rest tagels)
+  (if (string? sym) (set! sym (string->symbol sym)))
+  (set! tagels (map (lambda (x) (if (string? x) (string->symbol x) x)) tagels))
+  	
+  (string->symbol
+	(apply string-append
+			 (map object->string
+					(cons sym
+							(let loop ((l '()) (t tagels))
+							(if (null? t)
+								 (reverse l)
+								 (loop (cons (car t)
+												 (cons '- l))
+										 (cdr t)))))))))
+
+
+
+
+
 ;; These may need changing from time to time!
 
 ;;?(if (not (getenv "SCHEME_LIBRARY_PATH")) (setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/"))

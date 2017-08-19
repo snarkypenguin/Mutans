@@ -114,6 +114,9 @@
 
 ;-- Begin defining the fundamental classes for entities in the models
 
+(define <> (make-class '() '())) ;; This acts as a null class -- technically there, but outside all ken
+
+
 ;--- objects 
 
 "<primitive-object> is a (the?) basic class for SCLOS -- the name was
@@ -129,11 +132,67 @@ communication (without cheating)."
   ;; 'note is just explanatory data
   )
 
+(define-class <kernel> (inherits-from <object>) (no-state-variables))
+"Ultimately, we ought to flesh this out so that all of the state associated with the kernel
+is, indeed, a part of a kernel object.  I think this would be a very good avenue for deeper
+exploration."
+
+(define -kernel- (allocate-instance <kernel>))
+
+;;(define <> '<>)
+
+
+;; We add the data-ref and data-set! methods so that we can mask array references
+;; in <proxy>
+
+(declare-method has-data? "wrapper for slot-ref")
+(declare-method data-ref "wrapper for slot-ref")
+(declare-method data-set! "wrapper for slot-set!")
+(declare-method @data-ref "wrap slot-ref and access to 'data/data-name slots with extra dereferencing")
+(declare-method @data-set! "wrap slot-ref and access to 'data/data-name slots with extra dereferencing")
+
+(model-method (<object> <symbol>) (data-ref self key)
+				  (slot-ref self key))
+
+(model-method (<object> <symbol>) (data-set! self key value)
+				  (slot-set! self key value))
+
+;;(define has-data? (make-generic)) ;; this is done by the declare-method at the beginning of the file
+(model-method (<object> <symbol>) (has-data? self sym)
+				  (or (and (object? a)
+							  (has-slot? a sym))))
+
+
+;; Generally this routine returns #t if it is a slot, otherwise it
+;; return a partial list of data-names or #f if no match
+
+
+
+;; ;;(define data-ref (make-generic)) ;; this is done by the declare-method at the beginning of the file
+;; (add-method data-ref
+;; 				(make-method (list <object> <symbol>)
+;; 								 (lambda (call-next-method self sym)
+;; 									(slot-ref self sym))))
+
+
+;; ;;(define data-set! (make-generic)) ;; this is done by the declare-method at the beginning of the file
+;; (add-method data-set!
+;; 				(make-method (list <object> <symbol>)
+;; 								 (lambda (call-next-method self sym val)
+;; 									(slot-set! self sym val))))
+
+
+
+
+
+
 ;--- agents
 
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
   (state-variables name taxon representation
+						 proxy-class
+						 may-run
 						 queue-state agent-state
 						 current-class-depth
 						 note
@@ -290,7 +349,7 @@ communication (without cheating)."
 
 ;--- (class? a) ... not perfect, but close enough
 (define (class? a)
-  (if (member a (list <top> <class> <procedure-class> <entity-class>))
+  (if (member a (list <> <top> <class> <procedure-class> <entity-class>))
 		#t
 		(equal? (class-slots-of a) (class-slots-of <object>))
 			  ))
@@ -310,12 +369,14 @@ communication (without cheating)."
 
 ;--- (define (has-slot? a k)
 (define (has-slot? a k)
-  (cond
-	((object? a) (member k (class-slots-of a)))
-	((class? a) (member k (map car (slot-ref a 'slots))))
-	(else #f)
-	)
-  )
+  (if (cond
+		 ((object? a) (member k (class-slots-of a)))
+		 ((class? a) (member k (map car (slot-ref a 'slots))))
+		 (else #f)
+		 )
+		#t
+		#f
+  ))
 
 (define (input-output-port? x)
   (and (port? x) (input-port? x)(output-port? x)))
@@ -369,11 +430,12 @@ communication (without cheating)."
    * the symbol '<uninitialised>
    * the object <uninitialised>
 "
-(define (uninitialised? x #!rest y)
-  (if (object? x) (uninitialised? (slot-ref x (car y)))
-		(if (null? y)  (or (eq? x uninitialised) (eq? x '<uninitialised>)(eqv? x <uninitialised>))
-			 (and (uninitialised? x)
-					(apply uninitialised? y)))))
+(define (uninitialised? x #!optional y)
+  (cond
+	((not y) (member x (list uninitialised '<uninitialised> <uninitialised>)))
+	((and (object? x) (symbol? (car y))) (uninitialised? (slot-ref x (car y))))
+	(else #f)))
+
 
 ;--- (define (uninitialised? x #!rest y)
 (define (uninitialised#? x #!rest y)
@@ -462,9 +524,13 @@ handles mixed lists.  Whether that is a good idea is a matter of practicality ve
 														(set! initargs (car initargs))
 														)
 												  (set-state-variables self initargs)
+
+
+
 ;(initialise self initargs)
 ;(apply initialise (cons self initargs))
 												  self) ))
+
 
 (define (null=#f arg)
   (if (or (not arg) (null? arg))
@@ -506,6 +572,14 @@ and the isa functions are geared toward seeing if an agent 'isa' class/
 						 (has-slot? x slot))))))
 
 
+(define (*has-data? slot)
+  (let ((slot (filter symbol? slot)))
+	 (lambda (x) 
+		(null=#f (if (list? slot)
+						 (apply orf (map (lambda (y) (has-data? x y)) slot))
+						 (has-data? x slot))))))
+
+
 (define (*has-slot-value? slot v)
   (let ((slot slot)
 		  (v v))
@@ -529,8 +603,11 @@ and the isa functions are geared toward seeing if an agent 'isa' class/
 
 If the agent does not possess the slot, it cannot have the indicated property
 and so it is excluded.
-"
 
+There is no has-data-value? analogue---slots refer to single items, where data
+(plural!) may have all sorts of exotic dereferencing for any given datum within
+the corpus.
+"
 
 (define (*is-taxon? target #!rest s)
   (let* ((targets (filter string? (cons target s)))
@@ -581,24 +658,46 @@ and so it is excluded.
 						 #f
 						 (apply orf (map null=#f (map (lambda (s) (provides? A s)) targets))))))))
 
-
-(define (*is-*? target #!rest s)
-  (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
-	 (C (*is-class? targets))
-	 (S (*has-slot? targets))
-	 (T (*is-taxon? targets))
-	 )
-  (lambda (x)
-	 (null=#f (or (C x) (S x) (T x)))))
+;; (define (*is-*? target #!rest s)
+;;   (let* ((targets (if (and (list? target)(null? s)) target (cons target s)))
+;; 			  (C (*is-class? targets))
+;; 			  (S (*has-slot? targets))
+;; 			  (T (*is-taxon? targets))
+;; 			  )
+;; 	 (lambda (x)
+;; 		(dnl* (C x) (S x) (T x))
+;; 		(null=#f (or (C x) (S x) (T x))))))
 
 (define (*provides-*? target #!rest s)
-  (let ((targets (if (and (list? target)(null? s)) target (cons target s))))
-	 (let ((C (apply *is-class? targets))
-			 (P (apply *provides? targets))
-			 (T (apply *is-taxon? targets))
-			 )
-		(lambda (x)
-		  (null=#f (or (C x) (P x) (T x)))))))
+  (let* ((targets (if (and (list? target)(null? s)) target (cons target s)))
+			(C (apply *is-class? targets))
+			(P (apply *provides? targets))
+			(T (apply *is-taxon? targets))
+			)
+	 (lambda (x)
+		(null=#f (or (C x) (P x) (T x))))))
+
+;; (define (*matches? target #!rest s)
+;;   (let* ((targets (if (and (list? target)(null? s)) target (cons target s)))
+;; 			(C (apply *is-class? targets))
+;; 			(T (apply *is-taxon? targets))
+;; 			(P (apply *provides? targets))
+;; 			(D (apply *has-data? targets))
+;; 			(S (apply *has-slot? targets))
+;; 			)
+
+;; 		(lambda (x)
+;; 		  (let ((rslt 
+;; 					(null=#f (or (if (P x) 'provides #f)
+;; 									 (if (D x) 'has-data #f)
+;; 									 (if (S x) 'has-slot #f)
+;; 									 (T x) (C x) 
+;; 									 )
+;; 								))
+;; 				  )
+;; 			 rslt
+;; 			 ))
+;; 		)) 
 
 (define (cnc a) (class-name-of (class-of a)))
 (define (cncs a) (string->symbol (class-name-of (if (class? a) a (class-of a)))))
@@ -642,9 +741,9 @@ and so it is excluded.
                     a class (like <agent>) or a list of classes
 
 
- BY CONVENTION we will use the symbol '* to indicate that we want all
+ BY CONVENTION we will use the symbol <> to indicate that we want all
  methods... (it will recognise the default multiplication operator as
- being equivalent, but this might cause problems if someone declares '*
+ being equivalent, but this might cause problems if someone declares <>
  to be something other than multiplication -- best to use the symbol).
  Or, we will use a number to indicate the list-head we are interested
  in.  Using #f is equivalent to a list-head of 0, and #t indicates only
@@ -657,7 +756,7 @@ and so it is excluded.
 
 
  typical invocations might be
-   (get-methods '* adjust-status - this-agent 
+   (get-methods <> adjust-status - this-agent 
                 current-environment current-prey)
  or
    (get-methods (list <dolphin> <basic-animal> <tracker>) 
@@ -928,7 +1027,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 (define (p-eval k)
   (cond
-	((and (pair? k) (or (eqv? (car k) eval-marker) (equal? (car k) eval-marker)))
+	((and (pair? k) (or (eqv? (car k) eval-marker) (eq? (car k) eval-marker)))
 	 ;;(kdebug 'state-vars-eval "EVAL: " (cdr k))
 	 (apply eval (cdr k)))
 	((and (pair? k) (null? (cdr k)))
@@ -989,17 +1088,21 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 ;; This returns a list of the form (key ...) where the "value" is
 ;; often a list containing a single number.
 (define (parameter-lookup class taxon key)
-;;  (dnl* 'parameter-lookup (class-name class) taxon key)
-  (if (not (and (isa? class <class>)
+  (if (and (eqv? class <>) (string=? taxon ""))
+		(error "You must at least specify a class or a taxon, more usually you want both" class taxon key))
+
+  (if (not (and (class? class)
 					 (string? taxon)
 					 (symbol? key)))
 		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
 
 		(let ((the-chain (append (!filter (lambda (x) (member x *uninitialisable*))
-													 ;;(class-cpl class)
-													 (parent-classes class) )
+													 (if (eqv? class <>) '() (class-cpl class)	))
+										 ;;(if (eqv? class <>) '() (parent-classes class)) )
+										 ;;(parent-classes class) 
 										 (list taxon)))
 				(returnval #f))
+
 		  (let ((v (filter (lambda (t) t)
 								 (map (lambda (l)
 										  (let ((K (assoc key l)))
@@ -1017,34 +1120,33 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 				  #f)))))
 
 
-
-(define (Xparameter-lookup class taxon key)
-  (if (not (and (isa? class <class>)
-					 (string? taxon)
-					 (symbol? key)))
-		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
-		(let ((the-classes (!filter (lambda (x) (member x *uninitialisable*))
-											 ;;(class-cpl class)
-											 (parent-classes class)
-											 ))
-				(returnval #f))
-		  (for-each
-			(lambda (x)
-			  (if (member x *uninitialisable*)
-					(let* ((clst (assoc class global-parameter-alist))
-							 (v (if clst (assoc key (cdr clst)) (void)))
-							 )
-					  (if (not (void? v))
-							(set! returnval v))))
-			  )
-			(reverse the-classes))
-		  (let* ((tlst (assoc taxon global-parameter-alist))
-					(v (if tlst (assoc key (cdr tlst)) (void))))
+;; (define (Xparameter-lookup class taxon key)
+;;   (if (not (and (isa? class <class>)
+;; 					 (string? taxon)
+;; 					 (symbol? key)))
+;; 		(error "Bad arguments to parameter-lookup: they must be a class, a string (taxon) and a symbol (key)" class taxon key)
+;; 		(let ((the-classes (!filter (lambda (x) (member x *uninitialisable*))
+;; 											 ;;(class-cpl class)
+;; 											 (parent-classes class)
+;; 											 ))
+;; 				(returnval #f))
+;; 		  (for-each
+;; 			(lambda (x)
+;; 			  (if (member x *uninitialisable*)
+;; 					(let* ((clst (assoc class global-parameter-alist))
+;; 							 (v (if clst (assoc key (cdr clst)) (void)))
+;; 							 )
+;; 					  (if (not (void? v))
+;; 							(set! returnval v))))
+;; 			  )
+;; 			(reverse the-classes))
+;; 		  (let* ((tlst (assoc taxon global-parameter-alist))
+;; 					(v (if tlst (assoc key (cdr tlst)) (void))))
 			 
-			 (if (not (void? v))
-				  (set! returnval v)
-				  ))
-		  returnval)))
+;; 			 (if (not (void? v))
+;; 				  (set! returnval v)
+;; 				  ))
+;; 		  returnval)))
 
 (define (boolean-parameter-lookup class taxon key)
   (let ((r (parameter-lookup class taxon key)))
@@ -1076,10 +1178,10 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		  #f)))
 
 (define (procedure-parameter-lookup class taxon key)
-  (error "not tested yet")
   (let ((r (parameter-lookup class taxon key)))
-	 (if (and r (pair? (cdr r)) (procedure? (cadr r)))
-		  (cadr r)
+	 ;;(dnl* (class-name-of class) taxon key ":" r)
+	 (if (and r (pair? r) (procedure? (car r)))
+		  (car r)
 		  #f)))
 
 
@@ -1152,6 +1254,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 	 (agent-register 'add instance class)
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 
+	 (slot-set! instance 'may-run #t) ;; all agents may run by default, except for <proxy> agents
 	 (slot-set! instance 'subjective-time 0)
 	 (slot-set! instance 'counter 0)
 	 (slot-set! instance 'queue-state 'ready-for-prep)
@@ -1171,7 +1274,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 	 (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
 
-	 ;;(initialisation-checks instance) This is done in the prep-agent routine.
+	 ;;(initialise instance) This is done in the prep-agent routine.
 	 instance
 	 )
   )

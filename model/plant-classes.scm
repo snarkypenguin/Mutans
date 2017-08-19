@@ -43,7 +43,7 @@
 	regrowth-rate-multiplier ;; proportion of total leaf area regenerated per time period
 
 	seeds-per-fruit
-	habitat            ;; #f or a patch/landscape/habitat thing
+	domain            ;; #f or a patch/landscape thing
 	population-switch
 
 	mass-radius ;;  scalar or function which converts a leaf mass to a
@@ -52,6 +52,10 @@
 	plot-circle-facets ;; number of facets -- useful for differentiating species
 	plot-magnification ;; less than one contracts, 
 	))
+
+(define-class <plant-proxy>
+  (inherits-from <proxy>)
+  (state-variables lai leaf-mass))
 
 
 (define-class <example-plant>
@@ -64,6 +68,38 @@
 
 
 
+
+;; The following class is geared to handle a non-sparse cover of
+;; plants. The main savings for this representation is the impact
+;; on the queue.  In principle,  this representation 
+;; could be used for all of the individual-based representations
+;; of plants if we could accept the necessity for synchronicity.
+;; 
+;; This might be typically restricted to representing a <patch>.
+;; Each of
+;;    state ;; equivalent to the agent state
+;;		omega-ind ;; individual mortality
+;;		peak-mass ;; greatest mass attained
+;;		mass ;; current mass
+;;		leaf-area ;; we need a separate counter since there can be "accidents"
+;;		water-stress  ;; [0,1]	level of water stress
+;;		reproduction-offset ;;
+;;		fruiting-probability ;; probability at each opportunity (might vary amongst individuals)
+
+;;		forage-damage ;; to be subtracted from the canopy when calculating leaf-area
+;;		seeds-per-fruit
+;; will be lists of values.
+
+
+(define-class <plant-array>
+  (inherits-from <array>)
+  (state-variables patch-list lai)
+   ;; data will be  a list with entries of the form
+	;; (state mass peak-mass age location leaf-area forage-damage water-stress domain)
+	;; state will either be 'dead or 'alive
+
+	
+)
 
 ;-  The End 
 

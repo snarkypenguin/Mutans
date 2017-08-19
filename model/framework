@@ -84,6 +84,7 @@
 (define-macro (END . body)
   `(begin ,@body (error "c.f. 'Mort', 'Reaper Man', 'Soul Music', 'Hogfather' and 'Thief of Time'")))
 
+
 ;--- (time-probe name . body) macro
 (define-macro (time-probe name . body)
   `(let* ((x_x_name ,name)
@@ -176,7 +177,7 @@
 								(kdebug 'deep-debugging "Exiting" ,@formals " ==> " result)
 								result))
 					  (error "We cannot use define% except on definitions of the form (define (func ...) ...)" formals)
-					  ;;; `(define ,formals
+ 					  ;;; `(define ,formals
 					  ;;; 	  "second clause"
 					  ;;; 	  (let* ((%%%-timer-start-%%% (process-times))
 					  ;;; 				(%%%-timer-stop-%%% '())
@@ -409,8 +410,6 @@
 				txt
 				))))))
 
-
-
 (define-macro (declare-method #!rest args)
   ;;(dnl (load 'current-file) ": Declaring method: " args) ;; set to #t to announce method declarations
   (let ((cname (car args))
@@ -462,41 +461,41 @@
 ;; without cheating.  Objects do *not* have kernel pointers, so the kernel
 ;; variable is set to #f.
 
-(define-macro (model-method% #!rest madness)
-  ;; Call like (model-method classname (mname args) #!rest body) where
-  ;; the args doesn't include the call-parent-method and 'self' is
-  ;; the placeholder
-  (case (length madness)
-	 ((0)
-	  (Error "model-method: There is nothing here!" madness))
-	 ((1) (Error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got" (cons 'model-method madness)))
-	 ((2) (Error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got " (cons 'model-method madness)))
-	 )
-  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
-		(Error "model-method: bad (mname mm-margs...) in (model-method ...) "
-				 (caadr madness)))
-  (if (not (eq? (cadadr madness) 'self))
-		(Error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
-				 (caadr madness)))
+;;; (define-macro (model-method% #!rest madness)
+;;;   ;; Call like (model-method classname (mname args) #!rest body) where
+;;;   ;; the args doesn't include the call-parent-method and 'self' is
+;;;   ;; the placeholder
+;;;   (case (length madness)
+;;; 	 ((0)
+;;; 	  (Error "model-method: There is nothing here!" madness))
+;;; 	 ((1) (Error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got" (cons 'model-method madness)))
+;;; 	 ((2) (Error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got " (cons 'model-method madness)))
+;;; 	 )
+;;;   (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
+;;; 		(Error "model-method: bad (mname mm-margs...) in (model-method ...) "
+;;; 				 (caadr madness)))
+;;;   (if (not (eq? (cadadr madness) 'self))
+;;; 		(Error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
+;;; 				 (caadr madness)))
 
-  (let* ((classlst (if (list? (car madness))
-							  (car madness)
-							  (list (car madness))))
-			(mname (caadr madness))
-			(mm-args (cddadr madness))
-			(body (cddr madness))
-			)
+;;;   (let* ((classlst (if (list? (car madness))
+;;; 							  (car madness)
+;;; 							  (list (car madness))))
+;;; 			(mname (caadr madness))
+;;; 			(mm-args (cddadr madness))
+;;; 			(body (cddr madness))
+;;; 			)
 	 
-	 `(model-method ,classlst (,mname ,@mm-args)
-						 (let* ((%%%-timer-start-%%% (process-times))
-								  (%%%-timer-stop-%%% #f)
-								  (result (begin ,@body)))
-							(set! %%%-timer-stop-%%% (process-times))
-							(set! %%%-time-register-%%% (cons (list ',mname ',mm-args %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-							result)
-						 )))
+;;; 	 `(model-method ,classlst (,mname ,@mm-args)
+;;; 						 (let* ((%%%-timer-start-%%% (process-times))
+;;; 								  (%%%-timer-stop-%%% #f)
+;;; 								  (result (begin ,@body)))
+;;; 							(set! %%%-timer-stop-%%% (process-times))
+;;; 							(set! %%%-time-register-%%% (cons (list ',mname ',mm-args %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
+;;; 							result)
+;;; 						 )))
 
-(define-macro (model-method%% #!rest madness)
+(define-macro (model-method% #!rest madness)
   ;; Call like (model-method classname (mname args) #!rest body) where
   ;; the args doesn't include the call-parent-method and 'self' is
   ;; the placeholder
@@ -555,6 +554,8 @@
 			(body (cddr madness))
 			(method-id (string-append  (object->string classlst) ": "(object->string mname) " " (object->string mm-margs)))
 			)
+	 (if (not (eq? (cadadr madness) 'self))
+		  (error (string-append "The first argument for a model method *must* be 'self', " (object->string classlst) " "  (symbol->string mname) " has " (symbol->string (cadadr madness)))))
 
 ;;	 (display "Dispatching parent calls with ")
 ;;	 (display `',(string->symbol (string-append "parent-" (symbol->string mname))))
@@ -575,6 +576,7 @@
 										 (list ,@classlst) ;; make-method returns a function....
 										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
 											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Entering (" ',mname ',classlst  ") for" (cnc self))
+;											(dnl* "####### Entering" ,method-id)
 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
 													 (kdebug-state #f)
 													 (+kdebug! (lambda x (set! kdebug-state #t)))
@@ -626,6 +628,7 @@
 															 (kdebug '(list ,(construct-symbol ',myclass 'model-method) model-methods (construct-symbol ,method-id)) "Running " method-id " for "  (cnc self) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
 															 dt ;; If there is no body, then we just assume that doing nothing is easy.
 															 ,@body) ))
+;;													(dnl* "Leaving" ,method-id)
 													(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Leaving (" ',mname ',classlst ") for" (cnc self)  "with" mm-result)
 													mm-result)
 												 )
@@ -651,25 +654,25 @@ that model-methods do not necessarily have access to the kernel.
 
 The function that provides an agent's kernel access is assigned to the
 'kernel slot at the beginning of its model-body.  If the global
-boolean flag 'blue-meanie' is set to true, the slot is set to false
+boolean flag 'restricted-kernel-access' is set to true, the slot is set to false
 when then the agent leaves its model body with the result that any of
 the agent's model-methods invoked while the model-body is not running
 will not have access to the kernel.
 "
 
-;; model-body% records timing, model-body does not
+;;; ;; model-body% records timing, model-body does not
+
+;;; (define-macro (model-body% myclass #!rest body)
+;;;   `(model-body ,myclass (let ((%%%-timer-start-%%% (process-times))
+;;; 									  (%%%-timer-stop-%%% #f))
+;;; 								 (let ((result (begin	,@body)))
+;;; 									(set! %%%-timer-stop-%%% (process-times))
+;;; 									(set! %%%-time-register-%%% (cons (list 'model-body ',myclass %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
+;;; 									result))))
+
+;; model-body% records timing in a different way, model-body does not
 
 (define-macro (model-body% myclass #!rest body)
-  `(model-body ,myclass (let ((%%%-timer-start-%%% (process-times))
-									  (%%%-timer-stop-%%% #f))
-								 (let ((result (begin	,@body)))
-									(set! %%%-timer-stop-%%% (process-times))
-									(set! %%%-time-register-%%% (cons (list 'model-body ',myclass %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-									result))))
-
-;; model-body%% records timing in a different way, model-body does not
-
-(define-macro (model-body%% myclass #!rest body)
   (let ((tag (string->symbol (string-append (symbol->string myclass) "-model-body"))))
 	 `(model-body ,myclass 		
 					  (let ((result (begin (start-timer ',tag)	,@body)))
@@ -686,12 +689,17 @@ will not have access to the kernel.
   (if (eqv? myclass 'self) (error "No, I don't think that _self_ is a class...." myclass ) )
 
 
-  (let ((method-id (string-append (object->string myclass) ": model-body")))
+  (let ((method-id (string-append (object->string myclass) ": model-body"))
+		  )
 		  `(if (and #t (not (generic-method-register 'type? 'run-model-body)))
 				 (Error "instantiating model-body with a declaration of run-model-body"))
 		  (let* ((txt `(let ((M (make-method (list ,myclass <number> <number>)
 														 (lambda (parent-model-body self t dt)
-															(kdebug '(list ,(construct-symbol myclass 'model-body) model-bodies) "Running " ',myclass "model body"  (cnc self) (slot-ref self 'name) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
+															(kdebug '(list ,(construct-symbol myclass 'model-body) model-bodies)
+																	  "Running " ',myclass "model body"  (cnc self) (slot-ref self 'name)
+																	  (if (has-slot? self 'subjective-time)
+																			(string-append " at " (object->string
+																										  (slot-ref self 'subjective-time ))) ""))
 															(let ((ccd (slot-ref self 'current-class-depth))
 																	)
 															  
@@ -704,7 +712,7 @@ will not have access to the kernel.
 																			  (construct-symbol (slot-ref self 'taxon)) 'model-bodies
 																			  (construct-symbol (slot-ref self 'name)))
 																	  (slot-ref self 'name) "Entering"
-																	  (class-name-of ,myclass) "model-body at time" t "+" dt)
+																	   ',myclass "model-body at time" t "+" dt)
 															(letrec ((no-parent-body (lambda args (set! call-parents no-parent-body) dt)))
 															  (let* (
 																		,(if production-run
@@ -761,11 +769,20 @@ will not have access to the kernel.
 																								'model-bodies) "Running model body for " method-id
 																								(if (agent? self) (slot-ref self 'name) "<object>")
 																								" at " t '/ (slot-ref self 'subjective-time) '+ dt)
+
+
 																			 ;; if there is no body , the whole timestep needs to be used (but no more than the agent can chew)
 																			 (if (not (eqv? (queue-state self) 'suspended))
 																				  (begin
 																					 dt
-																					 ,@body)
+																					 (let ((b (begin 'ok ,@body)))
+																						'ok
+																						;;; (if #f
+																						;;; 	 (and (dnl* "HHHHHHHHHHHH")
+																						;;; 			(dnl* "IIIIIIIIIIII  " ',myclass "body returns" b)
+																						;;; 			(dnl* "HHHHHHHHHHHH")))
+																						b
+																						))
 																				  dt)
 																			 ))
 																		 )
@@ -774,7 +791,7 @@ will not have access to the kernel.
 																				 (begin
 																					(dnl* "#### The model-body of" (cnc self) "returned a void or a null list! This is not recommended.  Returning dt")
 																					dt)
-																				 ))														
+																				 body-result))
 
 																	(if (list? body-result)
 																		 (set! body-result (map (lambda (x) (if (or (null? x) (void? x)) dt x))

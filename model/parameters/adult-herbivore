@@ -25,9 +25,10 @@
     (list 'type 'herbivore)
 	 (list 'representation 'simple-individual)
 	 (list 'provides '())
-	 (list 'requires '("B.exemplarii")
+	 (list 'requires '("B.exemplarii" vegetation)) 
+
 	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
-	 (list 'population-switch (/ (* 1000 kg) hectare)));; if the density is greater
+	 (list 'population-switch (/ (* 1000 kg) hectare));; if the density is greater
 	                                                   ;; than 1000 kg in a hectare
 	 (list 'maintenance-list '())
     (list 'population-switch #f) ;; not a simple switch 

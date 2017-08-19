@@ -63,8 +63,8 @@
 
 (UNFINISHED-BUSINESS "The logging of subsidiary agents is not sorted out yet")
 
-(define (locate-nearest-ecoserv habitat ecoserv loc)
-  (let* ((patches (service-sites habitat ecoserv))
+(define (locate-nearest-ecoserv domain ecoserv loc)
+  (let* ((patches (service-sites domain ecoserv))
 			(dists (map (lambda (x) (distance-to-centre x loc)) patches))
 			(sdists (sort 
 						(filter 
@@ -76,8 +76,8 @@
 			)
 	 (if (null? sdists) #f (cdar sdists))))
 
-(define (sorted-ecoservices habitat ecoserv loc . weighted-by-value)
-  (let* ((patches (service-sites habitat ecoserv)))
+(define (sorted-ecoservices domain ecoserv loc . weighted-by-value)
+  (let* ((patches (service-sites domain ecoserv)))
 	 (let ((dists (map (lambda (x) (distance-to-centre x loc)) patches)))
 		(let ((sdists (sort 
 							(filter 
@@ -130,7 +130,7 @@
 		 trace)
 		(error "Incompatible vectors" s trace)
 		))
-;---- For habitats
+;---- For domainss
 
 (define (def-res H)
   (let* ((m (min-bound H))
@@ -698,41 +698,73 @@ via their containing patch.
 ;										(lambda ()
 ;										  (dump self))))
 
-											  ((text table dump)
-												(let ((S (with-output-to-string '()
-																						  (lambda ()
-																							 (let ((show-field-name
-																									  (slot-ref logger 'show-field-name))
-																									 (missing-val
-																									  (slot-ref logger 'missing-val))
-																									 )
-																								(if show-field-name
-																									 (begin
-																										(if leading-entry 
-																											 (display " ")
-																											 (set! leading-entry #t))
-																										(display field)))
+											  
+											  ;;; ((text table dump)
+											  ;;; 	(let ((S (with-output-to-string '()
+											  ;;; 											  (lambda ()
+											  ;;; 												 (let ((show-field-name
+											  ;;; 														  (slot-ref logger 'show-field-name))
+											  ;;; 														 (missing-val
+											  ;;; 														  (slot-ref logger 'missing-val))
+											  ;;; 														 )
+											  ;;; 													(if show-field-name
+											  ;;; 														 (begin
+											  ;;; 															(if leading-entry 
+											  ;;; 																 (display " ")
+											  ;;; 																 (set! leading-entry #t))
+											  ;;; 															(display field)))
 																								
-																								(let ((val (if (eqv? field 'name) 
-																													(if (slot-ref self 'patch)
-																														 (string-append
-																														  (slot-ref
-																															(slot-ref self 'patch) 
-																															'name) ":" (name self))
-																														 (name self))
-																													(if (has-slot? self field)
-																														 (slot-ref self field)
-																														 (slot-ref logger
-																																	  'missing-val)))))
-																								  (if leading-entry 
-																										(display " " file)
-																										(set! leading-entry #t))
-																								  (display val))
-																								)
-																							 )
-																						  )))
+											  ;;; 													(let ((val (if (eqv? field 'name) 
+											  ;;; 																		(if (slot-ref self 'patch)
+											  ;;; 																			 (string-append
+											  ;;; 																			  (slot-ref
+											  ;;; 																				(slot-ref self 'patch) 
+											  ;;; 																				'name) ":" (name self))
+											  ;;; 																			 (name self))
+											  ;;; 																		(if (has-slot? self field)
+											  ;;; 																			 (slot-ref self field)
+											  ;;; 																			 (slot-ref logger
+											  ;;; 																						  'missing-val)))))
+											  ;;; 													  (if leading-entry 
+											  ;;; 															(display " " file)
+											  ;;; 															(set! leading-entry #t))
+											  ;;; 													  (display val))
+											  ;;; 													)
+											  ;;; 												 )
+											  ;;; 											  )))
 												  
-												  (display S file)))
+											  ;;; 	  (display S file)))
+											  ((text table dump)
+												(let ((show-field-name
+														 (slot-ref logger 'show-field-name))
+														(missing-val
+														 (slot-ref logger 'missing-val))
+														)
+												  (if show-field-name
+														(begin
+														  (if leading-entry 
+																(file 'show " ")
+																(set! leading-entry #t))
+														  (file 'show field)))
+												  
+												  (let ((val (if (eqv? field 'name) 
+																	  (if (slot-ref self 'patch)
+																			(string-append
+																			 (slot-ref
+																			  (slot-ref self 'patch) 
+																			  'name) ":" (name self))
+																			(name self))
+																	  (if (has-slot? self field)
+																			(slot-ref self field)
+																			(slot-ref logger
+																						 'missing-val)))))
+													 (if leading-entry 
+														  (file 'show " ")
+														  (set! leading-entry #t))
+													 (file 'show val))
+												  )
+												)
+											  
 											  (else
 												(kdebug '(log-* log-ecoservice)
 														  "[" (my 'name) ":" (cnc self) "]"
@@ -748,7 +780,7 @@ via their containing patch.
 											  (filter (not-member (slot-ref logger 'dont-log))
 														 targets)))
 								 )
-								(newline file)
+								(file 'newline)
 								)
 							 )
 						  )
@@ -844,10 +876,20 @@ via their containing patch.
 (define (make-polygon centre polygon #!optional is-relative)
   (if (not (eqv? (car polygon) (car (reverse polygon))))
 		(set! polygon (append polygon (list (car polygon)))))
-  (create- <polygon> 'location centre 'perimeter (list-copy polygon) 'is-relative is-relative))
+  (create- <polygon> 'location centre 'perimeter (list-copy polygon) 'is-relative is-relative 'location #f 'area #f))
 
 ;(model-method (<polygon>) (dump self)
 ;					(dump% self 0))
+
+(model-method (<polygon>) (location self)
+				 (let ((here (my 'location)))
+				 (if (my 'is-relative)
+					  here
+					  (if (not here)
+							(let ((c (polygon-centroid (my 'perimeter))))
+							  (set-my! 'location c)
+							  c)
+							here))))
 
 (model-method (<polygon>) (dump% self count)
 				  (display (make-string count #\space))
@@ -1133,7 +1175,9 @@ via their containing patch.
 ;--- (contains?...) predicate to indicate if something is in the patch
 
 (model-method <patch> (contains? self bit)
-				  (contains? (slot-ref self 'rep) bit))
+;;				  (dnl* 'contains? (name self) bit)
+				  (let ((rep (slot-ref self 'rep)))
+					 (contains? rep bit)))
 
 ;;(model-method (<patch> <thing>) (contains? self entity)
 ;;				  (contains? (location entity))
@@ -1416,7 +1460,7 @@ via their containing patch.
 
 ;-- patch note methods and model body
 
-(model-method <patch> (initialisation-checks self)
+(model-method <patch> (initialise-instance self)
 				  (if (uninitialised? (my 'notepad))
 						(set-my! 'notepad (create <blackboard> (string-append (name self) "-notepad") 'label 'not-runninge 'message-list '()))))
 
@@ -1446,7 +1490,7 @@ via their containing patch.
 (definition-comment 'dynamic-patch
   "A dynamic patch expects definitions similar to those in diffeq-systems")
 
-;--- <dynamic-patch> (initialise  (self args)
+;--- <dynamic-patch> (initialise-instance  (self args)
 ;;; (agent-initialisation-method (<dynamic-patch> args) (no-default-variables)
 ;;; 				  (set-state-variables self (list 'variable-names '()
 ;;; 															 'variable-symbols '()
@@ -1507,7 +1551,7 @@ via their containing patch.
 ;;; 							(slot-set! self 'variable-symbols #f)
 ;;; 							(slot-set! self 'd/dt-list #f)))
 ;;; 					 )
-;;; 				  (parent-initialise) ;; call "parents" last
+;;; 				  (parent-initialise-instance) ;; call "parents" last
 ;;; 				  ;; to make the
 ;;; 				  ;; initialisation list
 ;;; 				  ;; work
@@ -1552,7 +1596,7 @@ via their containing patch.
 ;; bdry should be <circle> or <polygon>, clss should be <patch> or <dynamic-patch>,
 ;; clss-initialiser is a function that returns a fully formed initialiser list
 ;; (apart from the centre and radius or perimeter), and P should be either null
-;; or a <habitat> like class.
+;; or a <landscape> like class.
 
 
 ;; bounding rectangular volume for the pointset
@@ -1717,7 +1761,7 @@ via their containing patch.
 					((list? x)	(add-service! p (apply
 														 (lambda (args)
 															(let ((instance (allocate-instance (car args))))
-															  (apply initialise (cons <ecoservice> x therest))
+															  (apply initialise-instance (cons <ecoservice> x therest))
 															  instance
 															  )))))
 					(#t (error (string-append "populate-patch should be a list containing members which are"
@@ -1924,100 +1968,30 @@ args can be  an update map or an update map and update equations
 
 ;; This is to keep the "run" chain consistent
 (model-body <landscape>
-						(kdebug '(model-bodies landscape-running nested-habitat)  (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
+						(kdebug '(model-bodies landscape-running nested-domain)  (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time) "(subj time)" )
 						(call-all-parents) ;; chain to <environment>
-						(kdebug '(nested-habitat)  "after parent body ->" (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
+						(kdebug '(nested-domain)  "after parent body ->" (cnc self) (name self) "@" t "/" dt "(dt)" (my 'subjective-time self) "(subj time)" )
 						dt
 						)
-
-;;(model-body <landscape> 
-;;						(kdebug 'running (my 'name) ":" (my 'representation) " is running")
-;;						(for-each (lambda (x)
-;;										(run-model-body x t dt))
-;;									 (my 'patch-list))
-;;						(parent-body)
-;;						dt)
-
-
-
-;-- <habitat> methods and body
-
-;---- (make-habitat name default-ht domain terrain-function 
-;; domain is a list  ((minx miny minz) (maxx maxy maxz))
-;; patch-data is a list of  services lists for make-patch
-
-(define (make-habitat taxon name default-ht domain terrain-function 
-							 patch-list
-							 )
-  ;;(dnl* "Making hay")
-  (let* ((H (create <habitat*> taxon 'name name 'default-value default-ht
-						'minv (car domain) 'maxv (cadr domain)
-						'terrain-function terrain-function
-						'patch-list patch-list
-						)			
-				)
-			)
-	 (dnl "Acquiring patches " patch-list)
-	 (acquire-agents H #t patch-list) ;; insert the patches into the nested runqueue ... the #t means they go in the active queue too.
-	 (dnl "Finished making habitat")
-	 H)
-  )
-
-
-;;; (slot-set! H 'global-update
-;;; 			  (lambda (H)
-;;; 				 (let* ((services (slot-ref (slot-ref H 'global-patch) 'service-list))
-;;; 						  (zero (map (lambda (x) (set-value! x 0) (value x)) services))
-;;; 						  (syms (map (lambda (x) (slot-ref x 'sym)) services))
-;;; 						  (agg (map
-;;; 								  (lambda (s S)
-;;; 									 (map (lambda (p)
-;;; 											  (value-set! (value p s)
-															  
-					
-					
-
-;--- Add things to the runqueue
-
-;---- (add-habitat-to-queue Q h)
-(define (add-habitat-to-queue Q h) ;; returns the queue, so us it like
-											  ;; (set! Q (add-...-queue Q hab))
-  (let ((p (patch-list h))
-		  (s (service-list h))
-		  )
-	 (uniq (append Q (list h) p s))))
-
 
 
 ;--- model-method <habitat> (agent-prep self start end) Set preconditions
 ;                                                    for running
-(model-method (<habitat> <number> <number>) (agent-prep self start end)
+(model-method (<landscape> <number> <number>) (agent-prep self start end)
 				  (parent-agent-prep start end)
 				  #t
 				  )
 
 
-;--- initialise <habitat> (self args) -- make a new habitat
-;;(default-agent-initialisation <habitat> 'scale #f)
 
-;;; (model-method <habitat> (initialise self args)
-;;; 				  (set-state-variables self (list 'scale #f))
-;;; 				  (parent-initialise)
-;;; 				  ;; call "parents" last
-;;; 				  ;; to make the
-;;; 				  ;; initialisation list
-;;; 				  ;; work
-;;; 				  (set-state-variables self args)
-;;; 				  )
-
-;(model-method <habitat> (dump self)
+;(model-method <landscape> (dump self)
 ;				  (dump% self 0))
 
-;--- model-method <habitat> (dump% self count) dumps the state of the habitat
+;--- model-method <landscape> (dump% self count) dumps the state of the landscape
 ;                                               agent in a readable way
-(model-method <habitat> (dump% self count)
+(model-method <landscape> (dump% self count)
 				  (display (make-string count #\space))
-				  (display "<habitat>\n")
+				  (display "<landscape>\n")
 
 				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
@@ -2039,7 +2013,7 @@ args can be  an update map or an update map and update equations
 ;--- model-method (<habitat> <patch>) (add-patch! self patch) add a
 ;                                                            patch to the habitat
 ;; Note that there is an implicit ordering to adding patches and patchlists
-(model-method (<habitat> <patch>) (add-patch! self patch)
+(model-method (<landscape> <patch>) (add-patch! self patch)
 				  (set-my! 'patch-list (uniq (cons patch (my 'patch-list))))
 				  (let ((minv (apply minima (my 'patchlist)))
 						  (maxv (apply maxima (my 'patchlist)))
@@ -2051,7 +2025,7 @@ args can be  an update map or an update map and update equations
 ;--- model-method (<habitat> <patch>) (add-patch! self patch) add a
 ;                                                            patch to the habitat
 ;; Note that there is an implicit ordering to adding patches and patchlists
-(model-method (<habitat> <list>) (add-patches! self patchlist)
+(model-method (<landscape> <list>) (add-patches! self patchlist)
 				  (set-my! 'patch-list (uniq (append  patchlist (my 'patch-list))))
 				  (let ((minv (apply minima (my 'patchlist)))
 						  (maxv (apply maxima (my 'patchlist)))
@@ -2060,13 +2034,13 @@ args can be  an update map or an update map and update equations
 					 (set-my! 'maxv maxv)
 				  ))
 
-;--- model-method (<habitat> <procedure>) (remove-patch! self pfilter)
+;--- model-method (<landscape> <procedure>) (remove-patch! self pfilter)
 ;  keep only patches which match a filter
-(model-method (<habitat> <procedure>) (remove-patch! self pfilter)
+(model-method (<landscape> <procedure>) (remove-patch! self pfilter)
 				  (set-my! 'patch-list (filter pfilter (my 'patch-list))))
 
 ;--- (services...) returns services matching the sym or in the symlist
-(model-method (<habitat> <list>)
+(model-method (<landscape> <list>)
 				  (services% self ss)
 				  (if (not (null? ss))
 						(filter (lambda (x) (member x ss)) (services self))
@@ -2081,7 +2055,7 @@ args can be  an update map or an update map and update equations
 
 
 
-(model-method (<habitat>) (random-point self)
+(model-method (<landscape>) (random-point self)
 				  (let* ((plist (my 'patch-list))
 							(llist (map random-point plist))
 						   (i (random-integer (length plist)))
@@ -2092,10 +2066,10 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- model-method (<habitat>) (service-list% self . ss)
+;--- model-method (<landscape>) (service-list% self . ss)
 ;; returns the slist of provided services: ss is an optional list of
 ;; patch names/symbols
-;;; (model-method (<habitat> <list>)
+;;; (model-method (<landscape> <list>)
 ;;; 				  (service-list% self ss)
 ;;; 				  (uniq
 ;;; 					(if (null? ss) 
@@ -2112,34 +2086,34 @@ args can be  an update map or an update map and update equations
 
 
 
-(model-method (<habitat>) (provides self)
+(model-method (<landscape>) (provides self)
 				  (sortless-unique
 					(append
-					 (cons (cnc <habitat>)
+					 (cons (cnc <landscape>)
 							 (cons (my taxon)
 									 (apply append (map provides (my 'patch-list))))))))
 
 
-;--- model-method (<habitat>) (service-list% self) ret a list of all ecoservices
+;--- model-method (<landscape>) (service-list% self) ret a list of all ecoservices
 ;; May be wrong....***
-(model-method (<habitat> <list>) (service-list% self ss)
+(model-method (<landscape> <list>) (service-list% self ss)
 				  (let* ((S (map (lambda (s) (service-list s)) (my 'patch-list))))
 								(sortless-unique (apply append S))))
 					 
 
 
 ;--- (service?...) queries if a service is present
-(model-method (<habitat> <symbol>) (service? self sym)
+(model-method (<landscape> <symbol>) (service? self sym)
 				  (not (null? (services self sym))))
 
 
-(model-method (<habitat> <pair>) (service? self symlist)
+(model-method (<landscape> <pair>) (service? self symlist)
 				  (not (null? (services self symlist))))
 
 
-;--- model-method (<habitat> <symbol>) (service-sites self sym)
+;--- model-method (<landscape> <symbol>) (service-sites self sym)
 ; returns a list of patches with services
-(model-method (<habitat> <symbol>) (service-sites self sym)
+(model-method (<landscape> <symbol>) (service-sites self sym)
 				  (let loop ((rslt '())
 								 (pl (my 'patch-list)))
 					 (cond
@@ -2149,7 +2123,7 @@ args can be  an update map or an update map and update equations
 					  (else (loop rslt (cdr pl))))))
 
 
-(model-method (<habitat> <pair>) (service-sites self symlist)
+(model-method (<landscape> <pair>) (service-sites self symlist)
 				  (let loop ((rslt '())
 								 (pl (my 'patch-list)))
 					 (cond
@@ -2161,11 +2135,11 @@ args can be  an update map or an update map and update equations
 
 
 
-;--- model-method (<habitat>) (patch-list self . arg) 
+;--- model-method (<landscape>) (patch-list self . arg) 
 ; returns the list of patches (possibly filtered by names, symbols,
 ; procedures....
 
-(model-method (<habitat>) (patch-list% self arg)
+(model-method (<landscape>) (patch-list% self arg)
 				  (cond
 					((null? arg)
 					 (my 'patch-list))
@@ -2189,7 +2163,7 @@ args can be  an update map or an update map and update equations
 
 ;--- (aggregate-value self location radius servicelist) 
 
-(model-method (<habitat> <pair> <number> <pair>) (aggregate-value self location radius servicelist)
+(model-method (<landscape> <pair> <number> <pair>) (aggregate-value self location radius servicelist)
  (let* ((sl (service-sites self servicelist))
 		  (lsl (filter
 				  (lambda (patch) 
@@ -2219,8 +2193,8 @@ args can be  an update map or an update map and update equations
 	lslv))
 
 
-;--- model-method <habitat> (min-bound self)
-(model-method <habitat> (min-bound self)
+;--- model-method <landscape> (min-bound self)
+(model-method <landscape> (min-bound self)
 				  (let ((pl (slot-ref self 'patch-list)))
 					 (if (pair? pl)
 						  (let* ((v (map min-bound pl))
@@ -2230,8 +2204,8 @@ args can be  an update map or an update map and update equations
 							 (list vx vy))
 						  (my 'minv))))
 
-;--- model-method <habitat> (max-bound self)
-(model-method <habitat> (max-bound self)
+;--- model-method <landscape> (max-bound self)
+(model-method <landscape> (max-bound self)
 				  (let ((pl (slot-ref self 'patch-list)))
 					 (if (pair? pl)
 						  (let* ((v (map max-bound (slot-ref self 'patch-list)))
@@ -2248,8 +2222,8 @@ args can be  an update map or an update map and update equations
 
 ;; p is usually something like mm->points
 
-;--- (<habitat> <procedure>...) (log-data self logger format  targets)
-(model-method (<habitat> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
+;--- (<landscape> <procedure>...) (log-data self logger format  targets)
+(model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
 				  (let ((kdebug (if #f kdebug dnl*))
 						  )
 					 
@@ -2302,8 +2276,8 @@ args can be  an update map or an update map and update equations
 				  )
 
 
-;--- model-method (<habitat>) (spatial-scale self)
-(model-method (<habitat>) (spatial-scale self)
+;--- model-method (<landscape>) (spatial-scale self)
+(model-method (<landscape>) (spatial-scale self)
 				  (if (not (my 'scale))
 						(let ((lscale (apply
 											append
@@ -2322,37 +2296,6 @@ args can be  an update map or an update map and update equations
 						  )
 						)
 				  (my 'scale))
-
-
-;--- model-method (<habitat> <symbol>)(extra-variable self field)
-(model-method (<habitat> <symbol>)(extra-variable self field)
-				  (value self (symbol->string field)))
-
-
-;--- model-method (<habitat>) (extra-variable-list self)
-(model-method (<habitat>) (extra-variable-list self)
-				  (let ((patch-vars
-							(uniq (apply append
-											 (map extra-variable-list (my 'patch-list)))))
-						  )
-					 ;;(dnl* "HABITAT PATCH VARIABLES:" patch-vars)
-					 (uniq (append (list 'name 'subjective-time) patch-vars))))
-;; returns a list of symbols
-
-
-;--- model-body <habitat>
-(model-body <habitat*>
-	(kdebug '(model-bodies habitat-running) (cnc self) (name self) "@" t)
-	(call-all-parents)
-
-	(let ((gp (my 'global-patch)))
-	  (run-agents self t dt (list gp) run (my 'kernel)) ;; execute patch model body for global patch *after* subsidiary patches
-	  dt))
-
-
-
-
-
 
 
 ;-  The End 

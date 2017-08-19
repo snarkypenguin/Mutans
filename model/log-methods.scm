@@ -44,69 +44,10 @@ close pages and emit 'showpage' for postscript stuff.
 ;;	   (*is-taxon? (list "grocer" "haberdasher" "butcher" "wheelwright"))
 
 
-;; (model-method <log-introspection> (set-default-font self file)
-;;   (if (member (my 'format) '(ps postscript postscript-text))
-;; 		(begin
-;; 		  (file 'set-font (my 'default-font) (my 'default-size))
-;; 		  (file 'set-gray ps-black))))
-
-;; Logger agents (things that inherit from introspection, really) have
-;; a high priority; as a consequence they get sorted to the front of a
-;; timestep
-;; (agent-initialisation-method <log-introspection> (args)
-;;  (no-default-variables)
-;;  (set-state-variables
-;;   self (list 'type 'logger
-;; 				 'priority introspection-priority ;; also set in <introspection>
-;; 				 'jiggle 0 'introspection-targets '()  ;; also set in <introspection>
-;; 				 'timestep-epsilon 1e-6 'file #f ;; also set in <introspection>
-;; 				 'filename #f 'filetype #f
-;; 				 'format 'text 'missing-val "NoData"
-;; 				 'show-field-name #f 'preamble-state '()
-;; 				 'dont-log '(ready-for-prep
-;; 								 ;; agent things
-;; 								 agent-body-ran 
-;; 								 agent-epsilon local-projection inv-local-projection counter 
-;; 								 migration-test state-flags
-;; 								 dont-log timestep-schedule kernel
-
-;; 								 ;; log agent things
-;; 								 introspection-targets
-;; 								 timestep-epsilon 
-
-;; 								 dims ;; thing things
-
-;; 								 ;; environment things
-;; 								 default-value minv maxv 
-
-;; 								 ;; ecoservice things
-;; 								 plateau-interval growth-rate 
-
-;; 								 ;; landscape things
-;; 								 service-list service-update-map
-;; 								 update-equations terrain-function
-;; 								 dump-times scale 
-;; 								 log-services-from-patch
-;; 								 log-patches-from-habitat
-
-;; 								 ;; animal things
-;; 								 domain-attraction food-attraction 
-;; 								 near-food-attraction search-speed
-;; 								 wander-speed forage-speed	
-;; 								 movement-speed foodlist homelist
-;; 								 breedlist habitat
-
-;; 				 'variables-may-be-set #t
-;; 				 ))
-;;  (parent-initialise) ;; call "parents" last to make the
-;;  ;; initialisation list work
-;;  (set-state-variables self args)
-;;  )
-
-(model-method <log-introspection> (initialisation-checks self)
+(model-method <log-introspection> (initialise-instance self)
 				  (if (uninitialised? (my 'report-time-table))
 						(begin
-						  (warning-log (dnl* "A" (cnc (class-of self)) " had trouble setting up its report-time-table."))
+						  ;(warning-log (dnl* "A" (cnc self) " had trouble setting up its report-time-table."))
 						  (slot-set! self 'report-time-table (make-table))))
 				  )				  
 
@@ -632,7 +573,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 
-(model-method (<log-statistics> <agent>)(stats-callback agnt #!optional data-list)
+(model-method (<log-statistics> <agent>)(stats-callback self #!optional data-list)
 				  #t)
 
 

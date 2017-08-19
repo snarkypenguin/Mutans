@@ -1,9 +1,0 @@
-; -*- mode: scheme; -*-
-'Parameters
-(define <habitat*>-parameters
-  (list
-    ;;(list 'global-patch '<uninitialised>)
-    ;;(list 'global-update '<uninitialised>)
-  )
-)
-(set! global-parameter-alist (cons (cons <habitat*> <habitat*>-parameters) global-parameter-alist))

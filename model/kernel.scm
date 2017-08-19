@@ -415,7 +415,7 @@
 		  (dnl "There are " (length tqs-rq)
 				 " entries in the runqueue when we expect at most " N);
 ;;		  (dnl "These entities total "
-;;				 (apply + (map (lambda (x) (members x)) tqs-rq)) " members");
+;;				 (apply + (map (lambda (x) (members x)) tqs-9q)) " members");
 		  
 ;;		  (for-each (lambda (me) 
 ;;					(dnl " " (representation me) ":" (name me) " (" me ")	@ "
@@ -654,38 +654,51 @@ will be invoked within an agents model-body like
 or something like that.
 
 
-NOTE PARTICULARLY: if the flag blue-meanie is set, agents can only access the kernel while 
+NOTE PARTICULARLY: if the flag restricted-kernel-access is set, agents can only access the kernel while 
 their model-body is running.  
 ")
 
 ;; This is wrapped by "kernel" in the agents .... recall that objects do not have
 ;; access to the kernel except by using kernel-call.
-(define (kernel-call Q client query #!rest args)
+
+
+"
+There are two issues associated with the 'locate' family and agents with multiple 
+loci: as the client, the locates ought to query each of its locations (they should
+be obtained by a call---(location client)--- and then individually called merged and made unique.
+
+As a target, each of their locations should be tested against the
+location of the client, and any that match will be proxified.
+"
+
+
+(define (kernel-call client Q call-op #!rest args)
   (if (null? args) (set! args #f))
   
-  ;(dnl* "In kernel-call, Qlen" (length Q) (name client) query args)
+  ;(dnl* "In kernel-call, Q:" (name client) call-op args)
+  ;;(dnl* (map name Q))
 
-  (if (string? query)
-		(set! query (string->symbol query))
+  (if (string? call-op)
+		(set! call-op (string->symbol call-op))
 		(if (and (pair? args) (null? (cdr args)) (pair? (car args)) (= 1 (length args)))
 			 (set! args (car args))) ;;
 		)
 
   (cond
-   ((and (or (eqv? client 'KERNEL) (isa? client <monitor>)) (procedure? query))
+   ((and (or (eqv? client <kernel>) (isa? client <kernel>) (isa? client <monitor>)) (procedure? call-op))
 	 (if monitors-monitor-themselves
-		  (filter query Q) ;; *can* return itself ... monitors can monitor monitors
+		  (filter call-op Q) ;; *can* return itself ... monitors can monitor monitors
 		  ))
 	
 	;; The format expected is (kernel /target-agent/ /target-agent-class/  /method/ args....)
-	((and args (pair? args) (isa?  query (car args)))
-	 (apply (cadr args) (cons query (cddr query))))
+	((and args (pair? args) (isa?  call-op (car args)))
+	 (apply (cadr args) (cons call-op (cddr call-op))))
 
-   ((symbol? query)
-	 ;;(dnl* "Dispatch to standard query:" query)
-    (case query
+   ((symbol? call-op)
+	 ;;(dnl* "Dispatch to standard call-op:" call-op)
+    (case call-op
 		('runqueue
-		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>) (isa? client <introspection>))
+		 (if (or (eqv? client <kernel>) (isa? client <kernel>) (isa? client <monitor>) (isa? client <introspection>))
 			  Q
 			  #f))
 		('time (model-time Q +inf.0)) ;; current time in the model (the subjective-time of the head of the queue)
@@ -715,14 +728,121 @@ their model-body is running.
 										(type x)) 
 								 )))
 					  Q)))
+		('locate* ;; This ignores temporal consistency
+;(dnl* "locate*" (name client) "|" call-op "|" args)
+		 (if (null? args) (list-copy Q)
+			  (let* ((selector (car args))
+						(radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+						(polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
+						(location (if (and radius
+												 (not (null? (cddr args))))
+										  (caddr args)
+										  (location client)
+										  ))
+						)
+				 (let ((pl (cond
+							  (location (locate client Q selector radius location))
+							  (polygon (locate client Q selector polygon))
+							  (else (locate client Q selector))))) 
+;					(dnl* "...Found" pl)
+					(if (void? pl) (bugger))
+;					(dnl* "about to proxy" pl)
+					(if use-proxies
+						 (cond
+						  (location (proxify pl Q radius location))
+						  (polygon (proxify  pl Q polygon))
+						  (else (proxify  pl Q)))
+						 pl)
 
-		('locate
-		 (let ((selector (car args))
-				 (location (cadr args))
-				 (radius (if (pair? (cddr args)) (caddr args) #t)))
+				 ))))
+
+		('locate ;; this enforces temporal consistency of a sort: Select things that are "current"
+;		 (dnl* "locate" (name client) "|" call-op "|" args)
+		 (let* ((selector (car args))
+				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  )
+;			(dnl* 'LOCATE selector radius location)
 			;;;(dnl* "(locate ...)" (pp-to-string selector) location radius)
-			(locate Q selector location radius)
+			(let* ((b (subjective-time client))
+					 (d (+ b (slot-ref client 'dt)))
+					 (pl (filter (lambda (x)
+								  (let ((st (subjective-time x)))
+									 (and (<= b st) (<= st d))))
+								(cond
+								 (location (locate client Q selector radius location))
+								 (polygon (locate client Q selector polygon))
+								 (else (locate client Q selector)))
+								))
+					 )
+			  (if (void? pl) (bugger))
+			  (if use-proxies
+					(cond
+					 (location (proxify pl Q radius location))
+					 (polygon (proxify  pl Q polygon))
+					 (else (proxify  pl Q)))
+					pl)
+			  )
 			))
+
+
+		 ('locate<=t ;; this enforces temporal consistency of a sort: Select things that are behind me
+		 (let* ((selector (car args))
+				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  )
+			;;;(dnl* "(locate ...)" (pp-to-string selector) location radius)
+			 (let* ((b (subjective-time client))
+					  (d (+ b (slot-ref client 'dt)))
+					  (pl (filter (lambda (x)
+										  (let ((st (subjective-time x)))
+											 (<= st b) ))
+									  (cond
+										(location (locate client Q selector radius location))
+										(polygon (locate client Q selector polygon))
+										(else (locate client Q selector)))
+									  ))
+					  )
+				(if (void? pl) (bugger))
+				(if use-proxies
+					 (cond
+					  (location (proxify pl Q radius location))
+					  (polygon (proxify  pl Q polygon))
+					  (else (proxify  pl Q)))
+					 pl)
+				)
+			 ))
+
+		 ('locate>=t ;; this enforces temporal consistency of a sort: Select things that are ahead of me
+		 (let* ((selector (car args))
+				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  )
+			;;;(dnl* "(locate< ...)" (pp-to-string selector) location radius)
+			 (let* ((b (subjective-time client))
+					  (d (+ b (slot-ref client 'dt)))
+					  (pl (filter (lambda (x)
+										  (let ((st (subjective-time x)))
+											 (>= st b) ))
+									  (cond
+										(location (locate client Q selector radius location))
+										(polygon (locate client Q selector polygon))
+										(else (locate client Q selector)))
+									  ))
+					  )
+				(if (void? pl) (bugger))
+				(if use-proxies
+					 (cond
+					  (location (proxify pl Q radius location))
+					  (polygon (proxify  pl Q polygon))
+					  (else (proxify  pl Q)))
+					 pl)
+				)
+			 ))
+
 
 		('shutdown
 		 (let ((A (if (pair? args) args (list args))))
@@ -753,7 +873,7 @@ their model-body is running.
 
 		('agent-count (length Q))
 		('next-agent
-		 (if (or (eqv? client 'KERNEL) (isa? client <monitor>))
+		 (if (or (eqv? client <kernel>) (isa? client <kernel>) (isa? client <monitor>))
 			  (if (null? Q) Q (car Q))
 			  #f))
 		('min-time
@@ -785,11 +905,13 @@ their model-body is running.
 			  (or (apply add! args) #t)
 			  #f))
 
-		(else (error "Unrecognised kernel-call request" query args)))
+		(else (error "Unrecognised kernel-call request" call-op args)))
 	 )
    (#t (error 'kernel-call:bad-argument))
-   )
-  )
+   ))
+  
+	
+
 
 
 
@@ -844,7 +966,7 @@ their model-body is running.
 (define (prep-activate pa-rq q-entry)
   (kdebug 'prep "Prepping, in lambda")
   (if (isa? q-entry <agent>)
-		(let ((kernel (lambda x (apply kernel-call (cons pq-rq (cons q-entry x )))))
+		(let ((kernel (lambda x (apply kernel-call (cons q-entry (cons pq-rq x )))))
 				)
 		  (kdebug 'prep "Prepping in apply" (name q-entry))
 		  (slot-set! q-entry 'queue-state 'ready-to-run)
@@ -867,7 +989,7 @@ their model-body is running.
 		  ;;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
 		  
 		  (for-each (lambda (x)
-						  (initialisation-checks x)
+						  (initialise-instance x)
 						  (prep-activate Q x)) Q)
 		  )
 		))
@@ -876,7 +998,7 @@ their model-body is running.
 (define (shutdown-agents Q . args)
   (for-each
 	(lambda (A)
-	  (let* ((kernel (lambda x (apply kernel-call (cons Q (cons A x)))))
+	  (let* ((kernel (lambda x (apply kernel-call (cons A (cons Q x)))))
 				)
 		 (apply agent-shutdown (cons A (cons kernel args)))
 		 )
@@ -889,49 +1011,182 @@ their model-body is running.
 (define split-flexibly #f) ;; Not implemented yet -- will allow each subdivision to be unequal in area
 (define use-queue-for-locate #t)
 
-(define (locate Q sel #!rest args)
-  (let* ((locus (if (pair? args) (car args) #f))
-			(radius (if (and (pair? args) (pair? (cdr args))) (cadr args) #t))
-			(selector (cond
-						  ((eq? sel #t) (lambda (x) #t)) ;; return all candidates
-						  ((isa? sel <class>) (*is-class? sel))
-						  ((string? sel) (lambda (x) (*is-taxon? sel) x))
-						  ((list? sel) (*is-? sel))
-						  ((procedure? sel) sel)
-						  (#t (error "Bad selector passed to locate" sel)))))
-		(if use-queue-for-locate
-			 (filter (lambda (x)
-						  (and (selector x)
-								 (or (not (isa? x <thing>))
-									  (and (isa? x <thing>)
-											 (or (boolean? radius)
-												  (= radius +inf.0)
-												  (eq? radius #t)
-												  (<= (distance (location x) locus) radius)))
-									  ))
-						  )
-						Q)
-			 (letrec ((traverse
-						  (lambda (node)
-							 (cond
-							  ((null? node)
-								'())
-							  ((= (length node) 3) ;; bottom
-								(if (point-in-polygon locus (bbox (car node) (cadr node)))
-									 node
-									 #f))
-							  ((= (length node) 6) ;; bottom
-								(if (not (point-in-polygon locus (bbox (car node) (cadr node))))
-									 #f
-									 (let* ((q (map traverse (cddr node)))
-											  (qr (filter (lambda (x) x) q)))
-										(if (null? qr)
-											 '()
-											 (car qr)))))
-							  (#t (error "bad traversal in environment locate call" node locus))))))
-				(traverse location-tree))
-			 )
+
+" This is a somewhat complicated routine; it handles the bulk of the
+business of agents finding each other to interact with (usually to
+interrogate, eat, flee-from or mate-with).
+
+	 Its arguments can be 
+      nil                    -- return all the agents (without list-copy)
+		#t                     -- return all agents (with list-copy)
+		#f                     -- return the empty list
+      a class                -- return agents of the class
+      a symbol               -- return agents which provide the symbol
+      a string               -- return agents with that taxon
+      a procedure            -- return agents for which the procedure is true
+      a list                 -- return agents which match any of the selectors *has-slot?
+											*provides? *is-taxon? *is-taxon-ci? 
+                                 *is-taxon-wild? *is-taxon-wild-ci?
+                                 *has-slot? *has-data? *is-class? 
+										  Exactly which is used is determined by the first (otherwise 
+                                ignored) symbol --- such as 'is-taxon-ci? --- in the list
+
+                                
+		#t number locus        -- return all agents which are within radius or have no location
+		#f number locus        -- return only locus agents which are within the radius
+      class number locus     -- return agents of the class which are within the radius
+      symbol number locus    -- return agents that provide the service and are close
+      string number locus    -- return agents with that taxon and are close
+      procedure number locus -- return agents for which the procedure is true and are close
+      list number locus      -- return agents which match any of the elements and are close
+                                as above
+
+   Ignoring class/symbol/taxon issues we have the following filtering
+
+	none
+	single point (arg) versus single point (agent) and radius             pp
+   single point (arg) versus polygon (agent)                             pP
+   polygon (arg) versus single point (agent) [possibly with radius?]     Pp
+X	polygon (arg) versus versus polygon (agent)                           PP
+
+	point-list (arg) versus single point (agent) and radius               p*p
+	single point (arg) versus point-list (agent) and radius               pp*
+	point-list (arg) versus point-list (agent) and radius                 p*p*
+   point-list (arg) versus polygon (agent)                               p*P
+   polygon (arg) versus point-list (agent) [possibly with radius?]       Pp*
+
+
+   NOTE: a polygon passed with a radius makes it look like a point-list!
+"
+
+(define (colocated? a b #!optional r) ;; if r is false, point-lists are taken to be polygons
+  (or (eqv? a b)
+		(let ((pa (point? a))(pb (point? b)))
+		  (or (and pa pb r (<= (distance a b) r))
+				(let ((Pa (polygon? a)) (Pb (polygon? b)))
+				  (or 
+					(and (point? a) (polygon? b) (point-in-polygon a b))
+					(and (polygon? a) (point? b) (point-in-polygon a b))
+					(eqv? a b)))))))
+
+(define (colocated*? s L #!optional r)
+		(apply orf (map (lambda (l) (colocated? s l r)) L)))
+
+;; (define (colocated*? s L #!optional r)
+;;   (if (and (point? L) (point-list? s))
+;; 		(colocated*? L s r)
+;; 		(apply orf (map (lambda (l) (colocated? s l r)) L))))	
+
+(define (colocated**? L1 L2 #!optional r)
+  (apply orf (apply append (map (lambda (s) (colocated*? s L2)) L1))))
+
+(define (locate client Q #!rest args)
+  "args are of the form 
+   {'*|class|symbol|string|proc|list|bool} [{radius [location|loc-list]}] | {polygon|polygon-list}] ]"
+
+  (if (or (number? (car args)) (polygon%? (car args))) ;; implicit wildcard selector
+		(set! args (cons (lambda (x) #t) args)))
+
+  (let* ((selector (cond
+						  ((null? args) Q)
+						  ((null? (car args)) '())
+						  ((eqv? args '(#t)) (list-copy Q))
+						  (else (car args))))
+			(radius (if (and (not (null? (cdr args))) (number? (cadr args))) (cadr args) #f))
+			(poly (if (and (not (null? (cdr args))) (not radius) (polygon%? (cadr args))) (cadr args) #f))
+			(loc (if (and radius (not (null? (cddr args))) (or (point-list? (caddr args)) (point? (caddr args)))) (caddr args) #f))
+			)
+	 (if (eq? '* selector) (set! selector (lambda (x) #t)))
+	 
+	 (let ((result 
+			  (cond
+				((null? args) Q)
+				((null? (car args)) '())
+				((eqv? args '(#t)) (list-copy Q))
+				((and (class? selector) (not radius) (not poly)) (filter (*is-class? selector) Q))
+				((and (symbol? selector) (not radius) (not poly)) (filter (*provides? selector) Q))
+				((and (string? selector) (not radius) (not poly)) (filter (*is-taxon? selector) Q))
+				((and (procedure? selector) (not radius) (not poly)) (filter selector Q))
+				((<= (length args) 1) (error "bad argument to kernel call 'locate -- single argument not matched" args))
+
+				
+				;; (kernel '(provides vegetation)) or  (kernel '(isa? "adult-herbivore" "carnivore" <example-plant>))
+				((and (list? selector) (eq? (caar args) 'provides?)) (filter (apply *provides-*? selector) Q))
+				((and (list? selector) (eq? (caar args) 'isa?)) (filter (apply *is-*? selector) Q))
+				((and (number? (car args)) (point? (cadr args)))
+				 ;; radius and location
+				 (filter (lambda (x)
+							  (let ((d (query x -kernel- 'distance (car args) (cadr args))))
+								 (pp d)
+							  )
+							Q)
+				 ))
+
+				((< (length args) 2) (error "bad arguments to kernel call 'locate -- could not match two args" args)) 
+
+				((and (boolean? selector)
+						(number? radius)
+						(point? loc))
+				 (filter (lambda (x) (if (has-slot? x 'location)
+												 (let ((cloc (location x)))
+													(if (point? cloc)
+														 (colocated? cloc loc radius)
+														 (colocated*? loc cloc radius)))
+												 selector)) Q))
+
+				((and (boolean? selector)
+						(number? radius)
+						(point-list? loc))
+				 (filter (lambda (x) (if (has-slot? x 'location)
+												 (let ((cloc (location x)))
+													(if (point? cloc)
+														 (colocated? cloc loc radius)
+														 (colocated**? loc cloc radius)))
+												 selector)) Q))
+
+				((and (boolean? selector) poly)
+				 (filter (lambda (x) (if (has-slot? x 'location)
+												 (let ((cloc (location x)))
+													(if (point? cloc)
+														 (colocated? cloc poly)
+														 (apply orf (map (lambda (y) (colocated? y poly)) cloc))))
+												 selector)) Q))
+				
+				((not (boolean? selector))
+
+				 (apply locate client (list (locate client Q selector)) #t (cdr args)))
+
+				(else (error "Unrecognised arguments!" args))
+				)
+			  ))
+		(denull-and-flatten result)
 		))
+  )
+	 
+
+
+  
+		  ;; (letrec ((traverse
+		  ;; 				(lambda (node)
+		  ;; 				  (cond
+		  ;; 					((null? node)
+		  ;; 					 '())
+		  ;; 					((= (length node) 3) ;; bottom
+		  ;; 					 (if (point-in-polygon locus (bbox (car node) (cadr node)))
+		  ;; 						  node
+		  ;; 						  #f))
+		  ;; 					((= (length node) 6) ;; bottom
+		  ;; 					 (if (not (point-in-polygon locus (bbox (car node) (cadr node))))
+		  ;; 						  #f
+		  ;; 						  (let* ((q (map traverse (cddr node)))
+		  ;; 									(qr (filter (lambda (x) x) q)))
+		  ;; 							 (if (null? qr)
+		  ;; 								  '()
+		  ;; 								  (car qr)))))
+		  ;; 					(#t (error "bad traversal in environment locate call" node locus))))))
+		  ;; 	 (abort "location-tree hasn't been finished")
+		  ;; 	 (traverse location-tree))
+
 
 
 (define (add-thing-to-location self entity location)
@@ -950,68 +1205,82 @@ their model-body is running.
 
 
 (definition-comment 'run-agent
-  "
-Dispatches a call to the agent through the 'run' routine. It also
-handles special requests from the agent like mutation and spawning.
-subjective time is set in  (run ...)
+"Dispatches a call to the agent through the 'run' routine (found at
+the end of the 'framework-methods.scm' file). It also handles special
+requests from the agent like mutation and spawning.  The handling of
+an agent's time step is done in 'run' rather than here; this routine
+is more concerned with constructing the scaffolding for communication 
+with the kernel calls and the management of the contents of the queue
+as a whole (apart from the basic queue insertion).
 
 This routine returns the runqueue -- the runqueue may be radically 
 different than the one passed in, particularly if there is a lot of
 breeding/death or  monitors have changed representations of 
 components.
 
-run-agent begins by checking the queue-state of the agent, only 'running 'ready-to-run
-states are accepted.
+run-agent begins by checking the queue-state of the agent, only
+'running 'ready-to-run states are accepted.
 
-A copy of the incoming queue is made and the agent is removed from the head of the queue.
-and a flag is set to indicate that the model-body has not completed its run.
+A copy of the incoming queue is made and the agent is removed from the
+head of the queue.  and a flag is set to indicate that the model-body
+has not completed its run.
 
-The execution enters a let* and constructs a lambda for making calls to the 'kernel'.
-The second definition is assigned a value computed with a (cond ...) which catches invalid 
-entries, allows agents to be 'suspended' (by which we mean that they consume time, but do 
-nothing --- perhaps the state ought to be called 'sinecured')
+The execution enters a let* and constructs a lambda for making calls
+to the 'kernel'.  The second definition is assigned a value computed
+with a (cond ...) which catches invalid entries, allows agents to be
+'suspended' (by which we mean that they consume time, but do nothing
+--- perhaps the state ought to be called 'sinecured')
 
-If the head of the list is indeed an agent, the routine immediately calls 
-(run process t stop kernel), where 'kernel' is the previously constructed call into the 
-kernel, and process is the agent to be run, the value returned from this call is then 
-assigned to 'return.   If the head isn't an agent, run-agent assigns the value 
-'not-an-agent to 'result.
+If the head of the list is indeed an agent, the routine immediately
+calls
 
-The body of the let* contains another let with a single state variable whose 
-value is computed in another cond.
+   (run process t stop kernel) 
 
-The first clause checks to see if the model-body has indicated that the agent-body has 
-run correctly [(slot-ref self 'agent-body-ran) is not #f] -- if not, the  symbol 
-'missed-model-body is prepended to  the queue and the queue is passed back up the chain.
+where 'kernel' is the previously constructed call into the kernel, and
+process is the agent to be run, the value returned from this call is
+then assigned to 'return.  If the head isn't an agent, run-agent
+assigns the value 'not-an-agent to 'result.
 
-If the result is a number, this is assumed to be the amount of time used, and that execution 
-of the timestep completed correctly.
+The body of the let* contains another let with a single state variable
+whose value is computed in another cond.
+
+The first clause checks to see if the model-body has indicated that
+the agent-body has run correctly [(slot-ref self 'agent-body-ran) is
+not #f] -- if not, the symbol 'missed-model-body is prepended to the
+queue and the queue is passed back up the chain.
+
+If the result is a number, this is assumed to be the amount of time
+used, and that execution of the timestep completed correctly.
 
 If the result is a symbol, it is handled like so:
 
-   'ok -- the agent is inserted into the local copy of the queue, and the queue is then
-          returned to the calling closure that assigns the returned list to the model's 
-          runqueue 
+   'ok -- the agent is inserted into the local copy of the queue, and 
+          the queue is then returned to the calling closure that assigns 
+          the returned list to the model's runqueue 
 
-   'remove -- the local copy of the queue (without the agent which has just run) is 
-          immediately returned to tha calling closure.
+   'remove -- the local copy of the queue (without the agent which has
+          just run) is immediately returned to tha calling closure.
 
-   otherwise the result is prepended to the local copy of the queue and this is then
-          immediately returned to tha calling closure, implicitly dropping the agent
-          from the queue.
+   otherwise the result is prepended to the local copy of the queue and 
+          this is then immediately returned to tha calling closure, 
+          implicitly dropping the agent from the queue.
 
-A void or null result from a model body is treated like the symbol 'ok, but can be trapped by 
-setting the trap-model-bodies-with-bad-return-values variable to #t.
+A void or null result from a model body is treated like the symbol
+'ok, but can be trapped by setting the
+trap-model-bodies-with-bad-return-values variable to #t.
 
-A result consisting of a list must have one of the symbols 'spawn, 'introdouce 'remove, or 
-'migrate-representation as the first element of the list, or it is treated as a fatal error.
+A result consisting of a list must have one of the symbols 'spawn,
+'introdouce 'remove, or 'migrate-representation as the first element
+of the list, or it is treated as a fatal error.
 
 
-'spawn and 'introduce are equivalent and are used to introduce new agents into the queue. 
-Each of these agents should be in the 'ready-for-prep state.
+'spawn and 'introduce are equivalent and are used to introduce new
+agents into the queue.  Each of these agents should be in the
+'ready-for-prep state.
 
-The final clause either treats the return value as a fatal error, or silently reintroduces 
-the agent to the runqueue (one must edit the code to suppress the error)
+The final clause either treats the return value as a fatal error, or
+silently reintroduces the agent to the runqueue (one must edit the
+code to suppress the error)
 "
 )
   
@@ -1031,9 +1300,9 @@ the agent to the runqueue (one must edit the code to suppress the error)
 		(set! N (if (null? N) #f (car N)))
 
 		(cond
-		 ((member (slot-ref (car run-agent-runqueue) 'queue-state) '(terminated))
+		 ((or (member (slot-ref (car run-agent-runqueue) 'queue-state) '(terminated)) (not (slot-ref (car run-agent-runqueue)  'may-run)))
 		  (hoodoo (car run-agent-runqueue) "run-agent")
-		  (kdebug '(run-agent terminated) "Dropping " (cnc (car run-agent-runqueue)) (taxon (car run-agent-runqueue)))
+		  (kdebug '(run-agent may-not-run terminated) "Dropping " (cnc (car run-agent-runqueue)) (taxon (car run-agent-runqueue)))
 		  (cdr run-agent-runqueue)
 		  )
 		 ((eq? (car run-agent-runqueue) 'mysterious-example-command)
@@ -1082,7 +1351,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 						(lambda x
 						  ;;(dnl* "calling kernel with" (cnc process) (name process) x)
 						  ;;(dnl* "The queue has" (length local-run-agent-runqueue) "entries")
-						  (apply kernel-call (cons local-run-agent-runqueue (cons process x))))
+						  (apply kernel-call (cons process (cons local-run-agent-runqueue  x))))
 						)
 					  
 					  (result (cond
@@ -1103,6 +1372,8 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								  ;; If the thing queued is actually an agent, run the agent
 								  ((isa? process <agent>) ;; equivalent to (member <agent> (class-cpl (class-of process)))
 									(let ((r (run process t stop kernel))) ;; (run ...) is in framework-methods.scm [search for 'AGENTS RUN HERE']
+									  ;; (dnl* " + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
+									  ;; (dnl* "run returned " r)
 									  (kdebug 'run-agent "Return from (run...):" (cnc r) r)
 									  (if (or lookit-running-names (kdebug? 'timing))
 											(kdebug 'track-run-agent (slot-ref process 'name)
@@ -1204,6 +1475,7 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								local-run-agent-runqueue
 								)
 							  ('remove ;; a list of agents
+;								(dnl* "**** REMOVING" (map name (cdr result)))
 								(kdebug '(q-manipulation remove) result)
 								(if (pair? (cdr result))
 									 (let ((Xsection (intersection (cdr result) local-run-agent-runqueue)))		  
@@ -1237,16 +1509,22 @@ the agent to the runqueue (one must edit the code to suppress the error)
 								;;(dnl* '**** '(q-manipulation spawn introduce) result)
 
 
+;								(dnl* "**** INTRODUCING " (map name (cadr result)))
 
+								(let* ((induct (lambda (x)
+													 (if (isa? x <agent>)
+														  (begin
+															 (agent-prep x t end)
+															 (set! local-run-agent-runqueue
+																	 (q-insert local-run-agent-runqueue x Qcmp))))))
+										 )
 
-								(let* ((result (cadr result)))
-								  (for-each
-									(lambda (x)
-									  (if (isa? x <agent>)
-											(begin
-											  (agent-prep x t end)
-											  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue x Qcmp)))))
-									result))
+								  (cond
+									((list? (cadr result)) (for-each induct (cadr result)))
+									((agent? (cadr result)) (induct (cadr result))
+									 result)
+									)
+								  )
 								
 								;; Something like salmon will flag themselves as dead in their final spawning tick
 								;; 'terminated indicates that the agent should be removed, 'dead will be reinserted 
@@ -1366,6 +1644,40 @@ the agent to the runqueue (one must edit the code to suppress the error)
   (if (and (not (null? close-up-shop)) (procedure? (car close-up-shop)))
       ((car close-up-shop)))
   )
+
+
+
+
+(define (locate-pp Q r p #!optional dflt)
+  (filter (lambda (q) (cond
+							  ((point? q) (<= (distance p q) r))
+							  ((and (agent? q) (has-slot? q 'location)) (<= (distance p (location q)) r))
+
+							  (else dflt)))
+			 Q))
+
+(define (locate-pP Q p #!optional dflt)
+  (filter (lambda (q) (cond
+							  ((point-list? q) (point-in-polygon p q))
+							  ((and (agent? q) (has-slot? q 'perimeter)) (point-in-polygon p (perimeter q)))
+							  (else dflt)))
+			 Q))
+
+(define (locate-Pp Q p #!optional dflt)
+  (filter (lambda (q) (cond
+							  ((point? q) (point-in-polygon q p))
+							  ((has-slot? q 'location) (point-in-polygon (location q) p))
+							  (else dflt)))
+			 Q))
+
+(define (locate-p*p Q r p #!optional dflt)
+  (sortless-unique
+	(apply append (map (lambda (x) (apply append (map (lambda (q) (locate-pp L r x q)) Q))) p))))
+
+(define (locate-pp* Q r p #!optional dflt)
+  (sortless-unique
+	(apply append (map (lambda (x) (apply append (map (lambda (q) (locate-pp L r x q)) Q))) p))))
+
 
 
 

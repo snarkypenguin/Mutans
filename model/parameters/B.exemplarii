@@ -14,13 +14,14 @@
   (list
 	 (list 'note "Simple plants approximating the trees in Chapter 2")
 	 (list 'reference "Based on data from the One Oak project.")
+
+	 (list 'dt (* 5 days))
 	 (list 'foliage-color ps-light-green)
 	 (list 'stress-color ps-yellow)
 	 (list 'radius-color ps-dark-green)
 	 (list 'default-color ps-green)
 	 (list 'map-color ps-green)
 	 (list 'map-contrast-color ps-red)
-	 (list 'dt (* 2.5 days))
     (list 'type 'plant)
 	 (list 'representation 'simple-individual)
 	 (list 'I-need '(water))
@@ -41,7 +42,7 @@
 
 	 (list 'age '($ (let ((B.ex. (pprnd (* 4 years))))
 							(if rowdy
-								 (dnl* "Initialised tree age to" (/ B.ex. years) "years in the parameter file"))
+								 (dnl* "Initialised the first tree age to" (/ B.ex. years) "years in the parameter file"))
 							(set! rowdy #f)
 							B.ex.)))
 

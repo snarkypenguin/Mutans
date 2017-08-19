@@ -82,8 +82,8 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 into agent's *internal* coordinates.  There must also be a
 corresponding local->model to map the other
 direction"
-"
 
+"
 (define-class <file>
   (inherits-from <projection>) ;; there must be support for an mapping into output space
   (state-variables file filename))
@@ -127,20 +127,46 @@ direction"
   (inherits-from <output*>))
 "
 
+(define-class <array>
+  (inherits-from <agent> <projection>) ;; We inherit from projection so that we may pass this as a target for <log-map>
+  (state-variables
+	test-subject
+	;; This is actually an agent of another sort, such as <plant>, which we can assign values to
+	;; if we want to call methods from its corpus.
+	
+	data-names
+	;; slots can be thought of as the "header" which associates the elements of 
+	;; the lists in data with their roles
+
+	data
+   ;; data is a list of lists, each of which will be of a consistent form
+))
+
+(define-class <proxy> ;; the proxy shares data and data-names with the array, but ONLY has access to one element
+  (inherits-from <agent>)
+  (state-variables super getter setter @setter @getter)
+  ;; setter and getter are "simple" @setter and @getter do more dereferencing
+)
+
+(define-class <plottable-agent>
+  (inherits-from <agent> <projection>)
+  (state-variables location direction
+						 ps-rad ;; a radius to use in plotting a tracked object's location
+						 default-font default-size
+						 glyph scale/slot plot-magnification
+						 )
+  )
 ;;; (define-class <mem-agent>
 ;;;   (inherits-from <agent>)
 ;;;   (state-variables memory)
 
 (define-class <tracked-agent>
-  (inherits-from <agent> <projection>)
-  (state-variables track
-						 location direction
+  (inherits-from <plottable-agent>)
+  (state-variables track dim
 						 speed max-speed
 						 tracked-paths 
 						 track-datum ;; a value to be emitted with the track or #f
-						 ps-rad ;; a radius to use in plotting a tracked object's location
-						 default-font default-size
-						 glyph scale/slot plot-magnification))
+))
 ;; "track" will either be a list like (... (t_k x_k y_k) ...) or false
 ;; "tracked-paths" is a list of non-false traces or false This is the
 ;; basic class to derive things that have a memory of their past.
@@ -151,7 +177,7 @@ direction"
 
 (define-class <thing>
   (inherits-from <tracked-agent> <projection>)
-  (state-variables mass dim))
+  (state-variables mass))
 
 (define-class <living-thing>
   (inherits-from <thing>)
@@ -168,7 +194,7 @@ direction"
 	decay-rate ;; when it's no longer living
 	mass-at-age ;; not optional    but the growth will, so an entity that misses out on a bursty period
 					;; will always be smaller than others in its cohort
-	habitat  ;; an landscape agent that encompasses a number of potential domains
+	landscape  ;; an landscape agent that encompasses a number of potential domains
 	         ;;    or a list that does the same thing ... not currently used
 	domain   ;; an environment of some sort (they have to live somewhere!)
 
@@ -198,6 +224,7 @@ direction"
 ;; Agents with a model-maintenance class must supply state-variables and a method to update them
 ;; the form for the function is (update-state self t dt)
 ;; 
+
 
 
 ;;; Local Variables:

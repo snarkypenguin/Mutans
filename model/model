@@ -160,7 +160,9 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (define finished #f)
 
 (set! startinittime (process-times))
-(load "specific-model.scm")					 
+(load "specific-model.scm")
+;;(load "sm.scm")
+
 (set! endinittime (process-times))
 
 (define Dunnit #f)
@@ -260,7 +262,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (dnl "Run with (doit Q n) to run for n days (not necessarily n ticks!)")
 (dnl "             so you can run the next step in a similar fashion\n")
 (dnl "Close up shop with (shutdown-agents Q) -- this closes files and things.")
-(dnl "Runtime data can be printed with (times)")
+(dnl "Runtime data can be printed with (times), more detailed data comes with (timer-report)")
 
 
 (display "Loaded: ")

@@ -24,7 +24,7 @@
 	 (list 'representation 'simple-individual)
 	 (list 'I-need '())
 	 (list 'provides '())
-	 (list 'requires '(juvenile-herbivore))
+	 (list 'requires '(prey))
 	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args
 	 (list 'population-switch (/ (* 1000 kg) hectare));; if the density is greater
 	                                                   ;; than 1000 kg in a hectare

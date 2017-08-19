@@ -173,19 +173,24 @@ services must be there or Bad Things Happen.
 ;; to indices in the
 
 (define-class <landscape> (inherits-from <environment>)
-  (state-variables terrain-function))
+  (state-variables patch-list terrain-function))
 ;; terrain-function is a function in x and y that returns a DEM
-
-(define-class <habitat> (inherits-from <landscape>)
-  (state-variables patch-list dump-times scale internal-runqueue))
 ;; patch-list is a list of patches -- the patches can be either patches,
 ;;   dynamic-patches or a mix -- the list is passed in at initialisation.
 
-(define-class <habitat*> (inherits-from <habitat>)
-  (state-variables global-patch global-update))
-;; global-patch is a patch/dynamic-patch which maintains "variables" 
-;;   pertinent to the whole domain (and it ought to contain the patch-list)
-;; global-update is a function that updates the values in the global patch.
+
+;;; ;; Habitats couple lists of patches to lists of services, and provide for
+;;; ;; nested execution.  In practice, they don't actually accomplish much
+;;; ;; that cannot be provided by landscape and ecoservices
+
+;;; (define-class <habitat> (inherits-from <landscape>)
+;;;   (state-variables dump-times scale internal-runqueue))
+
+;;; (define-class <habitat*> (inherits-from <habitat>)
+;;;   (state-variables global-patch global-update))
+;;; ;; global-patch is a patch/dynamic-patch which maintains "variables" 
+;;; ;;   pertinent to the whole domain (and it ought to contain the patch-list)
+;;; ;; global-update is a function that updates the values in the global patch.
 
 
 

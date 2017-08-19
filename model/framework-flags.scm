@@ -12,7 +12,6 @@ relevant when models as interpreted code."
 ;; (define-macro (display-model-bodies) #f)
 ;; (define-macro (display-expanded-model-bodies) #f)
 
-
 (define display-model-classes #f)
 
 (define display-model-methods #f)

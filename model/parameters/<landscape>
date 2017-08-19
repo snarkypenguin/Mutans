@@ -2,7 +2,11 @@
 'Parameters
 (define <landscape>-parameters
   (list
-    (list 'terrain-function (lambda x 0)) ;; defaults to flat
+   (list 'patch-list '())
+	(list 'terrain-function (lambda x 0)) ;; defaults to flat
+;    (list 'dump-times '())
+;    (list 'scale '1)
+;    (list 'internal-runqueue '()) ;; no internal run-queue by default
   )
 )
 (set! global-parameter-alist (cons (cons <landscape> <landscape>-parameters) global-parameter-alist))

@@ -1,0 +1,29 @@
+There is a marked increase in the scope and complexity of simulation
+models of the interactions associated with ecosystems, human
+activities and environmental conditions. Components of these models
+are often best suited to particular regions of their domain, and their
+reduced fidelity may compromise the fidelity of the model as a whole;
+or, there may be regions in which quite simple, efficient
+representations of a component perform as well as more heavily
+engineered and computationally expensive representations.  In
+ecosystem modelling, organisms may exhibit atypical behaviour arising
+from environmental, social or biological conditions that dominates at
+the population level. This thesis addresses issues of computational
+and representational efficiency in complex models, and develops a
+strategy which deals with issues of fidelity and efficiency, and
+inherently provides a clean mechanism to model multi-modal behaviour.
+
+The thesis is organised in five chapters. The first chapter describes
+the motivation for the work and relevant literature. The second
+chapter is a paper published in \em{Environmental Modelling and
+Software} which demonstrates that gains in computational efficiency
+and fidelity are possible with an adaptive representation.  The third
+chapter is a paper published in \em{Frontiers in Environmental
+Science} which illustrates a more comprehensive strategy for an
+adaptive simulation model using the tree-based metric space.  Chapter
+four develops a metric space which is used for discriminating between
+potential representations for model components. The final chapter
+describes a freely available modelling framework which implements a
+superset of the illustrative model of chapter three, and incorporates
+the strategies discussed.
+

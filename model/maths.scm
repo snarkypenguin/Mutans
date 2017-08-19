@@ -423,11 +423,20 @@
   `(apply * (map ,lmbda (map (lambda (x) (+ ,mn x)) (sequence (- ,(+ 1 mx) ,mn))))))
 
 
-
-(define (norm a) ;; general
+(define (norm a) ;; usual norm
   (if (number? a)
 		(* a a)
 		(apply + (map * a a))))
+
+(define (p-norm a #!optional p) ;; a more general norm
+  (if (not p)
+		(norm a)
+		(if (number? a)
+			 (power a p)
+			 (power (apply + (map (lambda (x) (power x p)) a)) (/ 1 p))
+
+			 ))
+  )
 
 (define (v-length a) ;; general
   (if (number? a)
@@ -454,6 +463,20 @@
         (sqrt (norm (map - p q))))))
         ;;(sqrt (apply + (map sqr (map - p q)))))))
 
+(define (distance* p q) ;; general
+  (if (and (number? p) (number? q))
+		(magnitude (- p q))
+		(let ((pp (point-list? p))
+				(pq (point-list? q)))
+		  (cond
+			((and (point? p) (point? q)) (distance p q))
+			((and (point? p) pq) (map (lambda (x) (distance p x)) q))
+			((and (point? q) pp) (map (lambda (x) (distance x q)) p))
+			((and pp pq) (apply append (map (lambda (x) (distance* x q)))))
+			(error 'I-have-some-bad-points)
+			)
+		  )))
+
 (define (list-operator op p1 p2) ;; general
 	 (cond
 	  ((and (number? p1) (number? p2))
@@ -477,12 +500,14 @@
 	 )
 
 (define (point? p)
-  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
-	 (and (list? p) (apply andf (map number? p)))))
+  (and (pair? p) (number? (car p))
+		 (letrec ((andf (lambda x (if (null? x) #t (and (car x) (apply andf (cdr x)))))))
+			(and (list? p) (apply andf (map number? p))))))
 
 (define (point-list? p)
-  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
-	 (apply andf (map point? p))))
+  (and (pair? p) (pair? (car p)) (number? (caar p))
+		 (letrec ((andf (lambda x (if (null? x) #t (and (car x) (apply andf (cdr x)))))))
+			(apply andf (map point? p)))))
 
 (define (n-point? n p)
   ;;(dnl* 'n-point? n p)
@@ -491,7 +516,7 @@
 
 (define (n-point-list? n p)
   ;;(dnl* 'n-point-list? n p)
-  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+  (letrec ((andf (lambda x (if (null? x) #t (and (car x) (apply andf (cdr x)))))))
 	 (apply andf (number? n) (map (lambda (x) (n-point? n x)) p))))
 
 
@@ -533,6 +558,22 @@
 
 ;;;   (d2p r  (append  poly (if (equal? (car poly) (car (reverse poly))) '() (list (car poly)))))) ***
 
+;; This assumes that polygons are closed by an identical point at the start and end of the trace;
+;; it also assumes that polygons are simple point-lists.
+(define (polygon? p)
+  (and (point-list? p) (eq? (car p) (car (reverse p)))))
+
+;; This assumes that polygons are represented (minimally) by point-lists
+;; it also assumes that polygons are simple point-lists.
+(define (polygon%? p)
+  (point-list? p))
+
+
+(define (polygon-list? l)
+  (and (list? l) (apply andf (map polygon? l))))
+
+(define (polygon-list%? l)
+  (and (list? l) (apply andf (map polygon%? l))))
 
 (define (distance-to-polygon p poly)
   (if (eq? (car poly) (car (reverse poly))) ;; prune duplicate point
@@ -540,6 +581,13 @@
 		(apply min (map (lambda (a b)
 								(distance-to-segment p (list a b)))
 							 poly (rotate-list 'cw poly)))))
+
+
+(define (polygon-centroid p #!optional l)
+  (if (polygon? p) ;; then the initial and final point are equal -- should be a polygon%?
+		(polygon-centroid (cdr p) l)
+		(map / (apply map + p) (make-list (length (car p)) (length p)))))
+		
 
 ;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
 ;; With changes 
@@ -997,7 +1045,7 @@
 
 
 (define (extend-arith-op-to-funcs op) 
-  (letrec ((andf (lambda x (if (null? #t) (and (car x) (apply andf (cdr x)))))))
+  (letrec ((andf (lambda x (if (null? x) #t (and (car x) (apply andf (cdr x)))))))
 	 (lambda args
 		(if (apply andf (map number? args)) ;; This way numbers work as they usually do
 			 (apply op args)

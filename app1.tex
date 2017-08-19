@@ -1,0 +1,123 @@
+% app1.tex (will be Appendix A)
+
+
+\chapter[A MODEL WITH ADAPTIVE CONFIGURATION]{An implementation of a
+  model with adaptive configuration}
+
+
+\section{Code environment and requirements}
+gambit-c
+slib
+modified tiny-clos (sclos)
+supporting libraries
+
+
+
+
+%%   \begin{lstlisting}
+%%     ;; The Y combinator
+%%     (define Y
+%%       (lambda (f)
+%%         ((lambda (x) (f (lambda arg (apply (x x) arg))))
+%%          (lambda (x) (f (lambda arg (apply (x x) arg)))))))
+    
+%%     ;; Factorial function using the Y combinator
+%%     (define fact
+%%       (Y (lambda (f)
+%%            (lambda (n)
+%%              (if (<= n 0)
+%%                  1
+%%                  (* n (f (- n 1))))))))     
+%%     \end{lstlisting}
+    
+%%     \end{document}
+
+%% As an alternative to `lstlisting`, Scheme code can also be included from an external file:
+
+%%     \lstinputlisting{ycombinator.ss}
+
+\section{Tiny-CLOS -- an implementation of a restricted set of
+  CLOS-like facilities}
+
+Tiny CLOS was developed at Xerox Parc by Gregor Kiczales in 1992
+\citep{TinyCLOS} and it has served as the starting point for many
+other object systems for the scheme programming language, such as
+Swindle, STklos, GOOPS and SOS, for example
+\citep{Swindle,STklos,GNU-GOOPS,GNU-SOS}. This work is based on
+version 1.7 of the canonical tiny-clos; its major difference from the
+canonical release is that a number of files have been consolidated
+into one file, ``\texttt{sclos.scm}''. 
+
+
+The source code in its entirety for the model presented in Chapter ??
+can be found on github at \texttt{http://......} or is available from
+the author at \texttt{randall@snarkypenguin.net}.
+
+%\section{Source code}
+%file-by-file ... prune out everything that isn't called!
+
+\lstdefinestyle{SchemeAppx}{
+  language=Scheme,
+%%%  basicstyle=\tiny\ttfamily,   % size of the fonts for the code
+  numbers=left,
+  stepnumber=1,
+  numbersep=10pt,
+%%%  tabsize=2,
+%%%  showspaces=false,
+%%%  showstringspaces=false,
+}
+
+% A "large" listing
+
+%\begin{landscape}
+%\lstinputlisting{model/sclos.scm}
+%\subsection{framework}
+%\lstinputlisting{model/framework}
+%\subsection{framework.scm}
+%\lstinputlisting{model/framework.scm}
+%\lstinputlisting{model/support-lib.scm}
+
+%\lstinputlisting{model/utils.scm}
+%\lstinputlisting{model/units.scm}
+%\lstinputlisting{model/sort.scm}
+%\lstinputlisting{model/maths.scm}
+%\lstinputlisting{model/integrate.scm}
+%\lstinputlisting{model/matrix.scm}
+%\lstinputlisting{model/postscript.scm}
+%% \lstinputlisting{model/basic-population.scm}
+
+%% \subsection{Framework controls}
+%% \lstinputlisting{model/framework-controls.scm}
+%% \subsection{Framework classes}
+%% \lstinputlisting{model/framework-classes.scm}
+%% \subsection{Framework declararations}
+%% \lstinputlisting{model/framework-declarations.scm}
+%% \subsection{Framework methods}
+%% \lstinputlisting{model/framework-methods.scm}
+
+%% \lstinputlisting{model/kernel.scm}
+
+%% \lstinputlisting{model/log.scm}
+%% \lstinputlisting{model/log-classes.scm}
+%% \lstinputlisting{model/log-declarations.scm}
+%% \lstinputlisting{model/log-methods.scm}
+
+%% %\lstinputlisting{model/submodels.scm}
+
+%% \lstinputlisting{model/landscape.scm}
+%% \lstinputlisting{model/landscape-classes.scm}
+%% \lstinputlisting{model/landscape-declarations.scm}
+%% \lstinputlisting{model/landscape-methods.scm}
+%% %\lstinputlisting{model/landscape-notes.scm}
+
+%% \lstinputlisting{model/animal.scm}
+%% \lstinputlisting{model/animal-classes.scm}
+%% \lstinputlisting{model/animal-declarations.scm}
+%% \lstinputlisting{model/animal-methods.scm}
+%% %\lstinputlisting{model/animal-notes.scm}
+
+%% %\lstinputlisting{model/pre-run-setup.scm}
+%% \lstinputlisting{model/model-configuration.scm}
+%\end{landscape}
+
+

@@ -22,6 +22,16 @@
 ;; mass or age.
 
 
+;; These are (mainly) used for attenuating colors
+(define (saturate x k)  (+ x (* (- 1 x) k)))
+(define (saturate* x k n) (saturate x (if (zero? n) 0.0 (- 1 (exp (* n (log k)))))))
+
+(define (map-saturate* x k n)
+  (if (list? x)
+		(map (lambda (y) (saturate* y k n)) x)
+		(saturate* x k n)
+		))
+
 
 ;; mass_at_age(m, a, M, A, age) = m + (M - m) * (1 - exp( -2 * exp(1) *(age - a)/(A - a)))
 ;;-->            (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a)))))))
@@ -152,21 +162,6 @@
 	 (if (or (not (procedure? f->m)) (not (procedure? m->t)))
 		  (error "bad projection chain"))
 	 (m->t (f->m point))))
-
-(define (construct-symbol sym #!rest tagels)
-  (if (string? sym) (set! sym (string->symbol sym)))
-  (set! tagels (map (lambda (x) (if (string? x) (string->symbol x) x)) tagels))
-  	
-  (string->symbol
-	(apply string-append
-			 (map object->string
-					(cons sym
-							(let loop ((l '()) (t tagels))
-							(if (null? t)
-								 (reverse l)
-								 (loop (cons (car t)
-												 (cons '- l))
-										 (cdr t)))))))))
 
 
 (define (refresh-introspection-targets iagent Q)

@@ -36,7 +36,8 @@
 (for-each load (map sym->scm '(framework-declarations framework framework-classes)))
 (for-each load (map sym->scm '(introspection-classes monitor-classes log-classes)))
 (for-each load (map sym->scm '(diffeq-classes landscape-classes plant-classes animal-classes)))
-(for-each load (map sym->scm '(framework-wrappers declarations framework-methods)))
+(for-each load (map sym->scm '(framework-wrappers framework-methods)))
+;; We want to load a single declarations file....(for-each load (map sym->scm '(framework-wrappers declarations framework-methods)))
 (for-each load (map sym->scm '(introspection-methods monitor-methods log-methods)))
 (for-each load (map sym->scm '(diffeq-methods landscape-methods oak plant-methods animal-methods)))
 

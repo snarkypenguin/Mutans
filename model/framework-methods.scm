@@ -35,9 +35,21 @@
 ;;;  		;;(pp txt) ;; Uncomment to print the constructed code during the startup phase 
 ;;;  		txt)))
 
-(define blue-meanie #f)
+(define restricted-kernel-access #f)
 
-;; blue-meanie blocks access to the kernel when the agent is not
+(model-method (<agent> <symbol>) (data-ref self key)
+				  (slot-ref self key))
+
+(model-method (<agent> <symbol>) (data-set! self key value)
+				  (slot-set! self key value))
+
+;;(define has-data? (make-generic)) ;; this is done by the declare-method at the beginning of the file
+(model-method (<agent> <symbol>) (has-data? self sym)
+				  (or (and (object? self)
+							  (has-slot? self sym))))
+
+
+;; restricted-kernel-access blocks access to the kernel when the agent is not
 ;; currently running.  This is mainly for debugging in restricted
 ;; subsets of a model, since it blocks submodels from communicating
 ;; with each other.
@@ -45,11 +57,16 @@
 ;; This routine does the running since "run" has fixed up the ticks
 ;; It looks like (run-model-body me t dt) in code
 
-(define (my-map-color self)
-  (let ((mapcol (if (has-slot? self 'map-color) (slot-ref self 'map-color) #f))
-		  (defcol (if (has-slot? self 'default-color) (slot-ref self 'default-color) #f))
-		  )
-	 (or mapcol defcol 0)))
+(define (my-map-color self #!rest classdepth)
+  (if (not classdepth)
+		(my-map-color self 0)
+		(let ((mapcol (if (has-slot? self 'map-color) (slot-ref self 'map-color) #f))
+				(defcol (if (has-slot? self 'default-color) (slot-ref self 'default-color) #f))
+				)
+		  (if (or (null? classdepth) (zero? classdepth))
+				(or mapcol defcol 0)
+				(map-saturate* (or mapcol defcol) 0 0.85 ccd))
+		  )))
 
 (define (my-contrast-color self)
   (let ((mapcol (if (has-slot? self 'map-contrast-color) (slot-ref self 'map-contrast-color) #f))
@@ -92,9 +109,12 @@
 
 ;; the list representation of a vector from s to d, but smart about <agent>s
 (define (vector-to s d)
-  (let ((src (if (isa? s <tracked-agent>>>) (slot-ref s 'location) s))
-		  (dst (if (isa? d <tracked-agent>>) (slot-ref d 'location) d)))
-	 (map - dst src)))
+  (let ((deref (lambda (x)
+					  (cond
+						((and (list? x) (apply andf (map number? x))) x)
+						((and (isa? x <object>) (has-slot? x 'location)) (slot-ref x 'location))
+						(else (abort bad-argument-to:vector-to))))))
+	 (map - (deref dst) (deref src))))
 
 (define (do-map-conversion pfn gfn)
   (let ((cmd (string-append "gs -q -dQUIET -dNOPAUSE -r300x300 -sDEVICE=pnggray -sOutputFile=" gfn " - " pfn " < /dev/null &")))
@@ -156,8 +176,10 @@ specialised methods.  <agent>s are much more complex, and might not be
 commonly viewed as just a simple extension of sclos.
 "
 ;---- <agent> methods
-;----- (initialise) 
+;----- (initialise-instance) 
 
+(model-method (<agent>) (supports-proxy? self)
+				  #f)
 
 (model-method (<agent>) (dead? self)
 				  (eq? (my 'agent-state) 'dead)
@@ -173,7 +195,7 @@ commonly viewed as just a simple extension of sclos.
 						(eq? (my 'queue-state) 'terminated)))
 
 
-(model-method (<agent>) (initialisation-checks self)
+(model-method (<agent>) (initialise-instance self)
 				  (void)
 				  )
 
@@ -240,7 +262,7 @@ commonly viewed as just a simple extension of sclos.
 						(begin
 						  (slot-set! self 'agent-state 'active)
 						  (slot-set! self 'subjective-time start)
-						  (initialisation-checks self))
+						  (initialise-instance self))
 						(error (string-append
 								  (name self)
 								  " has been instructed to prep but it's state is "
@@ -591,6 +613,35 @@ commonly viewed as just a simple extension of sclos.
 						(my 'dt))) ;; if not modal use default
 
 
+;; This is an example of code to make accessors.  The general principle is that an accessor
+;; is a function that only do one thing, and that the accessor maker doesn't *do* anything.
+;; Using accessors means that when they go out of scope the ability to alter another's state
+;; is automatically lost, that *only* the allowed changeds are possible, and that we can
+;; enforce controls on what is granted access.
+
+(model-method (<agent> <agent> <symbol>) (request-accessor self intruder sym #!rest args)
+				  (case sym
+					 ((set!) ;; This shows how to restrict the ability to make a setter to members of 
+					  (if (not (eq? (class-of self) (class-of intruder))) ;; the same class, for example
+							(abort)
+							(let ((slt (car args)))
+							  (lambda (val) (slot-set! self slt val)))))
+					 ((ref)
+					  (if (null? args) (abort 'bad-args))
+					  (let ((slt (car args)))
+						 (lambda () (slot-ref self slt))))
+					 ((adjust#)
+					  (if (null? args) (abort 'bad-args))
+					  (let ((slt (car args)))
+						 (lambda (val) (slot-set! self slt (+ (slot-ref self slt) val))))
+					 )
+					 )
+				  )
+
+
+
+
+
 ;-- Define/allocate new classes
 
 ;--- substrate
@@ -623,7 +674,7 @@ commonly viewed as just a simple extension of sclos.
 												(slot-ref self 'maintenance-list)
 												)))
 				  ;; Now do something with  the status-list!
-				  dt))
+				  'ok))
 
 
 
@@ -709,25 +760,30 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 					 (lambda (x) 
 						(m->l (l->m x)))))
 
-(model-method <tracked-agent> (location* self)
-				  (slot-ref self 'location))
+(model-method <plottable-agent> (location* self)
+						(slot-ref self 'location)
+						)
 
-(model-method <tracked-agent> (location2 self)
-				  (list-head (slot-ref self 'location) 2))
-
-
-(model-method <tracked-agent> (location3 self)
-				  (list-head (slot-ref self 'location) 3))
-
-(model-method <tracked-agent> (location self)
-				  (case default-location-type
-					 ((*) (location* self))
-					 ((2 2d) (location2 self))
-					 ((3 3d map) (location3 self))
-					 (else (location* self))))
+(model-method <plottable-agent> (location2 self)
+						(list-head (slot-ref self 'location) 2)
+						)
 
 
-(model-method (<tracked-agent> <log-map>) (plot-glyph self logger)
+(model-method <plottable-agent> (location3 self)
+						(list-head (slot-ref self 'location) 3)
+						'())
+
+(model-method <plottable-agent> (location self)
+				  (if (has-slot? self 'location)
+						(case default-location-type
+						  ((*) (location* self))
+						  ((2 2d) (location2 self))
+						  ((3 3d map) (location3 self))
+						  (else (location* self)))
+						#f))
+
+
+(model-method (<plottable-agent> <log-map>) (plot-glyph self logger)
 				  (let ((glyph (my 'glyph))
 						  (dir (my 'direction))
 						  (scale/slot (my 'scale/slot))
@@ -876,13 +932,14 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 
 ;---- <query> -- seems to not work at all 
 
-;;; ;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
-;;; ;; recognise the query it returns (void)
-;;; (model-method <agent> (query self tag #!rest args)
-;;; 				  (case tag
-;;; 					 ((value) (if (pair? args) (slot-ref self (car args))))
-;;; 					 (else (kquery self kernel tag args))
-;;; 				  ))
+;; A query to an agent must take a completely arbitrary list of arguments.  If the agent is unable to
+;; recognise the query it returns (void)
+(model-method (<agent> <agent> <symbol>)(query self questioner tag #!rest args)
+				  (cond
+					((member? tag (map car (class-slots (class-of self))))
+					 (slot-ref self tag))
+					(else (kquery self kernel tag args))
+ 				  ))
 
 
 ;;; ;--- Helper classes (wart classes) 
@@ -904,6 +961,15 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 										  (slot-ref self 'name)))
 						))
 
+(model-method (<proxy>) (run self pt pstop pkernel)
+						(display "Attempt to (run ...) a <proxy>\n")
+						(error "+++Vegetable Underflow Error+++"  
+								 (slot-ref self 'name)))
+
+(model-method (<object>) (run self pt pstop pkernel)
+						(display "Attempt to (run ...) an <object>\n")
+						(error "+++Auditor Error+++"  
+								 (slot-ref self 'name)))
 
 
 (definition-comment 'prune-local-time-queue
@@ -1002,6 +1068,512 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 					  targets)))
 
 
+
+;;; (model-method (<array> <agent> <symbol>) (alter self alien sym #!rest args)
+;;; 				  (case sym
+;;; 					 ((set-slot) (if (and (symbol? sym) (pair? args) (sym (car args)))
+;;; 									 (slot-set! self (car args) (cadr args))
+;;; 									 (abort 'bad-arguments)))
+;;; 					 ((adjust#) (if (and (symbol? sym) (pair? args) (sym (car args)) (number? (cadr args)))
+;;; 										 (slot-set! self (car args)  (+ (cadr args) (slot-ref self (car args))))
+;;; 										 (abort 'bad-arguments)))
+;;; 					 )
+;;; 				  )
+
+
+;; NOTE: the 
+
+;; Allows the kernel to make queries -- we do not want the kernel to be
+;; able to be accidentally "run" like an agent, hence the independent class
+(model-method (<array> <kernel> <symbol>) (query self questioner tag #!rest args)
+				  (let ((a (allocate-instance <agent>)))
+					 (apply query (cons self (cons a (cons tag args))))))
+
+
+
+(model-method (<array> <agent> <symbol>)(query self questioner tag #!rest args)
+				  (if (not (agent? questioner))
+						(abort 'non-canonical-use-voids-warranty))
+				  (cond
+					((eq? tag 'request-accessor)
+					 (let ((subject self)
+							 (instigator questioner))
+						(lambda args
+						  (let ((me instigator) (subject subject))
+							 (cond
+							  ((null? args) ;; no args returns the subject of the accessor
+								thee)
+							  ((eq? (car args) 'get)
+								(apply data-ref subject (cons thee (cdr args))))
+							  ((eq? (car args) 'set!)
+								(apply data-set! (cons subject (cdr args))))
+							  ((eq? (car args) 'adjust!) ;; This only works for numeric values
+								(let* ((sgra (reverse (cdr args)))
+										 (val (car sgra))
+										 (addr (reverse (cdr sgra))))
+								  (if (number? val)
+										(apply data-set! (cons subject (cons addr (list (+ (apply data-ref (cons subject addr)) val)))))
+										(error "attempt to adjust a non-numeric value using an accessor 'adjust! request"))))
+							  (else "Unrecognised accessor query"))
+							 ))))
+
+					((and (has-data? questioner 'location) (eq? tag 'distance) (null? args))
+					 (let ((L (location questioner)))
+						(if (has-data? self 'location)
+							 (let ((l (data-ref self 'location)))
+								(cond
+								 ((and (point? l) (point? L)) (distance l L))
+								 ((and (point-list? l) (point? L)) 
+								  (apply min (map (lambda (x) (distance x L)) l)))
+								 ((and (point? l) (point-list? L))
+								  (apply min (map (lambda (x) (distance l x)) L)))
+								 (else (abort "bad mojo in 'distance query"))
+								 ))
+							 #f))
+					 )
+					
+					((eq? tag 'distance)
+					 (let ((L (if (and (point-list? args) (= 1 (length args))) (car args) (location questioner))))
+						(if (has-data? self 'location)
+							 (apply min (map (lambda (x) (distance x L)) (data-ref self 'location)))
+							 #f))
+					 )
+					
+					((and (eq? tag 'location*) (null? (cdr args))) (has-data? self 'location)
+					 (data-ref self 'location))
+
+					((and (eq? tag 'location) (null? (cdr args)) (has-data? self 'location))
+					 (if (has-data? questioner 'location)
+						  (let* ((qloc (location questioner))
+									(loc (data-ref self 'location))
+									(points 
+									 (cond
+									  ((and (or (point? qloc) (point-list? qloc)) (point? loc))
+										loc)
+									  ((point-list? loc)
+										(cond
+										 ((point? qloc)
+										  (let ((d (map (lambda (x) (list (distance x qloc) x)) loc)))
+											 (let loop ((ld d)
+															(best (car d))
+															)
+												(if (pair? ld) (dnl* 'location best (car ld)))
+												(cond
+												 ((null? ld) (cadr best))
+												 ((< (caar ld) (car best))
+												  (loop (cdr ld) (cadar ld)))
+												 (else (loop (cdr ld) best))))))
+										 ((point-list? qloc)
+										  (let ((X (cross (location loc) (location qloc))))
+											 (let ((d (map (lambda (x) (list (apply distance x) (car x))) X)))
+												(let loop ((ld d)
+															  (best (car ld))
+															  )
+												  (if (pair? ld) (dnl* 'Location  best (car ld)))
+												  (cond
+													((null? ld) (cadr best))
+													((= (caar ld) (car best))
+													 (loop (cdr ld) (cons (caar ld) (cons (caadar ld) (cdr best))))) 
+													((< (caar ld) (car best))
+													 (loop (cdr ld) (list (caar ld) (caadar ld))))
+													(else (loop (cdr ld) best)))))))
+										 (else #f)))
+									  ))
+									)
+							 (if (point-list? points) (list-ref points (random-integer (length points)))
+								  points))
+						  ;; the questioner doesn't have a location, so we give a centroid
+						  (let ((loc (data-ref self 'location)))
+							 (cond
+							  ((point? loc) loc)
+							  ((point-list? loc) (centroid loc))
+							  (else #f)))))
+
+					((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
+					 ;; return all entries in the tag entry
+					 (data-ref self tag))
+
+					((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
+					 ;; set the data associated with (car args); args should be like one of '(sym)  '(sym ()) '(sym (.....))
+					 (data-set! self tag (cadr args)))
+
+					((and (eq? tag 'set!) (= (length args) 3) (number? (caddr args)) (member (car args) (slot-ref self 'data-names)))
+					 ;; set the data associated with (car args); args should be like '(i sym val)
+					 (data-set! self (car args) (cadr args) (caddr args)))
+
+					((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
+					 ;; return entry for all indicated indices
+					 (list-ref% (data-ref self tag) (filter (lambda (x) (and (integer? x) (not (negative? x)) (< x (length (slot-ref self 'data))))) args)))
+
+					;; (query arragent 'nearest [location])
+					((and (eq? tag 'index-nearest) (has-data? self 'location))
+					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
+							  (N (if (pair? args) (car args) 1))
+							  (proxylist '())
+							  (countdown (car args))
+							  (dix (data-index self 'location))
+							  (D (slot-ref self 'data))
+							  (k (length D))
+							  (target (let search ((ix 0)
+														  (bestindex 0)
+														  (bestdist +inf.0)
+														  )
+											(if (>= ix k)
+												 bestindex
+												 (let ((ndist (distance (list-ref D ix) L)))
+													(if (< ndist (distance (list-ref D ix) L) bestdist)
+														 (search (+ 1 ix) ix ndist )
+														 (search (+ 1 ix) bestix bestdist ))
+													)
+												 )))
+							  )
+						target
+						))
+					
+					;; (query arragent 'proxy-nearest [17 [location]])
+					((and (eq? tag 'proxy-nearest) (has-data? self 'location))
+					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
+							  (N (if (pair? args) (car args) 1))
+							  (proxylist '())
+							  (countdown (car args))
+							  (dix (data-index self 'location))
+							  (D (slot-ref self 'data))
+							  (k (length D))
+							  (target (let search ((ix 0)
+														  (bestindex 0)
+														  (bestdist +inf.0)
+														  )
+											(if (>= ix k)
+												 bestindex
+												 (let ((ndist (distance (list-ref D ix) L)))
+													(if (< ndist (distance (list-ref D ix) L) bestdist)
+														 (search (+ 1 ix) ix ndist )
+														 (search (+ 1 ix) bestix bestdist ))
+													)
+												 )))
+							  )
+						(lambda (arr agent tag #!rest args)
+						  (let ((data (slot-ref self 'data))
+								  (data-names (slot-ref self 'data-names))
+								  (ix ix))
+							 (cond
+							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
+								(abort) 
+								)
+							  ((and (eq? tag 'set!) (= (length args) 3)) (number? (caddr args) (member (car args) (slot-ref self 'data-names)))
+								(abort) 
+								)
+							  ((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
+								(abort) 
+								)
+							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
+								(abort) 
+								)
+							  ((eq? tag 'distance)
+								(abort) 
+								)
+							  ((and (eq? tag 'index-nearest) (has-data? self 'location))
+								)
+							)
+						))
+					))
+					
+					
+					((member? tag (map car (class-slots (class-of self))))
+					 (slot-ref self tag))
+
+					(else (parent-query))
+					))
+
+
+
+(model-method (<array>) (supports-proxy? self)
+				  #f)
+
+(model-method (<array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
+				  (let ((d (member k (slot-ref self 'data-names))))
+					 (if d (car d)
+						  (has-slot? self k))))
+
+(model-method (<array>) (location self #!optional ix)
+				  (cond
+					((member 'location (my 'data-names))
+					 (if (number? ix) (data-ref self ix 'location)
+						  (data-ref self 'location)))
+					((has-slot? self 'location) (location self))
+					(else #f)
+				  ))
+
+(model-method (<array>) (radius self)
+				  (cond
+					((member 'radius (my 'data-names))
+					 (if (number? ix) (data-ref self ix 'radius)
+						  (data-ref self 'radius)))
+					((has-slot? self 'radius) (slot-ref self 'radius))
+					(else #f)
+				  ))
+
+(model-method (<array>) (data-names self)
+				  (slot-ref self 'data-names))
+
+(model-method (<array> <symbol>) (new-data-name self sym)
+				  (let ((datasyms (my 'data-names)))
+					 (if (null? (my 'data))
+						  (set-my 'data-names (append datasyms (list sym)))
+						  (abort "data-names may not be altered if there is already data"))))
+
+(model-method (<array> <list>) (new-data-names self syms)
+				  (let ((datasyms (my 'data-names)))
+					 (if (null? (my 'data))
+						  (set-my 'data-names (append datasyms (list sym)))
+						  (abort "data-names may not be altered if there is already data"))))
+
+(model-method (<array> <symbol>) (data-index self sym)
+				  (let* ((data-names (my 'data-names))
+							;;(data (my 'data))
+							(ix (member sym data-names)))
+					 (if (not ix)
+						  #f
+						  (- (length data-names) (length ix))
+						  )
+					 ))
+
+(model-method (<array>) (data-length self)
+				  (length (my data)))
+
+(model-method (<array> <list>) (add-data-record self lst)
+				  (if (= (length lst) (length (my 'data-names)))
+						(set-my! 'data (append (my 'data) (list lst)))
+						(abort)))
+
+(model-method (<array> <list> <integer>) (remove-data-record self lst i)
+				  (let ((data (my 'data)))
+					 (set-my! 'data (append (list-head data i) (list-tail data (+ 1 i))))))
+
+;; Returns the data from list element i in data
+(model-method (<array>) (data-ref self)
+				  (dnl* 'data-ref-null)
+				  (slot-ref self 'data))
+
+;; Returns the list element i from data
+(model-method (<array> <integer>) (data-ref self i) (list-ref (my 'data) i))
+
+;; Returns all the indicated slot entries from the data. Useful for things like (apply + (data-ref trees 'leaf-area))
+;; If we rebase this (give it a new parent) this may need to be modified
+(model-method (<array> <symbol>) (data-ref self s)
+				  ;;(dnl* 'data-ref-S)
+				  (let* ((data (my 'data))
+						  (i (data-index self s))
+						  )
+					 (if i
+						  (map (lambda (x) (list-ref x i)) data)
+						  (if (has-slot? self s)
+								(slot-ref self s)
+								(abort 'bad-data/slot-symbol)))))
+
+;; Returns the s element from the i'th row in data
+(model-method (<array> <integer> <symbol>) (@data-ref self i s)
+				  ;;(dnl* 'data-ref-IS)
+				  (list-ref (data-ref self s) i))
+
+
+;; If we rebase this (give it a new parent) this may need to be modified
+(model-method (<array> <symbol> <list>) (data-set! self s v)
+				  (let ((ix (data-index self s)))
+					 (if ix
+						  (if (= (length v) (length (my 'data)))
+								(for-each
+								 (lambda (lst vv)
+									(list-set! lst ix vv))
+								 (my 'data))
+								(abort 'list-length-error)))
+					 (slot-set! self v)))
+						  
+
+(model-method (<array> <integer> <list>) (data-set! self i s l) (set-car! (data-ref self i) (car l)) (set-cdr! (data-ref self i) (cdr l)))
+
+(model-method (<array> <integer> <symbol>) (@data-set! self i s v) (list-set! (data-ref self i) (data-index self s) v))
+
+(model-method (<array> <agent> <symbol> <integer> <symbol>) (request-accessor self external-agent sym i s #!rest args)
+				  (case sym
+					 ((set!)
+					  (lambda (val) (@data-set! self i s val)))
+					 ((ref)
+					  (lambda (val) (@data-ref self i s)))
+					 ((adjust#)
+					  (lambda (val) (@data-set! self i s (+ (@data-ref self i s) val))))
+					 ((args) (list external-agent sym i s args)))
+					 (else (parent-request-accessor))
+				  )
+				  
+(model-body% <array>
+  (let ((parent-return (call-all-parents)))
+	 (if (and (pair? (my 'data-names)) (pair? (my 'data)))
+		  (begin
+			 (set-my 'data (filter (lambda (x) (not (member (car x) '(remove terminated)))) (slot-ref self 'data)))
+			 (stop-timer 'array-model-body)
+			 )
+		  )
+	 'ok
+	 )
+  )
+
+				  
+
+(define (patches-containing-locus loc Q)
+  (filter (lambda (x) (contains? x loc)) (filter (lambda (x) (is-class? x <patch>)) Q)))
+
+
+
+(define (patches-containing loc Q)
+  (cond
+	((point? loc)
+	 (sortless-unique
+	  (patches-containing-locus loc Q)))
+
+	((point-list? loc)
+	 (sortless-unique
+		 (map (lambda (p)
+				 (patches-containing-locus p Q)
+				 )
+			  loc)))
+	((isa? loc <array>)
+	 (let ((loci (data-ref loc 'location)))
+		(sortless-unique
+		 (map (lambda (p)
+				 (patches-containing-locus p Q)
+				 )
+			  loci)))		
+	 )
+	(else
+		(let loop ((result '())
+					  (q Q))
+		  (if (null? q)
+				result
+				(if (isa? (car q) <patch>)
+					 (if (point? loc)
+						  (if (contains? (car q) loc)
+								(loop (cons q result) (cdr q))
+								(loop result (cdr q)))
+						  (if (apply orf (map (lambda (p) (contains? (car q) p)) loc))
+								(loop (cons q result) (cdr q))
+								(loop result (cdr q)))
+						  )
+					 ))))
+	))
+
+
+;;; (define (patches-containing loc Q)
+;;;   (if (isa? loc <array>)
+;;; 		(let ((loc (data-ref loc 'location))
+;;; 				)
+;;; 		  (sortless-unique (apply append (map (lambda (l)
+;;; 															 (dnl l)
+;;; 															 (patches-containing l Q)) loc))))
+		 
+;;; 		(let loop ((result '())
+;;; 					  (q Q))
+;;; 		  (if (null? q)
+;;; 				result
+;;; 				(if (isa? (car q) <patch>)
+;;; 					 (if (point? loc)
+;;; 						  (if (contains? (car q) loc)
+;;; 								(loop (cons q result) (cdr q))
+;;; 								(loop result (cdr q)))
+;;; 						  (if (apply orf (map (lambda (p) (contains? (car q) p)) loc))
+;;; 								(loop (cons q result) (cdr q))
+;;; 								(loop result (cdr q)))
+;;; 						  )
+;;; 					 ))))
+;;;   )
+
+;; We resolve the reference with slot-ref since we might otherwise recurse forever
+
+
+
+(model-method (<proxy> <symbol>) (data-ref self sym)
+				  ((slot-ref self 'getter)
+					(slot-ref self 'super)
+					sym))
+(model-method (<proxy> <number>) (data-ref self i)
+				  ((slot-ref self 'getter)
+					(slot-ref self 'super)
+					i))
+
+
+(model-method (<proxy> <symbol>) (data-set! self sym value)
+				  ((slot-ref self 'setter)
+					(slot-ref self 'super)
+					sym value))
+(model-method (<proxy> <number>) (data-set! self i value)
+				  ((slot-ref self 'setter)
+					(slot-ref self 'super)
+					i value))
+
+
+(model-method (<proxy> <number>) (@data-ref self i s)
+				  ((slot-ref self '@getter)
+					(slot-ref self 'super)
+					i))
+(model-method (<proxy> <number>) (@data-set! self i s value)
+				  ((slot-ref self '@setter)
+					(slot-ref self 'super)
+					i value))
+
+
+
+
+(model-body <proxy>
+				(abort "this should never happen")
+				'ok)
+
+(define (proxify A Q #!rest args)
+  (if (void? A) (bugrit))
+  (if (list? A) (set! A (denull-and-flatten	 A)))
+
+;  (dnl* "Proxification: " A)
+;  (if (list? A) (dnl* " -->"(map cnc A)))
+  
+  (cond
+	((list? A)
+;	 (dnl* "remapping list of length" (length A))
+	 (denull-and-flatten (map (lambda (a) (proxify a Q)) A)))
+	(else
+	 ;;; (let ((radius (if (> (length args) 1) (car args) #f))
+	 ;;; 		 (polygon (if (= (length args) 1) (car args) #f))
+	 ;;; 		 (loc (if (> (length args) 1) (cadr args) #f))
+	 ;;; 		 (UL (has-data? A 'location)))
+
+	 (if (supports-proxy? A)
+		  (let* ((data (slot-ref A 'data))
+				  (data-names (slot-ref A 'data-names))
+				  (patch-list (if (member 'domain data-names)
+										(let ((pl (patches-containing A Q)))
+										  (if (pair? pl) (car pl) #f))
+										'()
+										))
+				  )
+			 (map
+			  (lambda (ix)
+				 (if (member 'domain data-names)
+					  (create (slot-ref A 'proxy-class) (slot-ref A 'taxon) 'domain patch-list
+								 'super A 'ix ix 'record (list-ref (slot-ref A 'data) ix) 'data-names data-names)
+					  (create (slot-ref A 'proxy-class) (slot-ref A 'taxon)
+								 'super A 'ix ix 'record (list-ref (slot-ref A 'data) ix) 'data-names data-names)
+				 ))
+			  (seq (length data)))
+			 )
+		  A)
+	 )
+	)
+  )
+		
+		  
+		
+		
+
+
+
 ;---- <tracked-agent> methods
 
 ;;; (default-agent-initialisation <tracked-agent>
@@ -1052,10 +1624,10 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;----- (map-log-track-segment
 (model-method (<tracked-agent> <list> <procedure>) (map-log-track-segment self track prj ps #!rest args)
 										 (let* ((m (if (pair? args) (car args) #f))
-												 (col (if (> (length args) 1) (cadr args) #f))
-												 (pr (lambda (x) (car (prj (list x 0)))))
-												 (map-color (if col col (my 'map-color)))
-												 (default-color (my 'default-color))
+												  (col (if (> (length args) 1) (cadr args) #f))
+												  (pr (lambda (x) (car (prj (list x 0)))))
+												  (map-color (if col col (my 'map-color)))
+												 ;;(default-color (my 'default-color))
 												 )
 
 											(if (kdebug? '(map-log <tracked-agent>))
@@ -1074,13 +1646,14 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 																							 (1- (length ptrack))))
 																 (finishseg (cdr ptrack)))
 															(for-each
-															 (lambda (ss fs)
+															 (lambda (n ss fs)
 																(ps 'moveto ss)
 																(ps 'lineto fs)
-																(ps 'push-color map-color)
+																(ps 'push-color map-color) ;; use the unaltered map-color if we are the outermost class
+																(ps 'push-color (map-saturate* map-color 0.85 n)) ;; else attenuate the co
 																(ps 'stroke)
 																)
-															 startseg finishseg)
+															 (sequence (length startseg)) startseg finishseg)
 															(ps 'Helvetica 4.5)
 															(ps 'moveto (prj (list-head (location self) 2)))
 
@@ -1117,9 +1690,9 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 															  )
 															 )
 															(ps 'pop-color)
-															(set! map-color (if (number? map-color)
-																					  (* 0.85 map-color)
-																					  (map (lambda (x) (* 0.85 x)) map-color)))
+															;;; (set! map-color (if (number? map-color)
+															;;; 						  (* 0.85 map-color)
+															;;; 						  (map (lambda (x) (* 0.85 x)) map-color)))
 															(ps 'push-color map-color)
 															(ps 'stroke)
 															(ps 'pop-color)
@@ -1131,7 +1704,23 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 											))
 
 
+(model-method (<plottable-agent> <log-map> <symbol>) (log-data self logger format targets)
+				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						(let ((file (slot-ref logger 'file))
+								)
+						  (kdebug '(log-* log-tracked-agent) ":" targets)
+						  (cond 
+							((postscript? file)
+							 ;; might be a case statement here for different formats within the postscript doc
+							 (plot-glyph self logger);; We always plot ourselves at the end.
+							 )
+							)
+						  )
+						)
+				  )
+
 (model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)
+				  (parent-log-data)
 				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let ((file (slot-ref logger 'file))
 								)
@@ -1163,8 +1752,6 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 												;;(map-log-track-segment self (- n k) (car tr) prj file (+ AMINGREY (* (/ k n) (- AMAXGREY AMINGREY))))
 												(map-log-track-segment self (car tr) prj file)
 												(loop (- n 1) (1+ k) (cdr tr))))))
-
-								(plot-glyph self logger);; We always plot ourselves at the end.
 								)
 							 )
 							)
@@ -1236,6 +1823,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 				(set-my! 'speed (min (my 'speed) (my 'max-speed)))
 				;; aren't
 				;; moving
+				'ok
 				)
 
 
@@ -1275,6 +1863,20 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 				)
 
 
+(model-method (<thing> <agent> <symbol>) (request-accessor self intruder sym #!rest args)
+				  (case sym
+					 ((location)
+					  (lambda () (location self)))
+					 ((mass)
+					  (lambda (val) (slot-ref self 'mass)))
+					 ((adjust#)
+					  (lambda (val) (slot-set! self 'mass (max 0 (+ (slot-ref self 'mass) val)))))
+					 (else (parent-request-accessor))
+				  ))
+				  
+
+
+
 ; Living things
 
 (model-method (<living-thing> <procedure>) (ps-dump self ps projection)
@@ -1298,7 +1900,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 				  ;; (kernel 'shutdown self) 
 				  'dead)
 
-(model-method <living-thing> (initialisation-checks self)
+(model-method <living-thing> (initialise-instance self)
 				  (set-uninitialised-slots self '(age-at-instantiation) 0)
 				  (fail-on-uninitialised-slots self
 														 '(age longevity mass-at-age
@@ -1354,6 +1956,27 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 					(else
 					 (/ (- (my 'max-mass) (my 'mass)) (my 'longevity)))))
 
+(define (cmp-by-distance pivot cmp)
+  (let ((p (if (list? pivot) pivot (location pivot)))
+		  )
+	 (lambda (bit1 bit2)
+		(set! bit1 (if (list? bit1) bit1 (location bit1)))
+		(set! bit2 (if (list? bit2) bit2 (location bit2)))
+		(cmp (distance p bit1) (distance p bit2)))))
+		  
+
+(model-method <agent> (look-for self targets)
+				  (kernel 'locate (apply *provides-*? targets)))
+
+(model-method <agent> (look-for* self targets)
+				  (kernel 'locate* (apply *provides-*? targets)))
+
+(model-method <agent> (look-for<= self targets)
+				  (kernel 'locate<= (apply *provides-*? targets)))
+
+(model-method <agent> (look-for>= self targets)
+				  (kernel 'locate>= (apply *provides-*? targets)))
+
 
 (model-method <living-thing> (look-for self targets #!optional rad)
 				  (if (not rad)
@@ -1362,20 +1985,58 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 							 (set rad #t)))
 
 				  ;; move about looking for a region with whatever it is
-				  (let* ((here (my 'location))
+				  (let* ((candidates (kernel 'locate (apply *provides-*? targets) rad))
 							(results
-							 (sort  (kernel 'locate (apply *provides-*? targets) here rad)
-									  (lambda (x y) (<= (distance (location x) here) (distance (location y) here)))))
+							 (sort candidates (cmp-by-distance (location self) <=)))
 							)
+					 results
+					 ))
 
-					 ;; Sort in order of proximity
-					 ;; is categorical rather than specific agents
-					 
+(model-method <living-thing> (look-for* self targets #!optional rad)
+				  (if (not rad)
+						(if (has-slot? self 'search-radius)
+							 (set! rad (my 'search-radius))
+							 (set rad #t)))
+
+				  ;; move about looking for a region with whatever it is
+				  (let* ((candidates (kernel 'locate* (apply *provides-*? targets) rad))
+							(results
+							 (sort candidates (cmp-by-distance (location self) <=)))
+							)
+					 results
+					 ))
+
+(model-method <living-thing> (look-for<= self targets #!optional rad)
+				  (if (not rad)
+						(if (has-slot? self 'search-radius)
+							 (set! rad (my 'search-radius))
+							 (set rad #t)))
+
+				  ;; move about looking for a region with whatever it is
+				  (let* ((candidates (kernel 'locate<= (apply *provides-*? targets) rad))
+							(results
+							 (sort candidates (cmp-by-distance (location self) <=)))
+							)
+					 results
+					 ))
+
+(model-method <living-thing> (look-for>= self targets #!optional rad)
+				  (if (not rad)
+						(if (has-slot? self 'search-radius)
+							 (set! rad (my 'search-radius))
+							 (set rad #t)))
+
+				  ;; move about looking for a region with whatever it is
+				  (let* ((candidates (kernel 'locate>= (apply *provides-*? targets) rad))
+							(results
+							 (sort candidates (cmp-by-distance (location self) <=)))
+							)
 					 results
 					 ))
 
 (model-body <living-thing>
 				(call-all-parents)
+				'ok
 				)
 
 
@@ -1392,7 +2053,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;;; 								  'label ""
 ;;; 								  ))
 
-;;; 				  (parent-initialise)
+;;; 				  (parent-initialise-instance)
 ;;; 				  ;; call "parents" last to make the initialisation list work
 ;;; 				  (set-state-variables self args) ;; we now set-state-variables the slot values passed in args
 ;;; 				  )
@@ -1442,7 +2103,8 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;---- environment methods
 
 (model-body <environment> ;; does nothing.
-;;				(call-all-parents)
+				;;				(call-all-parents)
+				'ok
 				)
 ;; A node in a location tree is either a list of four lists, of the form
 ;;    (mincorner maxcorner list-of-entities)
@@ -1471,7 +2133,15 @@ cost of ad hoc queries.")
 (model-method (<environment> <pair>) (set-value! self loc val)
 				  (set-my! 'default-value val))
 
-;#####################################################################
+
+
+
+
+
+
+
+
+;####################################################################
 "Below this point are the routines that underpin the process of 
 running agents and haaving them interact with the kernel.  They come at the 
 end of the file because it's a readily located place.
@@ -1510,7 +2180,10 @@ The arguments are
 The 'run' method does the actual business of chaining to the model body, managing the update of 
 the agent's subjective time, ensuring that agents with timestep schedules do not accidentally 
 run past a scheduled tick, enforcing the arrow of time, catching some types of error (some of 
-which would also be caught in run-agent)
+which would also be caught in run-agent).
+
+'run' also provides the machinery for supporting subsidiary agents and for running maintenance 
+routines which keep state data for representations which are no-longer current.
 "
 
 ;; *** AGENTS RUN HERE ***
@@ -1561,7 +2234,7 @@ which would also be caught in run-agent)
 								  (set! DT (- (+ t dt) subj-time)))
 								)
 						  ;;(dnl* "TIME" (name self) (subjective-time self) t dt DT)
-						  (let ((return-with
+						  (let ((return-this
 									(cond
 									 ((< subj-time t) ;; The agent is really behind where it ought to be
 									  (if temporal-fascist
@@ -1606,6 +2279,9 @@ which would also be caught in run-agent)
 														(let ((result (run-model-body self t DT))) ;;; The model runs before its subsidiaries or components
 														  ;(dnl* "MODEL BODY FOR" (cnc self) "RETURNED" result)  
 														  ;;  The model returns the amount of time it actually ran for
+														  ;;(dnl* " # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #")
+														  ;;(dnl* "Got result" result)
+
 														  (kdebug '(nesting run-model-body) (cnc self)
 																	 "Running at " t "+" DT "[" (modal-dt self) "]")
 														  (cond
@@ -1614,11 +2290,15 @@ which would also be caught in run-agent)
 															((and (number? result) (<= DT result))
 ;															 (set! self 'subjective-time (+ (slot-ref self 'subjective-time) DT))
 															 (set! result 'ok)
-															 DT
+						 									 DT
 															 )
 															((eq? result 'ok)
 ;															 (set! self 'subjective-time (+ (slot-ref self 'subjective-time) DT))
 															 DT
+															 )
+															((member (if (pair? result) (car result) result) '(introduce spawn remove))
+															 ;; agent is returning a queue management op
+															 result
 															 )
 															(#t
 															 "not a number, probably a symbol or symbol and list"))
@@ -1649,7 +2329,7 @@ which would also be caught in run-agent)
 														  ;; prefix a symbol ('migrate, for
 														  ;; example) to the return value if it needs to change,
 														  ;; last bit should be "return"
-														  (if blue-meanie (set-my! 'kernel #f))
+														  (if restricted-kernel-access (set-my! 'kernel #f))
 														  result)
 														'not-an-agent)
 												  ))
@@ -1659,9 +2339,11 @@ which would also be caught in run-agent)
 										 ))
 									 ))
 								  )
+							 ;;(dnl* " | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |")
+							 ;;(dnl* "Returning return-this" return-this)
+
 							 (kdebug 'trace-time-update "SUBJECTIVE TIME FOR" (name self) "IS" (slot-ref self 'subjective-time) "; t =" t "DT =" DT "; dt =" dt)
 							 (kdebug 'trace-time-update "has-slot? subjective-time" (has-slot? self 'subjective-time))
-
 
 							 (if (has-slot? self 'subjective-time) ;; Anything derived from <agent> should have a subjective-time and have it updated
 								  (begin
@@ -1675,15 +2357,13 @@ which would also be caught in run-agent)
 
 							 (slot-set! self 'timestep-schedule (sort (cons (+ t DT) (slot-ref self 'timestep-schedule)) <))
 
-							 (kdebug '(nesting run) (cnc self) (name self)
-										"Leaving run after a tick of " DT " @ " (my 'subjective-time)
-										"[" (modal-dt self) "]")
-							 return-with)))))))
+;;							 (dnl* kdebug '(nesting run) (cnc self) (name self)
+;;										"Leaving run after a tick of " DT " @ " (my 'subjective-time)
+;;										"[" (modal-dt self) "] returning " return-this )
+							 return-this)))))))
 		))
 	 ))
  )
-
-
 
 (definition-comment 'run-agents
   "is called by run-subsidiary-agents and is used as a proxy for the call to queue;"
@@ -1706,9 +2386,9 @@ which would also be caught in run-agent)
 										(kdebug 'info "run-agents: skipping" (name x)))
 								  )
 								agentlist
-								)
-				  ;; Do I need a dead-agent class and "clean dead agents" ?
-				  )
+							d	dead)
+				  ;; Do I need a dead-agent class and "clean  ?
+				  )	
 
 (definition-comment 'run-subsidiary-agents
   "run-subsidiary-agents is used to run agents in a nested queue, such as when a habitat takes over patches.
@@ -1720,11 +2400,9 @@ loaded to optimise some sorts of processes, and tooled to avoid those artifacts.
 
 (model-method (<agent>) (run-subsidiary-agents self t dt run kernel )
 				  (let ((al (my 'active-subsidiary-agents)))
-					 (if (not (null? al))
-						  (run-agents self t dt al run kernel))
-					 ))
-
-
+					 (if (not (null? al) kernel)
+						  (run-agents self t dt al run ))
+					 ))	
 
 
 

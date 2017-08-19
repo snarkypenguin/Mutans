@@ -117,6 +117,7 @@
 	current-interest ;; prioritised list indicating the factors at play in decision making
 	;; State variable indicates what "mode" of behaviour is dominant.
 	;; Suggest '(any rest sleep forage hunt seek-mate seek-shelter drive-off-opponent)
+	target-list ;; a sorted list of agents or proxies (proxies are functions, but not agents)
 	activity-dt ;; an a-list of timesteps suitable for different activities
 	)
   ) ;; lists of attributes it looks for for eating, denning and breeding
@@ -125,7 +126,7 @@
 ;; current-interest is a function which takes (self age t dt ...) and
 ;; returns a meaningful symbol
 ;; 
-;;							(H (my 'habitat))
+;;							(H (my 'domain))
 
 (define-class <animal>
   (inherits-from <simple-animal>)

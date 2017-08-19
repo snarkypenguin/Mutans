@@ -9,7 +9,11 @@ the predicate kdebug? with a list of tags, such as
     (if (kdebug? '(recast reorder)) (pp (refactor-object current-strategy complex-list-structure)))
 "
 
-(define production-run #f) ;; This indicates whether to include protective code in a number of fundamental
+(define use-proxies #f) ;; enables or disables the use of the <proxy> class
+
+
+
+(define production-run #t) ;; This indicates whether to include protective code in a number of fundamental
                                ;; routines [like the (my 'variable) and (set-my! 'variable val) calls]
 
 (define trap-model-bodies-with-bad-return-values #f)

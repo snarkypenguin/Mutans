@@ -41,46 +41,50 @@
 (define ps-white 1.0)
 
 (define ps-red '(1.0 0.0 0.0))
-(define ps-green '(0.0 1.0 0.0))
-(define ps-blue '(0.0 0.0 1.0))
+(define ps-orange '(0.88 0.5 0.0))
 (define ps-yellow '(1.0 1.0 0.0))
-(define ps-brown '(165/256 42/256 42/256))
+(define ps-green '(0.0 1.0 0.0))
 (define ps-cyan '(0.0 1.0 1.0))
+(define ps-blue '(0.0 0.0 1.0))
+(define ps-brown '(165/256 42/256 42/256))
 (define ps-magenta '(1.0 0.0 1.0))
 
 (define ps-pale-red '(1.0 0.88 0.88))
+(define ps-pale-orange '(1.0 0.88 0.4))
+(define ps-pale-yellow '(1.0 88.0 0.88))
 (define ps-pale-green '(0.88 1.0 0.88))
-(define ps-pale-blue '(0.88 0.88 1.0))
-(define ps-pale-yellow '(1.0 1.0 0.88))
-(define ps-pale-brown '(210/256 200/256 240/256))
 (define ps-pale-cyan '(0.88 1.0 1.0))
+(define ps-pale-blue '(0.88 0.88 1.0))
+(define ps-pale-brown '(210/256 200/256 240/256))
 (define ps-pale-magenta '(1.0 0.88 1.0))
 
 (define ps-light-red '(1.0 0.66 0.66))
+(define ps-light-orange '(1.0 0.88 0.2))
+(define ps-light-yellow '(0.88 0.5 0.4))
+(define ps-light-cyan '(0.66 1.0 1.0))
 (define ps-light-green '(0.66 1.0 0.66))
 (define ps-light-blue '(0.66 0.66 1.0))
-(define ps-light-yellow '(1.0 1.0 0.66))
 (define ps-light-brown '(210/256 180/256 140/256))
-(define ps-light-cyan '(0.66 1.0 1.0))
 (define ps-light-magenta '(1.0 0.66 1.0))
 
 (define ps-mid-red (list 0.66 0.0 0.0))
+(define ps-mid-orange '(0.66 0.3 0.0))
+(define ps-mid-yellow (list 0.66 0.66 0.0))
 (define ps-mid-green (list 0.0 0.66 0.0))
+(define ps-mid-cyan (list 0.0 0.66 0.66))
 (define ps-mid-blue (list 0.0 0.0 0.66))
 (define ps-mid-magenta (list 0.66 0.0 0.66))
-(define ps-mid-yellow (list 0.66 0.66 0.0))
 (define ps-mid-brown '(210/256 105/256 30/256))
-(define ps-mid-cyan (list 0.0 0.66 0.66))
 
 (define ps-dark-red (list 0.33 0.0 0.0))
+(define ps-dark-orange '(0.33 0.2 0.0))
+(define ps-dark-yellow (list 0.33 0.33 0.0))
 (define ps-dark-green (list 0.0 0.33 0.0))
+(define ps-dark-cyan (list 0.0 0.33 0.33))
 (define ps-dark-blue (list 0.0 0.0 0.33))
 (define ps-dark-magenta (list 0.33 0.0 0.33))
 (define ps-dark-brown '(139/256 69/256 19/256))
-(define ps-dark-yellow (list 0.33 0.33 0.0))
-(define ps-dark-cyan (list 0.0 0.33 0.33))
 
-(define ps-orange (list 1.0 0.5 0.0))
 (define ps-rose (list 1.0 0.0 0.5))
 (define ps-springgreen (list 0.5 1.0 0.0))
 
@@ -1198,7 +1202,7 @@
   )
 
 
-(define (make-text  port/filename #!rest discard)
+(define (make-text port/filename #!rest discard)
   (let ((file (cond
 					((output-port? port/filename) port/filename)
 					(else (open-output-file port/filename))))
@@ -1314,7 +1318,6 @@
 							  ((eq? cmd 'column) column)
 							  ((eq? cmd 'row) row)
 							  ((eq? cmd 'page) pagecount)
-							  ((eq? cmd 'file) file)
 							  ((member cmd
 										  '(postscript set-font push-font pop-font
 															push-color pop-color push-colour pop-colour
