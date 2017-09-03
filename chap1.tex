@@ -1,3 +1,6 @@
+% -*- outline-regexp: "%--* ";  -*-
+%- Preliminaries
+\message{Chapter 3}
 %% These are defined at the end of the mathphdthesis.sty
 \titlepg
 \signaturepage
@@ -24,7 +27,7 @@ components, and the needs and states both of the other components and
 of the model as a whole. Practitioners in many fields often appeal to
 Occam's Razor when selecting models, explanations or solutions to
 problems and, in some way, the proposed strategy embeds an analogous
-winnowing in the very structure of a model---a representation of the
+winnowing in the very structure of a model -- a representation of the
 system that best meets the requirements is sought, and changes are
 made in the representation as the conditions within the model change.
 
@@ -71,8 +74,8 @@ As a tropical storm build we may disaggregate the histogram,
 appropriately distributing the population to finer age-histograms
 associated with localities throughout the region.  As it approaches
 the coastline, the essentially static representations which lie in
-areas likely to suffer damage are converted into \emph{agents} ---
-instances of running submodels --- which represent households.
+areas likely to suffer damage are converted into \emph{agents}  -- 
+instances of running submodels -- which represent households.
 Shortly before the cyclone reaches the point where damage occurs, we
 may resolve the representation further, instantiating emergency
 response agents and converting households agents to individuals at
@@ -104,7 +107,7 @@ rates associated with a process. In the case of route planning, sets
 of routes may be marked as ``impassible'' as data becomes available,
 triggering a reassessment of the set of possible routes. More
 broadly, \emph{domain adaptation} describes a general approach where a
-model or system adjusts itself to the data it works with---one of the
+model or system adjusts itself to the data it works with -- one of the
 canonical examples is Bayesian spam filter which includes a user's
 assessment of whether email is spam or not in its subsequent
 assessments. A common trait these adaptive techniques share is that
@@ -131,7 +134,7 @@ individual-based modelling as an alternative to purely equation-based
 models which deal with population level data.  It opens with the
 observation to the effect that mathematical models in ecology often
 make the assumptions ``[individual organisms] can be described by a
-single variable, such as population size'', and that ``each individual
+single variable, such as population size'' and that ``each individual
 is assumed to have an equal effect on every other individual''
 [because locations are ignored]. They argue that individual-based
 models are able to incorporate dynamics across scales and that the
@@ -191,7 +194,7 @@ feedback is increased, and the dynamics can diverge rapidly from
 representations that are adequate for an unperturbed system.  The
 effects of \emph{T. gondii} on rats (\citep{berdoy2000fatal}) is an
 ideal example: rats exposed to infected cat feces lose their innate
-fear of cats --- the positive reinforcement on the spread
+fear of cats -- the positive reinforcement on the spread
 of \emph{T. gondii} afforded by this leads to greater potential for
 the pathogen to infect more cats, and hence, more
 rats. \Citet{dobson1988population} investigates the population
@@ -328,7 +331,7 @@ individual contaminant profiles are maintained and subject to
 depuration.
 
 The model discussed in~\cite{gray2014}
-and~\cite{Fulton2009crossingscales} simulates the effect of a number
+and~\cite{fulton2009crossingscales} simulates the effect of a number
 of strategies for managing human recreational and industrial activity
 along the northwestern coastline of Australia. The model incorporated
 incorporated distinct individuals, super-individuals, mean field
@@ -366,7 +369,7 @@ original form, with information about the contaminant load maintained
 The decision to change the representation of a submodel occupying a
 niche in the model is based on the state of the system, the
 capabilities (or incapability) of the agents in the system and the
-objectives of the modeller --- in configuring a model, we might
+objectives of the modeller -- in configuring a model, we might
 prioritise speed over accuracy in a real-time simulation in a computer
 game or combat training simulator, or the obverse for a scientific
 extrapolation of the state of a harbour for each of a number of
@@ -417,7 +420,7 @@ to serve as templates for further development.
 
 All of the submodels in the example model presented in
 Chapter~\ref{explicitmodel} are able to act to some degree as a kernel
-themselves --- in a sense, models can be nested.
+themselves -- in a sense, models can be nested.
 
 \section{Scales}
 The natural time step or spatial scales of a model may change if one
@@ -447,7 +450,7 @@ variables, only dealing with the necessary parts of the system at each
 time step (\emph{variable speed splitting\/} as
 in~\cite{walters2000ecosystem}, for example). \Cite{gray2006nws}
 and~\cite{gray2014} allow agents to dynamically determine their own
-time step based on their state--- time steps may be truncated, or
+time step based on their state --  time steps may be truncated, or
 changed for their next turn in response to their situation. There is a
 trade-off in this: with a variable speed splitting approach, we can
 calculate all values based on a temporally coherent set of data, and
@@ -483,7 +486,7 @@ salient, particularly those aspects associated with issues of
 coherence in time and space. While matching time steps isn't essential,
 the discrepancy between the time steps of interacting models should be
 limited by the magnitude of the changes which may occur as a result of
-interactions --- large changes may call for small time steps.
+interactions -- large changes may call for small time steps.
 
 \section{Outline}
 The paper which forms the body of Chapter~\ref{modelefficiency}
@@ -519,9 +522,20 @@ similar in their constitution.
 
 The final section of this thesis describes an implementation of a
 framework for a models of this sort, and the implementation of the
-model described in Chapter~\ref{adaptiveselection}. The corpus of code
-in the framework is a little over 21,000 lines of Scheme and is
-freely available at \texttt{github.com:///snarkypenguin/Mutans.git}.
+model described in Chapter~\ref{adaptiveselection}. The model is
+targetted at demonstrating a way of dealing with systems where
+components are represented by models which differ in important,
+fundamental ways: from individual-based representations, through
+intermediates, to conceptually continuous models. These changes are,
+in some sense, analogous to the transition from the set of integer to
+the set of real numbers.  A model which demonstrated the utility of
+adaptive representations without changing the ``cardinalty'' of the
+system would have been much simpler, but it would have missed the most
+important part of the problem.
+
+The corpus of code in the framework is a little over 24,000 lines of
+\Scheme code and is freely available
+at \texttt{github.com:///snarkypenguin/Mutans.git}.
 
 
 

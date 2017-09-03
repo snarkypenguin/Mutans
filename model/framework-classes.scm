@@ -74,60 +74,122 @@ kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
   (inherits-from <object>)
   (state-variables projection-assoc-list
 						 local->model model->local
-						 default-font default-size
-						 default-color
-						 map-color map-contrast-color
 						 ))
 "The model->local is a projection used to map model coordinates
 into agent's *internal* coordinates.  There must also be a
 corresponding local->model to map the other
 direction"
 
-"
-(define-class <file>
-  (inherits-from <projection>) ;; there must be support for an mapping into output space
-  (state-variables file filename))
 
-(define-class <output>
-  (inherits-from <file>)
-  (no-state-variables)
-  )
+(define-class <plottable>
+  (inherits-from <projection>)
+  (state-variables location direction
+						 default-location-type
+						 default-font default-size 
+						 default-color
+						 map-color map-contrast-color
+						 glyph plot-scale
+						 ))
+;; glyph is either one of the special symbols 'circle 'diamond 'square
+;;       '+cross 'Xcross [NYI], or the symbol 'ruler which constructs a
+;;       ruler |-----| [NYI] which is oriented according to the
+;;       direction vector and is plot-scale units long
 
-(define-class <output*>
-  (inherits-from <output>)
-  (state-variables basename filetype filename-timescale)
-  )
+;;   a symbol indicating the slot which has the radius of a circle to be plotted
+;;   a point-list (centred on zero) and notionally facing North
+;;   a function of no arguments used to generate a point list
+;;   a real number indicating the radius of a circle with 24 facets
+;;   a complex number of the form rad+i*facets                           [NYI]
 
-(define-class <input>
-  (inherits-from <file>) ;; there must be support for an input mapping into modelspace
-  (no-state-variables)
-)
+;; plot-scale can be a scalar, a symbol or a function
+;;    a scalar is a simple multiplier, a symbol is a slot containing a multiplier,
+;;    a function is passed self and  returns a scalar
 
-(define-class <txt-output>  ;; one big file
-  (inherits-from <output>)
-  (no-state-variables)
-  )
+;***************   Remember, <agent> is defined in sclos+extn.scm   ***************
+
+
+
+
+
+
+
+;;; (define-class <file>
+;;;   (inherits-from <projection>) ;; there must be support for an mapping into output space
+;;;   (state-variables file filename))
+
+;;; (define-class <output>
+;;;   (inherits-from <file>)
+;;;   (no-state-variables)
+;;;   )
+
+;;; (define-class <output*>
+;;;   (inherits-from <output>)
+;;;   (state-variables basename filetype filename-timescale)
+;;;   )
+
+;;; (define-class <input>
+;;;   (inherits-from <file>) ;; there must be support for an input mapping into modelspace
+;;;   (no-state-variables)
+;;; )
+
+;;; (define-class <txt-output>  ;; one big file
+;;;   (inherits-from <output>)
+;;;   (no-state-variables)
+;;;   )
 					  
-(define-class <txt-output*> ;; small files
-  (inherits-from <output*>)
-  (state-variables))
+;;; (define-class <txt-output*> ;; small files
+;;;   (inherits-from <output*>)
+;;;   (state-variables))
 					  
-(define-class <tbl-output>
-  (inherits-from <output>)
-  (state-variables fields types))
+;;; (define-class <tbl-output>
+;;;   (inherits-from <output>)
+;;;   (state-variables fields types))
 
-(define-class <tbl-output*>
-  (inherits-from <output*>)
-  (state-variables fields types))
+;;; (define-class <tbl-output*>
+;;;   (inherits-from <output*>)
+;;;   (state-variables fields types))
 
-(define-class <ps-output>
-  (inherits-from <output>))
+;;; (define-class <ps-output>
+;;;   (inherits-from <output>))
 					  
-(define-class <ps-output*>
-  (inherits-from <output*>))
-"
+;;; (define-class <ps-output*>
+;;;   (inherits-from <output*>))
 
-(define-class <array>
+
+(define-class <diffeq-system>
+  (inherits-from <agent>)
+  (state-variables
+	variable-names        ;; list of strings associated with each value
+	variable-values       ;; list of strings associated with each value
+	variable-symbols      ;; unique symbols for each of the values
+	d/dt-list             ;; differential equations which describe the dynamics
+	subdivisions          ;; Number of intervals a given dt is subdivided into
+	variable-values       ;; the list of symbol+values returned from get-externals
+	                      ;; or from P
+	get-externals         ;; a list of symbol+functions which return the current 
+	                      ;; state of the external variables
+	external-update       ;; an a-list of symbol+functions which update the external
+                         ;; variables			
+	domains               ;; List of predicates that define the domains of each of the
+	                      ;; variables (returns #f if the value is outside the domain)
+
+   ;;; The order of all the preceeding lists must be consistent. There is no way for
+	;;; the code to ensure that this is so.  Be warned.
+
+	;; An alternate representation for input
+	variable-definitions  ;; list of the form ((nameA dA/dt) ...)  or (nameZ agent accessor)
+
+	too-small             ;; time steps smaller than this cause an abort
+	epsilon               ;; for little things
+	do-processing         ;; if #f, no processing is done at all
+
+	P                     ;; This is generated using rk4* and d/dt-list
+	;; The functions can return either the value passed in, #f or a "clipped value"
+	;; a boolean false indicates a catastrophic failure, a clipped value keeps things
+	;; going (restricted to the domain) otherwise it just acts like the (lambda (x) x)
+	))
+
+(define-class <general-array>
   (inherits-from <agent> <projection>) ;; We inherit from projection so that we may pass this as a target for <log-map>
   (state-variables
 	test-subject
@@ -142,27 +204,28 @@ direction"
    ;; data is a list of lists, each of which will be of a consistent form
 ))
 
+(define-class <array>
+  (inherits-from <general-array> <plottable>) ;; We inherit from projection so that we may pass this as a target for <log-map>
+  (state-variables
+	refresh-boundaries
+	hull               ;; bounding box, better if we get a convex-hull working
+	centre radius      ;; much quicker than point-in-polygon
+))
+
 (define-class <proxy> ;; the proxy shares data and data-names with the array, but ONLY has access to one element
   (inherits-from <agent>)
   (state-variables super getter setter @setter @getter)
   ;; setter and getter are "simple" @setter and @getter do more dereferencing
 )
 
-(define-class <plottable-agent>
-  (inherits-from <agent> <projection>)
-  (state-variables location direction
-						 ps-rad ;; a radius to use in plotting a tracked object's location
-						 default-font default-size
-						 glyph scale/slot plot-magnification
-						 )
-  )
 ;;; (define-class <mem-agent>
 ;;;   (inherits-from <agent>)
 ;;;   (state-variables memory)
 
 (define-class <tracked-agent>
-  (inherits-from <plottable-agent>)
-  (state-variables track dim
+  (inherits-from <agent> <plottable>)
+  (state-variables track track-state track-state-vars
+						 dim
 						 speed max-speed
 						 tracked-paths 
 						 track-datum ;; a value to be emitted with the track or #f
@@ -176,7 +239,7 @@ direction"
 ;; the agent to update the plot magnification appropriately.
 
 (define-class <thing>
-  (inherits-from <tracked-agent> <projection>)
+  (inherits-from <tracked-agent>)
   (state-variables mass))
 
 (define-class <living-thing>
@@ -197,7 +260,8 @@ direction"
 	landscape  ;; an landscape agent that encompasses a number of potential domains
 	         ;;    or a list that does the same thing ... not currently used
 	domain   ;; an environment of some sort (they have to live somewhere!)
-
+	next-env-check ;; the time the next environment check ought to occur
+	env-check-interval ;; should be a multiple of the timestep
 	environmental-threats ;; list of environmental conditions or entities that may be threatening.
 	;; In this instance, we might have bounding regions which indicate prevailing conditions (fire, flood...)
 	;; and may change fairly rapidly.  In the presence of environmental threats, the animals probably need
@@ -205,7 +269,7 @@ direction"
 	))
 
 (define-class <environment>
-  (inherits-from <agent> <projection>)
+  (inherits-from <agent> <plottable>)
   (state-variables default-value minv maxv inner-radius outer-radius rep)
   ;; minv and maxv form a bounding volume in however many dimensions
   ;; rep is usually something like a polygon, a DEM or something like that 

@@ -284,8 +284,14 @@
 
 (define (o->s x) (if (string? x) x (object->string x)))
 
-(define (random-location minv maxv)
-  (map + (map * (map - maxv minv) (map (lambda (x) (random-real)) (make-list% (length minv)))) minv))
+(define (random-location minv #optional maxv)
+  (cond
+	((and (not maxv) (= (length minv) 2) (pair? (car minv)) (pair? cadr minv)) (random-location (car minv) (cadr minv)))
+	((and (pair? minv) (pair? maxv))
+	 (map + (map * (map - maxv minv)
+					 (map (lambda (x) (random-real)) (make-list% (length minv))))
+			minv))
+	(else (error "Bad argument(s) to random-location" minv maxv))))
 
 (define (nrandom mean . its) ;; very dodgey ... but bog simple
   (let ((N (if (null? its) 100 (car its))))
@@ -303,7 +309,7 @@
 ;; (plot (lambda (p) (general-sigmoid p 0.04)) -100.0 100.0 200)
 
 ;(define sigmoid*
-;  (let* ((bs (lambda (x) (/ 1.0 (+ 1.0 (exp (* -2 pi (- (* 2.0 x) 1.0)))))))
+;  (let* ((bs (lambda (x) (/ 1.0 (+ 1.0 (exp (* -1 tau (- (* 2.0 x) 1.0)))))))
 ; 			(m (bs 0.0))
 ; 			(M (bs 1.0))
 ;			(r (- M m)))
@@ -315,7 +321,7 @@
 ;  (cond 
 ; 	((>= x 1) 1)
 ; 	((<= x 0) 0)
-; 	(else (max 0.0 (min 1.0 (+ (/ (- (log x) (log (- 1 x))) (* 4 pi)) 0.5))))))
+; 	(else (max 0.0 (min 1.0 (+ (/ (- (log x) (log (- 1 x))) (* 2 tau)) 0.5))))))
 
 
 

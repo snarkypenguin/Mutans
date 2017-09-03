@@ -285,7 +285,8 @@ constructors to generate it.
 	(else (exp (* e (log b))))))
 
 ;--- (sqr x) useful for map calls
-(define (sqr x) (* x x))
+;(define (sqr x) (* x x))
+(define sqr square)
 
 ;--- Identity function
 (define I (lambda (x) x))

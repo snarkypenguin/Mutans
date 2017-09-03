@@ -68,7 +68,7 @@
 	 (list 'sated-quantity 4)
 	 (list 'foodlist '(fruit))
 	 (list 'predatorlist (list <acarn>))
-	 (list 'food-density-limit (* 2000 (/ kg (* m m)))) ;; used to trigger migration
+	 (list 'food-density-limit (* 0.1 (/ kg (* m m)))) ;; used to trigger migration
 	 ;; The following are multiplied by the number of kg or fruit to give points
 	 (list 'food-satiety-rate (lambda (x) (/ (* 12 kg) x))) ;; how many points tree is worth derated by mass of animal
 	 (list 'tree-satiety-rate (lambda (x) (/ (* 3 kg) x))) ;; how many points tree is worth derated by mass of animal

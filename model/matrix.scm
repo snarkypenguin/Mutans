@@ -570,6 +570,8 @@ Elementary operations are row!* row!/ row!+ row!- row!/-
 						  (let ((M2 (deep-copy M))
 								  )
 							 (make-matrix (list-set! (list-ref M (cadr x)) (caddr x) (cadddr x)))))
+						 ((member (car x) '(help info doc doco))
+						  (display matrix-doco))
 
 						 (else (abort (string-append "bad matrix operation: " (object->string x))))
 						 )

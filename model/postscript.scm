@@ -136,11 +136,6 @@
 
 ;(define target-size (inches->points (scaled-by-x 6.8 pagesize)))
 
-(define (make-list-matrix . rows)
-  (if (apply = (map length rows))
-      (map list-copy rows)
-      #f))
-
 (define (ps-list-ref*? lst ix)
   (cond
    ((and (number? ix) (<= 0 ix) (< ix (length lst)))
@@ -214,87 +209,6 @@
 (define (ps-simple-list? l)	
   (apply ps-andf (map atom? l)))
 
-
-(define (ps-list-matrix? m)
-  (and (pair? m) 
-       (apply ps-andf (map ps-simple-list? m)) 
-       (apply = (map length m))))
-
-(define (transpose-list-matrix A)
-  (if (ps-list-matrix? A) 
-      (let* ((dima (list (length A) (length (car A))))
-				 (B (ps-make-list* (list (cadr dima) (car dima)) 0)))
-		  (for-each
-			(lambda (i) 
-			  (for-each
-				(lambda (j)
-				  (ps-list-set* B (list j i) (ps-list-ref* A (list i j))))
-				(seq (cadr dima))))
-			(seq (car dima)))
-		  B)
-      #f))
-
-(define (*-matrix a b)
-  (cond
-   ((and (number? a) (number? b)) (* a b))
-   ((and (number? b) (ps-list-matrix? a)) (map (lambda (x) (map (lambda (y) (* b y)) x)) a))
-   ((and (number? a) (ps-list-matrix? b)) (map (lambda (x) (map (lambda (y) (* a y)) x)) b))
-   (else 
-    (let* ((dima (list (length a) (length (car a))))
-			  (dimb (list (length b) (length (car b))))
-			  )
-      (if (not (= (cadr dima) (car dimb)))
-			 (abort "incompatible matrices")
-			 (map (lambda (x) (map (lambda (y) (apply + (map * x y))) (transpose-list-matrix b))) a))))))
-
-
-
-;;; ;; from http://www.larcenists.org/Twobit/benchmarksAbout.html -- http://www.larcenists.org/Twobit/src/pnpoly.scm
-;;; ;; With changes 
-;;; (define (pt-in-poly2 xp yp x y) 
-;;;   (let loop ((c #f) 
-;;; 				 (i (- (length xp) 1)) 
-;;; 				 (j 0))
-;;;     (if (< i 0)
-;;;       c
-;;;       (if (or (and (or (> (list-ref yp i) y)
-;;;                        (>= y (list-ref yp j)))
-;;;                    (or (> (list-ref yp j) y)
-;;;                        (>= y (list-ref yp i))))
-;;;               (>= x
-;;;                        (+ (list-ref xp i)
-;;;                                (/ (*
-;;;                                         (- (list-ref xp j)
-;;;                                                 (list-ref xp i))
-;;;                                         (- y (list-ref yp i)))
-;;;                                        (- (list-ref yp j)
-;;;                                                (list-ref yp i))))))
-;;;         (loop c (- i 1) i)
-;;;         (loop (not c) (- i 1) i)))))
-
-
-;;; (define (point-in-polygon p poly)
-;;;   (if (or? (null? p) (null? poly) (< (length poly) 3)) 
-;;; 		#f
-
-;;; 		(let ((ptail (car (reverse poly))))
-;;; 		  (if (not (equal? (car poly) ptail))
-;;; 				(set! poly (append poly (list (car poly)))))))
-
-;;;   (pt-in-poly2 (map car poly) (map cadr poly) (car p) (cadr p)))
-
-
-
-
-(define (rotate-pointlist theta pointlist)
-  (map (lambda (x) (let ((m (make-list-matrix
-									  (list
-										(list (cos theta) (- (sin theta)))
-										(list (sin theta) (cos theta))))))
-							;;???(*-matrix-vector m x)
-							(*-matrix m x)
-							))
-       pointlist))
 
 (define (adjust operator deviant pointlist)
   (if (and (pair? pointlist) (pair? (car pointlist)))

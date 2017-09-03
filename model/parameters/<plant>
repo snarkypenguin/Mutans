@@ -9,6 +9,13 @@
 	(list 'radius-color ps-dark-green)
 	(list 'foliage-color ps-green)
 	(list 'stress-color ps-orange)
+	(list 'glyph 8) ;; numeric glyphs are converted to unit circles with the indicated number of facets
+	(list 'plot-magnification 3)
+	;;(list 'plot-magnification 40)
+	(list 'plot-circle-facets 12)
+	(list 'plot-magnificaton (let () (dnl* "Plants may appear closer that they really are (five times bigger)") 5))
+	(list 'circle-facets 9)
+
 	(list 'dt (* 1 day))
 	(list 'type 'plant)
 	(list 'representation 'individual)
@@ -20,12 +27,6 @@
 	(list 'maintenance-list '())
 	;;(list 'population-switch '<uninitialised>)
 
-	(list 'glyph 8) ;; numeric glyphs are converted to unit circles with the indicated number of facets
-	(list 'plot-magnification 3)
-	;;(list 'plot-magnification 40)
-	(list 'plot-circle-facets 12)
-	(list 'plot-magnificaton (let () (dnl* "Plants may appear closer that they really are (five times bigger)") 5))
-	(list 'circle-facets 9)
 
 	(list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
 	(list 'max-age +inf.0) ;; they don't die by default

@@ -81,12 +81,12 @@ A typical construction of an ecoservice might look like
 	))
 
 
-(define-class <polygon> (inherits-from <projection>) ;; recall, <projection> inherits from object
-  (state-variables location perimeter is-relative radius area)
+(define-class <polygon> (inherits-from <plottable>) 
+  (state-variables perimeter is-relative radius area)
   )
 
-(define-class <circle> (inherits-from <projection>)
-  (state-variables location perimeter radius area)
+(define-class <circle> (inherits-from  <plottable>)
+  (state-variables perimeter radius area)
   )
 
 (define-class <patch> (inherits-from  <environment> <projection>)

@@ -1,5 +1,6 @@
-
+% -*- outline-regexp: "%--* ";  -*-
 %- Preliminaries
+\message{Chapter 3}
 
 \chapter[ADAPTIVE SUBMODEL SELECTION IN HYBRID MODELS]{Adaptive submodel selection in hybrid  models}\label{adaptiveselection}
 
@@ -182,7 +183,7 @@ that increasing fidelity in the model enabled the system to adapt to
 changing fuel more efficiently, and that when there were frequent
 changes in fuel characteristics the simpler models performed poorly.
 
-The projects described in~\cite{Little2006nws} and~\cite{Fulton2011ningaloo}
+The projects described in~\cite{little2006nws} and~\cite{fulton2011ningaloo}
 both used hybrid models as a means of decreasing the run-time, and
 increasing the fidelity of the modeled contaminant uptake in 
 simulated organisms. This was accomplished by mixing in\-di\-vidu\-al-based
@@ -226,7 +227,7 @@ typically be some subset of its state variables, but the data alone
 may not be enough to base an assessment on: there may also be
 extrinsic data which play a role in a particular sub\-model's or agent's
 activity and impinges on its suitability. Then, the characterization
-of an agent --- its \emph{state vector} --- is an amalgam of its own
+of an agent -- its \emph{state vector} -- is an amalgam of its own
 state and the state of other niches it interacts with, and it can be
 regarded as a point in the state space which the sub\-model is defined
 over. 
@@ -335,7 +336,7 @@ arise when there is a change in rep\-re\-sen\-ta\-tion, perhaps from an
 situation may introduce a great many small time steps which agents may
 exploit.  This kind of problem can be overcome by introducing a
 randomizing process within each time step. Early versions of the
-variable speed splitting model in~\cite{Lyne1994pmez5} suffered from
+variable speed splitting model in~\cite{lyne1994pmez5} suffered from
 predator-prey artifacts arising from a na\"{\i}ve introduction of
 predators and prey into the list of agents, and such randomizing was
 introduced to minimize the effects. In situations where the time steps
@@ -344,7 +345,7 @@ strategy may require a significant increase in the complexity of the
 system to accommodate irregular stepping through the lists of
 agents, or a significant change in the basic structure of the model.
 
-\cite{gray2006nws} and~\cite{Fulton2009crossingscales} describe models that have a well %
+\cite{gray2006nws} and~\cite{fulton2009crossingscales} describe models that have a well %
 developed approach to coordinating agents using adaptive time
 steps. In these models agents may set their own time steps to
 intervals that are suitable for their current activity or role. This
@@ -431,7 +432,7 @@ rep\-re\-sen\-ta\-tion, along with local domains (subregions of the global
 domain) which are associated with finer scale rep\-re\-sen\-ta\-tions of the
 modeled entities. The set of potential candidate trees could be quite
 large; in practice we reduce the number by casting the candidate trees
-in a more general way---including trees representing particularly
+in a more general way -- including trees representing particularly
 good rep\-re\-sen\-ta\-tions and particularly poor rep\-re\-sen\-ta\-tions: the first
 to steer the con\-fig\-ur\-a\-tion toward good choices, and the second to
 drive it away from poor choices. We can use the hierarchical
@@ -625,12 +626,12 @@ particular conception or parameterization of the system.
 \subsection*{\IB\ rep\-re\-sen\-ta\-tions}
 %------> introduction of the IB rep, follows Gray2012adaptive <------
 Individual-based rep\-re\-sen\-ta\-tions for plants, herbivores and carnivores
-follow the pattern in~\cite{Little2006nws}; fruit and seeds are only
+follow the pattern in~\cite{little2006nws}; fruit and seeds are only
 modeled in the \SD\ rep\-re\-sen\-ta\-tion, though their numbers are modified
 by the activities of the herbivores irrespective of how those
 herbivores are represented. 
 
-\subsection{\IB\ Plants}
+\subsection{\IB\ Plants}\label{plantch3}
 
 %------> Basic  plant state and dynamics <------
 Plants maintain a reference to their cell, their location, a mass and
@@ -809,7 +810,7 @@ handle this value appropriately.
 The following may be typical of the types of situations that could or
 should cause changes in the con\-fig\-ur\-a\-tion:
 \begin{itemize}
-  \item \emph{Low population}---If, in an \SD\ representa\-tion,
+  \item \emph{Low population} -- If, in an \SD\ representa\-tion,
     the number of in\-di\-vidu\-als filling a niche (either explicitly taken
     from a distribution, or estimated using a mean and a biomass)
     drops below a nominated value, then the biomass in that niche
@@ -819,7 +820,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     population as having uniform access to resources (or be uniformly
     available to predators) breaks down;
 
-  \item \emph{High population}---If a niche in a cell is
+  \item \emph{High population} -- If a niche in a cell is
     represented by \IB\ agents and the number of in\-di\-vidu\-als exceeds a
     (higher) nominated value, the biomass those agents represent
     should be subsumed by the distribution in the local
@@ -827,7 +828,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     two reasons: an equation-based rep\-re\-sen\-ta\-tion will be much faster,
     and \SD\ submodels are arguably simpler to calibrate;
 
-  \item \emph{Starvation risk}---If the mean amount of time an
+  \item \emph{Starvation risk} -- If the mean amount of time an
     animal in a cell spends \emph{hungry} in a cell exceeds half of
     $\ttt{A}_\omega$ (or some other nominated time), the prey biomass
     must convert to \IB\ agents if it isn't already so (bearing in
@@ -836,7 +837,7 @@ should cause changes in the con\-fig\-ur\-a\-tion:
     triggered, it indicates that the biomass of the prey species is
     sparse enough that homogeneity assumption is unlikely to hold;
 
-  \item \emph{Relative biomass}---If the biomass available for
+  \item \emph{Relative biomass} -- If the biomass available for
     predation is represented in a local \SD\ agent and its density
     drops below some proportion of the minimum required to support the
     predators in the domain, the prey species should convert its
@@ -869,7 +870,7 @@ A starvation trigger may usually arise as a natural consequence of the
 population dynamics, but it may also occur when there is a mismatch in
 rep\-re\-sen\-ta\-tions which has not been adequately addressed in the design
 stage.  The final condition based on the relative biomasses is one
-which properly lies in the realm of the monitor---it would be quite
+which properly lies in the realm of the monitor -- it would be quite
 inefficient for each of the candidate animals to be querying their
 prey for available biomass, summing the result, and then noting the
 need for change.
@@ -916,7 +917,7 @@ domain in question.
 
 The monitor assesses the trees by calculating aggregate values of
 particular attributes, comparing the trees' divergences from allegedly
-ideal con\-fig\-ur\-a\-tions, and by looking how uniform groups are---groups
+ideal con\-fig\-ur\-a\-tions, and by looking how uniform groups are -- groups
 of in\-di\-vidu\-als that are all very similar are good candidates for
 simpler rep\-re\-sen\-ta\-tions. 
 
@@ -1160,8 +1161,8 @@ sets of candidate con\-fig\-ur\-a\-tions.  The transition dynamics such a
 model will exhibit depend on the sets of candidate con\-fig\-ur\-a\-tions, and
 it seems likely that a combination of analysis and experimentation may
 be the most effective way to develop a set of useful con\-fig\-ur\-a\-tions.
-The hybrid models associated with~\cite{Lyne1994pmez5, Little2006nws,
-  Fulton2009crossingscales} were built by extending the repertoire of ways of
+The hybrid models associated with~\cite{lyne1994pmez5, little2006nws,
+  fulton2009crossingscales} were built by extending the repertoire of ways of
 representing elements of the ecosystem or the anthropic components
 rather than wholescale redesign and replacement.
 
@@ -1563,8 +1564,12 @@ discussion. Unfortunately, when it came to implementation of the model
 the paper described, a few shortcomings came to light and some of the
 corresponding algorithms have been altered in the explicit
 model to correct them.  The most notable example, and one which
-characterises them well, is that the description didn't allow for a
-cell which had lost all its plant biomass to be recolonised.
+characterises them well, is that adhering to the description
+effectively prevented cells which are stripped of living plants from
+being recolonised.  As stated, the seeds resulting from the
+consumption of fruit were tied to the cell they were eaten in, because
+the animals excreted them immediately. The consequence of this was
+that there was no way for plants to recolonise empty cells.
 
 This paper extended and generalised the simple state maintenance of
 Chapter~\ref{modelefficiency} by passing closures rather than a vector

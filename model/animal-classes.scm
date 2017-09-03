@@ -94,13 +94,14 @@
 	domain-attraction
 	homelist ;; specific and categorical indicators of potential homes
 	predatorlist ;; specific and categorical indicators of predators to be 
+	food-attraction
+	food-value ;; a function which "measures" the value of something as food, typically mass
 	foodlist ;; categorical indicators of potential prey
 						          ;; implemented by calls to (*is?  ...)
 	breedlist ;; if this is null, it assumes the animal breeds with its taxon.
                              ;; Sex differences are checked only if the sex is 'female or 'male.
 	
 	age-at-instantiation ;; the age offspring are introduced to the system
-	food-attraction
 	baseline-growth-rate ;; modified by consumption, starvations, age .....
 	population-switch ;; nominal level at which it might pay to switch to analytic form
 	;; properly, this is handled by a monitor agent

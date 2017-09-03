@@ -51,33 +51,16 @@
 ;; This comes here since we might want the registers available for sclos.scm
 (include "sclos.scm")
 
-(define-class <list>
-  (inherits-from <pair>)
-  (no-state-variables)
-  )
+(define <list> (make-primitive-class))
+(define-class <null> (inherits-from <list>) (no-state-variables))
+(define-class <integer> (inherits-from <number>) (no-state-variables))
+(define-class <rational> (inherits-from <integer>) (no-state-variables))
+(define-class <real> (inherits-from <rational>) (no-state-variables))
+(define-class <complex> (inherits-from <real>) (no-state-variables))
+(define-class <input-output-port> (inherits-from <input-port> <output-port>) (no-state-variables))
+(define-class <point> (inherits-from <list>) (no-state-variables))
+(define-class <point-list> (inherits-from <list>) (no-state-variables))
 
-(define-class <integer>
-  (inherits-from <number>)
-  (no-state-variables)
-  )
-(define-class <rational>
-  (inherits-from <number>)
-  (no-state-variables)
-  )
-(define-class <real>
-  (inherits-from <number>)
-  (no-state-variables)
-  )
-
-(define-class <complex>
-  (inherits-from <number>)
-  (no-state-variables)
-  )
-
-(define-class <input-output-port>
-  (inherits-from <input-port> <output-port>)
-  (no-state-variables)
-  )
 
 ;-- include a bunch of things in the class register
 
@@ -85,6 +68,9 @@
 
 ;; Finally register sclos classes and the basic extensions
 
+
+(register-unique class <point-list>)
+(register-unique class <point>)
 (register-unique class <pair>)
 (register-unique class <list>);
 (register-unique class <null>)
@@ -192,8 +178,9 @@ exploration."
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
   (state-variables name taxon representation
 						 proxy-class
-						 may-run
-						 queue-state agent-state
+						 replaced-by ;; There is no "replaces" ... if there were, there would be no way of garbage-collecting things (circular lists...)
+						 may-run                                ;; as it is, maintenace closures need to be carefully constructed to make sure that they
+						 queue-state agent-state                ;; are free from references -- use of list-copy for things like perimeters is essential.
 						 current-class-depth
 						 note
 						 kernel
@@ -271,11 +258,14 @@ exploration."
   (let* ((primitive-class-of class-of)
 			(co (lambda (x)
 					(cond ;; these are carefully ordered!
-					 ((list? x)        <list>)
+					 ((point? x)        <point>)
+					 ((point-list? x)   <point-list>)
 					 ((integer? x)     <integer>) 
 					 ((rational? x)    <rational>)
 					 ((real? x)        <real>)
 					 ((complex? x)     <complex>)
+					 ((null? x)			 <null>)
+					 ((list? x)	       <list>)
 					 (#t (primitive-class-of x))))))
 	 (set! class-of co)))
 
@@ -723,7 +713,7 @@ the corpus.
 ;--- helpers/warts
 
 ;--- (define (look-for thing) -- Queries all the registers for the object passed
-(define (look-for thing)
+(define (check-registers-for thing)
   (dnl* "object-register:" (object-register 'rec? thing))
   (dnl* "agent-register:" (agent-register 'rec? thing))
   (dnl* "method-register:" (method-register 'rec? thing))
@@ -937,7 +927,7 @@ the corpus.
 (define *uninitialisable*
   (list <top> <class> <procedure-class> <entity-class> <generic>
 		  <method> <generic> <primitive-object> <class> <pair>
-		  <vector> <string> <list>
+		  <vector> <string> <list> <point> <point-list> 
 		  <input-output-port> <input-port> <output-port>
 		  <null> <boolean> <symbol> <procedure> <number> <char> 
 		  ))
@@ -997,7 +987,7 @@ the corpus.
 					 (slot-set! instance x
 									(uninitialise-flag x)
 									)) (class-slots-of instance))
- 	 (object-register 'add instance class)
+ 	 (if use-agent-register (object-register 'add instance class))
 	 (set-state-variables instance initargs)
 	 instance))
 
@@ -1007,7 +997,7 @@ the corpus.
 (define (make-agent class #!rest initargs)
   (error "You need to use (create <agent-class-of-some-sort>)" class initargs)
   (let ((instance (apply make-object (cons class initargs))))
-	 (agent-register 'add instance class)
+	 (if use-agent-register (agent-register 'add instance class))
 	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
 				(eqv? (slot-ref instance 'name) <nameless>)) 
 		  (slot-set! instance 'name (serial-number class))) ;; may be overridden/overwritten
@@ -1210,7 +1200,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		(kdebug 'initialisation-C-- (class-name-of (class-of last-object-created)))
 		(kdebug 'initialisation-P-- (map class-name-of the-classes))
 
-		(object-register 'add instance class)
+		(if use-agent-register (object-register 'add instance class))
 
 		;; Set *all* slots to uninitialised
 		(for-each
@@ -1251,7 +1241,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
   (let* ((instance (create- class statevars))
 			)
 	 (kdebug '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
-	 (agent-register 'add instance class)
+	 (if use-agent-register (agent-register 'add instance class))
 	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
 	 
 	 (slot-set! instance 'may-run #t) ;; all agents may run by default, except for <proxy> agents

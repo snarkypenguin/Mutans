@@ -306,15 +306,15 @@
   "inserts a run record in the right place in the queue Q")
 (define kernel-time 0)
 
+
+;; Do *not* try an use the timer code (define% ...) on this, it will eat your happiness.
 (define (QI Q rec reccmp)
   (let loop ((ptr Q))
 	 (cond
 	  ((null? ptr) (list rec))
 	  ((reccmp rec (car ptr))
 		(cons rec ptr))
-	  (#t (cons (car ptr) (loop (cdr ptr)))))))
-
-
+	  (else (cons (car ptr) (loop (cdr ptr)))))))
 
 ;; This returns the queue, and it must be called using the global variable Q like so: (set! Q (q-insert Q ...))
 ;;(define (broken-Q-Insert Q rec reccmp)
@@ -358,9 +358,6 @@
 ;;		))
 
 (define q-insert QI)
-
-
-
 
 ;;; (define (q-mis-insert Q rec reccmp) ***
 ;;;   (error "This is probably buggered") ***
@@ -463,7 +460,7 @@
   (if (eq? indicate-progress #t) (set! indicate-progress -1))
   (set! N (if (null? N) #f (car N)))
 
-  (start-timer 'queue)
+;;  (start-timer 'queue)
   (let loop ((q-rq runqueue)
 				 )
 	 (if (pair? ACQ)
@@ -507,7 +504,7 @@
 		(dnl* "Q symbol:" (car q-rq) "============================================")
 		q-rq)
 	  ((file-exists? "halt")
-		(stop-timer 'queue)
+;;		(stop-timer 'queue)
 		(delete-file "halt")
 		(shutdown-agents q-rq)
 		q-rq)
@@ -520,9 +517,9 @@
 				(set! runqueue q-rq)
 				(loop (cdr q-rq)))
 			 (begin
-				(stop-timer 'queue)
+;;				(stop-timer 'queue)
 				(set! q-rq (run-agent t stop q-rq))
-				(start-timer 'queue)
+;;				(start-timer 'queue)
 				(test-queue-size q-rq N)
 				(set! runqueue q-rq)
 				(loop q-rq)))
@@ -533,7 +530,7 @@
 		(shutdown-agents q-rq))
 	  )
 	 )
-  (stop-timer 'queue)
+;;  (stop-timer 'queue)
   (set! Q runqueue)
   )
   Q)
@@ -554,7 +551,7 @@
   (map (lambda (agent) 
 			(if (and (procedure? agent)
 						(eqv? (representation agent) what))
-				 (distance loc (location agent ))
+				 (distance loc (location agent))
 				 2e308)
 			)
 		 agentlist)
@@ -709,36 +706,36 @@ location of the client, and any that match will be proxified.
 			(apply acquire-agents args)
 			))
 
-		('check
-		 (list client 'mate))
+		;; ('check
+		;;  (list client 'mate))
 
-		('check!
-		 (list client 'mate!))
+		;; ('check!
+		;;  (list client 'mate!))
 		
 		
-		('find-agent
-		 (let ((type (car args))) 
-			(filter (lambda (x)
-						 (let ((xtype (slot-ref x 'type)))
-							(or (eqv? xtype type)
-								 (and (string? type)
-										(string? xtype)
-										(string=? type xtype))
-								 (and (procedure? type)
-										(type x)) 
-								 )))
-					  Q)))
+		;; ('find-agent
+		;;  (let ((type (car args))) 
+		;; 	(filter (lambda (x)
+		;; 				 (let ((xtype (slot-ref x 'type)))
+		;; 					(or (eqv? xtype type)
+		;; 						 (and (string? type)
+		;; 								(string? xtype)
+		;; 								(string=? type xtype))
+		;; 						 (and (procedure? type)
+		;; 								(type x)) 
+		;; 						 )))
+		;; 			  Q)))
 		('locate* ;; This ignores temporal consistency
 ;(dnl* "locate*" (name client) "|" call-op "|" args)
 		 (if (null? args) (list-copy Q)
 			  (let* ((selector (car args))
-						(radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
-						(polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
-						(location (if (and radius
-												 (not (null? (cddr args))))
-										  (caddr args)
-										  (location client)
-										  ))
+						(polygon (cond
+									 ((and (null? (cdr args)) (has-slot? client 'hull)) (slot-ref client 'hull)) ;; only <array> classes have hull
+									 ((and (pair? (cdr args)) (polygon%? (cadr args)))
+										 (cadr args))
+									 (else #f)))
+						(radius (if (and (not polygon) (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+						(location (if (and radius (not polygon) (not (null? (cddr args)))) (caddr args) (if (has-slot? client 'location) (slot-ref client 'location) #f)))
 						)
 				 (let ((pl (cond
 							  (location (locate client Q selector radius location))
@@ -759,9 +756,13 @@ location of the client, and any that match will be proxified.
 		('locate ;; this enforces temporal consistency of a sort: Select things that are "current"
 ;		 (dnl* "locate" (name client) "|" call-op "|" args)
 		 (let* ((selector (car args))
-				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
-				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
-				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  (polygon (cond
+								((and (null? (cdr args)) (has-slot? client 'hull)) (slot-ref client 'hull)) ;; only <array> classes have hull
+								((and (pair? (cdr args)) (polygon%? (cadr args)))
+								 (cadr args))
+								(else #f)))
+				  (radius (if (and (not polygon) (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not polygon) (not (null? (cddr args)))) (caddr args) (if (has-slot? client 'location) (slot-ref client 'location) #f)))
 				  )
 ;			(dnl* 'LOCATE selector radius location)
 			;;;(dnl* "(locate ...)" (pp-to-string selector) location radius)
@@ -789,9 +790,13 @@ location of the client, and any that match will be proxified.
 
 		 ('locate<=t ;; this enforces temporal consistency of a sort: Select things that are behind me
 		 (let* ((selector (car args))
-				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
-				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
-				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  (polygon (cond
+								((and (null? (cdr args)) (has-slot? client 'hull)) (slot-ref client 'hull)) ;; only <array> classes have hull
+								((and (pair? (cdr args)) (polygon%? (cadr args)))
+								 (cadr args))
+								(else #f)))
+				  (radius (if (and (not polygon) (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not polygon) (not (null? (cddr args)))) (caddr args) (if (has-slot? client 'location) (slot-ref client 'location) #f)))
 				  )
 			;;;(dnl* "(locate ...)" (pp-to-string selector) location radius)
 			 (let* ((b (subjective-time client))
@@ -817,9 +822,13 @@ location of the client, and any that match will be proxified.
 
 		 ('locate>=t ;; this enforces temporal consistency of a sort: Select things that are ahead of me
 		 (let* ((selector (car args))
-				  (radius (if (and (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
-				  (polygon (if (and (pair? (cdr args)) (polygon%? (cadr args)))  (cadr args) #f))
-				  (location (if (and radius (not (null? (cddr args)))) (caddr args) (slot-ref client 'location)))
+				  (polygon (cond
+								((and (null? (cdr args)) (has-slot? client 'hull)) (slot-ref client 'hull)) ;; only <array> classes have hull
+								((and (pair? (cdr args)) (polygon%? (cadr args)))
+								 (cadr args))
+								(else #f)))
+				  (radius (if (and (not polygon) (pair? (cdr args)) (number? (cadr args)))  (cadr args) #f))
+				  (location (if (and radius (not polygon) (not (null? (cddr args)))) (caddr args) (if (has-slot? client 'location) (slot-ref client 'location) #f)))
 				  )
 			;;;(dnl* "(locate< ...)" (pp-to-string selector) location radius)
 			 (let* ((b (subjective-time client))
@@ -968,9 +977,12 @@ location of the client, and any that match will be proxified.
   (if (isa? q-entry <agent>)
 		(let ((kernel (lambda x (apply kernel-call (cons q-entry (cons pq-rq x )))))
 				)
+		  (if (not (eq? (slot-ref q-entry 'agent-state) 'ready-for-prep))
+				(dnl* (cnc q-entry) (name q-entry) "is being prepped, but has a state of" (slot-ref q-entry 'agent-state)))
 		  (kdebug 'prep "Prepping in apply" (name q-entry))
-		  (slot-set! q-entry 'queue-state 'ready-to-run)
 		  (slot-set! q-entry 'agent-state 'active)
+		  (initialise-instance q-entry)
+		  (slot-set! q-entry 'queue-state 'ready-to-run)
 		  ;;(agent-prep q-entry start end)
 		  )
 		(and (kdebug 'complaint q-entry "is not an agent: cannot prep") #f)
@@ -989,7 +1001,6 @@ location of the client, and any that match will be proxified.
 		  ;;(pp (map (lambda (x) (cons (name x) (slot-ref x 'agent-state))) Q))
 		  
 		  (for-each (lambda (x)
-						  (initialise-instance x)
 						  (prep-activate Q x)) Q)
 		  )
 		))
@@ -1059,6 +1070,7 @@ X	polygon (arg) versus versus polygon (agent)                           PP
    NOTE: a polygon passed with a radius makes it look like a point-list!
 "
 
+
 (define (colocated? a b #!optional r) ;; if r is false, point-lists are taken to be polygons
   (or (eqv? a b)
 		(let ((pa (point? a))(pb (point? b)))
@@ -1066,10 +1078,10 @@ X	polygon (arg) versus versus polygon (agent)                           PP
 				(let ((Pa (polygon? a)) (Pb (polygon? b)))
 				  (or 
 					(and (point? a) (polygon? b) (point-in-polygon a b))
-					(and (polygon? a) (point? b) (point-in-polygon a b))
+					(and (polygon? a) (point? b) (point-in-polygon b a))
 					(eqv? a b)))))))
 
-(define (colocated*? s L #!optional r)
+(define (colocated*? s L #!optional r) ;; s is a point, L is a list
 		(apply orf (map (lambda (l) (colocated? s l r)) L)))
 
 ;; (define (colocated*? s L #!optional r)
@@ -1077,12 +1089,15 @@ X	polygon (arg) versus versus polygon (agent)                           PP
 ;; 		(colocated*? L s r)
 ;; 		(apply orf (map (lambda (l) (colocated? s l r)) L))))	
 
+;; both L1 and L2 are lists 
 (define (colocated**? L1 L2 #!optional r)
   (apply orf (apply append (map (lambda (s) (colocated*? s L2)) L1))))
 
-(define (locate client Q #!rest args)
+(model-method (<agent> <list>) (locate self Q #!rest args)
   "args are of the form 
    {'*|class|symbol|string|proc|list|bool} [{radius [location|loc-list]}] | {polygon|polygon-list}] ]"
+
+  ;;(dnl* "locate:" (cnc self))
 
   (if (or (number? (car args)) (polygon%? (car args))) ;; implicit wildcard selector
 		(set! args (cons (lambda (x) #t) args)))
@@ -1118,16 +1133,16 @@ X	polygon (arg) versus versus polygon (agent)                           PP
 				 (filter (lambda (x)
 							  (let ((d (query x -kernel- 'distance (car args) (cadr args))))
 								 (pp d)
-							  )
-							Q)
-				 ))
+								 )
+							  Q)
+							))
 
 				((< (length args) 2) (error "bad arguments to kernel call 'locate -- could not match two args" args)) 
 
 				((and (boolean? selector)
 						(number? radius)
 						(point? loc))
-				 (filter (lambda (x) (if (has-slot? x 'location)
+				 (filter (lambda (x) (if (has-slot? x 'location) 
 												 (let ((cloc (location x)))
 													(if (point? cloc)
 														 (colocated? cloc loc radius)
@@ -1153,40 +1168,19 @@ X	polygon (arg) versus versus polygon (agent)                           PP
 												 selector)) Q))
 				
 				((not (boolean? selector))
-
-				 (apply locate client (list (locate client Q selector)) #t (cdr args)))
+				 (apply locate self (list (locate self Q selector)) #t (cdr args)))
 
 				(else (error "Unrecognised arguments!" args))
 				)
 			  ))
+
 		(denull-and-flatten result)
 		))
   )
-	 
 
-
-  
-		  ;; (letrec ((traverse
-		  ;; 				(lambda (node)
-		  ;; 				  (cond
-		  ;; 					((null? node)
-		  ;; 					 '())
-		  ;; 					((= (length node) 3) ;; bottom
-		  ;; 					 (if (point-in-polygon locus (bbox (car node) (cadr node)))
-		  ;; 						  node
-		  ;; 						  #f))
-		  ;; 					((= (length node) 6) ;; bottom
-		  ;; 					 (if (not (point-in-polygon locus (bbox (car node) (cadr node))))
-		  ;; 						  #f
-		  ;; 						  (let* ((q (map traverse (cddr node)))
-		  ;; 									(qr (filter (lambda (x) x) q)))
-		  ;; 							 (if (null? qr)
-		  ;; 								  '()
-		  ;; 								  (car qr)))))
-		  ;; 					(#t (error "bad traversal in environment locate call" node locus))))))
-		  ;; 	 (abort "location-tree hasn't been finished")
-		  ;; 	 (traverse location-tree))
-
+;; Contrived example: 
+;; (best-N 17 <= (lambda (x) x)
+;;    (map (lambda (x) (random-integer 200)) (seq 200)))
 
 
 (define (add-thing-to-location self entity location)
@@ -1290,14 +1284,54 @@ code to suppress the error)
 		(slot-ref agent 'dt)))  ;; use modal or default dt
 
 
+(define KCALL
+  ;; This is an "out-of-band" kernel call for code snippets (such as
+  ;; the caretaker function), it synthesises an agent of a given class
+  ;; with indicated values for state variables and uses that as the
+  ;; first argument to the kernel call.  
+  ;; (KCALL (list <classtype> 'name nm 'mass ....) callsym args.....)
+
+  (let ((Q '()))
+	 (lambda args
+		(if (< (length args) 2)
+			 (error "Missing arguments!" args))
+		(let ((classy (car args))
+				(call (cadr args))
+				(extras (cddr args))
+				)
+								
+		(if (and (pair? args) (>= (length args) 2))
+			 (let ((a (apply make (if (list? classy) classy (list classy)))))
+				(case call
+				  ((set-Q!)
+					(if (= (length args) 3)	(set! Q (car extras)) (error "bad KCALL 'set-Q" args)))
+				  ((clear-Q!) (set! Q '()))
+				  ((locate* locate locate<=t locate>=t)
+					(apply kernel-call (append (list a Q call) extras)))
+				  ((providers? containing-agents)
+					(apply kernel-call (append (list a Q call) extras)))
+				  ((agent-count) (length Q))
+				  ((min-time max-time mean-time)
+					(apply kernel-call (append (list a Q call) extras)))
+				  ((resource-value)	(apply kernel-call (append (list a Q call) extras)))
+				  ((set-resource-value!) (apply kernel-call (append (list a Q call) extras)))
+				  ((add-resource-value!) (apply kernel-call (append (list a Q call) extras)))
+				  (else (error "bad KCALL" args))
+				  )
+				)
+			 (error "bad KCALL: too few arguments" args)))))
+  )
+
+
 (define run-agent
   (let ((populist '())
 		  )
 	 ;; Remember the population list across invocations ... (equiv to a "static" in C, folks.)
-
 	 
 	 (lambda (t stop run-agent-runqueue . N) ;; This is the function "run-agent"
 		(set! N (if (null? N) #f (car N)))
+
+		(KCALL <kernel> 'set-Q! run-agent-runqueue)
 
 		(cond
 		 ((or (member (slot-ref (car run-agent-runqueue) 'queue-state) '(terminated)) (not (slot-ref (car run-agent-runqueue)  'may-run)))
@@ -1369,6 +1403,7 @@ code to suppress the error)
 									  (slot-set! process 'subjective-time stop) 
 									  'ok)
 									)
+
 								  ;; If the thing queued is actually an agent, run the agent
 								  ((isa? process <agent>) ;; equivalent to (member <agent> (class-cpl (class-of process)))
 									(let ((r (run process t stop kernel))) ;; (run ...) is in framework-methods.scm [search for 'AGENTS RUN HERE']
@@ -1389,6 +1424,10 @@ code to suppress the error)
 								  )
 								 )
 					  )
+
+				(KCALL <kernel> 'clear-Q! run-agent-runqueue) ;; clear the queue used by snippets
+
+
 
 				;;(dnl* "RUN-AT RESULT:" result "process:" (agent-state process))
 				;; This let must return the "new" runqueue.  Any reinsertions, deletions or new insertions are handled here.
@@ -1574,7 +1613,7 @@ code to suppress the error)
 								)
 
 							  (else ;;(error "The frog has left the building!" (car result))
-								(if (list? result)
+								(if (list? result) ;; probably parent returns
 									 (begin
 										(if trap-model-bodies-with-bad-return-values
 											 (set! result (denull-and-flatten result))
@@ -1588,7 +1627,7 @@ code to suppress the error)
 										  " ... assuming that it ran correctly")
 								  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp)))
 								 (else
-								  (dnl* "Inconceivable!"  (cnc process) (name process)  (string-append "[" (number->string t)", "(number->string stop)"]") (subjective-time process) '--> result)
+								  ;;(dnl* "Inconceivable!"  (cnc process) (name process)  (string-append "[" (number->string t)", "(number->string stop)"]") (subjective-time process) '--> result)
 								  (set! local-run-agent-runqueue (q-insert local-run-agent-runqueue process Qcmp))
 								  )
 								 ); cond
@@ -1602,6 +1641,7 @@ code to suppress the error)
 						  ); (cond ...
 						 )) ;; let ((...))
 
+
 				  ;;(test-queue-size return-list N)
 				  (kdebug 'run-agent "Finished with run-agent" (name process)
 							 "@" (slot-ref process 'subjective-time))
@@ -1612,11 +1652,11 @@ code to suppress the error)
 				  
 				  local-run-agent-runqueue
 				  ) ; end of let
-				)
-			 )
-		  )
-		 )
-		)
+				)  ; end of let*
+			 ) ; end of let*
+		  ) ; (#t ...
+		 ) ;; end of cond
+		) ; end of lambda
 	 ))
   
 

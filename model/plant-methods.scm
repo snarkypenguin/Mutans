@@ -14,7 +14,7 @@
 
 (define ignore-water #t)
 
-(define (water-stress-level avail need)
+(define (water--level avail need)
   (if (zero? need)
 		0
 		(if (<= need avail)
@@ -155,7 +155,7 @@
 				  (set-uninitialised-slots self '(peak-mass water-stress water-use reproduction-mechanism forage-damage ) 0)
 				  (set-uninitialised-slots self '(water-stress-effect) #f)
 				  (set-uninitialised-slots self '(glyph) 18)
-				  (set-uninitialised-slots self '(plot-magnification) pi)
+				  (set-uninitialised-slots self '(plot-scale) 10)
 				  (fail-on-uninitialised-slots self '(decay-rate leaf-mass omega-ind max-mass lai reproduction-mass
 																				 fruiting-probability fruiting-mass fruiting-rate
 																				 growth-rate seeds-per-fruit mass-radius))
@@ -285,27 +285,24 @@
 ;;; 				  ))
 
 												 
-(model-method <plant> (radius self)
+(model-method <plant> (radius self #!optional locus)
 				  (set-my! 'leaf-area (plant-leaf-area self))
-				  (plant-mass->radius (slot-ref self 'mass locus)))
+				  (plant-mass->radius (slot-ref self 'mass)))
 
 (model-method <plant> (leaf-area self #!optional locus)
-				  (set-my! 'leaf-area (plant-leaf-area self locus))
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (- (my 'leaf-area) (my 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
 
-(model-method <procedure> (leaf-area self)
-				  ((self)))
-
 (model-method <plant> (leaf-mass self #!optional locus)
-				  (set-my! 'leaf-area (plant-leaf-area self locus))
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (* (leaf-area self) (my 'leaf-mass)))
 
 (model-method <plant> (pristine-leaf-mass self #!optional locus) ;; does not take forage damage into account
-				  (set-my! 'leaf-area (plant-leaf-area self locus))
+				  (set-my! 'leaf-area (plant-leaf-area self))
 				  (* (my 'leaf-area) (my 'leaf-mass))) 
 
 
-(model-body% <plant>
+(model-body <plant>
 				  ;;(dnl* (cnc self) "model-body")
 	;;(dnl* kdebug '(trace-bodies plant-running)  (cnc self) (name self) "@" t "/" dt)
 
@@ -322,16 +319,13 @@
 	(UNFINISHED-BUSINESS "Need to update the water ecoservice")
 
 	(kdebug 'model-body (name self) "plant 1")
-	(start-timer 'plant-model-body)
 
 	(kdebug 'model-body "plant 0")
-	(stop-timer 'plant-model-body)
 	
 	(if (not (my 'mass))
 		 (set-my! 'mass ((my 'mass-at-age) (my 'age))))
 
 	(let ((parent-return (call-all-parents)))
-	  (start-timer 'plant-model-body)
 
 	  (if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
 
@@ -420,7 +414,6 @@
 					 )
 				  ))
 				))
-		 (stop-timer 'plant-model-body)
 		 return
 		 )
 	  )
@@ -517,7 +510,7 @@
 (model-method <plant> (plot-plant self logger file)
   (let* ((inner-glyph (slot-ref self 'glyph))
 			(outer-glyph (+ 3 (slot-ref self 'glyph)))
-			(scale 1.5)
+			(scale (self 'plot-scale)
 			(mass-radius (let ((mr (slot-ref self 'mass-radius)))
 								(cond
 								 ((procedure? mr) mr)
@@ -583,7 +576,7 @@
 						  )
 					 ;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
 					 
-					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+					 (if (or (and (is-class? self <plottable>) (is-class? logger <log-map>)) (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (begin
 							 ;; this handles "whole of agent" bits, like perimeters
 							 (cond
@@ -606,10 +599,10 @@
 								 ;;(dnl* "   fielding" field)
 								 (kdebug '(log-* log-plant) "[" (my 'name) ":"
 											(cnc self) "]" "checking" field)
-								 ;;(dnl* "  " (cnc self) (if (has-slot? self field) "has" "doesn't have") field)
+								 ;;(dnl* "  " (cnc self) (if (has-data? self field) "has" "doesn't have") field)
 								 (if (not (symbol? format)) (buggrit))
-								 (if (has-slot? self field)
-									  (letrec ((r (slot-ref self field)))
+								 (if (has-data? self field)
+									  (letrec ((r (data-ref self field)))
 										 #t
 										 ;;(dnl* "   processing" field "for" format "format")
 										 (cond
@@ -631,9 +624,9 @@
 											)
 										  ((output-port? file)
 											(let ((show-field-name
-													 (slot-ref logger 'show-field-name))
+													 (data-ref logger 'show-field-name))
 													(missing-val
-													 (slot-ref logger 'missing-val))
+													 (data-ref logger 'missing-val))
 													)
 											  (if show-field-name
 													(begin
@@ -645,13 +638,13 @@
 													  (file 'display field)))
 											  
 											  (let ((val (if (eqv? field 'name) 
-																  (if (slot-ref self 'domain)
+																  (if (data-ref self 'domain)
 																		(string-append
-																		 (slot-ref (slot-ref self 'domain) 'name) ":" (name self))
+																		 (data-ref (data-ref self 'domain) 'name) ":" (name self))
 																		(name self))
-																  (if (has-slot? self field)
-																		(slot-ref self field)
-																		(slot-ref logger 'missing-val)))))
+																  (if (has-data? self field)
+																		(data-ref self field)
+																		(data-ref logger 'missing-val)))))
 												 (if leading-entry 
 													  (file 'display " ")
 													  (set! leading-entry #t))
@@ -748,8 +741,7 @@
 
 
 
-(model-body% <example-plant>
-				 (start-timer 'example-plant-model-body)
+(model-body <example-plant>
 				 (call-all-parents)
 				 
 ;	(if (<= (my 'counter) 0)
@@ -781,9 +773,7 @@
 										;;									  (dnl* "I'm not dead yet....")
 										dt)
 									 (begin
-										(stop-timer 'example-plant-model-body)
 										(let ((parent-returns (call-all-parents)))
-										  (start-timer 'example-plant-model-body)
 										  (let ((age (my 'age))) ;; This masks the generic method (age...) within the body of the let
 											 (if (> age (my 'longevity))
 												  (begin
@@ -795,7 +785,6 @@
 										))
 								))
 							 ))
-					  (stop-timer 'example-plant-model-body)
 					  return
 					  ))
 				 )
@@ -844,27 +833,34 @@
 				  (set-slot! self 'leaf-mass (numeric-parameter-lookup <> (my 'taxon) 'leaf-mass))
 				  )
 
-(model-method <plant-proxy> (location self  #!optional locus)
-				  (data-ref self 'location))
+;(model-method <plant-proxy> (location self  #!optional locus)
+;				  (if (not locus) (set! locus (data-ref self 'location)))
+;				  (data-ref self 'location))
 
 (model-method <plant-proxy> (mass self #!optional locus)
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (data-ref self 'mass))
 
 (model-method <plant-proxy> (set-mass! self nmass #!optional locus)
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (data-set! self 'mass nmass))
 
 												 
 (model-method <plant-proxy> (radius self #!optional locus)
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (plant-mass->radius (slot-ref self 'mass)))
 
 (model-method <plant-proxy> (leaf-area self #!optional locus)
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (data-set! self 'leaf-area (general-leaf-area (mass self) (data-ref self 'lai)))
 				  (- (data-ref self 'leaf-area) (data-ref self 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
 
 (model-method <plant-proxy> (leaf-mass self #!optional locus)
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (* (leaf-area self) (data-ref self 'leaf-mass)))
 
 (model-method <plant-proxy> (pristine-leaf-mass self #!optional locus) ;; does not take forage damage into account
+				  (if (not locus) (set! locus (data-ref self 'location)))
 				  (data-set! self 'leaf-area (general-leaf-area (mass self) (data-ref self 'lai)))
 				  (* (data-ref self 'leaf-area) (data-ref self 'leaf-mass)))
 
@@ -872,145 +868,196 @@
 				(abort "This should never happen"))
 
 
+
 (model-method (<plant-array> <log-introspection> <symbol> <list>)
 				  (log-data self logger format targets)
-				  (let ((file (slot-ref logger 'file))
-						  (leading-entry #f)
-						  (needs-newline #f)
-						  )
-					 ;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
+				  (let* ((file (slot-ref logger 'file))
+							(leading-entry #f)
+							(needs-newline #f)
+							)
+					 (dnl* "****"  t "---" (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
 					 
-					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
-						  (begin
+					 (if (or (and (is-class? self <plottable>) (is-class? logger <log-map>)) (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						  (let ((P (create <plant> ptax 'agent-state 'alive 'mass 0 'peak-mass 0 'age 0 'location (list 0 0 0) 'leaf-area 0 'forage-damage 0 'water-stress 0)))
 							 ;; this handles "whole of agent" bits, like perimeters
-							 (cond
-							  ((postscript? file)
-								(let* (;;(ply (make-circle-perimeter
-										 ;;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'glyph)))
-										 ;;(prj (composite-prj_src->dst self logger))
-										 ;;(pply (map prj ply))
-										 )
-								  (let ((P (create <plant> ptax 'agent-state 'alive 'mass 0 'peak-mass 0 'age 0 'location (list 0 0 0) 'leaf-area 0 'forage-damage 0 'water-stress 0)))
-									 (for-each
-									  (lambda (p)
-										 (slot-set! P 'agent-state (car p))
-										 (slot-set! P 'mass (cadr p))
-										 (slot-set! P 'peak-mass (caddr p))
-										 (slot-set! P 'age (list-ref p 3))
-										 (slot-set! P 'location (list-ref p 4))
-										 (slot-set! P 'leaf-area (list-ref p 5))
-										 (slot-set! P 'forage-damage (list-ref p 6))
-										 (slot-set! P 'water-stress (list-ref p 7))
-
-										 (plot-plant P logger file)
-										 )
-									  (slot-ref self 'data)
-									  ;;(adjusted-plot-polygon file 0.4 0.0 #f prj ply)
-									  ))
-								  ))
-							  )
-							 
-							 ;; This handles fields
-							 (let ((P (create <plant> (my 'taxon) 'agent-state 'indeterminate 'mass 0 'peak-mass 0 'age 0 'location #f 'leaf-area 0 'forage-damage 0 'water-stress 0)))
-								(for-each
-								 (lambda (p)
-									(slot-set! P 'agent-state (car p))
-									(slot-set! P 'mass (cadr p))
-									(slot-set! P 'peak-mass (caddr p))
+							 (for-each
+							  (lambda (q)
+								 (let ((p (data-ref self q)))
+									;;(dnl* "Plotting <plant-array>:" p)
+									(slot-set! P 'name (string-append (name self) "[" (number->string q) "]"))
+									(slot-set! P 'agent-state (list-ref p 0))
+									(slot-set! P 'mass (list-ref p 1))
+									(slot-set! P 'peak-mass (list-ref p 2))
 									(slot-set! P 'age (list-ref p 3))
 									(slot-set! P 'location (list-ref p 4))
 									(slot-set! P 'leaf-area (list-ref p 5))
 									(slot-set! P 'forage-damage (list-ref p 6))
 									(slot-set! P 'water-stress (list-ref p 7))
-									(for-each
-									 (lambda (field)
-										;;(dnl* "   fielding" field)
-										(kdebug '(log-* log-plant) "[" (my 'name) ":"
-												  (cnc self) "]" "checking" field)
-										;;(dnl* "  " (cnc self) (if (has-slot? self field) "has" "doesn't have") field)
-										(if (not (symbol? format)) (buggrit))
-										(if (has-slot? self field)
-											 (letrec ((r (slot-ref self field)))
-												#t
-												;;(dnl* "   processing" field "for" format "format")
-												(cond
-												 ((postscript? file)
-												  (set! needs-newline #t)
-												  (file 'show (string-append
-																	(if (string? r)
-																		 r
-																		 (object->string r)) " "))
-												  #t
-												  )
-												 ((text? file)
-												  (set! needs-newline #t)
-												  (file 'show (string-append
-																	(if (string? r)
-																		 r
-																		 (object->string r)) " "))
-												  #t
-												  )
-												 ((output-port? file)
-												  (let ((show-field-name
-															(slot-ref logger 'show-field-name))
-														  (missing-val
-															(slot-ref logger 'missing-val))
-														  )
-													 (if show-field-name
-														  (begin
-															 (set! needs-newline #t)
-															 (if leading-entry
-																  (file 'display " ")
-																  (set! leading-entry #t))
-															 (set! needs-newline #t)
-															 (file 'display field)))
-													 
-													 (let ((val (if (eqv? field 'name) 
-																		 (if (slot-ref self 'domain)
-																			  (string-append
-																				(slot-ref (slot-ref self 'domain) 'name) ":" (name self))
-																			  (name self))
-																		 (if (has-slot? self field)
-																			  (slot-ref self field)
-																			  (slot-ref logger 'missing-val)))))
-														(if leading-entry 
-															 (file 'display " ")
-															 (set! leading-entry #t))
-														(set! needs-newline #t)
-														(file 'display val))
-													 )
-												  )
+									(slot-set! P 'domain (list-ref p 8))
 
-												 (else
-												  (kdebug '(log-* log-ecoservice)
-															 "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
-															 "Ignoring " field " because I don't have it")
-												  'ignore-unhandled-format)))						 (begin
-																												(kdebug '(log-* log-ecoservice)
-																														  "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
-																														  "no service" field)
-																												#f)))
-									 (uniq (if #t
-												  targets
-												  (filter (not-memq (slot-ref logger 'dont-log)) targets)))
+									(cond
+									 ((postscript? file)
+									  (let* (;;(ply (make-circle-perimeter
+												;;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'glyph)))
+												;;(prj (composite-prj_src->dst self logger))
+												;;(pply (map prj ply))
+												)
+										 (dnl* "Plotting " (name P) (data-ref self q))
+
+												 (plot-plant P logger file)
+
+												 (for-each
+												  (lambda (r)
+													 (let* ((textoffset (list 0 (* 4 m))))
+														(file 'moveto (map + (list-ref q 4) textoffset))
+														(set! needs-newline #t)
+														(file 'show (string-append
+																		 (if (string? r)
+																			  r
+																			  (object->string r)) " "))
+														))
+												  '())
+												 )
+										 )
+									  ((text? file)
+										(for-each
+										 (lambda (f)
+											(let ((i (data-field-index self f)))
+											  (if i
+													(begin
+													  (file 'show (list-ref p i))
+													  (file 'show " ")))))
+										 (data-ref logger 'variables))
+										(if needs-newline (file 'newline))
+										)
+									  )
 									 )
 									)
-								 (slot-ref self 'data)
-								 )
-								;;(dnl* "Did not process" (name self))
-								)
-
-							 (if needs-newline (file 'newline))
-
-							 (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
-										"<plant>:log-data --- Leaving [" (my 'name) ":" (cnc self) "]"
-										"in log-data")
+							  (seq (length (slot-ref self 'data)))
+							  )
 							 )
-						  )
-					 ))
+						  )))
 
 
-(model-body% <plant-array>
+;; Isn't this a bit pointless ;-)
+;(model-method <plant-array> (location self  #!optional locus radius)
+;				  (dnl* 'plant-array:location)
+;				  (let ((locix (if locus (lookup-locus self locus radius) #f)))
+;					 (if (pair? locix)
+;						  (data-ref self locix 'location)
+;						  (data-ref self 'location))))
+
+;(model-method <plant-array> (location* self #!optional locus radius)
+;				  (dnl* 'plant-array:location*)
+;				  (if (not (point? locus))
+;						(data-ref self 'location)
+;						(if (not (number? radius))
+;							 (set! radius +inf.0)))
+;
+;				  (let ((data (self 'location)))
+;					 (filter (lambda (x) (<= (distance x locus) radius))
+;								data))
+;				  )
+
+(define (field-functor self field #!optional locus radius)
+				  (if (not locus)
+						(data-ref self field)
+						(if (number? radius)
+							 (let ((dd (data-ref* self (list 'location field))))
+								(map cadr (filter (lambda (l) (<= (distance locus (rec-ref l field)) radius)) 
+														
+														(slot-ref self 'data))))
+							 (data-ref self locus field))))
+
+
+														
+(model-method <plant-array> (mass self #!optional locus radius)
+				  (let ((locix (if locus (lookup-locus self locus radius) #f)))
+					 (if (pair? locix)
+						  (data-ref self locix 'mass)
+						  0)))
+
+(model-method (<plant-array>) (mass* self #!optional locus radius)
+				  (field-functor self 'mass locus radius))
+
+
+(model-method (<plant-array> <real>)(set-mass! self newmass #!optional locus radius)
+				  (let ((locix (if locus (lookup-locus self locus #t) #f)))
+					 (if (pair? locix)
+						  (data-set! self locix 'mass newmass)
+						  (abort))))
+						  
+(model-method (<plant-array>) (radius* self #!optional locus rad)
+				  (map plant-mass->radius (mass* self locus rad)))
+
+
+(model-method (<plant-array>) (radius self #!optional locus radius)
+				  (dnl* 'Bink)
+				  (let ((locix (if locus (lookup-locus self locus radius) #f)))
+					 (if locix
+						  (plant-mass->radius (data-ref self locix 'mass))
+						  0)))
+						  
+(model-method (<plant-array>) (leaf-area self #!optional locus radius)
+				  (let ((locix (if locus (lookup-locus self locus radius) #f)))
+					 (if (point? locix)
+						  (begin
+							 (data-set! self locix 'leaf-area (general-leaf-area (mass self) (data-ref self locix 'lai)))
+							 (- (data-ref self locix 'leaf-area) (data-ref self locix 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
+						  0)))
+
+
+(model-method (<plant-array>) (leaf-area* self #!optional locus rad)
+				  (let ((lai (numeric-parameter-lookup <> ('my taxon) 'lai)))
+					 (data-set! self 'leaf-area (map (lambda (x) (general-leaf-area x lai)) (mass* self locus rad)))
+					 (map - (data-ref self 'leaf-area) (data-ref self 'forage-damage))
+
+				  (let ((locix (if locus (lookup-locus self locus rad) #f)))
+					 (if (point? locix)
+						  (begin
+							 (data-set! self locix 'leaf-area (general-leaf-area (mass self) (data-ref self locix 'lai)))
+							 (- (data-ref self locix 'leaf-area) (data-ref self locix 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
+						  0)))
+				  )
+
+(model-method (<plant-array>) (leaf-mass self #!optional locus radius)
+				  (let ((locix (if locus (lookup-locus self locus radius))))
+					 (if (pair? locix)
+						  (* (leaf-area self locix) (numeric-parameter-lookup <> ('my taxon) 'leaf-mass))
+						  0)))
+
+(model-method (<plant-array>) (leaf-mass* self #!optional locus rad)
+				  (let ((lai (numeric-parameter-lookup <> ('my taxon) 'leaf-mass)))
+					 (data-set! self 'leaf-area (map (lambda (x) (general-leaf-area x lai)) (mass* self locus rad)))
+					 (map - (data-ref self 'leaf-area) (data-ref self 'forage-damage))
+
+				  (let ((locix (if locus (lookup-locus self locus rad) #f)))
+					 (if (point? locix)
+						  (begin
+							 (data-set! self locix 'leaf-area (general-leaf-area (mass self) (data-ref self locix 'lai)))
+							 (- (data-ref self locix 'leaf-area) (data-ref self locix 'forage-damage))) ;; forage-damage is to leaf area, *not* mass
+						  0))))
+
+
+
+(model-method (<plant-array>) (pristine-leaf-mass self #!optional locus radius) ;; does not take forage damage into account
+				  (let ((locix (if locus (lookup-locus self locus #f))))
+					 (if (pair? locix)
+						  (begin
+							 (data-set! self locix 'leaf-area (general-leaf-area (mass self locix) (data-ref self locix 'lai)))
+							 (* (data-ref self locix 'leaf-area) (data-ref locix self locus 'leaf-mass)))
+						  0)))
+
+(model-method <plant-array> (initialise-instance self)
+  (parent-initialise-instance)
+
+  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-plant> (my 'taxon))))
+  (if (uninitialised? (slot-ref self 'lai)) (slot-set! self 'lai (numeric-parameter-lookup <> (my 'taxon) 'lai)))
+  )
+
+
+
+(model-body <plant-array>
   ;;(dnl* (cnc self) "model-body")
   ;;(dnl* kdebug '(trace-bodies plant-running)  (cnc self) (name self) "@" t "/" dt)
 
@@ -1030,14 +1077,12 @@
    (dnl* "Plant-array model body" t dt)
 
   (let ((parent-return (call-all-parents)))
-	 (start-timer 'plant-array-model-body)
 
-	 (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-plant> (my 'taxon))))
+	 ;; This must be in the model-body because it needs the kernel pointer to resolve the call to locate*
 	 (if (uninitialised? (slot-ref self 'patch-list)) (slot-set! self 'patch-list (kernel 'locate* (*is-class? <patch>))))
-	 (if (uninitialised? (slot-ref self 'lai)) (slot-set! self 'lai (numeric-parameter-lookup <> (my 'taxon) 'lai)))
+	 ;; If patches "died" we would need to do this more often than just the once.
 
 	 (set-my! 'data (filter (lambda (x) (not (member (car x) '(terminated remove)))) (my 'data)))
-
 
 	 (if (not (list? (my 'data))) (epic fail))
 	 (let* ((test-subject (my 'test-subject))
@@ -1112,7 +1157,6 @@
 				 (set-leaf-area! p  (general-leaf-area (mass p) (slot-ref test-subject 'lai)))
 				 )
 			  ))
-			(stop-timer 'plant-model-body)
 			)
 		 (my 'data))
 		dt

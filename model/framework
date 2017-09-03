@@ -43,9 +43,6 @@
 ;
 
 
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;                                           ;;;;;;;;;;;;;
 ;;;;;;;;;;;;; This file *must* be included, not loaded. ;;;;;;;;;;;;;
@@ -84,52 +81,24 @@
 (define-macro (END . body)
   `(begin ,@body (error "c.f. 'Mort', 'Reaper Man', 'Soul Music', 'Hogfather' and 'Thief of Time'")))
 
-
-;--- (time-probe name . body) macro
-(define-macro (time-probe name . body)
-  `(let* ((x_x_name ,name)
-			(x_x_s (process-times))
-			(x_x_n (let () ,@body))
-			(x_x_f (process-times)))
-	  (if collecting-times
-			(let ((sn tr-serial-number))
-			  (set! tr-serial-number (+ 1 tr-serial-number))
-			  (if (null? time-register)
-					(let ((r (real-time)))
-					  (set! time-register (cons (list "origin" (list 0 0 r 'start) (list 0 0 r 'finish) (list 0 0 0 'difference sn)) time-register))))
-			  (set! time-register (cons (list x_x_name ;; times columns are user system wallclock
-														 ;; the rows are start, finish, difference
-														 (append (f64vector->list x_x_s) (list 'start sn))
-														 (append (f64vector->list x_x_f) (list 'finish sn))
-														 (append (map - (f64vector->list x_x_f) (f64vector->list x_x_s)) (list 'difference sn))
-														 )
-												 time-register))))
-	  x_x_n))
-
-;--- (time-probe* name . body) macro
-(define-macro (time-probe* name . body)
-  `(begin
-	  (if collecting-times
-			(let ((sn tr-serial-number))
-			  (set! tr-serial-number (+ tr-serial-number 1))
-			  
-			  (if (null? time-register)
-					(let ((r (real-time)))
-					  (set! time-register (cons (list "origin" (list 0 0 r 'origin sn)) time-register))))
-			  
-			  
-			  (let* ((x_x_name ,name)
-						(x_x_s (process-times))
-						)
-				 (set! time-register (cons (list "origin" (list 0 0 r 'origin sn)) time-register))
-				 (let* ((x_x_n (let () ,@body))
-						  (x_x_f (process-times)))
-					(set! time-register (cons (list x_x_name ;; times columns are user system wallclock
-															  ;; the rows are start, finish, difference
-															  (append (map - (f64vector->list x_x_f) (f64vector->list x_x_s)) (list difference sn))
-															  )
-													  time-register))))
-			  x_x_n))))
+;; This uses things from timer.scm
+(define-macro (timing-block tag . body)
+  `(let* ((timer-start (f64vector->list (process-times)))
+			 (result
+			  (begin
+				 ,@body
+				 ))
+			 (timer-finish (f64vector->list (process-times)))
+			 )
+	  (let ((A (assq ',tag model-timing-data)))
+		 (if A
+			  (let* ((pv (cdr A))
+						(nv (map + (map - timer-finish timer-start) pv)))
+				 (assq-set! model-timing-data ',tag nv))
+			  (set! model-timing-data (cons (cons ',tag (map - timer-finish timer-start)) model-timing-data)))
+		 ;;(aggregate-model-timing-data)
+		 )
+	  result))
 
 
 ;; This ought to be done with define-syntax, but this is more convenient than loading the sytax stuff.
@@ -166,30 +135,35 @@
 
 
 (define-macro (define% formals #!rest body)
-  (let ((txt (if (list? formals)
-					  `(define ,formals
-						  (kdebug 'deep-debugging  "Function:" (,(car formals) ,@(cdr formals)))
-						  (let* ((%%%-timer-start-%%% (process-times))
-								  (%%%-timer-stop-%%% #f)
-								  (result (begin ,@body)))
-								(set! %%%-timer-stop-%%% (process-times))
-								(set! %%%-time-register-%%% (cons (list ',formals %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-								(kdebug 'deep-debugging "Exiting" ,@formals " ==> " result)
-								result))
-					  (error "We cannot use define% except on definitions of the form (define (func ...) ...)" formals)
- 					  ;;; `(define ,formals
-					  ;;; 	  "second clause"
-					  ;;; 	  (let* ((%%%-timer-start-%%% (process-times))
-					  ;;; 				(%%%-timer-stop-%%% '())
-					  ;;; 				(result (begin ,@body)))
-					  ;;; 		 (set! %%%-timer-stop-%%% (process-times))
-					  ;;; 		 (set! %%%-time-register-%%% (cons (list ',formals %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
-					  ;;; 		 (kdebug 'deep-debugging "Defining " ',formals " = " result)
-					  ;;; 		 result))
-					  )
-				 ))
-	 ;;(pp txt)
-	 txt))
+  `(define ,formals
+	  (timing-block ',(car formals)
+						 ,@body)))
+
+;;; (define-macro (define% formals #!rest body)
+;;;   (let ((txt (if (list? formals)
+;;; 					  `(define ,formals
+;;; 						  (kdebug 'deep-debugging  "Function:" (,(car formals) ,@(cdr formals)))
+;;; 						  (let* ((%%%-timer-start-%%% (process-times))
+;;; 								  (%%%-timer-stop-%%% #f)
+;;; 								  (result (begin ,@body)))
+;;; 								(set! %%%-timer-stop-%%% (process-times))
+;;; 								(set! %%%-time-register-%%% (cons (list ',formals %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
+;;; 								(kdebug 'deep-debugging "Exiting" ,@formals " ==> " result)
+;;; 								result))
+;;; 					  (error "We cannot use define% except on definitions of the form (define (func ...) ...)" formals)
+;;;  					  ;;; `(define ,formals
+;;; 					  ;;; 	  "second clause"
+;;; 					  ;;; 	  (let* ((%%%-timer-start-%%% (process-times))
+;;; 					  ;;; 				(%%%-timer-stop-%%% '())
+;;; 					  ;;; 				(result (begin ,@body)))
+;;; 					  ;;; 		 (set! %%%-timer-stop-%%% (process-times))
+;;; 					  ;;; 		 (set! %%%-time-register-%%% (cons (list ',formals %%%-timer-start-%%% %%%-timer-stop-%%%) %%%-time-register-%%%))
+;;; 					  ;;; 		 (kdebug 'deep-debugging "Defining " ',formals " = " result)
+;;; 					  ;;; 		 result))
+;;; 					  )
+;;; 				 ))
+;;; 	 ;;(pp txt)
+;;; 	 txt))
 
 
 
@@ -208,11 +182,17 @@
 	 ;;(pp txt)
 	 txt))
 
-;; Calls to a closure function are of the form (name t reqvar1 reqvar2 ....)
-;; Note: t is passed in, rather than dt, since we don't want accidental multiple updates
+;; Calls to a closure function are of the form (name t dt reqvar1 reqvar2 ....)
+;; Calling a closure with no arguments at all causes it to return the symbols
+;; indicating the data it requires for update.  
+
+;; Note: both t and dt are passed in, since we don't want accidental multiple updates
+;; svlist is the list of state-variables to be maintained
+;; reqlist is the list of external data needed by the closure
+
 (define-macro (define-update-closure name class-id svlist reqlist . body)
   `(define ,name
-	  (let* ((id ,id)
+	  (let* ((id ,class-id)
 			  ,@(map (lambda (sv) (list (list sv #f))) ,svlist)
 			  (Reqlist ',reqlist) ;; all possible requirements
 			  (reqlist ',reqlist) ;; current reqlist
@@ -231,20 +211,11 @@
 						((
 						(else (Error "bad call to update-closure function" x)))
 					 )
-					((and (= 1 (length x))
-							(symbol? (car x)))
-					 (case (car x)
-						((requirements) reqlist)
-						((all-requirements) Reqlist)
-						((values) #f) ;; cannot ask for values without the class-id
-						(else (Error "bad call to update-closure function" x)))
-					 )
-					((number? (car x))
-					 (if (eq? (length (cdr x)) (+ 1 (length reqlist)))
-						  (let* ((dt (if (< T t) (- (car x) T) 0))
-								  )
+					((and (number? (car x)) (number? (cadr x)))
+					 (if (= (length x) (+ 2 (length reqlist)))
+						  (let* ((dt (+ dt (- t T))))
 							 (let ((result (begin ,@body)))
-								(set! T t)
+								(set! T (+ t dt))
 								result)
 							 )
 						  (Error "Failed to pass in the necessary number of arguments!" x)))
@@ -505,12 +476,6 @@
 	 ((1) (Error "model-method: Only 1/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got" (cons 'model-method madness)))
 	 ((2) (Error "model-method: Only 2/3 elements have been supplied!\nNeeds a specifier, a function-name and args, and a body, got " (cons 'model-method madness)))
 	 )
-  (if (not (and (pair? (cadr madness)) (symbol? (caadr madness)) ))
-		(Error "model-method: bad (mname mm-margs...) in (model-method ...) "
-				 (caadr madness)))
-  (if (not (eq? (cadadr madness) 'self))
-		(Error "model-method: missing 'self' placeholder in the (model-method (classes) (methname self ...) ...) definition "
-				 (caadr madness)))
 
   (let* ((classlst (if (list? (car madness))
 							  (car madness)
@@ -520,11 +485,11 @@
 			(body (cddr madness))
 			(tag (string->symbol (string-append (symbol->string mname) "-" (symbol->string (car classlst)))))
 			)
-	 
-	 `(model-method ,classlst (,mname ,@mm-args)
-						 (let* ((result (begin (start-timer ',tag) ,@body)))
-							(stop-timer ',tag)
-							result)
+	 `(model-method ,classlst (,mname ,(cadadr madness) ,@mm-args)
+						 (timing-block ',tag	,@body)
+						 ;;; (let* ((result (begin (start-timer ',tag) ,@body)))
+						 ;;; 	(stop-timer ',tag)
+						 ;;; 	result)
 						 )))
 
 
@@ -555,7 +520,9 @@
 			(method-id (string-append  (object->string classlst) ": "(object->string mname) " " (object->string mm-margs)))
 			)
 	 (if (not (eq? (cadadr madness) 'self))
-		  (error (string-append "The first argument for a model method *must* be 'self', " (object->string classlst) " "  (symbol->string mname) " has " (symbol->string (cadadr madness)))))
+		  (error (string-append "The first argument for a model method *must* be 'self',"
+										"\nmodel-method " (object->string classlst) " "  (symbol->string mname)
+										"\nin " (load 'now-loading) " has " (symbol->string (cadadr madness)))))
 
 ;;	 (display "Dispatching parent calls with ")
 ;;	 (display `',(string->symbol (string-append "parent-" (symbol->string mname))))
@@ -675,9 +642,11 @@ will not have access to the kernel.
 (define-macro (model-body% myclass #!rest body)
   (let ((tag (string->symbol (string-append (symbol->string myclass) "-model-body"))))
 	 `(model-body ,myclass 		
-					  (let ((result (begin (start-timer ',tag)	,@body)))
-						 (stop-timer ',tag)
-						 result))))
+;;					  (let ((result (begin (start-timer ',tag)	,@body)))
+					  ;;						 (stop-timer ',tag)
+					  ;;result))))
+					  (timing-block ',tag ,@body))))
+					  
 
 
 (define-macro (model-body myclass #!rest body)

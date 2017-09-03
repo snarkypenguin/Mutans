@@ -41,11 +41,12 @@
 ;; (add-kdebug-msg-tag '<thing>-model-body)
 ;; (add-kdebug-msg-tag '<tracked-agent>)
 
-(kdebug-development! #f) ;; suppress debugging messages
+(kdebug-production! #t) ;; suppress debugging messages
 
 
 ;(define Model-Domain '((-500 -500 -50) (500 500 50)))
 (define Model-Domain '((0 0 -50) (1000 1500 50)))
+(define Model-Area (apply * (list-head (cadr Model-Domain) 2)))
 
 ;(define Model-Domain '((0 0 -50) (200 300 10)))
 ;; takes the ll, ur and any z component
@@ -79,11 +80,12 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define start 0) ;; day zero
 ;(define end (* 5.1 days))
 ;(define end (* 41 days))
+(define end (* 15 days)) ;; of christmas y'know
 ;(define end (* 12 days)) ;; of christmas y'know
 ;(define end (* 29 days)) 
 ;(define end (* 51 days)) ;; 
 ;(define end (* 61 days)) ;; 
-(define end year)
+;(define end year)
 ;(define end (* 3 years)) ;; 
 ;(define end (* 480 days)) ;; 
 ;(define end (* 72 years)) ;;
@@ -96,11 +98,19 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 
 
-;--  the cast....
+;--  the venue and cast....
 (dnl "The stage") ;-------------------------------------------------------------------
 
 (define N 2) ;; Number cells along the "east-west" axis
 (define M 3) ;; Number cells along the "north-south" axis
+
+(define use-plants #t)
+(define use-jherb #f)
+(define use-aherb #f)
+(define use-acarn #f)
+
+
+
 
 ;; calculate area of patch, divide by number of clusters,
 ;; calculate radius of a circle with the same area and use that as the basis
@@ -109,22 +119,21 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define cluster-radius (* 50 m))
 (define seeding-radius (* cluster-radius 2.5))
 
-(define chains-per-patch 3)
-(define clusters-per-chain 3) ;; 
-(define trees-per-cluster 4)
 
-;(define chains-per-patch 1)
-;(define clusters-per-chain 1) ;; 
-;(define trees-per-cluster 1)
+(define bigtrees #t)
+(define treescale 1)
+
+;(define tree-configuration 'wasteland)
+;(define tree-configuration 'bush)
+(define tree-configuration 'array)
 
 
-;; ;; This returns a list of locations and masses
-;; (define (tree-cluster-mass-and-location cellcentre pos meanage N)
-;;   (let* ((n (length cellcentre))
-;; 			(P (make-list n (if (number? pos) (make-pprocess pos) pos))))
-;; 	 (random-cluster cellcentre prng (make-pprocess (* 1/4 meanage)) N)))
+(if (> treescale 2) (set! tree-configuration 'array))
 
-;; (random-cluster '(0 0 0) (list (make-pprocess 20) (make-pprocess 20) (make-pprocess 12)) 40)
+(define chains-per-patch (* treescale 1))
+(define clusters-per-chain (* treescale 2))
+(define trees-per-cluster (* treescale 3))
+
 
 (dnl "The set") ;-------------------------------------------------------------------
 
@@ -132,6 +141,8 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 (define seed-germination-rate  0.0005) ;; THIS REALLY OUGHT TO BE IN A PARAMETER FILE!
 (define fruit-germination-rate 0.00001)
+
+(define initial-fruit-m^2  3)
 
 (define ptax "B.exemplarii")
 
@@ -144,6 +155,11 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 											 (y (/ y 10)))
 										(* 10 (sqrt (+ (* x x) (* y y))))))
 								  'dt (* 1 days)
+
+								  'fruit (* (numeric-parameter-lookup <example-plant> ptax 'fruit-mass) initial-fruit-m^2 (/ Model-Area (* M N)))
+								  ;; This line demonstrates how to get a parameter for use during ad hoc initialisation
+								  ;; Note: the arguments to the lookup routines are a class, a string and a symbol, in that order.
+
 								  'caretaker (lambda (self t dt)
 								  					;; The number of seeds is attenuated by the ecoservice;
 								  					;; here, we potentially germinate some....
@@ -152,38 +168,49 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 								  							 (fg (* fruit fruit-germination-rate))
 								  							 (sgerminated (inexact->exact (truncate (* seed-germination-rate seeds))))
 								  							 (fgerminated (inexact->exact (truncate fg)))
+															 (caretaker (list <agent> 'name "Hagrid" 'taxon 'half-giant))
 								  							 )
 								  					  (if (> (+ sgerminated fgerminated) 0)
 								  							(begin
 								  							  (set-value! self 'seeds (- seeds sgerminated))
 															  (set-value! self 'fruit (- fruit fgerminated))
-															  (if #t
+															  (if #f
 																	(begin
 																	  (dnl* "Caretaker| total number of seeds and fruit:" (+ seeds (* fruit 0+1i)))
 																	  (dnl* "         |                      germinates:" (+ sgerminated (* fgerminated 0+1i)))
+																	  (dnl* "         |                Number of plants:" (length (KCALL caretaker 'locate* (*is-class? <example-plant>))))
+																	  (dnl* "         |        Number of plants in array:"
+																			  (apply + (map (lambda (a) (if a (length (slot-ref a 'data)) 0))
+																			  				 (KCALL caretaker 'locate* (*is-class? <plant-array>) Q)))
+																			  )
+
+																			  
 																	))
 								  							  (let* ((indices (seq (+ fgerminated sgerminated)))
-																		(age (* 4 weeks))
-																		(mass (B.ex-mass age))
+																		(age (* (+ 3 (random-real)) weeks)) ;; this keeps the place from looking too uniform
+																		(mass (* (+ 1 (* 0.1 (- (random-real) 0.5))) (B.ex-mass age))) ;; individual life-history perturbations
 																		(lai (numeric-parameter-lookup <example-plant> ptax 'lai))
 																		(leaf-area (general-leaf-area mass lai)))
 																		
-																 (if #t
-																	  (list 'introduce (map
-																							  (lambda (i)
-																								 (create <example-plant> ptax
-																											'location (random-point-in-box (perimeter self))
-																											'domain self 
-																											'age (* 2 weeks) 'mass 0.1)
-																								 )
-																							  indices))
-																	  (let ((forest (kernel 'locate* "B.exemplarii")))
+																 (if #f
+																	  (begin
+																		 (list 'introduce (map
+																								 (lambda (i)
+																									(create <example-plant> ptax
+																											  'location (random-point self)
+																											  'domain self 
+																											  'age (* 2 weeks) 'mass 0.1)
+																									)
+																								 indices)
+																				 )
+																		 )
+																	  (let ((forest (filter (*is-class? <plant-array>) (KCALL caretaker 'locate* "B.exemplarii"))))
 																		 (for-each
 																		  (lambda (i)
 																			 (if (and forest (not (null? forest)))
-																				  (add-data-record forest (list mass mass age
-																														  (random-point-in-box (perimeter self))
-																														  leaf-area 0 0 'alive))
+																				  (add-data-record (car forest) (list 'alive mass mass age
+																														  (random-point self)
+																														  leaf-area 0 0 self))
 																				  (dnl* "NO FOREST"))
 																			 )
 																		  indices)
@@ -195,7 +222,7 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 															)
 													  )
 													) ;; end of caretaker lambda
-								  );; end of make-grid
+								  ) ;; end of make-grid
 					))
 	 grid))
 	 
@@ -248,11 +275,6 @@ on for a chain with a lenght equal to the number of cells we are using.
 			)
 	 (apply append chains)))
 
-;(define tree-configuration 'wasteland)
-;(define tree-configuration 'bush)
-;(define tree-configuration 'manytrees)
-(define tree-configuration 'array)
-
 
 (define Loci
   (map (lambda (pt)
@@ -262,43 +284,48 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 
 (set! trees
-  (case tree-configuration
-	 ((wasteland)
-	  '())
-	 ((onetree)
-	  (let ((t (create <example-plant> ptax
+		(if use-plants
+			 (case tree-configuration
+				((wasteland)
+				 '())
+				((onetree)
+				 (list
+				  (create <example-plant> ptax
 							 'age (* 36 years) 'age-at-instantiation (* 36 years) 'location domain-centre
-							 'domain (car patchlist) 'domain (car patchlist))))
-		 (list t))) ;; mass is set using the mass-at-age function in the agent-prep stage
+							 'domain (car patchlist) 'domain (car patchlist))
+				  t)) ;; mass is set using the mass-at-age function in the agent-prep stage
+				
+				((array)
+				 (list (create <plant-array> ptax
+									'provides '(vegetation)
+									
+									;; this *should* come from the parameter file
+									'data-names '(state mass peak-mass age location leaf-area forage-damage water-stress domain) 
+									
+									'data (map (lambda (loc)
+													 (let* ((mass-at-age (procedure-parameter-lookup <example-plant> ptax 'mass-at-age))
+															  (age (+ 10 (pprnd (* 4 years))))
+															  (mass (mass-at-age age))
+															  (area (general-leaf-area mass (numeric-parameter-lookup <example-plant> ptax 'lai)))
+															  (damage (pprnd (* 0.5 area)))
+															  )
+														(list 'alive mass mass age (car loc) area damage 0.0 (cadr loc))))
+												  Loci)))
+				 )
+				
+				(else
+				 (map (lambda (x) ;; x marks the spot
+						  (create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x))
+						  ) ;; mass is set using the mass-at-age function in the agent-prep stage
+						Loci)
+				 ))
+			 '())
+		)
 
-	 ((array)
-	  (list (create <plant-array> ptax
-				  'provides '(vegetation)
+(for-each (lambda (t) (set! Q (q-insert Q t Qcmp))) trees)
+(define N-trees (apply + (map (lambda (x) (cond ((is-class? x <plant>) 1) ((is-class? x <plant-array>) (length (slot-ref x 'data))) (else 0))) trees)))
 
-				  ;; this *should* come from the parameter file
-				  'data-names '(state mass peak-mass age location leaf-area forage-damage water-stress domain) 
-
-				  'data (map (lambda (loc)
-								  (let* ((mass-at-age (procedure-parameter-lookup <example-plant> ptax 'mass-at-age))
-											(age (pprnd (* 4 years)))
-											(mass (mass-at-age age))
-											(area (general-leaf-area mass (numeric-parameter-lookup <example-plant> ptax 'lai)))
-											(damage (pprnd (* 0.5 area)))
-										  )
-									 (list 'alive mass mass age (car loc) area damage 0.0 (cadr loc))))
-								 Loci)))
-	  )
-
-	 (else
-	  (map (lambda (x) ;; x marks the spot
-				(create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x))
-				) ;; mass is set using the mass-at-age function in the agent-prep stage
-			 Loci)
-	  ))
-  )
-  (for-each (lambda (t) (set! Q (q-insert Q t Qcmp))) trees)
-
-
+(dnl* "The rangeland contains" N-trees "plants")
   
 ;; (make-copse (lambda (t)
 ;; 					 (set! Q (q-insert Q t Qcmp))
@@ -318,13 +345,16 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define ecological-services '())
 
+(dnl* "       Using seed-death of " (numeric-parameter-lookup <> ptax 'seed-death))
+(dnl* "        and fruit-decay of " (numeric-parameter-lookup <> ptax 'fruit-decay))
+
 (for-each
  (lambda (c)
-	(let ((fruitdecay (numeric-parameter-lookup <> ptax 'fruit-decay));; This is how to get a parameter from a taxon specific file 
-			(seeddeath (numeric-parameter-lookup <> ptax 'seed-decay))) ;; You can use numeric-... string-... symbol-... and list-parameter-lookup
+	(let ((fruit-decay (numeric-parameter-lookup <> ptax 'fruit-decay));; This is how to get a parameter from a taxon specific file 
+			(seed-death (numeric-parameter-lookup <> ptax 'seed-death))) ;; You can use numeric-... string-... symbol-... and list-parameter-lookup
 	  ;; taxon  name           variable value cap r maxdt growing? growthmodel . P) 
-	  (let ((fruit (simple-ecoservice "fruit" (* 2 days) "B. ex. fruit" 'fruit 0 +inf.0 0 (* 6 hour) #t (lambda (t dt val) (max 0 (* val (if fruitdecay (exp (* fruitdecay dt)) 1)))) c))
-			  (seeds (simple-ecoservice "seeds" (* 4 days) "B. ex. seeds" 'seeds 0 +inf.0 0 (* 6 hour) #t (lambda (t dt val) (max 0 (* val (if seeddeath (truncate (exp (* seeddeath dt))) 1))))  c))
+	  (let ((fruit (simple-ecoservice "fruit" (* 2 days) "B. ex. fruit" 'fruit 0 +inf.0 0 (* 6 hour) #t (lambda (t dt val) (max 0 (* val (if fruit-decay (exp (* fruit-decay dt)) 1)))) c))
+			  (seeds (simple-ecoservice "seeds" (* 4 days) "B. ex. seeds" 'seeds 0 +inf.0 0 (* 6 hour) #t (lambda (t dt val) (max 0 (* val (if seed-death (truncate (exp (* seed-death dt))) 1))))  c))
 			  )
 		 (slot-set! fruit 'history #t)
 		 (set-value! fruit (pprnd 25))
@@ -359,55 +389,113 @@ on for a chain with a lenght equal to the number of cells we are using.
 (define HA '())
 (define CA '())
 
-(for-each
- (lambda (p)
-	(if #t
-		 (for-each
-		  (lambda (i)
-			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-					 )
-				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
-				(slot-set! a 'domain p)
-				(slot-set! a 'domain p)
-				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
-				(set! Q (q-insert Q a Qcmp))
-				(set! HJ (cons a HJ))
-				))
-		  ;;(seq 24/8)
-		  (list 1/1)
-		  ))
+(define use-animals-per-patch #f)
+(define N-jherb 0)
+(define N-aherb 0)
+(define N-acarn 0)
 
-	(if #t
-		 (for-each
-		  (lambda (i)
-			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-					 )
-				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
-				(slot-set! a 'domain p)
-				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
-				(set! Q (q-insert Q a Qcmp))
-				(set! HA (cons a HA))
-				))
-		  ;;(seq 24/12)
-		  (seq 2)
-		  )
-		 )
 
-	(if #f
-		 (for-each
-		  (lambda (i)
-			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
-					 )
-				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
-				(slot-set! a 'domain p)
-				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
-				(set! Q (q-insert Q a Qcmp))
-				(set! CA (cons a CA))
+(if use-animals-per-patch
+	 (for-each
+	  (lambda (p)
+		 (if use-jherb
+			  (for-each
+				(lambda (i)
+				  (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! HJ (cons a HJ))
+					 ))
+				(seq N-jherb)
 				))
-		  (seq  0/24))
+		 
+		 (if use-aherb
+			  (for-each
+				(lambda (i)
+				  (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! HA (cons a HA))
+					 ))
+				;;(seq 24/12)
+				(seq N-aherb)
+				)
+			  )
+		 
+		 (if use-acarn
+			  (for-each
+				(lambda (i)
+				  (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! CA (cons a CA))
+					 ))
+				(seq  N-acarn))
+			  )
 		 )
-	)
- patchlist)
+	  patchlist)
+
+	 (begin
+		 (if use-jherb
+		  (for-each
+				(lambda (i)
+				  (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! HJ (cons a HJ))
+					 ))
+				(seq N-jherb)
+				))
+		 
+		 (if use-aherb
+			  (for-each
+				(lambda (i)
+				  (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! HA (cons a HA))
+					 ))
+				;;(seq 24/12)
+				(seq N-aherb)
+				)
+			  )
+		 
+		 (if use-acarn
+			  (for-each
+				(lambda (i)
+				  (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
+						  )
+					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
+					 (slot-set! a 'domain p)
+					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
+					 (set! Q (q-insert Q a Qcmp))
+					 (set! CA (cons a CA))
+					 ))
+				(seq  N-acarn))
+			  )
+		 )
+	 )
+	
+	
+
+
 
 ;; ----- carnivores -----
 ;; Adults eat juvenile herbivores, juveniles are assumed to eat something
@@ -426,18 +514,6 @@ on for a chain with a lenght equal to the number of cells we are using.
 ;;(for-each (lambda (p) (set! Q (q-insert Q p Qcmp))) patchlist)
 
 
-(define adlog
-  (if #f
-		(let ((adlog (create <log-data> "animal-logger" 'filename "animal-data" 'format 'text
-									'dt (* 4 hours)
-									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'location 'direction 'sated-time 'period-of-hunger)
-									'introspection-targets (list <animal>))))
-		  ;; there will be more trees, so we want a mechanism that adapts
-		  (set! Q (q-insert Q adlog Qcmp)) ;; these will go in earlier than the others 
-		  adlog
-		  )
-		))
-
 (define sdlog
   (if #t
 		(let ((sdlog (create <log-data> "service-logger" 'filename "service-data" 'format 'text
@@ -453,8 +529,20 @@ on for a chain with a lenght equal to the number of cells we are using.
 		  )
 		))
 
+(define adlog
+  (if (and #f (or use-jherb use-aherb use-acarn))
+		(let ((adlog (create <log-data> "animal-logger" 'filename "animal-data" 'format 'text
+									'dt (* 4 hours)
+									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'location 'direction 'sated-time 'period-of-hunger)
+									'introspection-targets (list <animal>))))
+		  ;; there will be more trees, so we want a mechanism that adapts
+		  (set! Q (q-insert Q adlog Qcmp)) ;; these will go in earlier than the others 
+		  adlog
+		  )
+		))
+
 (define tdlog
-  (if #t
+  (if (and #t use-plants)
 		(let ((tdlog (create <log-data> "tree-logger" 'filename "tree-data"
 									;;'file (current-output-port)
 									;; Recall: internally time---end for example---is in seconds.
@@ -470,7 +558,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 	 
 (define pslog
-  (if #t
+  (if (and #t (or use-plants use-jherb use-aherb use-acarn))
 		;;                                       model  page  margin                           
 		(let ((mapping (map:domain-to-postscript Domain isoA4 10))) ;; NOTE page dimensions are *always* specified in mm.
 		  (let ((pslog

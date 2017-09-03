@@ -7,6 +7,11 @@
 	 ;; By default we will track all trackable agents.  Slows things down, but
 	 ;; it makes the likelihood of forgetting to set the flag much less.
 	 (list 'track-segments #t) 
+	 (list 'track-state #f)      ;; this will be a list of lists if things get used
+	 (list 'track-state-vars #f) ;; this is a list of symbols corresponding to state variables
+	 ;; To use the track-state stuff,
+	 ;; initialise track-state to '() and track-state-vars to a list of symbols
+
     (list 'track-schedule '())
     (list 'track-epsilon (* 1e-6 seconds))
 	 (list 'default-color 0.5) ;; half-grey

@@ -1,4 +1,6 @@
 % -*- outline-regexp: "%--* ";  -*-
+\message{Chapter 4}
+
 \chapter[A RING-LIKE STRUCTURE OF TREES]{A non-unital ring-like structure of trees}\label{treering}
 \section{Introduction}
 The project which triggered the development of the structure in this
@@ -8,7 +10,7 @@ predict the social and economic consequences of development arising
 from various scenarios. This was a significant change from previous
 representations of ``public'' participants, such as recreational
 fishers, tourists, accomodation and other small businesses, which were
-modelled in fairly simple ways (\cite{Fulton2011ningaloo,gray2014}).
+modelled in fairly simple ways (\cite{fulton2011ningaloo,gray2014}).
 The specific goal was to be able to incorporate a simulation of the
 way public opinion changes in response to policy actions and changes
 in the economy and environment.  The starting point for this was a
@@ -23,7 +25,7 @@ symbols \textsf{climate\_change, trust, information\_source, AustPeng}
 for the trustworthiness of the \emph{Australian Penguins} as a source
 of information. The actual value marked could be encoded as a scalar,
 giving us an expression like ``\textsf{4/5 + climate\_change +
-  information\_source + trust + AustPeng}''---expressing it in this
+  information\_source + trust + AustPeng}'' -- expressing it in this
 way suggested that working with more intricate relationships might be
 possible.
 
@@ -59,7 +61,7 @@ clear.
 \section{Conventions and preliminary definitions}
 
 Generally, we will use lower case, boldfaced symbols to denote a node
-(or tree), and upper case, boldfaced symbols to denote sets ---
+(or tree), and upper case, boldfaced symbols to denote sets  -- 
 particularly sets of nodes.  Other symbols (such as \(x\)) will
 typically refer to numbers or \polyrat \polyforms. Elements of a
 node, \tnode{u} will be identified using an appropriate subscript,
@@ -84,10 +86,10 @@ Nodes or trees with no children, \(\set{E} = \emptyset\), will be
 called \emph{simple nodes, simple trees}, or \emph{leaf nodes}, and
 simple nodes which also have scalar multinomials as their labels may
 be referred to as \emph{scalar nodes} or \emph{scalar trees}. The
-domain of trees, $\DOMstar$, is the collection of only those trees with a
-finite number of nodes.  form. We will make use of a special element
-in $\DOMstar$, $\zerotree = (0, 0, \emptyset)$, which is an an analogue of
-zero that we will call the \emph{zerotree}.
+domain of trees, $\DOMstar$, is the collection of only those trees
+with a finite number of nodes.  We will make use of a special element
+in $\DOMstar$, $\zerotree = (0, 0, \emptyset)$, which is an an
+analogue of zero that we will call the \emph{zerotree}.
 
 In this work, we will largely be concerned with a subset of
 $\DOMstar$, $\DOM$ which consists only of trees whose root nodes have
@@ -208,7 +210,7 @@ The \emph{overlap} between two trees is defined
   \end{cases}
 \]
 
-Clearly two trees, \tnode{u} and \tnode{v}, are compatible if and only if \(\overlap(\node{u},\node{v}) \neq 0 \) ; they will
+Clearly two trees, \tnode{u} and \tnode{v}, are compatible if and only if \(\overlap(\node{u},\node{v}) \neq 0 \); they will
 be said to \emph{completely overlap} if \(\Tcard{\node{u}} = \Tcard{\node{v}} =
 \overlap(\node{u},\node{v})\).
 %We may also make use of the relative overlap of two nodes, \tnode{u} and \tnode{v}, given by \[\overlap_{r}(\node{u},\node{v})
@@ -282,7 +284,7 @@ components used to assess and trigger changes in model configuration.
 
 The aim of this work is to be able to compare trees in a robust way
 and to manipulate them as though they were vectors: trees which form
-a vector space or, better, a metric space can be compared and
+a vector space,  or -- better -- a metric space, which can be compared and
 clustered. We will start by defining scalar multiplication of the trees in
 $\DOM$, and then we will define a few useful mappings which will help
 keep the expressions simple. Our aim, in this section, is to define
@@ -365,7 +367,7 @@ us a vector space.
       inverse.
 
       Let \tnode{v} be a non-null node which is not simple, but has
-      simple c, that is to say \(\depth(\node{v}) = 2)\).  Then 
+      simple c, that is to say \(\depth(\node{v}) = 2\).  Then 
       \begin{align*}
           \node{v} + -\node{v} &= (\nv{v} - \nv{v}, \nlabel{v}, \lbrace \node{e} + -\node{e}: \forall \node{e} \in \child{v}\rbrace \setminus\{\zerotree\}) \\
           %&= (0, \nlabel{v}, \{\zerotree\} \setminus\{\zerotree\} \\
@@ -403,8 +405,8 @@ us a vector space.
       \FIELD\) acts as an identity.
       \begin{align*}
           \node{u} &= (\nv{u}, \nlabel{u}, \emptyset) \\
-          &=  (1 \nv{u}, \nlabel{u}, \emptyset) \\
-          &=  1 ( \nv{u}, \nlabel{u},\emptyset) \\
+          &= (1 \nv{u}, \nlabel{u}, \emptyset) \\
+          &= 1 (\nv{u}, \nlabel{u},\emptyset) \\
           &= 1 \node{u}
       \end{align*}
 
@@ -413,12 +415,12 @@ us a vector space.
       non-simple node,
       \begin{align*}
           \node{u} &= (\nv{u}, \nlabel{u},\child{u}) \\
-          &=  (1 \nv{u}, \nlabel{u}, 1 \child{u}) \\
-          &=  (1 \nv{u}, \nlabel{u}, \lbrace (1 \nv{e}, \nlabel{e}, \child{e}): \forall \node{e} \in \child{u} \rbrace),
+          &= (1 \nv{u}, \nlabel{u}, 1 \child{u}) \\
+          &= (1 \nv{u}, \nlabel{u}, \lbrace (1 \nv{e}, \nlabel{e}, \child{e}): \forall \node{e} \in \child{u} \rbrace),
       \end{align*}
       and, if the children are all simple nodes,
       \begin{align*}
-          &=  1 (\nv{u}, \nlabel{u}, \child{u}) \\
+          &= 1 (\nv{u}, \nlabel{u}, \child{u}) \\
           &= 1 \node{u}.
       \end{align*}
       so it is the case that 1 is the scalar multiplicative identity for nodes which
@@ -446,7 +448,7 @@ us a vector space.
       Let us consider compatible nodes \tnode{u} and \tnode{v}.
 
       The commutativity of addition involving \tzerotree is
-      guaranteed by the definition of addition. so we first address
+      guaranteed by the definition of addition, so we first address
       the case where both addends are simple.
 
       Take \tnode{u} and \tnode{v} to be simple nodes; then
@@ -465,15 +467,15 @@ us a vector space.
       of \(n+1\) or less,
       \begin{align*}
           \node{u} + \node{v} &= (\nv{u}, \nlabel{u}, \child{u}) + (\nv{v}, \nlabel{v}, \child{v}) \notag\\
-          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s} : \node{r} \in \restrictedto{u}{v} \mand \node{s} \in \restrictedto{v}{u}\mand\nlabel{r} = \nlabel{s}\} \notag\\
-          & \qquad \qquad \qquad \qquad \cup \{\node{r} : \node{r} \in \child{u}\mand\nlabel{r} \notin \nlabels{v}\} \cup \{\node{s} : \child{s} \in \node{v}\mand\nlabel{s} \notin \nlabels{u}\}\bigr) \setminus \{\zerotree\}\Bigr) \notag\\
-          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \restrictedto{u}{v} \mand \node{s} \in \restrictedto{v}{u}\mand\nlabel{r} = \nlabel{s}\} \notag\\
+          & \qquad \qquad \qquad \qquad \cup \{\node{r}: \node{r} \in \child{u}\mand\nlabel{r} \notin \nlabels{v}\} \cup \{\node{s}: \child{s} \in \node{v}\mand\nlabel{s} \notin \nlabels{u}\}\bigr) \setminus \{\zerotree\}\Bigr) \notag\\
+          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
           & \qquad \qquad \qquad \qquad         \cup \nrestrictedto{\node{u}}{v} \cup \nrestrictedto{v}{u}\bigr) \setminus \{\zerotree\}
       \end{align*}
           
       So,
       \begin{align*}
-          \node{u} + \node{v} &= \Bigl(\nv{v} + \nv{u}, \nlabel{u}, \bigl(\{\node{r}+\node{s} : \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+          \node{u} + \node{v} &= \Bigl(\nv{v} + \nv{u}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
           & \qquad \qquad \qquad \qquad         \cup \nrestrictedto{\node{u}}{v} \cup \nrestrictedto{v}{u}\bigr) \setminus \{\zerotree\}
       \end{align*}
 
@@ -512,7 +514,8 @@ us a vector space.
       whose depth is less than or equal to \(n\), that is if
       \(\depth(\node{u}) \leq n, \depth(\node{v}) \leq n \mand
       \depth(\node{w}) \leq n\),
-      then it must be the case that \[(\node{u} + \node{v}) + \node{w} = \node{u} + (\node{v} + \node{w})\].
+      then it must be the case that
+      \[(\node{u} + \node{v}) + \node{w} = \node{u} + (\node{v} + \node{w}).\]
 
       Now suppose one or more of these trees has a depth of
       \(n+1\).
@@ -562,7 +565,7 @@ us a vector space.
       = n+1\),
       \begin{align*}
         a (b \node{u}) &= a (b  \nv{u}, \nlabel{u}, b\child{u}) \\
-        \intertext{since \(\depth(\node{e}) \leq n \forall \node{e}\in \child{u},\) multiplication of these elements is compatible, and }
+        \intertext{since \(\depth(\node{e}) \leq n \forall \node{e}\in \child{u}\), multiplication of these elements is compatible, and }
           &= (a b\/ \nv{u}, \nlabel{u}, a(b\child{u})) \\
           \intertext{becomes}
           &= ((a b) \nv{u}, \nlabel{u}, (a b)\child{u}) \\
@@ -618,7 +621,7 @@ us a vector space.
       \node{r} \in \restrictedto{u}{v}\mand \node{s} \in
       \restrictedto{v}{u} \}\) can only contain nodes with a depth of
       \(n\) or less; Thus, we can proceed inductively, increasing
-      the least upper bound, (\(\min(j, k)\), for the set of trees
+      the least upper bound, \(\min(j, k)\), for the set of trees
       that cooperate with distribution of scalar multiplication over
       vector addition, to any value we wish.
 
@@ -740,9 +743,9 @@ For any two trees (including those with dissimilar labels) we can
 define a function analogous to a distance.
 
 \begin{definition}\label{treenorm}\typeout{---tree-norm}
-  We will define a semi-norm on the trees. 
-  If we take $\term(\poly{p})$ to be the set of terms in $\poly{p}$,
-  then we define
+  We will define a semi-norm on the trees:
+  %%If we take $\term(\poly{p})$ to be the set of terms in $\poly{p}$,
+  %%then we define
   \begin{equation}
     %\prennorm{\node{u}}={\label{u} +
     %    \stsum{\poly{t}\in\term(\nlabel{u})}\abs{\coeff({t})}^2+\stsum{\node{c}\in\child{u}}\prennorm{\node{c}}},
@@ -758,11 +761,12 @@ Both of these functions clearly have non-negative ranges, and they
 only take the value zero if all the node values and the node labels
 are zero.  Since we restrict ourselves to finite, acyclic trees, we
 can argue that for any finite set of $n$ trees, we can construct an
-equivalent vector-based representation by serialising the tree.
-The defined norm is precisely equivalent to the length
-of the vector.\footnote{The fact that we can construct a total order
-  on trees makes this quite straightforward
-  [c.f. Chapter\ref{explicitmodel}, Section \ref{partial-order}]}
+equivalent vector-based representation of the set by serialising the trees.
+The defined norm is precisely equivalent to the usual length
+of vectors in this set.
+%% \footnote{The fact that we can construct a total order
+%%   on trees makes this quite straightforward
+%%   [c.f. Chapter\ref{explicitmodel}, Section \ref{partial-order}]}
 In the example model discussed in Chapter~\ref{explicitmodel} we 
 make use of both this norm and the distance function
 $\nnorm{\node{u}-\node{v}}$.
@@ -807,7 +811,7 @@ $\nnorm{\node{u}-\node{v}}$.
     \zerotree} = \abs{0 + 0} = 0\), and if only one of the trees has a depth of one, we get either \(\nabs{\node{u} +
     \zerotree} = \nabs{\node{u}}\) or \(\nabs{\zerotree + \node{u}} = \nabs{\node{u}}\).
 
-  For \(\node{u} \mand \node{v}\)  with depths of one, \[\nabs{\node{u} + \node{v}} = \nabs{(\nv{u}+\nv{v}, \nlabel{u}, \emptyset)}= \abs{\nv{u}+\nv{v}}\].
+  For \(\node{u} \mand \node{v}\)  with depths of one, \[\nabs{\node{u} + \node{v}} = \nabs{(\nv{u}+\nv{v}, \nlabel{u}, \emptyset)}= \abs{\nv{u}+\nv{v}}.\]
   Since \tnv{u} and \tnv{v} are scalars in $\FIELD$, we must have
   \(\abs{\nv{u} + \nv{v}} \leq \abs{\nv{u}}+\abs{\nv{v}}\),
   so \[\abs{\nv{u}+\nv{v}} \leq \abs{\nv{u}}+\abs{\nv{v}} = \nabs{\node{u}} + \nabs{\node{v}}.\]
@@ -847,7 +851,7 @@ $\nnorm{\node{u}-\node{v}}$.
 At this point we should consider the elements
 $\node{o} \in \DOM$
 which are analogues of zero. We define the set
-$\nullspace =\{\node{o}\in\DOM : \nabs{\node{o}} = 0\}$,
+$\nullspace =\{\node{o}\in\DOM: \nabs{\node{o}} = 0\}$,
 and observe that for any
 $\node{e} \in \DOM, \mand \node{o} \in \nullspace$
 the equation
@@ -863,7 +867,7 @@ $\zerotree$ with $\rzerotree$, and we take the induced metric on the
 normed vector space $\DOMQ$, to be
 \[\dist(\qnode{u},\qnode{v}) =
 \nabs{\qnode{u} - \qnode{v}} \text{ for all }\qnode{u}, \qnode{v} \in
-\DOMQ\].  We will continue to use \(\nabs{\rnode{u}}\) to denote the
+\DOMQ.\]  We will continue to use \(\nabs{\rnode{u}}\) to denote the
 the induced absolute value of \(\rnode{u}\in\DOMR\).
 
 %% \subsection{Multiplication of elements in $\DOMQ$}
@@ -883,7 +887,7 @@ In this section, we will define a multiplicative operator for
 trees. My motivation for establising these properties is mainly that
 it may broaden the set of mathematical tools we have at our
 disposal to analyse sets of trees (clustering, classification,
-interpolation, extrapolation...).  The element \((1,1,\emptyset)\)
+interpolation, extrapolation\ldots).  The element \((1,1,\emptyset)\)
 acts as a multiplicative identity, but this will not be useful to us
 since it lies outside the domain we are considering.
 
@@ -892,9 +896,9 @@ since it lies outside the domain we are considering.
   \[
   \rnode{u} \tdot \rnode{v} = \begin{cases}
      \rzerotree & \text{ if } \rnode{u} = \rzerotree \mor \rnode{v} = \rzerotree \\
-     (\rv{u} \rv{v}, \rlabel{u} \rlabel{v}, \rlabel{u} \rchild{v} \stplus \rlabel{v} \rchild{u}) & \text{  otherwise}
+     (\rv{u} \rv{v}, \rlabel{u} \rlabel{v}, \rlabel{u} \rchild{v} \stplus \rlabel{v} \rchild{u}) & \text{  otherwise}.
   \end{cases}
-  \].
+  \]
   
 \end{definition}    
 

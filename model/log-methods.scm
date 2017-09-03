@@ -310,13 +310,13 @@ close pages and emit 'showpage' for postscript stuff.
 )
 
 
-(model-method (<log-map> <list> <symbol>) (log-map-polygon self model-space-poly format #!optional colour)
+(model-method (<log-map> <list> <symbol>) (map-polygon self model-space-poly format #!optional colour)
 				  (let* ((perimeter (map (lambda (x) (model->local self x)) model-space-poly))
 							(col (if (symbol? colour) (colour-mapping colour) (my-map-color self)))
 							(fh (my 'file)))
 					 (case format
 						('ps
-						 (fh 'comment (string-append "log-map-polygon " (object->string perimeter)))
+						 (fh 'comment (string-append "map-polygon " (object->string perimeter)))
 						 (plot-polygon fh map:linewidth col perimeter))
 						(else
 						 (error "Only postscript is supported at the moment" (bummer))))))
@@ -357,7 +357,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;; This logs to an open file
 (model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (let ((kdebug (if #f kdebug dnl*))
+				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 					 
 					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
@@ -503,7 +503,7 @@ close pages and emit 'showpage' for postscript stuff.
 						
 (model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)
 				  ;(+kdebug!)
-				  (let ((kdebug (if #f kdebug dnl*))
+				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 									 
 					 ;; (error "(-: Oops, really ought to never get here. :-)")

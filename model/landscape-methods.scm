@@ -140,6 +140,7 @@
 	 (/ (apply min extent) 20.0)))
 
 
+
 ;---- Generating postscript
 
 (define print-environment-data
@@ -344,7 +345,7 @@
 				(call-all-parents)
 				dt)
 
-(model-method (<environment> <list>) (contains? self loc)
+(model-method (<environment> <point>) (contains? self loc)
 				  (if (member (my 'rep) '(() #f <uninitialised> <uninitialised>))
 						(let ((m (map <= loc (my 'minv)))
 								(M (map <= (my 'maxv) loc)))
@@ -352,7 +353,7 @@
 						((my 'rep) (contains? self loc))))
 
 
-(model-method (<environment> <list>) (contains? self loc)
+(model-method (<environment> <point>) (contains? self loc)
 				  (let* ((minv (my 'minv))(maxv (my 'maxv))
 							(n (min (length loc) (length minv) (length maxv)))
 							(m (list-head (min-bound self) n))
@@ -655,15 +656,16 @@ via their containing patch.
 
 (model-method (<ecoservice> <number>)(set-radius! self r)
 				  (set-radius! (my 'patch) r))
+(model-method <ecoservice> (location-needs-location@ self) #t)
 
-(model-method <ecoservice> (location self)
-				  (location (my 'patch)))
+(model-method <ecoservice> (location@ self)
+				  (location@ (my 'patch)))
 
 (model-method <ecoservice> (area self #!optional passing)
 				  (area (my 'patch) passing))
 
 (model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (let ((kdebug (if #f kdebug dnl*))
+				  (let ((kdebug (if #t kdebug dnl*))
 						  ;;(f (if (pair? args) (car args) #f))
 						  ;;(p (if (and (pair? args)
 						  ;;			  (pair? (cdr args)))
@@ -823,13 +825,35 @@ via their containing patch.
 					 slots vals))
 				  )
 
+(model-method (<circle> <log-data>) (plot* self logger #!optional color fill scale loc)
+				  (let* ((file (slot-ref logger 'file))
+							(color (if color color (my 'map-color)))
+							(rad (my 'radius))
+							(scale (if (not scale) 1 scale))
+							(loc (if (not loc) (my 'location)))
+							(prj (composite-prj_src->dst self logger))
+							(circ (make-circle-perimeter loc rad))
+							)
+					 (if (postscript? file)
+						  (if fill
+								(adjusted-plot-filled-polygon
+								 file 0.1 (my 'default-color) color prj circ)
+								(adjusted-plot-polygon
+								 file 0.1 color #f prj circ))
+						  (begin
+							 (file 'display (string-append (object->string (prj loc) " " rad)))
+							 (newline))
+						  )))
+				  
+
+
 (model-method (<circle>) (minima self)
 				  (map - (my 'location) (make-list (length (my 'location)) (my 'radius))))
 
 (model-method (<circle>) (maxima self)
 				  (map + (my 'location) (make-list (length (my 'location)) (my 'radius))))
 
-(model-method (<circle> <list>) (contains? self loc)
+(model-method (<circle> <point>) (contains? self loc)
 				  (<= (distance (my 'location) loc) (my 'radius)))
 
 (model-method (<circle>) (centre self)
@@ -850,7 +874,7 @@ via their containing patch.
 (model-method (<circle>) (max-bound self)
 				  (my 'radius))
 
-(model-method (<circle> <list>) (distance-to-boundary self loc)
+(model-method (<circle> <point>) (distance-to-boundary self loc)
 				  (if (contains? self loc)
 						0
 						(- (distance loc (my 'location)) (my 'radius))))
@@ -881,7 +905,7 @@ via their containing patch.
 ;(model-method (<polygon>) (dump self)
 ;					(dump% self 0))
 
-(model-method (<polygon>) (location self)
+(model-method (<polygon>) (location@ self)
 				 (let ((here (my 'location)))
 				 (if (my 'is-relative)
 					  here
@@ -890,6 +914,25 @@ via their containing patch.
 							  (set-my! 'location c)
 							  c)
 							here))))
+
+(model-method (<polygon> <log-data>)(plot* self logger #!optional color fill scale loc)
+				  (let* ((file (slot-ref logger 'file))
+							(color (if color color (my 'map-color)))
+							(scale (if (not scale) 1 scale))
+							(loc (if (not loc) (my 'location)))
+							(prj (composite-prj_src->dst self logger))
+							(poly (perimeter self))
+							)
+					 (if (postscript? file)
+						  (if fill
+								(adjusted-plot-filled-polygon
+								 file 0.1 (my 'default-color) color prj poly)
+								(adjusted-plot-polygon
+								 file 0.1 color #f prj poly))
+						  (begin
+							 (file 'display (centroid poly))
+							 (file 'newline)))))
+
 
 (model-method (<polygon>) (dump% self count)
 				  (display (make-string count #\space))
@@ -907,11 +950,11 @@ via their containing patch.
 				  )
 
 ;; uses the point-in-polygon routine found in maths.scm
-(model-method (<polygon> <list>) (contains? self loc)
+(model-method (<polygon> <point>) (contains? self loc)
 				  (point-in-polygon loc (perimeter self)))
 
 ;; NOTE that this returns a negative number if the point is in the interior of the polygon.
-(model-method (<polygon> <list>) (distance-to-boundary self point) ;; This is 2d only...
+(model-method (<polygon> <point>) (distance-to-boundary self point) ;; This is 2d only...
 				  (distance-to-polygon point (perimeter self)))
 
 (model-method (<polygon>) (centre self)
@@ -985,7 +1028,23 @@ via their containing patch.
 ;-- <patch> methods and bodies
 ;; 
 
+(model-method <patch> (location-needs-location@ self) #t)
 
+(model-method <patch> (location@ self #!rest args)
+					  (cond ;; many loci possible
+						((null? args) (perimeter self)) ;; return a list of all loci
+						((number? (car args)) (perimeter self))
+						((and (point? (car args)) (pair? (cdr args)) (number? (cadr args)))
+						 (let ((l (car args)) (r (cadr args)))
+							(map  (lambda (p) (<= (distance p l) r)) (perimeter self)))
+						 ) ;; return all the loci that are within (cadr args) of the point
+						((and (point? (car args)) (null? (cdr args)))
+						 (nearest-point-in-list (car args) (perimeter self))
+						 ) ;; return the point closest to the nominated location
+						((and (list? (car args)) (apply andf (map number? (car args))))
+						 (map (lambda (x) (location self x)) (car args)))
+						(else (error 'bad-location-call:multiple-loci args))
+				  ))
 
 (model-method (<patch>) (perimeter self #!optional passing-argument)
 				  (perimeter (my 'rep) passing-argument))
@@ -996,7 +1055,7 @@ via their containing patch.
 (model-method (<patch>) (centre self)
 				  (centre (my 'rep)))
 
-(model-method (<patch> <list>) (distance-to-boundary self loc)
+(model-method (<patch> <point>) (distance-to-boundary self loc)
 				  (distance-to-boundary (my 'rep) loc))
 
 (model-method (<patch>) (max-bound self)
@@ -1085,17 +1144,17 @@ via their containing patch.
 								(cons (my 'rep) (my 'service-list)))
 				  )
 
-(model-method (<patch> <polygon> <list>) (install-boundary self bdry centre)
+(model-method (<patch> <polygon> <point>) (install-boundary self bdry centre)
 				  (set-my! 'rep bdry)
 				  (slot-set! bdry 'location centre)
 				  )
 
-(model-method (<patch> <circle> <list>) (install-boundary self bdry centre)
+(model-method (<patch> <circle> <point>) (install-boundary self bdry centre)
 				  (set-my! 'rep bdry)
 				  (slot-set! bdry 'location centre)
 				  )
 
-(model-method <patch> (location self)
+(model-method <patch> (location@ self)
 				  (slot-ref (my 'rep) 'location))
 
 
@@ -1154,14 +1213,14 @@ via their containing patch.
 
 
 ;--- (distance-to-centre...) returns the distance to the centre of the patch
-(model-method (<patch> <list>) (distance-to-centre self loc)
+(model-method (<patch> <point>) (distance-to-centre self loc)
 				  (sqrt (apply + (map sqr (map - (list-head
 															 (slot-ref (my 'rep) 'location) 2)
 															(list-head loc 2))))))
 
 ;--- (distance-to-interior...) returns the distance to the boundary of
 ;the patch (more expensive than the dist to centre)
-(model-method (<patch> <list>) (distance-to-interior self loc)
+(model-method (<patch> <point>) (distance-to-interior self loc)
 				  (let* ((R (- (sqrt (apply
 											 + (map sqr
 													  (map -
@@ -1408,7 +1467,7 @@ via their containing patch.
 									(file 'comment (string-append "Projected ordinates: " (object->string (map psprj (perimeter self)))))
 									(file 'comment (string-append "service list: " (object->string slist)))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-									(log-map-polygon logger (perimeter self) format 'grey)
+									(map-polygon logger (perimeter self) format 'grey)
 									)
 								  
 								  (#t (error "Bad representation for output" (cnc (my 'rep))))
@@ -1847,7 +1906,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <procedure> <symbol> <procedure>)(log-data self logger format  targets)
 (model-method (<dynamic-patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (let ((kdebug (if #f kdebug  dnl*))
+				  (let ((kdebug (if #t kdebug  dnl*))
 						  )
 					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (let ((file (slot-ref logger 'file))
@@ -1891,7 +1950,7 @@ args can be  an update map or an update map and update equations
 										 (file 'comment (string-append "Native ordinates:" (object->string (perimeter self))))
 										 (file 'comment (string-append "Projected ordinates:" (object->string (map psprj (perimeter self)))))
 ;									(adjusted-plot-polygon file 0.7 0.0 #f psprj (perimeter (my 'rep))))
-										 (log-map-polygon logger (perimeter self) format 'grey)
+										 (map-polygon logger (perimeter self) format 'grey)
 										 )
 										
 										(#t (error "Bad representation for output" (cnc (my 'rep))))
@@ -1956,12 +2015,12 @@ args can be  an update map or an update map and update equations
 
 
 ;; Default landscape only has the default value, oddly enough
-(model-method (<landscape> <pair>) (value self loc)
+(model-method (<landscape> <point>) (value self loc)
 				  (if (contains? self loc)
 						((my 'terrain-function) loc)
 						(my 'default-value)))
 
-(model-method (<landscape> <pair>) (capacity self loc)
+(model-method (<landscape> <point>) (capacity self loc)
 				  (if (contains? self loc)
 						((my 'terrain-function) loc)
 						(my 'default-value)))
@@ -2163,7 +2222,7 @@ args can be  an update map or an update map and update equations
 
 ;--- (aggregate-value self location radius servicelist) 
 
-(model-method (<landscape> <pair> <number> <pair>) (aggregate-value self location radius servicelist)
+(model-method (<landscape> <point> <number> <list>) (aggregate-value self location radius servicelist)
  (let* ((sl (service-sites self servicelist))
 		  (lsl (filter
 				  (lambda (patch) 
@@ -2224,7 +2283,7 @@ args can be  an update map or an update map and update equations
 
 ;--- (<landscape> <procedure>...) (log-data self logger format  targets)
 (model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (let ((kdebug (if #f kdebug dnl*))
+				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 					 
 					 (if (emit-and-record-if-absent logger self (my 'subjective-time))

@@ -105,7 +105,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 
 
 
-(model-method <simple-metabolism> (eat self dt mymass locus foodmass foodrate #!optional update)
+(model-method% <simple-metabolism> (eat self dt mymass locus foodmass foodrate #!optional update)
 				  "The idea is there is an amount of food which is equivalent to foodmass*foodrate points.
    There is max-satiety-satiety space, so..."
 
@@ -128,11 +128,13 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 						  (if (> (my 'satiety) (my 'sated-quantity))
 								(set-my! 'period-of-hunger 0)
 								(set-my! 'period-of-hunger (+ (my 'period-of-hunger) dt)))
-						  (dnl* (name self) (agent-state self) "might eat" can-consume "at" (location self))
+						  ;;(dnl* (name self) (agent-state self) "might eat" can-consume "at" (location self))
 								
 						  (if update
 								(begin
+(timing-block 'gobbles?
 								  (update can-consume)
+)
 								  #t)
 								can-consume)
 						  )
@@ -315,11 +317,11 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 (model-method (<simple-animal> <symbol>) (set-sex! self n)
 				  (slot-set! self 'sex n))
 
-;----- (map-log-track-segment
-(model-method <simple-animal> (map-log-track-segment self track prj ps)
+;----- (log-track-segment
+(model-method <simple-animal> (log-track-segment self track prj ps)
 				  (let ((map-color (my 'map-color))
 						  (default-color (my 'default-color)))
-					 ;;				  (dnl* "In map-log-track-segment" (cnc self) (name self) track)
+					 ;;				  (dnl* "In log-track-segment" (cnc self) (name self) track)
 					 (ps 'comment (string-append "segment of animal track: " (name self)))
 					 (ps 'comment (apply string-append (map object->string (list 'map-color " "  map-color ", " 'default-color " " default-color))))
 					 (cond
@@ -333,12 +335,12 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					  (else (ps 'push-color 0))
 					  )
 					 (set-my! 'track-datum (my 'mass))
-					 (parent-map-log-track-segment)
+					 (parent-log-track-segment)
 					 (ps 'pop-color)
 					 ))
 
 
-(model-method (<simple-animal> <number> <pair> <number> <number>)
+(model-method (<simple-animal> <number> <point> <number> <number>)
 				  (wander-around self dt point attr speed)
 				  ;; This is not ideal, but will have to do.
 				  (let ((vector-to-target  (map - point (my 'location)))
@@ -349,7 +351,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					 (set-my! 'location (map + (my 'location) displacement))
 					 ))
 
-(model-method (<simple-animal> <number> <pair> <number> <symbol>)
+(model-method (<simple-animal> <number> <point> <number> <symbol>)
 				  (wander-around self dt point attr speedtag) ;;
 				  (wander-around self dt point attr (my speedtag)))
 
@@ -363,8 +365,8 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 							(sated-quantity (my 'sated-quantity))
 							(max-satiety (my 'max-satiety))
 							)	
-
-					  (set! dt (modal-dt self dt))
+					  (timing-block 'simple-animal-modal-dt
+										 (set! dt (modal-dt self dt)))
 
 					  ;; body for juvenile herbivores
 					  
@@ -426,13 +428,7 @@ with the following differences:
 ;; routine, since this is comes first in the class precedence list (CPL)
 
 (model-method <example-animal> (forage self )
-				  (let ((results (look-for* self (my 'foodlist) (my 'search-radius))))
-					 (set-my! 'prey-list results)
-					 results
-					 ))
-
-
-
+				  (look-for* self (my 'foodlist) (my 'search-radius)))
 
 
 ;(model-method (<example-animal>) (crowded? self )
@@ -514,7 +510,7 @@ with the following differences:
 					 (set-speed! V)
 					 (set-my! 'movement-speed V)
 					 ;;HERE!!!
-					 (wander-around self dt point 0.3 dv) ;; the 0.9 gives us overshoot and cornering error
+					 (wander-around self dt point 0.85 dv) ;; the 0.9 gives us overshoot and cornering error
 					 
 					 (cond
 					  ((and (<= (distance (location self) (location target)) (my 'capture-radius))
@@ -550,133 +546,175 @@ with the following differences:
 (model-method <example-animal> (manage-offspring-check self)
 				  #f)
 
-
-
+(model-method <example-animal> (assess-local-environment self)
+				  (let ((e (look-for self (my 'environmental-threats) (* 2 (my 'search-radius))))
+						  (p (look-for self (my 'predatorlist)))
+						  (b (look-for self (my 'breedlist) (* 1.5 (my 'search-radius)))) ;; Mates are easier to find than predators
+						  )
+					 #f))
 (model-body% <example-animal>
 ;;  (dnl* (cnc self) "model-body")
   ;; Assess interests first - - - - - - - - - - - - - - - - - - - - - - -
   
-  (if (not (member (my 'current-interest) '(combat mate flee)))
-		(assess-local-environment-check self)
+    (let ((major-interest #f))
+		(if (and (not (member (car (my 'current-interest)) '(flee combat mate)))
+					(> t (my 'next-env-check)))
+			 (set major-interest (assess-local-environment self)))
 		;; water availability, fire, flood, cover from predators,
 		;; food density, conspecific density, predator density, 
-		)
 
-  (let ((envthreats (look-for self (my 'environmental-threats) (* 2 (my 'search-radius)))) ;; these are easier to perceive
-		  (predthreats (look-for self (my 'predatorlist)))
-		  (mates (if #f (look-for self (my 'breedlist)) '()))
-		  (food (forage self)) ;; looks for food
-		  )
+		(let ((envthreats (look-for self (my 'environmental-threats) (* 2 (my 'search-radius)))) ;; these are easier to perceive
+				(predthreats (look-for self (my 'predatorlist)))
+				(mates (if #f (look-for self (my 'breedlist) (* 1.5 (my 'search-radius))) '())) ;; Mates are easier to find than predators
+		  ;;; (mates (if #f (look-for self (my 'breedlist)) '()))
+		  ;;; (food (forage self)) ;; looks for food
+				)
 
-	 (if #f (rest-recover-check self))
-	 (if #f (manage-offspring-check self))
-	 
-	 ;; Self assessment of the conditions:
-	 ;; environmental threats are highest
-	 ;; then predator threats
-	 ;; then mating
-	 ;; manage-offspring (if appropriate)
-	 ;; then rest/recovery
-	 ;; then food
-	 	 
-	 ;;###################################################
-	 ;;## HERE
-	 ;;###################################################
-	 
-	 ;; Adjust dt in <simple-animal> and then act on most pressing interest.
-	 (let ((parent-returns (call-parents <simple-animal>)))
-		(if (not (number? (my 'mass)) )
-			 (set-my! 'mass (mass-at-age self)))
+		  (if #f (rest-recover-check self))
+		  (if #f (manage-offspring-check self))
+		  
+		  ;; Self assessment of the conditions:
+		  ;; environmental threats are highest
+		  ;; then predator threats
+		  ;; then mating
+		  ;; manage-offspring (if appropriate)
+		  ;; then rest/recovery
+		  ;; then food
+		  
+		  ;;###################################################
+		  ;;## HERE
+		  ;;###################################################
+		  
+		  ;;
+		  ;; NOTES: This does not implement a notion of a home range.  It would
+		  ;; be relatively simple to add and a radius of +inf.0 would indicate no
+		  ;; range
+		  ;;
 
-		(if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
-		(if (dead? self)
-			 (begin
-;;				(dnl* (cnc self) (name self) "is decaying...." (my 'mass))
-				(set-mass! self (* (my 'mass) (exp (* (my 'decay-rate) dt))))
-				(if (< (my 'mass) (* 0.2 (my 'peak-mass)))
-					 (begin
-						(terminate self)
-						(list 'remove self))
-					 'ok))
-			 (begin
-				(if (not (positive? (my 'satiety)))
-					 (set-my 'current-interest (cons 'forage (my 'current-interest)))
-					 )
-				
-				(let* ((max-speed (maximum-speed self))
-						 (interest (my 'current-interest)) ;; this can be a prioritised list
-						 (main-interest (if (pair? interest) (car interest) interest)))
-				  (case main-interest
-					 ('flee
-					  ;; flight is simpler than hunting
-					  (let ((point (map (lambda (x) (* max-speed dt x))
-											  (map - (my 'location) (my 'objective))))
-							  )
-						 (wander-about self dt point 0.1 max-speed) ;; Without inertia, this may be a bit wonky.
-						 )
-					  )
-					 ('forage ;; this is where they look for food
-					  (forage self) ;; sets prey-list
-					  )
-					 ('hunting
-					  (hunt self dt (my 'objective)))
-					 ('eating
-					  (eat self dt (my 'mass) (my 'location) (slot-ref target 'mass) foodrate
-							 (lambda (mss)
-								;;(dnl* "got" ate "fruit")
-								(alter target self 'adjust# 'mass (- mss))
-								))
-					  )
-					 ('seek-mate
-					  #f
-					  )
-					 ('mate
-					  #f
-					  )
-					 ('seek-shelter
-					  #f
-					  )
-					 ('fight
-					  #f
-					  )
-					 ('tend-offspring
-					  #f
-					  )
-					 ('rest
-					  #t
-					  )
-					 ('sleep
-					  #t)
-					 )
+		  ;; Adjust dt in <simple-animal> and then act on most pressing interest.
+		  (let ((parent-returns (call-parents <simple-animal>)))
+			 (if (not (number? (my 'mass)) )
+				  (set-my! 'mass (mass-at-age self)))
 
-				  (let ((rectime (my 'elapsed-recovery-required))
-						  )
+			 (if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
+
+			 (if (dead? self)
+				  (begin
+					 ;;				(dnl* (cnc self) (name self) "is decaying...." (my 'mass))
+					 (set-mass! self (* (my 'mass) (exp (* (my 'decay-rate) dt))))
+					 (if (< (my 'mass) (* 0.2 (my 'peak-mass)))
+						  (begin
+							 (terminate self)
+							 (list 'remove self))
+						  'ok))
+				  (begin ;; I'm not dead yet.....
+					 ;; set current interest first
+
+					 ;; mostly not implemented
+
+					 (cond
+					  (#f #f );; check for environmental threats
+					  (#f #f );; check for predatory threats
+					  (#f #f) ;; check for mating conditions
+
+					  (#f #f) ;; check for rest
+
+					  ;; Yup, foodtime 
+					  ((and (not (positive? (my 'satiety))) (not (null? (forage self))))
+						(set-my 'current-interest (cons 'forage (my 'current-interest)))
+						)
+
+					  (#f #f) ;; check for sleep
+					  )
+
 					 
-					 (if (null? (list-intersection interest '(hunting fight flee)))
-						  (if (positive? rectime)
-								(set-my! 'elapsed-recovery-required (max 0 (- rectime dt)))))
-					 )	 
-				  ) ;; end of interest-ing bit
+					 (let* ((max-speed (maximum-speed self))
+							  (interest (my 'current-interest)) ;; this can be a prioritised list
+							  (main-interest (cond
+													((pair? interest) (car interest))
+													((null? interest) 'wander)
+													(else interest))))
 
-				))
+						(if (and (eq? main-interest 'hunting) (<= (min (cons +inf.0 (map (lambda (x) (distance (my 'location) (location x))) (my 'prey-list))))
+																				(my 'eat-radius)))
+							 (set! main-interest 'eating))
 
+						(case main-interest
+						  ('flee
+							;; flight is simpler than hunting
+							(let ((point (map (lambda (x) (* max-speed dt x))
+													(map - (my 'location) (my 'objective))))
+									)
+							  (wander-about self dt point 0.8 max-speed) ;; Without inertia, this may be a bit wonky.
+							  )
+							)
+						  ('forage ;; this is where they look for food
+							(let ((F (if (null? (my 'prey-list)) (forage self) (my 'prey-list)))) ;; sets prey-list
+							  (set-my! 'prey-list F)
+							  (cond
+								((not (null? F))
+								 (set-my! 'main-interest 'hunting)
+								 (set-my! 'objective (car F))
+								 (wander-about self (* 0.8 dt) (location (car F)) 0.8 hunt-speed) ;; Without inertia, this may be a bit wonky.
+								 )
+								(else
+								 (wander-about self dt (random-point (my 'environment)) 0.6 hunt-speed) ;; Without inertia, this may be a bit wonky.
+								 ))
+							  ))
+						  ('hunting
+							(hunt self dt (my 'objective)))
+
+						  ('eating
+							(eat self dt (my 'mass) (my 'location) (slot-ref target 'mass) foodrate
+								  (lambda (mss)
+									 ;;(dnl* "got" ate "fruit")
+									 (alter target self 'adjust# 'mass (- mss))
+									 ))
+							)
+						  ('wander
+							(wander-around self dt '(0 0 0) 0 (my 'wander-speed))) ;; random walk.
+
+						  ('seek-mate
+							#f)
+						  ('mate
+							(set-my 'speed  0))
+						  ('seek-shelter
+							#f)
+						  ('fight
+							#f)
+						  ('tend-offspring
+							(set-my 'speed  0))
+						  ('rest
+							(set-my 'speed  0))
+						  ('sleep
+							(set-my 'speed  0)#t)
+						  )
+						(let ((rectime (my 'elapsed-recovery-required))
+								)
+						  
+						  (if (null? (list-intersection interest '(hunting fight flee)))
+								(if (positive? rectime)
+									 (set-my! 'elapsed-recovery-required (max 0 (- rectime dt)))))
+						  )	 
+						) ;; end of interest-ing bit
+					 ))
 		
-		(cond
-		 ((pair? (my 'offspring)) ;; Must return offspring to the kernel
-		  (list 'introduce (my 'offspring)) )
-		 ((member (my 'agent-state) '(dead)) ;; bodies hang around: set decay-rate to +inf.0 for immediate eviction
-		  'ok)
-		 ((or (member (my 'queue-state) '(terminated))
-				(member (my 'agent-state) '(terminated)))
-		  (begin (terminate self) (list 'remove self)))
-		 ((not (or (number? parent-returns)  (eq? parent-returns 'ok)))
-		  (cons dt (!filter void? (!filter null? parent-returns))))
-		 (#t
-		  'ok)
-		 )
-		)
-	 )
-  )
+			 (cond
+			  ((pair? (my 'offspring)) ;; Must return offspring to the kernel
+				(list 'introduce (my 'offspring)) )
+			  ((member (my 'agent-state) '(dead)) ;; bodies hang around: set decay-rate to +inf.0 for immediate eviction
+				'ok)
+			  ((or (member (my 'queue-state) '(terminated))
+					 (member (my 'agent-state) '(terminated)))
+				(begin (terminate self) (list 'remove self)))
+			  ((not (or (number? parent-returns)  (eq? parent-returns 'ok)))
+				(cons dt (!filter void? (!filter null? parent-returns))))
+			  (#t
+				'ok)
+			  )
+			 )
+		  )))
+
 
 
 ;--- Juv. Herbivore methods ------------------------------------------------------------
@@ -697,112 +735,130 @@ with the following differences:
 ;; are likely to be inconsistent and are certainly a good start for a bad joke.
 
 (model-body% <jherb>
-  (let* ((parent-returns (call-parents <example-animal>)))
-;;	 (dnl* (cnc self) "model-body")
-	 ;;; (if (<= (my 'counter) 0) ;; counter is initialised in (create ...) and updated in (run-agent ...)
-	 ;;; 	  (begin
-	 ;;; 		 ))
-	 
-	 (cond
-;;	  ((list? parent-returns) ;; a parent class has indicated something significant
-;;		(dnl* "PARENT RETURNED" parent-returns)
-;;		(parent-returns)
-;;	  
-	  ((dead? self)
-		'ok)
-	  ((and (< (my 'age) (my 'max-age)) (not (member (my 'agent-state) '(dead terminated))))
-		(let ((age (my 'age))
-				(mass (my 'mass))
+	 ;; jherb does not chain back to the example animal, because it relies on
+	 ;; essentially ubiquitous fruit.  Also, we hypothesise that the juveniles
+	 ;; cannot effectively escape the carnivores.
+	 (let ((parent-returns (call-parents <example-animal>)))
+		(if (not (number? (my 'mass)) )
+			 (set-my! 'mass (mass-at-age self)))
+
+		(if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
+
+		(if (dead? self)
+			 (begin
+				;;				(dnl* (cnc self) (name self) "is decaying...." (my 'mass))
+				(set-mass! self (* (my 'mass) (exp (* (my 'decay-rate) dt))))
+				(if (< (my 'mass) (* 0.2 (my 'peak-mass)))
+					 (begin
+						(terminate self)
+						(list 'remove self))
+					 'ok)
 				)
-		  ;; body for juvenile herbivores
-		  ;; Handle transition to include adult diet
-		  (if (and (>= (my 'mass) (my 'adult-diet-mass)) (not (member <plant> (my 'foodlist))))
-				(set-my! 'foodlist (cons <example-plant> (my 'foodlist))))
-		  
-		  (let* ((domain (my 'domain))
-					(fruitcount (value domain 'fruit))
-					(fruit-density (/ fruitcount (area domain)))
-					)
-			 
-			 ;; Eat...
-			 (for-each
-			  (lambda (type)
-				 ;;(dnl* "Processing" type)
-				 (cond 
-				  ((eq? type 'fruit)
-					;;(dnl* "Fruity!")
-					(let ((tryfor
-							  (eat self dt mass (my 'location)
-									 (value domain 'fruit)
-									 (my 'fruit-satiety-rate)
-									 (lambda (ate)
-										(let* ((seedcount (my 'seedcount))
-												 )
-										  ;;(dnl* "got" ate "fruit")
-										  (add! domain 'fruit (- ate))
-										  (set-my! 'seed-lag-list* (append (my 'seed-lag-list*) (list (* ate seedcount))))
-										  )))
+			 (begin ;; I'm not dead yet.....
+				;; set current interest first
+				(cond
+				 ((dead? self)
+				  'ok)
+				 ((and (< (my 'age) (my 'max-age)) (not (member (my 'agent-state) '(dead terminated))))
+				  (let ((age (my 'age))
+						  (mass (my 'mass))
+						  )
+					 ;; body for juvenile herbivores
+					 ;; Handle transition to include adult diet
+					 (if (and (>= (my 'mass) (my 'adult-diet-mass)) (not (member <plant> (my 'foodlist))))
+						  (set-my! 'foodlist (cons <example-plant> (my 'foodlist))))
+					 
+; Fruit is essentially uniformly distributed in a cell.  Nobody knows why, but there are
+; dark murmurings in the back of the pub ...					 
+					 (let* ((domain (my 'domain))
+							  (fruitcount (value domain 'fruit))
+							  (fruit-density (/ fruitcount (area domain)))
 							  )
+						
+						;; Eat...
+						(for-each
+						 (lambda (type)
+							;;(dnl* "Processing" type)
+							(cond 
+							 ((eq? type 'fruit)
+							  ;;(dnl* "Fruity!")
+							  (let ((tryfor
+										(eat self dt mass (my 'location)
+											  (value domain 'fruit)
+											  (my 'fruit-satiety-rate)
+											  (lambda (ate)
+												 (let* ((seedcount (my 'seedcount))
+														  )
+													;;(dnl* "got" ate "fruit")
+													(add! domain 'fruit (- ate))
+													(set-my! 'seed-lag-list* (append (my 'seed-lag-list*) (list (* ate seedcount))))
+													)))
+										)
+									  )
+								 (add! domain 'seeds (car (my 'seed-lag-list*)))
+								 (set-my! 'seed-lag-list* (cdr (my 'seed-lag-list*))))
+							  )
+							 ((member type (list <plant> <example-plant> "B.exemplarii"))
+							  ;;					(dnl* "Want to eat trees")
+							  #f
+							  )
+							 (else (error "bad mojo"))
 							 )
-					  (add! domain 'seeds (car (my 'seed-lag-list*)))
-					  (set-my! 'seed-lag-list* (cdr (my 'seed-lag-list*)))))
-				  ((member type (list <plant> <example-plant> "B.exemplarii"))
-;;					(dnl* "Want to eat trees")
-					#f
-					)
-				  (else (error "bad mojo"))
-				  ))
-			  (force-list (my 'foodlist)))
-
-
-			 (if (or (> (my 'period-of-hunger) 1) (< fruit-density (my 'food-density-limit)))
-				  (let* ((loc (location self))
-							(wt (lambda (x) (/ (value x 'fruit) (+ 1 (distance loc (location x)))))) ; move
-							(patch-priority
-							 (sort (list-copy patchlist)
-									 (lambda (p q)
-										(<= (wt p) (wt q)))))
 							)
-					 ;;HERE!!!
-					 (wander-around self dt (location (car patch-priority)) 0.3 (my 'forage-speed))
-					 ))
+						 (force-list (my 'foodlist)))
 
-			 ;; This may get bumped by short timesteps, .... 
-			 ;; if there is fruit, eat fruit until either it is gone or we are maximally sated
-			 ;; record how much fruit was eaten and adjust satiety and fruit
+						(if (or (> (my 'period-of-hunger) (* 1 day)) (< fruit-density (my 'food-density-limit)))
+							 (let* ((loc (location self))
+									  (wt (lambda (x) (/ (value x 'fruit) (+ 1 (distance loc (location x)))))) ; move
+									  (target (let look ((p patchlist) (b (wt (my 'domain))) (cp (my 'domain)))
+														 (if (null? p)
+															  cp
+															  (let ((nb (wt (car p))))
+																 (look (cdr p) (if (> nb b) nb b) (if (> nb b) (car p) cp))))))
+									  )
+								(if #t
+									 (dnl* "jherb: hungry" (my 'period-of-hunger) "fruit-density" fruit-density "/" (my 'food-density-limit)))
+
+								(wander-around self dt (location target) 0.8 (my 'forage-speed))
+								))
+
+						;; This may get bumped by short timesteps, .... 
+						;; if there is fruit, eat fruit until either it is gone or we are maximally sated
+						;; record how much fruit was eaten and adjust satiety and fruit
 
 			 ;;; (if (and (or (member <plant> (my 'foodlist))
 			 ;;; 				  (member <example-plant> (my 'foodlist)))
 			 ;;; 			 (< satiety max-satiety) (> mass (my 'adult-diet-mass)))
-			 
+						
 			 ;;; 	  (forage self)
 
-			 ;; if there are trees, eat until either they are gone or we are maximally sated
-			 ;; record how much was eaten and adjust satiety and adjust the damage counters for trees
-			 )
-		  )
-		  dt
-		)
+						;; if there are trees, eat until either they are gone or we are maximally sated
+						;; record how much was eaten and adjust satiety and adjust the damage counters for trees
+						)
+                )
+				  dt
+				  )
 
-	  ;; *****************************************************************************************
-	  ;; This is an example of preserving state information for transfer to a new representation
-	  ;; 
-		((and (not (member (agent-state self) '(dead terminated))) (>= (+ (my 'age) dt) (my 'max-age)))
-		 (let ((slotset (filter (lambda (x)
-										  (member (car x)
-													 '(name peak-mass
-															  sex age mass period-of-hunger location speed direction
-															  track tracked-paths 
-															  subjective-time state-flags dont-log subsidiary-agents
-															  maintenance-list projection-assoc-list))
-										  ) (all-slots self))))
-			;;			(dnl* "HERB GRADUATION!")
-			(list 'migrate (apply create (append (list <aherb> "adult-herbivore") slotset))))
-		 )
-		(#t dt)
-		)
+				 ;; *****************************************************************************************
+				 ;; This is an example of preserving state information for transfer to a new representation
+				 ;; 
+				 ((and (not (member (agent-state self) '(dead terminated))) (>= (+ (my 'age) dt) (my 'max-age)))
+				  (let ((slotset (filter (lambda (x)
+													(member (car x)
+															  '(name peak-mass
+																		sex age mass period-of-hunger location speed direction
+																		track tracked-paths 
+																		subjective-time state-flags dont-log subsidiary-agents
+																		maintenance-list projection-assoc-list))
+													) (all-slots self))))
+					 ;;			(dnl* "HERB GRADUATION!")
+					 (list 'migrate (apply create (append (list <aherb> "adult-herbivore") slotset))))
+				  )
+				 (#t dt)
+				 )
+				)
+			 ))
 	 )
-  )
 
 
 
@@ -820,95 +876,8 @@ with the following differences:
 ;; Recall from the parameter file that the functions and parameters associated with growth
 ;; are likely to be inconsistent and are certainly a good start for a bad joke.
 
-(model-body <aherb>
-  (let ((parent-returns (call-parents <example-animal>)))
-	 (cond ;; body for adult herbivores
-	  ((dead? self)
-		;;(dnl* 'DEADBEEF)
-		'ok)
-
-	  ((not (terminated? self))
-		(let ((age (my 'age))
-				(mass (my 'mass))
-				(here (my 'location))
-				)
-
-		  ;;(dnl* "Just looking, officer. Moving on....")
-		  (let* (
-					(f (forage self))
-					(leaf-mass (lambda (x) (request-accessor x 'get 'leaf-mass)) f)
-					(forage-damage (lambda (x) (request-accessor x 'get 'forage-damage)) f)
-					(adjust-forage-damage! (lambda (x) (request-accessor x 'adjust#! 'forage-damage)) f)
-					(leaf-mass (lambda (x) (request-accessor x 'get 'leaf-mass)) f)
-					(foodmass (map (lambda (x) (x)) f))
-
-					;;(fl (map location f))
-					(fl (map (lambda (x) (query x self 'location (my 'search-radius))) f))
-					(fd (map (lambda (x) (query x self 'distance)) f))
-					(fv (map (lambda (f d) (/ (sqr (f) (power (/ d 100.0) 3/2))) f fd)))
-					                                   ;; I want the decay to be a little  more than linear
-					(nfv (filter (lambda (p) (caddr p) (my 'search-radius)) (map list f fl fd fv)))
-					;; this list only contains the entries of the whole forage list which might be able to be
-					;; sensed by the animal (via scent, spoor, ....), and it will still be sorted by value/dist.
-
-					;; The elements of the lists nfv, nearby, very-close, and courses
-					;; are (agent location distance leafmass.
-
-					(nearby (sort nfv (lambda (p q) (>= (caddr p) (caddr q)))))
-					)
-			 ;; nfv excludes things that are outside the search radius
-			 ;; if not already close enough, move to head of list
-			 ;; using a "greener grass" function, eat from the first of the list, till the rest of the list (in aggregate)
-			 ;; is greener, then move to the next ... continue till the timestep is exhausted. This ought to update the
-			 ;; herbivore's tracks. Properly, the herbivores ought to have a short enough step that an individual doesn't
-			 ;; have the ability to scoff the lot -- everyone should get equitable access to the foodstuffs.
-
-			 ;;(dnl* "Looking at:" (map name (map car nearby)))
-			 
-			 ;; So nearby is the sorted list of food
-			 (if (null? nearby)
-				  (begin
-					 (wander-around self dt (list-head (car Model-Domain) 2)  0. (my 'search-speed))
-					 (set-my! 'period-of-hunger (+ (my 'period-of-hunger) dt))
-					 )
-				  (let* ((target (car nearby))
-							(target-location (location (car target)))
-							(locus (cadr target))
-							(D (caddr target))
-						   (delta (map - locus (location self)))
-							)
-					 (dnl* (name self) "at" (location self) "target at" locus "-->" D "|" (normalise delta) "*" (sqrt (apply + (map sqr delta))))
-					 (if (< D (my 'eat-radius))
-						  (let* ((domain (my 'domain))
-									(very-close (filter (lambda (x) (< (distance here (cadr x)) (my 'eat-radius))) nearby))
-									(NT (length very-close))
-									(mass (my 'mass))
-									(treemasses (map leaf-mass (map car very-close)))
-									(treemass (apply + treemasses))
-									(food-satiety-rate (my 'food-satiety-rate))
-									)
-
-							 ;;HERE!!!
-							 (wander-around self dt locus 0.4 (* 0.2 (my 'forage-speed)))
-							 (let* ((tryfor (eat self dt mass (my 'location) treemass food-satiety-rate)))
-								(let loop ((munch tryfor)
-											  (courses (map car very-close))
-											  )
-								  (if (pair? courses)
-										(let* ((lmass (leaf-mass (car courses)))
-												 (k (/ lmass treemass)))
-										  (lose-foliage (car courses)  (* munch k lmass))
-										  (loop munch (cdr courses)))))
-								(set-my! 'period-of-hunger 0))
-							 )
-						  ;;HERE!!!
-						  (wander-around self dt locus 0.4 (my 'forage-speed)))
-					 ))
-				  )
-		  )
-		)
-	  )
-
+(model-body% <aherb>
+   (let ((parent-returns (call-parents <example-animal>)))
 	 (cond ;; work out what to send back....
 	  ((or (member (my 'agent-state) '(terminated))
 			 (member (my 'queue-state) '(terminated)))
@@ -940,7 +909,7 @@ with the following differences:
 	  (#t dt)
 	  )
 	 )
-  )
+	 )
   
 
 ;--- Carnivore methods -------------------------------------------------------------------
@@ -987,90 +956,54 @@ with the following differences:
 		  'ok
 		  (begin
 			 (let ((age (my 'age))
-						  (mass (my 'mass))
-						  (satiety (my 'satiety))
-						  (sated-quantity (my 'sated-quantity))
-						  (max-satiety (my 'max-satiety))
-						  (domain (my 'domain))
-						  )
-					 ;; body for ib-carnivores
-
-					 (if (>= (my 'period-of-hunger) (my 'hunger-limit))
-						  (begin
-							 (die self)
-							 (dnl* (name self) "starved"))
-						  (let* ((offspring (reproduce self)) ;; the reproduce call checks to see if it really ought to reproduce, and generates offspring if necessary
-									)
-							 (set! satiety (- satiety (my 'satiety-rate))) ;; our assumption is that a big herbivore eats as much as a little one (proportionally).
-							 
-							 ;; Ecoservice based consumption
-				;;; (let* ((food-per-point ((my 'food-satiety-rate) mass))
-				;;; 		 (frate ((my 'food-satiety-rate) mass))
-				;;; 		 (mighteat (* frate (- max-satiety satiety)))
-				;;; 		 (tryfor (if (> food mighteat) (max 0 (min mighteat (- food mighteat))) (if (positive? food) food 0)))
-				;;; 		 )
-				;;;   (dnl* "Stomach room:" max-satiety satiety)
-				;;;   (dnl* "frate = " frate ", and I would like to eat" mighteat "food")
-				;;;   (dnl* "but there is " food "so I might eat" tryfor)
-
-							 
-				;;;   ;; if we are not maximally sated and we are big enough, find a tree ...
-				;;;   ;; (if (and (< satiety max-satiety) (> mass (my 'adult-diet-mass)))
-				;;;   ;; 	 (let ((treelist (kernel 'locate (*is-class? <example-plant>) (my 'search-radius) (my 'location)  )))
-							 
-				;;;   ;; 		(dnl* "Still not eating trees")
-				;;;   ;; 		;; if there are trees, eat until either they are gone or we are maximally sated
-				;;;   ;; 		;; record how much was eaten and adjust satiety and adjust the damage counters for trees
-				;;;   ;; 		(void)
-				;;;   ;; 		)
-				;;;   ;; )
-							 
-				;;;   (cond
-				;;; 	((>= satiety sated-quantity)  ;; if we are sated, increment sated-time by dt, and grow a bit
-				;;; 	 (set-my! 'mass  (+ mass (* (growth-rate self) dt)))
-				;;; 	 (set-my! 'sated-time (+ (my 'sated-time) dt)))
-				;;; 	((> satiety 0) (set-my! 'sated-time 0))
-				;;; 	((<= satiety 0) (set-my! 'sated-time (- (my 'sated-time) dt)))
-				;;; 	(#t (error "bad satiety"))
-				;;; 	)
-
-				;;;   (dnl* "No support for migration")
-				;;;   (dnl* "No support for graduation")
-				;;;   (dnl* "No carnivore bits")
-				;;;   )
-							 )
-						  ))
-				  
-
-				  (cond ;; work out what to send back....
-					((or (member (my 'agent-state) '(terminated))
-						  (member (my 'queue-state) '(terminated)))
-					 (list 'remove))
-
-					((>= (+ (my 'age) dt) (my 'longevity))
-					 (die self)
-					 (dnl* (name self) "died of old age")
-					 (terminate self)
-					 (list 'remove)
+					 (mass (my 'mass))
+					 (satiety (my 'satiety))
+					 (sated-quantity (my 'sated-quantity))
+					 (max-satiety (my 'max-satiety))
+					 (domain (my 'domain))
 					 )
-					((and (>= (my 'age) (my 'reproduction-age))
-							(>= (my 'mass) (my 'reproduction-mass))
-							(>= (my 'last-reproduced) (my 'reproduction-period))
-							(member (my 'sex) '(reproducing female reproducing-female))
-							(< (random-real) (my 'reproduction-prob)))
-					 (dnl* "CARN REPRODUCTION!")
-					 (set-my! 'last-reproduced 0)
-					 (let* ((n (max 1 (real->integer (nrnd (my 'reproduction-ct)))))
-							  (offspring '(make-carnivores (my 'location) (my 'domain))) ;; returns a list
-							  	)
-						;; generate offspring 
-						(list 'introduce offspring) ;; the list is of the offspring
+				;; body for ib-carnivores
+
+				(if (>= (my 'period-of-hunger) (my 'hunger-limit))
+					 (begin
+						(die self)
+						(dnl* (name self) "starved"))
+					 (let* ((offspring (reproduce self)) ;; the reproduce call checks to see if it really ought to reproduce, and generates offspring if necessary
+							  )
+						(set! satiety (- satiety (my 'satiety-rate))) ;; our assumption is that a big herbivore eats as much as a little one (proportionally).
 						)
-					 )
-					;; CHECK PARENT RETURNS HERE 
-					((list? parent-returns)
-					 parent-returns)
-					(#t dt)))
+					 ))
+			 
+
+			 (cond ;; work out what to send back....
+			  ((or (member (my 'agent-state) '(terminated))
+					 (member (my 'queue-state) '(terminated)))
+				(list 'remove))
+
+			  ((>= (+ (my 'age) dt) (my 'longevity))
+				(die self)
+				(dnl* (name self) "died of old age")
+				(terminate self)
+				(list 'remove)
+				)
+			  ((and (>= (my 'age) (my 'reproduction-age))
+					  (>= (my 'mass) (my 'reproduction-mass))
+					  (>= (my 'last-reproduced) (my 'reproduction-period))
+					  (member (my 'sex) '(reproducing female reproducing-female))
+					  (< (random-real) (my 'reproduction-prob)))
+				(dnl* "CARN REPRODUCTION!")
+				(set-my! 'last-reproduced 0)
+				(let* ((n (max 1 (real->integer (nrnd (my 'reproduction-ct)))))
+						 (offspring '(make-carnivores (my 'location) (my 'domain))) ;; returns a list
+						 )
+				  ;; generate offspring 
+				  (list 'introduce offspring) ;; the list is of the offspring
+				  )
+				)
+			  ;; CHECK PARENT RETURNS HERE 
+			  ((list? parent-returns)
+				parent-returns)
+			  (#t dt)))
 			 )
 	 )
   )

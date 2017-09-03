@@ -33,12 +33,56 @@
 		))
 
 
+
 ;; mass_at_age(m, a, M, A, age) = m + (M - m) * (1 - exp( -2 * exp(1) *(age - a)/(A - a)))
 ;;-->            (+ m (* (- M m) (- 1 (exp (* -2 e (/ (- age a) (- A a)))))))
 
 
 ;; age_at_mass(m, a, M, A, mass) = a + (A-a)/(-2 * exp(1)) * log(1 - (mass - m)/(M - m))
 ;;--> (+ a (* (/ (- A a) (* -2 (exp 1))) (log (- 1 (/ (- mass m) (- M m))))))
+
+(define (PP ob) ;; Can pp methods as well as procedures
+  (if (isa? ob <method>)
+		(pp (method-procedure ob))
+		(pp ob)))
+
+
+;; sel is typically an ordering op like <=, value is an accessor for the elements of L
+(define (best-N N sel value L)
+  (if (not (procedure? value))
+		(set! value (lambda (x) (x))))
+  
+  (let ((split ;; sheep-from-goats
+			(lambda (sel value lst)
+			  (let loop ((L lst)
+							 (s '())
+							 (g '()))
+				 (if (null? L)
+					  (list (reverse s) (reverse g))
+					  (let ((q (car L)))
+						 (if (sel (value q))
+							  (loop (cdr L) (cons q s) g)
+							  (loop (cdr L) s (cons q g))))))))
+		  )
+	 (let pick ((interesting L)
+					;(boring '())
+					(M (apply max (map value L)))
+					(m (apply min (map value L)))
+					(set-list '())
+					)
+		
+		(let ((cut@ (/ (+ M m) 2)))
+		  (if (<= (length interesting) N)
+				interesting
+				(let ((sg (split (lambda (x) (sel x cut@)) value interesting)))
+				  (pick (car sg)
+						  ;;interesting
+						  ;;;(cadr sg) 
+						  (apply max (map value (car sg)))
+						  (apply min (map value (car sg)))
+						  (cons interesting set-list))))))))
+
+	 
 
 
 (define (random-direction #!optional n)
@@ -157,7 +201,7 @@
   (list ll (list (car ll) (cadr ur)) ur (list (cadr ll) (car ur)) ll))
 
 (define (project-from-one-to-another from to point)
-  (let ((f->m (get-local->model from ))
+  (let ((f->m (get-loci$al->model from ))
 		  (m->t (get-model->local to)))
 	 (if (or (not (procedure? f->m)) (not (procedure? m->t)))
 		  (error "bad projection chain"))
@@ -187,30 +231,30 @@
 
 
 (define (set-uninitialised-slots obj lst value)
-  	(for-each
-		(lambda (slt)
-		  (if (uninitialised? (slot-ref obj slt))
-				(begin
-				  ;;(dnl*  "Setting"  slt "to" value "for" (cnc obj) (slot-ref obj 'taxon))
-				  (slot-set! obj slt value)
-				  (if (not (equal? (slot-ref obj slt) value)) (error "Bad initialisation in set-uninitialised-slots" (cnc obj) (slot-ref obj 'taxon) slt value ))
-				  )
-		  ))
-		lst))
+  (for-each
+	(lambda (slt)
+	  (if (uninitialised? (slot-ref obj slt))
+			(begin
+			  ;;(dnl*  "Setting"  slt "to" value "for" (cnc obj) (slot-ref obj 'taxon))
+			  (slot-set! obj slt value)
+			  (if (not (equal? (slot-ref obj slt) value)) (error "Bad initialisation in set-uninitialised-slots" (cnc obj) (slot-ref obj 'taxon) slt value ))
+			  )
+			))
+	lst))
 
 (define (fail-on-uninitialised-slots obj lst)
-    (let ((lst (filter (lambda (x) x) (map 
+  (let ((lst (filter (lambda (x) x) (map 
 												 (lambda (x)
 													(if (uninitialised? (slot-ref obj x))
 														 x
 														 #f))
 												 lst))))
-		(if (pair? lst)
-			 (begin
-				(dnl*  "The following slots need to be set for" (cnc obj) (slot-ref obj 'taxon))
-				(pp lst)
-				(abort 'uninitialised-slots lst)))
-		))
+	 (if (pair? lst)
+		  (begin
+			 (dnl*  "The following slots need to be set for" (cnc obj) (slot-ref obj 'taxon))
+			 (pp lst)
+			 (abort 'uninitialised-slots lst)))
+	 ))
 
 
 
@@ -236,7 +280,7 @@
 	((and (pair? s) (number? (car s)) (number? (cadr s))	(= (length s) 2))
 	 (list '(0 0) s))
 	(else (error "bad papersize" s))))
-	  
+
 ;; (define (m->ps xy)
 ;;   (rescale 2834.64646464646464646 x))
 
@@ -256,20 +300,20 @@
   ;; to a vector function.
   (list
 	(cons 'I  (lambda (x) x)) ;; The identity mapping
-;;	(cons 'km->ps (mapf km->ps)) ;; defined above
-;;	(cons 'ps->km (mapf ps->km)) ;; defined above
-;;	(cons 'm->ps (mapf m->ps)) ;; defined above
-;;	(cons 'ps->m (mapf ps->m)) ;; defined above
-;;	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
-;;	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
-;;	(cons 'm->mm (mapf (lambda (x) (* x 1000))))
-;;	(cons 'mm->m (mapf (lambda (x) (/ x 1000))))
-;;	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
-;;	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
-;;	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
-;;	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
-;;	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
-;;	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
+	;;	(cons 'km->ps (mapf km->ps)) ;; defined above
+	;;	(cons 'ps->km (mapf ps->km)) ;; defined above
+	;;	(cons 'm->ps (mapf m->ps)) ;; defined above
+	;;	(cons 'ps->m (mapf ps->m)) ;; defined above
+	;;	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
+	;;	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
+	;;	(cons 'm->mm (mapf (lambda (x) (* x 1000))))
+	;;	(cons 'mm->m (mapf (lambda (x) (/ x 1000))))
+	;;	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
+	;;	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
+	;;	(cons 'inches->points (mapf inches->points)) ;; defined in postscript.scm
+	;;	(cons 'points->inches (mapf points->inches)) ;; defined in postscript.scm
+	;;	(cons 'mm->inches (mapf mm->inches)) ;; defined in postscript.scm
+	;;	(cons 'inches->mm (mapf inches->mm)) ;; defined in postscript.scm
 	))
 
   ;;; might be useful sometime
@@ -285,7 +329,7 @@
 (define default-margins 10) ;; implicitly in mm.
 
 (define ->map-output (lambda (x) x))
-  
+
 (define Valid-location (lambda x #f)) ;; This must be set before the model runs
 
 ;; Page sizes should always be specified in mm 
@@ -304,7 +348,7 @@
 ;	(map mm->points (if (not pagesize) isoA4 pagesize))
 ;	default-margins)
   (load "output-mappings.scm")
-	)
+  )
 
 (define (add-to-*default-projections* p k)
   (if (not (assoc k *default-projections*))
@@ -353,10 +397,10 @@
 	((and (number? (car domain)) (not (null? (cdr domain))) (number? (cadr domain)))
 	 ((and (<= (car domain) x) (<= x (cadr domain)))))
 	(else #f)))
-	
-		
-		
-  
+
+
+
+
 "
 The linear-map function constructs a linear mapping from a domain to a codomain
 "
@@ -384,45 +428,45 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 
 	 (letrec ((f (lambda (p)
 						(if (and #f (list? p))
-								(begin
-								  (dnl* 'p p '-- 'd0 d0 'D0 D0 (if inverse 'invscale 'scale) (if inverse invscale scale))
-								  (dnl* "(map - p d0)" (map - p d0))
-								  (dnl* "(map * (map - p d0) (if inverse invscale scale))" (map * (map - p d0) (if inverse invscale scale)))
-								  (dnl* "(map + (map * (map - p d0) (if inverse invscale scale))" (map + (map * (map - p d0) (if inverse invscale scale)) D0))))
-						  (cond
-							((and (pair? p) (apply andf (map number? p)))
-									(let ((R (map + (map * (map - p d0) (if inverse invscale scale)) D0)))
-									  (if (and (is-in (car R) (car (domain-transposed codomain)))
-												  (is-in (cadr R) (cadr (domain-transposed codomain))))
-											R
-											(begin
-											  ;;(dnl* "Domain failure:" p "->" R "from" domain "to" codomain) ;; sometimes it just tries to dig outside the sandbox
-											  R
-											  ))))
-							((eq? p '1/scale) (map reciprocal (if inverse invscale scale)))
-							((eq? p 'scale) (if inverse invscale scale))
-							((eq? p 'verbose) (set! verbose #t))
-							((eq? p 'quiet) (set! verbose #f))
-							((eq? p 'domain) codomain)
-							((eq? p 'codomain) domain)
-							((eq? p 'inverse)
-									(if (not g)
-										 (set! g (linear-map domain codomain f)))
-									g)
-							((eq? p 'help) (dnl* "The symbols are '1/scale scale verbose quiet domain docomain inverse help show N d0 d1 D0 D1 and invscale"))
-							((eq? p 'show)
-							 (dnl "projection:")
-							 (dnl* " " 'N N)
-							 (dnl* " " 'd0 d0)
-							 (dnl* " " 'd1 d1)
-							 (dnl* " " 'D0 D0)
-							 (dnl* " " 'D1 D1)
-							 (dnl* " " 'scale (if inverse invscale scale))
-							 (dnl* " " 'invscale (if inverse invscale scale))
-							 (pp f))
-							(else (error "Bad argument to linear map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
-				 f)))
-  
+							 (begin
+								(dnl* 'p p '-- 'd0 d0 'D0 D0 (if inverse 'invscale 'scale) (if inverse invscale scale))
+								(dnl* "(map - p d0)" (map - p d0))
+								(dnl* "(map * (map - p d0) (if inverse invscale scale))" (map * (map - p d0) (if inverse invscale scale)))
+								(dnl* "(map + (map * (map - p d0) (if inverse invscale scale))" (map + (map * (map - p d0) (if inverse invscale scale)) D0))))
+						(cond
+						 ((and (pair? p) (apply andf (map number? p)))
+						  (let ((R (map + (map * (map - p d0) (if inverse invscale scale)) D0)))
+							 (if (and (is-in (car R) (car (domain-transposed codomain)))
+										 (is-in (cadr R) (cadr (domain-transposed codomain))))
+								  R
+								  (begin
+									 ;;(dnl* "Domain failure:" p "->" R "from" domain "to" codomain) ;; sometimes it just tries to dig outside the sandbox
+									 R
+									 ))))
+						 ((eq? p '1/scale) (map reciprocal (if inverse invscale scale)))
+						 ((eq? p 'scale) (if inverse invscale scale))
+						 ((eq? p 'verbose) (set! verbose #t))
+						 ((eq? p 'quiet) (set! verbose #f))
+						 ((eq? p 'domain) codomain)
+						 ((eq? p 'codomain) domain)
+						 ((eq? p 'inverse)
+						  (if (not g)
+								(set! g (linear-map domain codomain f)))
+						  g)
+						 ((eq? p 'help) (dnl* "The symbols are '1/scale scale verbose quiet domain docomain inverse help show N d0 d1 D0 D1 and invscale"))
+						 ((eq? p 'show)
+						  (dnl "projection:")
+						  (dnl* " " 'N N)
+						  (dnl* " " 'd0 d0)
+						  (dnl* " " 'd1 d1)
+						  (dnl* " " 'D0 D0)
+						  (dnl* " " 'D1 D1)
+						  (dnl* " " 'scale (if inverse invscale scale))
+						  (dnl* " " 'invscale (if inverse invscale scale))
+						  (pp f))
+						 (else (error "Bad argument to linear map, try a point, 'inverse 'scale, 'domain or 'codomain" p))))))
+		f)))
+
 
 
 
@@ -457,7 +501,7 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 ;; 					((number? margin) (list margin margin))
 ;; 					((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
 ;; 					(#t margin)) 2)))
-  
+
 ;;   ((if use-*linear-map
 ;; 		 *linear2d:model-space->output-space
 ;; 		 linear2d:model-space->output-space)
@@ -478,10 +522,10 @@ The linear-map function constructs a linear mapping from a domain to a codomain
   (set! use-*linear-map (if (null? use-*linear-map) #f (car use-*linear-map)))
 
   (set! margin ;; Do not convert margin into points -- wait till we have done everything in "units"
-			(list-head (cond
-							((number? margin) (list margin margin))
-							((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
-							(else margin)) 2))
+		  (list-head (cond
+						  ((number? margin) (list margin margin))
+						  ((and (pair? margin) (< (length margin) 2)) (list (car margin) (car margin)))
+						  (else margin)) 2))
 
   (let ((lm   (if use-*linear-map
 						(n-linear-map (map (lambda (x) (list-head x 2)) domain) (list margin (map - (list-head pagesize 2) (map + margin margin))))
@@ -501,8 +545,8 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 
 
 
-	 
-  
+
+
 
 
 
@@ -520,7 +564,7 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 			(lslst (map (lambda (k) (filter (lambda (c) (eqv? k (car c))) slst)) keys)) ;; 
 			)
 	 (map length lslst)))
-	 
+
 ;; subsidiary-agents are agents which may be embedded in a larger dynamic agent. Agents know 
 ;; what their parent agent is (if they have one) and may indicate to the parent that they should be
 ;; added to the active list. The parent agent is the one that actually decides if a agent is to move 
@@ -604,15 +648,13 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 			(theta (* (- (* 2 (random-real)) 1) (sqr var) pi))
 			(displacement (map (lambda (x) (* rp x)) (rotated-vector (normalise dir) theta)))
 			)
-;;	 (dnl* 'delta_r delta_r 'N N 'radius radius 'rp rp 'theta theta)
+	 ;;	 (dnl* 'delta_r delta_r 'N N 'radius radius 'rp rp 'theta theta)
 	 displacement))
 
 
-
-
-(define (stoch-walk here there dt ndt var spd)
+(define (XXstoch-walk here there dt ndt var spd)
   (let* ((dir (normalise (map - there here)))
-			(N (/ dt ndt)) ;; notonal changes in direction
+			(N (/ dt ndt)) ;; ndt is the  notional time between changes in direction
 			(radius (* spd (sqrt (/ (* 2 N) 2)) (gamma 3/2)))
 			(theta (* (- (* 2 (random-real)) 1) (sqr var) pi))
 			(rp (simple-nrnd radius (sqrt radius) 0 (* dt spd)))
@@ -622,6 +664,20 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 	 ;;(dnl* "[][][][]--- " 'here '-> there ":" 'direct dw 'random rw 'theta theta 'rad rp)
 	 (map + rw dw)))
 
+
+
+
+(define (stoch-walk here there dt ndt attr sp)	 
+  (let* ((v-component (lambda (p v) (map (lambda (x) (* p x)) v)))
+			(dir (v-component attr (normalise (map - there here))))
+			(theta (* (- (* 2 (random-real)) 1) pi))
+			(d (list (cos theta) (sin theta)))
+			(D (v-component (- 1.0 attr) (map + dir d)))
+			;;(radius (* spd (sqrt (/ (* 2 N) 2)) (gamma 3/2)))
+			(radius (min (* sp N) (power (random-real) -1/2)))
+			)
+	 (map (lambda (x) (* radius x)) (map + D dir))))
+		  
 
 ;; (define trials (map (lambda (x) (stoch-walk 12 2 0.5 '(1 0) 2)) (seq 2000)))
 ;; (define trialdat (map vlen trials))

@@ -1,3 +1,6 @@
+% -*- outline-regexp: "%--* ";  -*-
+%- Preliminaries
+\message{Chapter 2}
 \chapter[INCREASING MODEL EFFICIENCY BY DYNAMICALLY CHANGING MODEL
   REPRESENTATIONS]{ Increasing model efficiency by dynamically
   changing model representations}\label{modelefficiency}
@@ -24,17 +27,17 @@ forms in order to establish how useful using model switching may be in
 terms of run-time and fidelity.  The three configurations tested are
 \begin{itemize}
 \item a purely analytic representation of the
-  migrating population --- In this configuration a population whose
+  migrating population -- In this configuration a population whose
   relative locations follow a Gaussian distribution is moved around the
   migratory circle, and the uptake of contaminant is calculated using
   a Runge-Kutta4 algorithm
-\item a purely individual-based model --- Individuals move through the
+\item a purely individual-based model -- Individuals move through the
   contaminant zone, integrating their contact with the plume and
   generating an uptake level appropriately
 \item either a population (as described), a set of individuals (also
   as described), or as a mix with part of the cohort represented as
   individuals within the risk zone, and the balance represented as a
-  population --- Here, individuals are generated (and removed from the
+  population -- Here, individuals are generated (and removed from the
   population) as the population disk encroaches on the contaminant
   zone. As individuals leave the contact zone, they are subsumed by
   the population and their individual contaminant level is decayed
@@ -44,8 +47,8 @@ terms of run-time and fidelity.  The three configurations tested are
 The analytic submodel is the simplest of the representations,
 consisting largely of a value (or vector) which records the
 contaminant load, and the number of individuals which are represented.
-A single instance of the analytic submodel is present in
-purely-analytic and in the switching model.  The individual-based
+A single instance of the analytic submodel is present in both the 
+purely analytic model and in the switching model.  The individual-based
 model incorporates a number of state variables, such as velocity,
 contaminant load and the instantiated agents are independent of the
 analytic representation.
@@ -343,7 +346,7 @@ respect to time and location and maintains no state variables.
 \subsection{Process overview and scheduling}
 
 Simulations were run with 90 minute time-steps for a period representing twelve
-years. At each time-step, each instance of a submodel is roster-ed in a
+years. At each time-step, each instance of a submodel is rostered in a
 priority queue sorted on the ``time-to-run'' state variable, and when it comes
 to the top of the queue it executes.
 
@@ -577,7 +580,7 @@ $C_{r k} (t)$, corresponds to the mean contaminant load of the
 population, $C_p (t)$, produced by the population submodel; averaging
 them, that is constructing
 \[ C_r (t) = \frac{1}{k} \sum^k_{j = 1} C_{r j} (t), \]
-where $r$ is one of `$i$' or `$m$', is equivalent to running many
+where $r$ is one of $i$ or $m$, is equivalent to running many
 stochastic trials and averaging to fit the population submodel. Using
 $^{} C_{i k} (t)$, $^{} C_{m k} (t)$ and $^{} C_p (t)$ we find the
 maximum value attained for each representation, $\hat{C}_r$. We are
@@ -765,7 +768,7 @@ can discard it when we move from individuals to populations.
 
 The union of submodels' state-spaces can generally be decomposed into
 {\em{processing sets}\/} of state-variables. Partitioning the state variables
-in this way---particularly in advance---makes it easier to analyse and
+in this way -- particularly in advance -- makes it easier to analyse and
 minimise the boundary effects associated with the transition from one
 representation to another. Within a representation, the state variables which
 are unique to it form a special subset. The subset can be divided into the
@@ -934,7 +937,7 @@ resolved by models which change their representations according to the
 state of the agents.  The
 initial motivation for considering this kind of model was the
 recurring need to incorporate contaminant modelling in marine
-environments~\cite{Lyne1994pmez5, gray2006nws, grayningaloo}. 
+environments~\cite{lyne1994pmez5, gray2006nws, grayningaloo}. 
 
 The decision strategy in this model was unusually straightforward and
 simple; this was primarily to avoid obscuring the the central idea,

@@ -20,6 +20,7 @@
 	 ;; a simple number just scales by that much, a symbol indicates that the glyph should be scaled
 	 ;; by the numeric value stored in that slot.
 
+	 (list 'food-value leaf-mass)
 
 	 (list 'dt (* 8 hour))
     (list 'type 'herbivore)

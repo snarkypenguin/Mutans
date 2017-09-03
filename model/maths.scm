@@ -31,17 +31,20 @@
 (define e (exp 1))
 (define 1/e (/ 1 e))
 (define pi (acos -1))
+(define tau (* 2 pi))
 (define sqrt2pi (sqrt (* 2 pi)))
 (define e*2 (* 2 e))
 (define e*-2 (* -2 e))
 (define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
 
-(define 2pi (* 2.0 pi))
-(define pi*2 2pi)
-(define tau 2pi)
-(define sqrt2pi (sqrt 2pi))
+(define 2pi tau)
+(define pi*2 tau)
+(define sqrt-tau (sqrt tau))
+(define sqrt2pi sqrt-tau)
+(define 100tau 628)
+(define 10000tau 62832) ;; slightly large
 (define 100pi 314)
-(define 10000pi 31416)
+(define 10000pi 31416) ;; slightly small
 
 
 
@@ -138,7 +141,64 @@
 		(if func
 			 (map func (reverse (seq n)))
 			 (reverse (seq n)))))
-			 
+			
+;; Apply to a partitioned list (plist)
+(define (apply-to-partitioned-list op lst)
+  (apply op (map (lambda (l) (apply op l)) lst)))
+
+
+(define (partitioned-list? L)
+  (let ((PK (partition-list)))
+	 (if (not (list? L) #f)
+		  (and
+			(<= (length L) PK)
+			(apply andf (map list? L))
+			(apply = (cons PK (map length (reverse (cdr L)))))
+			(<= (length (car (reverse L))) PK)))))
+
+(define (partition-list #!optional lst n) ;; cuts a list into managable pieces or leaves it alone
+  ;; N is the length of the whole list if known
+  (let ((biggest 10)
+		  ;(biggest 8192)
+		  )
+	 (if (not (list? lst))
+		  biggest
+		  (let ((N (if (number? n) n (length lst))))
+			 (cond
+			  ((or (null? lst) (<= N 0)) '())
+			  ((and (number? N) (<= N biggest)) lst)
+			  (else
+				(let ((H (list-head lst biggest))
+						(T (list-tail lst biggest)))
+				  (cons H (if (<= (length T) biggest)
+								  (list T)
+								  (partition-list T (if (> N biggest) (- N biggest) N)))
+						  ))))))))
+
+
+(define (mean lst #!optional pwr)
+  (if (not (or (eq? pwr #f) (number? pwr))) (error 'evil-power-specified pwr))
+  (let ((k (longlist))
+		  (n (length lst))
+		  (P (if pwr (lambda (x) (power x pwr)) (lambda (x) x)))
+		  (b (if pwr (lambda (x) (power x (/ 1 pwr))) (lambda (x) x)))
+		  )
+	 (/ 
+	  (if (not P) 
+			(if (<= n k)
+				 (apply + lst)
+				 (apply + (map (lambda (l) (apply + l)) (partition-list lst))))
+			(if (<= n k)
+			  (apply + (map P lst))
+			  (if (<= n k)
+					(apply + (map P lst))
+					(apply + (map (lambda (l) (apply + (map P l))) (partition-list lst))))))
+	  n))
+  )
+
+	  
+
+  
 
 (define (maths-make-list n . init)
   (if (<= n 0) 
@@ -304,9 +364,9 @@
 
 ;; This is the generating function
 (define (general-sigmoid-f x lmb phi)
-  (exp (* 4 pi lmb (- x phi))))
+  (exp (* 2 tau lmb (- x phi))))
 
-;; This is exp( 4*pi*lmb * (x -phi))
+;; This is exp( 2*tau*lmb * (x -phi))
 
 (define (general-sigmoid-g v)
   (/ v (+ 1 v)))
@@ -333,7 +393,7 @@
   (cond 
 	((>= X 1) 1)
 	((<= X 0) 0)
-	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 4 pi)) 0.5)))))
+	(else (max 0.0 (min 1.0 (+ (/ (- (log X) (log (- 1 X))) (* 2 tau)) 0.5)))))
   )
 )
 
@@ -347,7 +407,7 @@
 (define (inverse-sigmoid P lmb phi)
   (cond
 	((<= P 0) 0)
-	((<= P 1) (+ (/ (log P) (* 4 pi lmb)) phi))
+	((<= P 1) (+ (/ (log P) (* 2 tau lmb)) phi))
 	(else 1)))
 
 
@@ -365,8 +425,8 @@
 (define (power b e) ;; Preserves exactness if possible
   (cond
 	((< e 0) (/ 1 (power b (- e))))
+	((= e 1) b)
 	((zero? e) 1)
-
 	((and (integer? e) (rational? b)) ;; This will keep them as exact numbers if they are exact
 	 (cond
 	  ((even? e) (power (* b b) (/ e 2)))
@@ -412,9 +472,12 @@
 
 
 (define (sqr x) ;; general
-  (if (list? x)
-      (map * x x)
-      (* x x)))
+  (if (list? x) (map square x) (square x))
+;  (if (list? x)
+;      (map * x x)
+;      (* x x))
+  )
+
 
 (define-macro (sum mn mx lmbda)
   `(apply + (map ,lmbda (map (lambda (x) (+ ,mn x)) (sequence (- ,(+ 1 mx) ,mn))))))
@@ -679,11 +742,10 @@
 			(M (if (>= N 4) (cadddr args) +inf.0))
 			)
 
-	 (let* ((n (+ (* (let* ((pi*2 (* pi 2))
-									  (u (random-real))
-									  (v (random-real))
-									  (w (sqrt (* -2.0 (log u)))))
-								(* w (cos (* v pi*2))))
+	 (let* ((n (+ (* (let* ((u (random-real))
+									(v (random-real))
+									(w (sqrt (* -2.0 (log u)))))
+								(* w (cos (* v tau))))
 						  stddev) mean)))
 		(if (and (< m n) (< n M)) ;; open interval!
 			 n
@@ -857,7 +919,7 @@
 (define random random-real)
 
 (define (random-angle)
-  (* pi (- (* (random-real) 2.0) 1)))
+  (* tau (- (* (random-real)) 1)))
 
 (define (random-displacement #!optional d)
   (cond
@@ -1057,6 +1119,51 @@
 (define -- (extend-arith-op-to-funcs -))
 (define ** (extend-arith-op-to-funcs *))
 (define // (extend-arith-op-to-funcs /))
+
+
+(define (nearest-point-in-list point lst)
+  (let loop ((got #f)
+				 (lst lst)
+				 (bestd +inf.0))
+	 (cond
+	  ((null? lst)
+		got)
+	  ((or (not got) (< (distance got (car lst))  bestd))
+		(loop (car lst) (cdr lst) (distance (distance got (car lst)))))
+	  (else (loop got (cdr lst) bestd)))
+	 ))
+
+(define (nearest-point-in-list% func point lst)
+  ;; the points in the list ares obtained by applying a function to the elements in the list
+  ;; the point is just a point
+  (let loop ((got #f)
+				 (lst lst)
+				 (bestd +inf.0))
+	 (let ((fgot got)
+			 (flst (func (car lst))))
+		(cond
+		 ((null? lst)
+		  got)
+		 ((or (not fgot) (< (distance fgot flst)))
+		  (loop (car lst) (cdr lst) (distance (distance fgot flst))))
+		 (else (loop got (cdr lst) bestd)))
+		)))
+
+(define (nearest-point-in-list* pfunc point lst)
+  ;; all the points are generated as the result of a function call
+  (let loop ((got #f)
+				 (lst lst)
+				 (bestd +inf.0))
+	 (let ((fgot (if got (pfunc got) #f))
+			 (flst (pfunc (car lst))))
+		(cond
+		 ((null? lst)
+		  got)
+		 ((or (not fgot) (< (distance fgot flst)))
+		  (loop (car lst) (cdr lst) (distance (distance fgot flst))))
+		 (else (loop got (cdr lst) bestd)))
+		)))
+
 
 ;; This returns a piecewise linear function of one argument which is zero outside its domain
 (define (pwl ptlist)

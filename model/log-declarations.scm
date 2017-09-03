@@ -32,7 +32,7 @@
 ;(declare-method open-p/n "open a port for logging")
 ;(declare-method close-p/n "close a logging port")
 
-;(declare-method map-log-track-segment "description needed")
+;(declare-method log-track-segment "description needed")
 ;(declare-method map-emit-page "specific for postscript output")
 
 ;(declare-method data-log-track-segment "description needed")

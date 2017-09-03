@@ -15,6 +15,8 @@
 	 (list 'note "Simple plants approximating the trees in Chapter 2")
 	 (list 'reference "Based on data from the One Oak project.")
 
+	 (list 'plot-scale (lambda (me) (* 5 (log (mass me))))) ;; can be a scalar or a function which takes 'self'
+
 	 (list 'dt (* 5 days))
 	 (list 'foliage-color ps-light-green)
 	 (list 'stress-color ps-yellow)
@@ -64,7 +66,8 @@
 
     (list 'max-mass B.ex-mass-max)
 
-	 (list 'fruiting-mass (* 20 kg))
+	 (list 'fruiting-mass (* 20 kg)) ;; the mass at which a tree begins to fruit
+	 (list 'fruit-mass (* 0.166 kg)) ;; the mass of an individual fruit.
 	 (list 'fruiting-probability 0.8)
     (list 'lai 1.7)
     (list 'water-stress-effect #t) ;; changes fruiting 
@@ -90,8 +93,8 @@
 
 	 ;; seeds are added by juvenile herbivores
 	 ;(list 'seed-decay -5e-6) ;; 2000 -> ~100 in 7 days        ;; Not used directly by the trees.
-
-	 (list 'seed-decay 0) ;; no decay at all
+	 ;;(list 'seed-death 0) ;; no decay at all
+	 (list 'seed-death -5e-7) ;; 2000 --> <1 in 6 months
 
 	 (list 'seed-germination-prob 0.001)          ;; using the seed ecoservice
 	 (list 'fluke-seed-germination-prob (* 1/60 0.0001)) ;; chance of a fruit that hasn't been eaten germinating a seed

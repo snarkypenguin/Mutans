@@ -1,67 +1,8 @@
 % chap5.tex (Chapter 5 of the thesis)
 
-\newcommand{\SCLOS}{\textsf{TinyCLOS}\xspace}
-\newcommand{\Cc}{\textsf{C}}
-\newcommand{\CC}{\textsf{C}\xspace}
-\newcommand{\Cpp}{\textsf{C++}\xspace}
-\newcommand{\Scheme}{\textsf{Scheme}\xspace}
-\newcommand{\Gambit}{\textsf{Gambit}\xspace}
-\newcommand{\GambitC}{\textsf{GambitC}\xspace}
-
-
-\newcommand{\sdefmac}{\texttt{define-macro}\xspace}
-\newcommand{\sdefsyntax}{\texttt{define-syntax}\xspace}
-\newcommand{\sdefine}{\texttt{define}\xspace}
-\newcommand{\sload}{\texttt{load}\xspace}
-\newcommand{\sinclude}{\texttt{include}\xspace}
-
-
-\newcommand{\declaremethod}{\texttt{declare-method}\xspace}
-\newcommand{\defineclass}{\texttt{define-class}\xspace}
-\newcommand{\inheritsfrom}{\texttt{inherits-from}\xspace}
-\newcommand{\statevars}{\texttt{state-variables}\xspace}
-\newcommand{\modelbody}{\texttt{model-body}\xspace}
-\newcommand{\modelmethod}{\texttt{model-method}\xspace}
-
-\newcommand{\method}{\texttt{log-data}\xspace}
-
-\newcommand{\mclass}[1]{\texttt{<#1>}\xspace}
-\newcommand{\mproxy}{\textit{proxy}\xspace}
-\newcommand{\magent}{\textit{agent}\xspace}
-\newcommand{\marray}{\textit{array}\xspace}
-\newcommand{\mprojection}{\textit{projection}\xspace} %% has projections
-\newcommand{\mplottableagent}{\textit{plottable\-agent}\xspace} %% has a location and direction
-\newcommand{\mthing}{\textit{thing}\xspace} %% has mass
-\newcommand{\mlivingthing}{\textit{living-thing}\xspace} %% has a decay-rate, mortality, age and a notion of a domain
-\newcommand{\manimal}{\textit{animal}\xspace} %% a mobile living that reproduces
-\newcommand{\mplant}{\textit{plant}\xspace} %% a stationary plant
-\newcommand{\mplantarray}{\textit{plant-array}\xspace} %% a collection of stationary plant with reduced data
-\newcommand{\menv}{\textit{environment}\xspace} %% bounding region
-\newcommand{\mpatch}{\textit{patch}\xspace} %% has ecoservices and caretaker
-\newcommand{\mdynamicpatch}{\textit{dynamic-patch}\xspace} %% d.e. systems
-\newcommand{\mservice}{\textit{ecoservice}\xspace} %% a resource
-\newcommand{\mlandscape}{\textit{landscape}\xspace} %% a collection of patches
-\newcommand{\mlogger}{\textit{logger}\xspace} %% logs data and usually puts it in a file
-\newcommand{\mmonitor}{\textit{monitor}\xspace} %% inspects and modifies model configuration
-
-\newcommand{\mclasses}[1]{\texttt{<#1>s}\xspace}
-\newcommand{\mproxies}{\textit{proxies}\xspace}
-\newcommand{\magents}{\textit{agents}\xspace}
-\newcommand{\marrays}{\textit{arrays}\xspace}
-\newcommand{\mprojections}{\textit{projections}\xspace} %% has projections
-\newcommand{\mplottableagents}{\textit{plottable-agents}\xspace} %% has a location and direction
-\newcommand{\mthings}{\textit{things}\xspace} %% has mass
-\newcommand{\mlivingthings}{\textit{living-things}\xspace} %% has a decay-rate, mortality, age and a notion of a domain
-\newcommand{\manimals}{\textit{animals}\xspace} %% a mobile living that reproduces
-\newcommand{\mplants}{\textit{plants}\xspace} %% a stationary plant
-\newcommand{\mplantarrays}{\textit{plant-arrays}\xspace} %% a collection of stationary plant with reduced data
-\newcommand{\menvs}{\textit{environments}\xspace} %% bounding region
-\newcommand{\mpatches}{\textit{patches}\xspace} %% has ecoservices and caretaker
-\newcommand{\mdynamicpatches}{\textit{dynamic-patches}\xspace} %% d.e. systems
-\newcommand{\mservices}{\textit{ecoservices}\xspace} %% a resource
-\newcommand{\mlandscapes}{\textit{landscapes}\xspace} %% a collection of patches
-\newcommand{\mloggers}{\textit{loggers}\xspace} %% logs data and usually puts it in a file
-\newcommand{\mmonitors}{\textit{monitors}\xspace} %% inspects and modifies model configuration
+%% classes are refered to in textit, syntactic elements are in texttt
+%% filenames are in pandora
+\message{Chapter 5}
 
 \chapter[AN EXPLICIT IMPLEMENTATION]{An explicit implementation}
 \WeAreOn{\cfive}\label{explicitmodel}
@@ -71,46 +12,58 @@ Chapter~\ref{modelefficiency} argued that switching models are worth
 considering because they may provide benefits in fidelity and
 efficiency. The paper demonstrated significant advantages over
 non-switching versions of the the system.  The hypothetical example
-developed in Chapter~\ref{adaptiveselection} illustrates a more fully
-formed representation of a small trophic network, and to provides a
-platform for a discussion of how a general model might be
-constructed. Here, we describe an explicit implementation of a system
-based on Chapter~\ref{adaptiveselection}. The role of this
-implementation is not primarily to provide a complete, efficient
-implementation of a framework supporting adaptive hybrid models--- its
-purpose is to provide a concrete starting point for further critique,
-exploration and development.  In this chapter, we describe the system,
-discuss the reasons certain approaches have been taken, and address
-both how the system could be used when implementing new models and
-avenues for further research.
-
-The example model was implemented in the \Scheme programming language
-It may be argued that there might be more obvious candidates, such as
-\CC and \Cpp.  While I had extensive experience modelling in both \CC
-and \Cpp, and a significant body of code from which I might draw, the
-considerations which prompted me to use \Scheme in the paper of
-Chapter~\ref{modelefficiency} were still pertinent. The most important
-reason that \Scheme was my language of choice is that it implements
-first class closures.  At the risk of stating the obvious, closures
-are a coupling of a procedural element with data which is preserved
-across invocations of the procedure.  The choice of using an ---at
-least partially---interpreted language also meant that I could readily
-encorporate both physical units and the definition of parameters and
-that procedural code could also be treated as a ``parameter'' in the
-parameter files (\emph{c.f.} the files for the mass-at-age functions
-for the animals and plants).
-\footnote{ \textbf{Randall---Remember}: \textit{parameter files, structure of output
+developed in Chapter~\ref{adaptiveselection} describes a model of a
+small trophic network in order to provide a platform to explore how a
+general model might be constructed. Here, we describe an explicit
+implementation of a system based on
+Chapter~\ref{adaptiveselection}. The role of this implementation is
+not primarily to provide a complete, efficient implementation of a
+framework supporting adaptive hybrid models --  its purpose is to
+provide a concrete starting point for further critique, exploration
+and development.  In this chapter, we describe the system, discuss the
+reasons certain approaches have been taken, and address both how the
+system could be used when implementing new models and avenues for
+further research.\footnote{ \textbf{Randall -- Remember}: \textit{parameter files, structure of output
   mechanism (loggers) -- simulation/analogue of actual sampling
-  strategies, postscript output, scope for automatically generating
+  strategies, postscript output (glyphs, tracks, graphs, etc), scope for automatically generating
   animated output }}
-\Scheme is an actively developing language, and
-there are a number of very good interpreters and compilers for it;
-many of these implementations are also amenable to integration with
-other languages, either through directly linking binary objects or by
-interacting through a virtual machine (such as a JVM).  \Scheme was,
+
+
+The example model was implemented in the \Scheme programming language.
+\Scheme was chosen because it has long possessed properties that are
+only now becoming part of the standard in members of the \CC family, such as
+anonymous functions, and first-class closures. A simple example of a
+closure might look like so:
+\begin{verbatim}
+(define counter 
+   (let ((n 0))
+      (lambda x 
+         (cond
+           ((null? x) (set! x (+ 1 x))
+           ((eqv? x '(reset)) (set! x 0))
+           (#t counter))))
+           )
+)
+\end{verbatim}
+The variable \sttvar{counter} is set to point to the function the
+\Syntax{lambda} defines, and the state variable \sttvar{counter} is
+``global'' to this function, rather like a static variable defined
+outside a function in a C source file. Closures are a
+coupling of a procedural element with data which is preserved across
+invocations of the procedure.
+
+Using an interpreted language also meant that I could readily
+encorporate both physical units and the definition of parameters and
+that functions could also be treated as part of the set of
+``parameters'' in the parameter files (\emph{c.f.}  the files for the
+\method{mass-at-age} functions for animals and plants). \Scheme was,
 at its inception, designed to be a tool for exploration
 \cite{sussman1998first} and it remains an excellent tool for this
-purpose. 
+purpose. \Scheme is an actively developing language, and there are a
+number of very good interpreters and compilers for it; many of these
+implementations are also amenable to integration with other languages,
+either through directly linking binary objects or by interacting
+through a virtual machine (such as a JVM).
 
 The class structure in the example model makes use of the \Scheme
 implementation of \SCLOS that was written
@@ -128,66 +81,71 @@ with its implicit MOP seemed a natural fit.  \SCLOS has been
 the basis for many of the significant object-oriented  systems for
 \Scheme.
 
-I have used \textsf{GambitC} (\textsf{Gambit}), a well regarded
-implementation of \Scheme which runs on all of the major platforms
-(Linux, Unix, OSX, and Android, for example). \textsf{Gambit}
-incorporates both a fully developed \Scheme interpreter and a
-compiler, and both can readily link programs with external code and
-libraries which may exist either as compiled or as interpreted \Scheme
-code. The choice to use \textsf{Gambit}, rather than another version
-of \Scheme, was heavily influenced by several points: it was the
-implementation used for the model in Chapter~\ref{modelefficiency};
-its ability to link to compiled \CC and its own compiled code can
-combine to produce programs which are noticably faster than purely
-interpreted code; it supports very \CC-like infix notation (indeed, it
-can be programmed using syntax which is almost-native \CC syntax); and
-adding hand-crafted \Cc or \Cpp code for particularly intensive
-routines is not difficult.  Porting the model to other versions of
-\Scheme should be relatively simple; the only potentially awkward
-issue in using a different \Scheme implementation would be the use of
-\sdefmac in the creation of the classes and methods in a model.  These
-macros are used to automatically incorporate code which maintains
-data-structures that provide information essential to the
-communication between submodels, and the system as a whole. The macros
-are also able to detect and respond to some sorts of oversights or
-inconsistencies in the construction of methods or model-bodies.  In
-principle, \sdefsyntax or other tools for syntactic extension or
-modification would be better means of obtaining many of the effects of
-the macros defined in the \texttt{framework} file: \sdefmac was the
-basis for the first incarnation of this framework, and---at the
-time---was the more familiar mechanism, and I made the decision to
-perservere with it. The use of \sdefmac complicates the process of
-locating syntax errors, since the interpreter is unable to track the
-line numbers within a macro. \footnote{The macros which wrap the
-  methods called by an agent are implemented in such a way that the
-  code they produce can be written to a file, and that file may be
-  included in the place of the original block of code.  In this way,
-  the shortcomings with respect to line number tracking can be
-  ameliorated somewhat.  Such code could be used to generate a
-  code-base for a model which was free of macros.}  The only aspect
-associated with using macros which would require broader changes with
-\sdefsyntax is synthesising the context-specific identifiers (such as
-``\textit{<animal>-model-body}'' which refer to the ``body'' of the
+I have used
+\GambitC\footnote{\URL{http://gambitscheme.org}}, a well
+regarded implementation of \Scheme which runs on all of the major
+platforms (\Linux, \Unix, \OSX, \Android and \Windows). \Gambit
+incorporates both a mature \Scheme interpreter and a compiler, and
+both can dynamically link programs with external, compiled code and
+libraries which may exist either as compiled \CC or \Scheme code.  The
+choice to use \Gambit, rather than another version of \Scheme,
+was heavily influenced by several points: it was the implementation
+used for the model in Chapter~\ref{modelefficiency}; its ability to
+link to compiled \CC and its own compiled code can combine to produce
+programs which are noticably faster than purely interpreted code; it
+supports very \CC-like infix notation (indeed, it can be programmed
+using syntax which is almost-native \CC syntax); and adding
+hand-crafted \CC or \Cpp code for particularly intensive routines is
+not difficult.  Porting the model to other versions of \Scheme should
+be relatively simple; the only potentially awkward issue in using a
+different \Scheme implementation would be the use of \sdefmac in the
+creation of the classes and methods in a model.  These macros are used
+to automatically incorporate code which maintains data-structures that
+provide information essential to the communication between submodels,
+and the system as a whole. The macros are also able to detect and
+respond to some sorts of oversights or inconsistencies in the
+construction of methods or model-bodies.  In principle, \sdefsyntax or
+other tools for syntactic extension or modification would be better
+means of obtaining many of the effects of the macros defined in the
+\fname{framework} file: \sdefmac was the basis for the first
+incarnation of this framework, and -- at the time -- was the more
+familiar mechanism, and I made the decision to perservere with it. The
+use of \sdefmac complicates the process of locating syntax errors,
+since the interpreter is unable to track the line numbers within a
+macro. \footnote{The macros which wrap the methods called by an agent
+  are implemented in such a way that the code they produce can be
+  written to a file, and that file may be included in the place of the
+  original block of code.  In this way, the shortcomings with respect
+  to line number tracking can be ameliorated somewhat.  Such code
+  could be used to generate a code-base for a model which was free of
+  macros.}  The only aspect associated with using macros which would
+require broader changes with \sdefsyntax is synthesising the
+context-specific identifiers (such as
+\symb{<animal>-model-body}) which refer to the ``body'' of the
 different classes of agents; this is not insurmountable, but will be
 left for a subsequent version of the modelling framework.
 
 
 \section{Design considerations}
-The general design of this example framework follow is a conventional
-agent-based model with arbitrary time steps, and it was influenced by
-my previous work (\cite{Lyne1994pmez5, gray2006nws, gray2014}) designing 
-and implementing the core of operational models for management strategy (MSE)
-evaluation of anthropogenic effects on marine ecosystems.  The
-principle behind MSE and adaptive management is that candidate strategies for
-managing the effects of human activity are explored in 
-simulation\footnote{This is effectively impossible to do in the real
-  world, since the application of a strategy has a high likelihood of
-  changing the baseline for other candidates in the trial.} Adaptive
-strategies actively monitor conditions in their domain and change
-management strategies to suit the observed conditions and dynamics of
-the system. (\cite{walters1976,smith1993,polacheck1999,sainsbury2000,keith2011})
+The general design of this example framework follows conventional
+patterns for an agent-based model, and it was influenced by my
+previous work (\cite{lyne1994pmez5, gray2006nws, gray2014}) designing
+and implementing the core of operational models for management
+strategy evaluation (MSE) in the context of anthropogenic effects on
+marine ecosystems.  The principle behind MSE and adaptive management
+is that candidate strategies for managing the effects of human
+activity are explored in simulation\footnote{This is effectively
+  impossible to do in the real world, since the application of a
+  strategy has a high likelihood of changing the baseline for other
+  candidates in the trial.} Adaptive strategies actively monitor
+conditions in their domain and change management strategies to suit
+the observed conditions and dynamics of the
+system. (\cite{walters1976,smith1993,polacheck1999,sainsbury2000,keith2011})
+Each of these three major projects has provided the opportunity to
+explore the issues associated with modelling increasingly complex
+systems over increasingly large areas.
 
-The model in \cite{Lyne1994pmez5} was a purely individual-based model
+The model in \cite{lyne1994pmez5} was a purely individual-based model
 with integer time steps, though the time steps varied with the species
 being simulated. Like the example model, all activity was coordinated
 by a queue of entities that were sorted on when they were next due to
@@ -205,7 +163,7 @@ new kinds of simulated entities were required to reflect the
 activities influencing the system and the management of these
 activities. This broader canvas required a more abstracted view of
 what constituded an ``agent'' in the system, and extended
-\cite{Lyne1994pmez5} in the way it dealt with the simulated
+\cite{lyne1994pmez5} in the way it dealt with the simulated
 populations, treating some as collections of instances of individual-
 or super-individual-based representations and others as aggregate
 representations.  The model also used distinct representations for
@@ -246,7 +204,7 @@ system.  In Chapter~\ref{adaptiveselection}, the introduction of the
 carnivore and a subsequent rangeland fire initiated a sequence of
 events which, in turn, engendered changes in the configuration of the
 model as a whole.  The implementation described here is not identical
-to the system described in the paper---some inadequacies of the model
+to the system described in the paper -- some inadequacies of the model
 presented in the paper have been addressed (such as the inability of
 the plants to recolonise a cell after they have become extinct in it).
 
@@ -262,15 +220,29 @@ The taxonomy of the classes is fairly conventional: the primitive
 (exceptions include classes for things like bounding regions), and it
 provides submodels with access to the infrastructure of the system. 
 
-\begin{table}[h]
+At the lowest levels, the classes provide definative features that
+characterise broad categories of entities, such as discrete locations,
+delinated areas, the ability to map between ordinate systems, or the
+ability to poll other agents at regular intervals.
+
+\begin{table}[H]
 \begin{center}
-  \caption{Major classes in the model---\texttt{framework-classes.scm}}
+  \caption{Fundamental classes in the model -- \fname{framework-classes.scm}\label{classtable1}}
   \begin{tabular}{l L{7cm}}
     \toprule 
     \textbf{Classname} & \textbf{role} \\
     \midrule
-    \mclass{object} & this is the ``primal'' class for most of the
-    classes\\
+    \mclass{object} & This is the ``primal'' class for all of the
+      different agent classes, and the more complex data structures
+        like polygons  \\
+
+    \mclass{plottable} & Children of this class can be plotted in
+    map-like output. The attributes of this class include a ``glyph''
+    a location and an orientation, a preferred font, colour, glyph size
+    (which may be scaled by the value of a slot) and any additional
+    magnification which might be required to make things clear.
+    This is the class that provides location and orientation to the
+    animal and plant classes.\\
     \mclass{agent} & The agent class contains all the fundamental
     components for a model to run within the framework, such as
     essential state variables and common methods \\
@@ -278,125 +250,225 @@ provides submodels with access to the infrastructure of the system.
     it adds methods and state variables to allow mapping from an
     agent's native coordinate system to the common coordinate system
     and back. This is used extensively by the routines which output
-    graphical data---mapping each agent from its domain to the domain
+    graphical data -- mapping each agent from its domain to the domain
     of the output page or image.\\
+    \mclass{introspection-agent} & The methods which allow
+    \mclass{monitor} and \mclass{log-introspection} agents to operate is provided by
+    this class -- it forms the basis for agents which poll other agents \\
+    \mclass{plottable} & The log-map classes regard children of this class
+    as being plottable in graphic output.  It incorporates 
+    preferences for font, colour, scale and, optionally a glyph for plotting\\
+    \mclass{environment} & The basic spatial context is provided by
+    this class; it maintains a bounding
+    box and a link to an explicit representation\\
     \mclass{array} & Arrays are used to construct a collection of
     lists which often act as the basis for a model representation
     between a fully defined individual-based representation and an
     analytic representation.  Lacks the potential temporal sensitivity
     of an individual-based representation, but able to maintain many
-    i-state variables (\textit{sensu}\/ \\
-    \mclass{proxy} & Proxies represent an element (row) in an
-    \mclass{array} agent when engaging in individual-to-individual
-    interactions.  Typically, we would use, for example a
-    \mclass{plant-proxy} as an interlocutor for a \mclass{plant-array}
-    \\
-    \mclass{plottable-agent} & This class primarily adds location and
-    orientation.  It also maintains preferences for font, colour, scale and
-    a glyph for plotting\\
-    \mclass{tracked-agent} & Agents derived from this class automatically
-    maintain a time-stamped history of where they have been. This data
-    can be extracted for analysis or plotting\\
-    \mclass{thing} & adds mass \\
-    \mclass{living-thing} & This class adds age and mortality, also aware of the
-    environmental context in which it lives \\
-    \mclass{environment} & The basic spatial context is provided by
-    this class; it maintains a bounding
-    box and a link to an explicit representation\\
-    \mclass{blackboard} & Blackboards provide a ``public'' space for
-    agents to communicate. This approach was used to record
-    management actions in \cite{grayningaloo}\\
+    i-state variables (\textit{sensu}\/\cite{caswell1992individual})\\
+    \mclass{diffeq-system} & implements a class which runs a
+    Runge-Kutta4 algorithm for a system of differential equations.  This
+    class doesn't maintain variables as such, rather it is passed
+    ``getters'' and ``setters'' which obtain state variable values from
+    other agents (such as \mservice agents) and subsequently
+    set new values in those agents.\\
+    \mclass{proxy} & Proxies represent some ``element'' (like a row in an
+    \mclass{array} agent) when engaging in individual-to-individual
+    interactions.\\
     \mclass{model-maintenance} & provides the support for maintaining
     state variables for representations which are not currently active
-    (such as in Chapter~\ref{modelefficiency}. \\
+    (such as in Chapter~\ref{modelefficiency}).\\
     \bottomrule
   \end{tabular}
 \end{center}
 \end{table}
-A number of minor classes---mostly used to force the selection of
-appropriate methods---are also defined in 
-\texttt{framework-classes.scm}. These include classes associated with
-input files, text format output files, and postscript format output files.
-
-The introspection classes are defined in the files
-\texttt{introspection-classes.scm}, \texttt{monitor-classes.scm}, and
-\texttt{log-classes.scm}.  Of these, \texttt{log-classes.scm} is the
-most complex.
 
 
-\begin{table}[h]
+\subsubsection{Introspection agents}
+A special class of agents, the \mclass{introspection} forks into two
+branches derived from \mclass{logger} and \mclass{monitor} exist
+solely to poll the other agents within the system and either extract
+information in an analogue of the sampling undertaken by researchers,
+or to monitor the state of agents, ensembles and the model as a whole
+and effect change where necessary. The loggers handle all of the
+generation of output files -- the code which makes up the submodels
+only provides one or more \method{log-data} methods which the loggers
+use to assemble their output.  The notion is that the agents do not
+need to know about what is being sampled, only how to make the data
+they can provide ``presentable'' and the loggers don't really need to
+know the details of a submodel's workings, only that it ought to
+obtain certain data from agents of particular types and generate an
+output file.
+
+While this approach to data output engenders some extra overhead, it
+has a number of advantages which are not necessarily
+obvious. Consolidating the output into separate agents makes changes
+to the format of the generated output a simple matter of changing
+which output agent is used, or which format is required, and the same
+mechanism, or one which is very similar, could be used as the basis
+for coupling distributed models.  Using \mlogger agents rather than
+embedded output also means that we can confine code associated with
+``output'' code (mainly the \method{log-data} methods) to a very small
+section of a few basic parent classes; thus instances of all the child
+classes can automatically be queried without the necessity of writing
+new output routines.  The MOP of \SCLOS is used to map calls from the
+introspection agent to the appropriate version of \method{log-data},
+and the chain of inheritance can be used to call the \method{log-data}
+methods of its parents to structure the output appropriately.
+
+\begin{table}[H]
 \begin{center}
-  \caption{Major classes in the model---\texttt{framework-classes.scm}}
+  \caption{Introspection classes in the model -- \fname{introspection-classes.scm}\label{classtable2}}
   \begin{tabular}{l L{7cm}}
-    %\toprule
+    \toprule
     \textbf{Classname} & \textbf{role} \\
-    \mclass{introspection-agent} & The methods which allow
-    \mclass{monitor} and \mclass{log-introspection} agents to operate is provided by
-    this class---it forms the basis for agents which poll other agents \\
-    \mclass{log-introspection} & The fundamental mechanics of logging
-    to some output are supported by methods and state variables of
-    this class: it is geared to periodically collecting data by
-    selecting agents on the basis of their class, their
-    parameterisation (taxon) or properties they may possess.
+    \midrule
+    \mclass{log-introspection} & The fundamental mechanics that
+      underpin the regular polling of other agents in the system\\
+    \mclass{logger} & {provides the basic structure for generating model output}\\
+    \mclass{monitor} & {provides the machinery for assessing the state
+      of the system and effecting changes in its configuration}\\
+    \bottomrule
   \end{tabular}
 \end{center}
 \end{table}
-The class, \mclass{diffeq-system} is defined in \texttt{diffeq-classes.scm}
-and implemented in \texttt{diffeq-methods.scm}.  It implements a class
-which runs a Runge-Kutta4 algorithm for a system of differential
-equations.  This class doesn't maintain variables per se, rather it is
-passed ``getters'' and ``setters'' which obtain state variable values
-from other agents (such as \mproxy or \mservice agents) and
-subsequently set new values in those agents.
+The introspection classes are defined in the files
+\fname{introspection-classes.scm}, \fname{monitor-classes.scm}, and
+\fname{log-classes.scm}.  Of these, \fname{log-classes.scm} is the
+most complex.
+
+The monitor classes are able to maintain a history of the decisions
+they make and can, in principle, factor this history into the
+decisions they make subsequently.  As yet, the \mmonitor classes are
+still quite simple, acting to coerce changes in the constitution of
+the model ensemble according to fairly simple rules.
+
+
+
+
+The individual-based classes are all derived from a small ensemble of
+classes which endow them with the physical attributes we expect, such
+as location, and mass. All of the biotic agents in this branch of
+classes are able to maintain a history of their movement through the
+model's geographic domain and may also maintain a record of state
+variables. The agents may inspect these data and potentially use them
+in their own decision-making process; thus, some (as yet
+unimplemented) model of a animal may ``recall'' a recent encounter
+with a predator in a location and avoid the area.
+
+\begin{table}[H]
+\begin{center}
+  \caption{Basic classes for individual-based rep\-re\-senta\-tions
+  -- \fname{framework-classes.scm}\label{classtable3}} 
+  \begin{tabular}{l L{7cm}}
+    \toprule 
+    \textbf{Classname} & \textbf{role} \\
+    \midrule
+    \mclass{tracked-agent} & Agents derived from this class automatically
+    maintain a time-stamped history of where they have been. This data
+    can be extracted for analysis or plotting.\\
+    \mclass{thing} & adds mass \\
+    \mclass{living-thing} & This class adds age and mortality, also aware of the
+    environmental context in which it lives \\
+    \bottomrule
+\end{tabular}
+\end{center}
+\end{table}
 
 The classes for the simple organisms of
 Chapter~\ref{adaptiveselection} are defined in the files
-\texttt{animal-classes.scm}, \texttt{plant-classes.scm},
-\texttt{landscape-classes.scm}, with corresponding
-``\texttt{-method}'' files with the implementation of the methods.
+\fname{animal-classes.scm}, \fname{plant-classes.scm},
+\fname{landscape-classes.scm}, with corresponding
+``\fname{-method.scm}'' files with the implementation of the methods.
 
+\begin{table}[H]
+\begin{center}
+\caption{Environments -- \fname{landscape-classes.scm}\label{classtable4}}
+\begin{tabular}{l L{7cm}}
+\toprule
+\textbf{Classname} & \textbf{role} \\
+\midrule
+\mclass{ecoservice} & Usually associated with a patch, this class
+provides a data value which can be inspected and modified by other
+agents.  It is possible for the ecoservice to access data in other
+agents, and to have implicit growth or decay associated with its
+value.  Instances are able to store the (time value) pairs in a
+history list.\\
+\mclass{population-system} & This is a refined version of
+the \mclass{ecoservice} which primarily provides a simple ``biomass''
+agent.\\
+\mclass{patch} & The basic geographic region is implemented in
+\mclass{patch}. It has a bounded area,  a list of ecoservices which
+are assumed to be uniformly available, a ``notepad'' which can be
+interrogated for state information, and it may also have ``caretaker''
+routines defined in parameter files which get executed every time the
+patch gets a time step.\\
+\mclass{dynamic-patch} & Patches  in this class may have a system of
+differential equations which stand in the place of the simpler --
+possibly simplistic -- dynamics possible using only the ecoservice
+mechanisms.\\
+\mclass{landscape} & An instance of this class maintains a list of
+patches and a terrain function which provides an altitude ordinate to
+the locations in the geographic domain; in aquatic/marine models, this
+would typically be used to provide the depth of water at a give point.\\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
 
-\subsection{Initialisation}
+%%%% plant classes
 
-\subsection{Instantiation of agents}
+Plants and animals are both implemented in classes derived
+from \mclass{living-thing}. An analytic representation for plants
+based on \mclass{diffeq-system} is also implemented.
 
-The first step in model run is the creation and initialisation of the
-components of the model. Starting a model run would usually involve
-running a short \texttt{Scheme} program which uses the model
-infrastructure to create and configure agents which comprise the model
-ensemble.  These agents are added to a list called the runqueue, which
-corresponds to the execution queue in a multitasking operating
-system. The agents are usually created (typically by calling
-\texttt{(create \textit{<classname> \textit{taxon}}\/\ldots)} where
-the ellipsis indicates a set of appropriate state variable
-assignments.  Sometimes additional machinery is required to add agents
-to encompassing entities (such as including trees in the landscape).
+There are essentially three implementations for modelling plants in
+the example model. \mclass<plant> is the basic starting point for
+the \mclass<example-plant>, which implements a model substanially
+similar to that described in Section \ref{plantch3}. The alternative
+representation for plants is the \mclass{plant-array} which is an
+array of state-vectors which apply update methods to each of the state
+variables which are similar to those used for the individual based
+version. \mclass{plant-proxy} is an interlocutor for
+a \mclass{plant-array}, though we have not employed it in this model.\\
+%%%% animal classes
 
-The principal tasks of \texttt{create} are to allocate storage, and to
-call the functions which initialise the state variables of an agent.
-\texttt{Create} initialises its state variables using the data from
-the files in a nominated parameter directory. The state variable
-initialisations specified in class--based files are applied first from
-the parent class farthest away in inheritance, through to file
-associated with class of the agent being created. It is quite likely
-that a given state variable may be reset several times in the process
-as the model representation is refined. Finally, the state variable
-settings from a file associated with a \emph{particular}\/ set of
-instantiations---the agent's taxon---are applied.  A model might deal
-with several populations of distinct species (taxa) of tuna.
-These taxa may have different prey preferences, temperature preferences, and
-metabolic parameters.  Each distinct species would load its
-initialisation parameters from a taxon file associated with the
-species.
+The treatment in the animal classes is similar to that of the plant
+classes. Both the \mclass{aherb} and \mclass{jherb} can be represented
+by \mclass{animal-array} agents, but we refrain from carrying the
+generalisation to include the \mclass{carnivore} class -- carnivores
+are unlikely to reach high population levels, and their behaviour is
+more explicitly discrete.
+
+\subsection{Parameterisation}
+
+Model agents (instances of the above classes) are made by calling the
+\method{create} function.  The principal tasks of \method{create} are
+to allocate storage, and to call the functions which initialise the
+state variables of an agent.  \method{create} initialises its state 
+variables using the data from the files in a nominated parameter
+directory. The state variable initialisations specified in
+class--based files are applied first from the parent class farthest
+away in inheritance, through to file associated with class of the
+agent being created. It is quite likely that a given state variable
+may be reset several times in the process as the model representation
+is refined. Finally, the state variable settings from a file
+associated with a \emph{particular}\/ set of instantiations -- the
+agent's taxon -- are applied.  A model might deal with several
+populations of distinct species (taxa) of tuna.  These taxa may have
+different prey preferences, temperature preferences, and metabolic
+parameters.  Each distinct species would load its initialisation
+parameters from a taxon file associated with the species.
 
 In order for the initialisations indicated in these files to be
 applied in the correct order, class--associated files must have the
-same name as the class they relate to (such as ``\texttt{<tuna>}''),
-and taxon--associated files will have the same name (including case)
-as the taxon used (such as ``\texttt{T.albacares}''.\footnote{It
-  doesn't matter if there are entries for things which are not state
-  variables---any specification which isn't recognised is silently
-  ignored.}
+same name as the class they relate to (such as \fname{<tuna>} and
+\mclass{tuna}), and taxon-associated files will have the same name
+(including case) as the taxon used (such as
+\fname{T.albacares} and \strng{T.albacares}).\footnote{It doesn't matter if there are
+  entries for things which are not state variables -- any specification
+  which isn't recognised is silently ignored.}
 
 Parameter files contain \Scheme code and they are loaded
 immediately after all of the code associated with implementing
@@ -404,63 +476,77 @@ representations of submodels has been loaded, but before any model
 initialisation occurs. 
 
 The initialisation data for agents is primarily taken from files in a
-nominated directory (in our case ``\texttt{./parameters/}).  Each file
+nominated directory (in our case ``\fname{./parameters/}).  Each file
 is associated with either a particular class, or with a particular
 taxon.  When agents are created, the instantiation process first
-initialises all the state variables to \texttt{<undefined>}---a value
+initialises all the state variables to \symb{<undefined>} -- a value
 used to identify an uninitialised value.  The initialisation then
 applies any initialisations which may be found in the file associated
-with the \mclass{agent} class, namely \texttt{./parameters/<agent>}.
+with the \mclass{agent} class, namely \fname{./parameters/<agent>}.
 The process continues, from most general to most specific, till any 
 initialisations found in the agent's parent classes have been
 applied.  The system then looks for a ``taxon'' file which which
-contains very specific initialisation data --- we might have a generic
-\mclass{<quercus>} class, for example, which serves adequately for both the
-\texttt{Q.robur} and for the \texttt{Q.petraea} taxa, but the species
+contains very specific initialisation data -- we might have a generic
+\mclass{quercus} class, for example, which serves adequately for both the
+\fname{Q.robur} and for the \fname{Q.petraea} taxa, but the species
 specific differences are assigned last, and take precedence.  Finally any
-initialisation indications found in the \texttt{(create \ldots)} call
+initialisation indications found in the \method{(create \ldots)} call
 used to instantiate the agent are applied.  In this way, more specific
 parameters (like metabolic rates) get applied later in the process.
 
 A typical parameter file might look
-like look like the '\texttt{<example-plant>}' file below:
+like look like the '\filename{<example-plant>}' file below:
+\label{parameters}\label{kdebug}
 \begin{verbatim}
 'Parameters
+(kdebug '(loading-parameters 
+          taxon-parameters "B.ex-longevity" "*.ex-*") 
 
 (define B.ex-longevity (* 37 years))
 (define B.ex-mass-max (* 150 kg))
-(define B.ex-mass  (rk4 (lambda (t y) ;;   This is the diff'l eqn
-											(* 5e-7 (- 1 (/ y B.ex-mass-max))))
-										 0 B.ex-longevity (* 4 weeks) 0.1))
-										 ;; step size is 4 wks, 0.1 is the initial size of the tree when we start tracking
+(define B.ex-mass  
+   (rk4 (lambda (t y) ;;   This is the diff'l eqn
+			(* 5e-7 (- 1 (/ y B.ex-mass-max))))
+				 0 B.ex-longevity (* 4 weeks) 0.1))
+	;; step size is 4 wks, 0.1 is the initial size 
+   '' of the tree when we start tracking
+(if (and (kdebug? 'check-mass-at-age)
+     (not (test-mass-at-age B.ex-mass)))
+   (error "Mass at age failed in B.exemplarii"))
 
 (define <example-plant>-parameters
   (list
     (list 'cell '<uninitialized>)
-    (list 'location '($ (random-location '(-2000 -2000) '(2000 2000))))
-    (list 'peak-mass 12)                 ;; this will seed trees in the
-                                         ;; 4km x 4km square around
-                                         ;; the origin
+    (list 'peak-mass 12)
+                 ;; this will seed trees in the
+                 ;; 4km x 4km square around
+                 ;; the origin
+    (list 'location 
+          '($ (random-location (list -2000 -2000) 
+                               (list 2000 2000))))
     (list 'mass '(\$ (nrnd 4 1 0.01 12)))
     (list 'height '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))
     (list 'fruiting-mass (* 8 kg))
-    (list 'fruiting-prob (/ 0.1 week))         ;; 10% per week
-    (list 'fruiting-rate (* 7 (/ 1 kg))))      ;; seven fruit per kg of tree
+    (list 'fruiting-prob (/ 0.1 week))
+           ;; 10% per week
+    (list 'fruiting-rate (* 7 (/ 1 kg)))
+           ;; seven fruit per kg of tree
     (list 'mort-mass '<uninitialized>)
     (list 'mort-prob (/ 0.1 year))
-    (list 'seeds-per-fruit '(\$ (+ 4 (urnd 8)))
+    (list 'seeds-per-fruit '(\$ (+ 4 (urnd 8))))
     (list 'habitat '<uninitialized>)
     (list 'mass-at-age B.ex-mass)
-    (list 'references '(J. Muppet Botany, S.Chef et. al. v2,1995))
+    (list 'references 
+      '(J. Muppet Botany, S.Chef et. al. v2,1995))
     (list 'note "This is enough for things to run")
   )
 )
 (set! global-parameter-alist 
    (cons (cons <example-plant> <example-plant>-parameters) 
          global-parameter-alist))
-
 \end{verbatim}
-The \texttt{'Parameter} line which is the first entry in the file is
+
+The \symb{'Parameter} line which is the first entry in the file is
 an indicator that this is a parameter file, and \Scheme
 programs (like the modelling framework) can readily use this to
 determine that the file is not actually code intended to be executed.
@@ -468,20 +554,20 @@ The definition which follows is a list of lists where the first
 element of each of the second level lists must be a symbol.  These
 symbols should (but are not required to) correspond to the state
 variables in the agent. Note that even though this file is associated
-with '\texttt{<example-plant>}', it is not restricted to setting state
-variable defined in \texttt{<example-plant>}---it is \emph{reasonable
+with \mclass{example-plant}, it is not restricted to setting state
+variables defined in \mclass{example-plant} -- it is \emph{both reasonable
   and common} to set variables associated with parent classes, such as
-its \texttt{location}, above, which ultimately comes from the \texttt{<thing>}
+its \sttvar{location}, above, which ultimately comes from the \mclass{<thing>}
 class.
 
 The last three lines of the file add the definitions to the list of
-all the state variable defaults the system knows about---if they are
+all the state variable defaults the system knows about -- if they are
 missing or compromised, the definitions may not be accessible.
 
 The parameter files from which the parameterisation is taken are
 scheme files, and can contain variable and function definitions.  The
 example above includes the function definition for the mass-at-age
-function for the taxon ``B.exemplarii''.  Na\"ively we might assume
+function for the taxon \strng{B.exemplarii}.  Na\"ively we might assume
 that we would be able to perturb the starting mass of each individual
 tree by just incorporating a random number into the mass indicated in
 the parameter file: we can do so, but the parameter
@@ -489,149 +575,328 @@ files are loaded early in the loading process, before any agents are
 actually instantiated.  At the point we begin to create agents,
 the parameterisation data is static.  In order to overcome this, the
 code which accesses parameters recognises that parameters of the form
-\texttt{(\$ \ldots )} should be evaluated dynamically when they are
+\symb{(\$ \ldots )} should be evaluated dynamically when they are
 accessed and passed back, so the line
+
 \begin{verbatim}
-\texttt{(list 'height '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))},
+   (list 'height '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))),
 \end{verbatim}
+
 will return a value greater than twelve, with a distribution like the
 left half of a normally distributed variable with standard deviation
 of ten.  Other examples can be found in the parameter files with
-\texttt{carnivore}, \texttt{adult-herbivore},
-\texttt{juvenile-herbivore} and , \texttt{B.exemplarii}. 
+\fname{carnivore}, \fname{adult-herbivore},
+\fname{juvenile-herbivore} and , \fname{B.exemplarii}. 
 It should be emphasised that the parameters obtained from the
-parameter files may be overridden in the \texttt{create} call, and by
+parameter files may be overridden in the \method{create} call, and by
 code within the model itself.
 
 In general, units are specified in the parameter
 files, and should also be specified when indicating particular
 initialisations for agents.  The (extensible) list of known units is
-found in the file \texttt{units.scm}.
+found in the file \fname{units.scm}.
 
 
-%\subsection{Configuration seeds}
+\subsection{Model initialisation}
 
-%\subsubsection{Known--good and known--bad status-configurations}
+The first stage in model run is the creation and initialisation of the
+components of the model. A model is constructed by a (comparatively)
+short \Scheme program which uses the infrastructure to create
+and configure the agents which comprise the model ensemble.  These
+agents are added to a list called the \variable{runqueue}, which
+corresponds to the execution queue in a simple multitasking operating
+system. The agents are created by a call to a routine in
+\fname{sclos+extn.scm} that looks like
+\begin{verbatim}
+    (create <landscape> taxon 'name "domain" ...)
+\end{verbatim}
+where the ellipsis indicates additional state variable
+assignments which supercede any previously set values from the
+parameter files. Agents which have an associated region or location
+would usually require some additional code to to add agents to
+encompassing entities (such as including trees in the landscape) this
+would often be a part of the code which creates the
+agents\footnote{See the file \fname{specific-model.scm}, or spawning
+  code in \fname{animal-methods.scm} for an illustration of this.},
+or would be effected in the class-method \method{initialise-instance}
+which is called as a part of the process that prepares an agent to be
+run; generally, initialisation of an agent would be accomplished using
+both of these approaches.
 
-%\subsubsection{Operational configurations}
 
+\subsection{Methods, model bodies and closures}
 
-\subsection{Assembling a model}
-Models in the framework would normally be constructed by first
-constructing any new classes to represent components of the model,
-assembling the data that drives the switching between representations,
-and writing a description of the starting configuration of the model. 
+Methods are functions which are specifically associated with instances
+of a class.  \SCLOS supports having a number of distinct methods with
+the same name, but different arguments, as determined by their type.
+This means that \mclass{shark}and \mclass{seal} may both have an
+\method{eat} method -- moreover, \mclass{seal} may have two
+\method{eat} methods: one which recognises when the item being eaten
+is an \mclass{animal}, and one where it is merely an \mclass{object},
+which would usually be inedible.  This multiple-dispatch means that no
+explicit test is required in the model code (beyond writing an
+\mclass{object} version which spits out the offending item).  If there is
+only an \mclass{fish} version of the \method{eat} method for
+\mclass{seal} agents, they will only attempt to eat fish, and
+presenting them with anything else will raise an error.  This makes
+the extension of classes much less vulnerable to mishandling
+interactions with instances of other classes.
 
-The configuration would typically include both logging agents to
-generate output and monitors that periodically assess the state of the
-model and its components with the charge of changing the configuration
-if things drift too far from its preferred region of the state-space
-of the model.  The model also loads the sets of known--good and
-known-bad corpora which serve to inform the assessments of the
-monitoring agents.
+Model bodies are special methods which are only called by either the kernel
+or by the subsidiary execution lists embedded in agents. There is no
+provision for an agent to directly call model bodies.
 
-In the case of the example of Chapter~\ref{adaptiveselection}, we
-explicitly associate the agents representing trees with particular
-cells---trees populate the cells, notionally contained, but
-introduced in their own right into the runqueue.  Background
-quantities of fruit and seeds are introduced into the model as numeric
-values associated with the cells, and a number of herbivores, adult
-and juvenile, are also generated and placed at locations within the
-domain. An initial population of carnivores is also generated, but
-they are given an initial time substantially after the start of the
-run, so they will not have control passed to them till the rest of the
-agents have caught up.
+Model methods are essentially functions, except that they are
+explicitly associated with the class signature of the arguments passed
+to them. For example, there are several versions of the model method
+\method{dump}, and each is made distinct by the class of its first
+argument and may be invoked only by members of that class and its
+descendants.  This ability to have several functions with the same
+name is made possible by the use of instances of
+\mclass{generic-methods} which maintain a list of actual functions and
+information about the arguments they expect.  The generic function is
+able to recognise the types of the arguments it is passed and to
+forward the call on to the appropriate actual implementation.  There
+are two consequences to this approach which ought to be mentioned
+\begin{description}
+  \item[Only define each generic method once] Redeclaring a generic-method
+    (\Syntax{define} \method{hunt} (\method{generic-method})) hides any previously
+      declared \method{hunt} methods (generic or otherwise!) out of
+      the model's code path. To this end, all declarations of generic
+      methods are either in the \fname{declarations.scm} file, which
+      contains the declarations for most of the model-methods or in
+      the \fname{framework-declarations.scm} file which declares the
+      generic-methods for methods required by the lower levels of the
+      framework.  Related to this is the problem of defining a method
+      before you have a generic-method declared --  the macros in
+      \fname{framework} should catch this.
+  \item[Don't construct methods that match the same argument
+    lists] Generally, \SCLOS is very good at getting the right
+    method for the job, but there are situations where it can be
+    confusing for it.  If you have a situation where there are several
+    possible desired code paths for essentially similar arguments, it
+    is clearer to have an explicit selection made within the body of a
+    single method, and much easier to debug.
+\end{description}
+ 
+Each agent's \Syntax{model-body} is run by the kernel at each of the
+agent's time steps; there is no \Syntax{object-body} since objects are
+(by design) not able to be run by the kernel.
 
 \section{Execution and Control flow}
 
 After the initial cohort of agents have been instantiated and
-introduced into the runqueue (or in the subsidiary-runqueues of other
-agents), control is passed to the kernel which then begins to run each
-agent in turn for an appropriate time step. The queue is ordered first
-by the subjective-times of the agents, then their relative precedence,
-and finally an optional ``jiggle'' value which can be added to ensure
-that there are no systematic preferences within a timestep. 
+introduced into the \symb{runqueue} (or in the
+\sttvar{subsidiary-runqueue}s of other agents), control is passed to
+the kernel which then begins to run each agent in turn for an
+appropriate time step. The queue is ordered first by the
+\sttvar{subjective-times} of the agents, then their relative precedence, and
+finally an optional \sttvar{jiggle} value which can be added to ensure that
+there are no systematic preferences within a time step.
 
-The most important mechanisms controlling the flow of control in the
-system manage the execution loop, namely
+The most important routines in maintaining an orderly flow of control
+from one agent to the next are
 \begin{itemize}
-\item[\texttt{run-agent}] which manages the interactions between the
-  agent and the runqueue and constructs the procedure that the agent uses
+\item[\method{run-agent}] which manages the interactions between the
+  agent and the \variable{runqueue} and constructs the procedure that the agent uses
   to communicate with the kernel.
 
-\item[\texttt{run}] calculates the upper limit on the amount of time the
+\item[\method{run}] calculates the upper limit on the amount of time the
   agent will run, runs the body of the model (declared in a
-  '\texttt{model\_body} block), runs any nested agents and attends to 
+  \Syntax{model-body} block), runs any nested agents and attends to 
   the maintenance of any data from superceded representations.
 \end{itemize}
 
 The sorted queue of agents is maintained by the system; the agent at
 the head of this list is removed from the list and execution is passed
-to the \texttt{model-body} of the agent with an indicated maximum
-amount of time over which it might run.  Agents need not run their
-whole time step---events may occur which cause them to truncate their
-turn, returning control to the kernel with an indication of the amount
-of time they actually used.  When the kernel receives control from an
-agent, it examines the data passed to it by the agent and act
+from a call to \method{run-agent} to \method{run}  which then passes
+control to the agent's \Syntax{model-body}. The call chain is split in
+this way to separate interactions with the run queue and the
+management of the activities of agents.  The motivation for this
+separation is that provides an avenue for changing the nature of the
+system used to run the models, say from a single-threaded execution
+list to a number of parallel lists.
+
+The \Syntax{model-body} of an agent takes control with an indicated
+maximum amount of time over which it might run.  Agents need not run
+their whole time step -- events may occur which cause them to truncate
+their turn, returning control to the kernel with an indication of the
+amount of time they actually used.  When the kernel receives control
+from an agent, it examines the data passed to it by the agent and acts
 accordingly: terminated agents may be silently dropped from the queue,
 for example, and other agents may be reinserted in an appropriate
-place in the queue for the their next time step.
+place in the queue for the their next time step, or agents
+representing organisms which have just reproduced may introduce new
+agents into the \symb{runqueue}.
 
 Control also passes from agents to the kernel when the agent makes
-queries looking for prey or to interact with other agents: a
-sabre-toothed tiger might want to know whether there are any prey
-animals within a certain radius, for example.  Here, a request would
-go to the kernel for a list of nearby prey.  The kernel would then
-examine the list of agents meeting the requirements (type, spatial
-location, temporal contiguity) and pass the list---and control---back
-to the tiger.  These control issues are conventional, both in terms of
-operating system dynamics, and in agent-based modelling.
+queries looking for prey or to interact with other agents: a carnivore
+might want to know whether there are any prey animals within a certain
+radius, for example.  Here, a request would go to the kernel for a
+list of nearby prey.  The kernel would then examine the list of agents
+meeting the requirements (type, spatial location, temporal contiguity)
+and pass the list -- and control -- back to the hunter.  This is a
+common paradigm in both agent-based modelling and in
+computer-operating systems design, where access to information or
+resources are obtained from a delegated ``authority''.
 
 The maintenance of state data from a superceded representation is
-rather different. When an agent has data to maintain, it processes
-them at the end of each of its timesteps, asking each of them in turn
-what data is needed in the update step, obtaining the data and passing
-control and the data to the maintenance closure. When the closure has
-finished its update, control returns to the agent, and control
-ultimately passes back to the kernel.
+rather different. When an agent is given data to maintain, it
+processes them at the end of each of its timesteps. Each is asked each
+what set of data their maintenance closure needs in the update step;
+the set of data is obtained control and the data to run the maintenance
+closure. When the closure has finished its update, control returns to
+the agent, and control ultimately passes back to the kernel.
 
-\subsubsection{Communication}
-Agents obtain information about their environment mainly by
-interrogating either the kernel or other agents which they already
-know about.  Agents representing animals or plants will typically
-already know about their ``domain'' --- the landscape they inhabit.
-Landscapes are usually cast as bounded geographic
-regions. Environmental data can be tied to these regions (such as
-water availability, topography or contaminant levels. In contrast, an
-animal will typically \emph{not} know where other animals are without
-requesting that information from the kernel.  The agents in the
-example model only cache a limited amount of information in this
-regard.
 
-The basic calls look like
+\section{Interactions}\label{interactions}
+
+The first step in an interaction between agents is often to find other
+agents which fit particular criteria: a predator looks for nearby prey
+or a travelling salesman might look for accomodation within their
+budget, for example.  Many of these searches are conducted either by
+using one of the \method{locate} calls provided by the kernel, or by
+taking advantage of previously cached information maintained by the
+searcher. The searches can be restricted to particular spatial
+regions, particular sets of taxa (as determined by the agent's
+\sttvar{taxon}), particular classes, or the possession of particular
+state variables (such as \sttvar{location} or
+\sttvar{available-rooms}). The nature of the interactions may range from
+merely ascertaining the presence of another agent, to predation, or
+extracting state information (such as mass, location or the price of a
+room).  
+
+\subsection{Spatial queries}
+
+Agents that regularly interact with other agents which are close to
+them in the spatial domain will often cache references to their
+important neighbours to reduce the overhead of calls to the kernel
+routines, since direct communication with target agents has a much
+lower overhead. Direct contact does require agents to check to see
+whether the agent being queried is active or has been replaced by
+another representation, since both state and representation changes
+can occur without the agent knowing. Most state changes of an agent
+will be from \symbolic{alive} to \symbolic{dead} or \symbolic{terminated}: the first two
+indicate that the agent is still available for interaction, the third
+indicates that it is no longer a participant in the system. Should the
+object of an agents interest become \symbolic{terminated}, the agent can
+then query the terminated agent to see if it has been replaced by
+another representation; if so, it may be able to obtain a reference to
+the new instance directly from the superceded agent, or query the
+kernel for the reference.
+
+\Scheme only reclaims objects (in this case instances of a submodel)
+when all references to the object have vanished; this means that as
+long as an agent maintains a reference to the entities it is
+interested in, those entities will persist, and can be used to obtain
+a reference to instances which have replaced it.
+
+Agents representing animals or plants will typically already know
+about their ``domain'' -- the landscape they inhabit.  Landscapes are
+usually cast as bounded geographic regions associated with
+environmental data such as water availability, topography or
+contaminant levels. In contrast, an animal would typically \emph{not}
+keep track of other animals.  The agents in the example model only
+cache a limited amount of information in this regard.
+
+The basic calls which return the locations associated with agents look
+like
 \begin{verbatim}
 ...
-   (let* ((prey (kernel 'locate (apply *provides-*? (my 'food-list))))
+   (let* ((prey (kernel 'locate 
+                  (apply *provides-*? (my 'food-list))))
           (cover  (look-for self (my 'prey-hides)) )
             ;; plants that can hide my prey
           (preylocations 
             (map (lambda (x) 
-                   (query x self 'location (my 'search-radius))) 
+                   (query x self 'location 
+                           (my 'search-radius))) 
                  (append prey cover)))
          )
+         ...
+)
 ...
 \end{verbatim}
-We first obtain a list of candidate prey, irrespective of their
-location, with a call to the kernel\footnote{In this case
-  \texttt{locate} returns all possible candidates irrespective of
-  location, but insisting that the targets are
-  contemporaneous. \texttt{locate*}, in contrast, does not enforce
+In this example, the first of the three clauses obtains a list of
+candidate prey with a call to the kernel\footnote{In this case
+  \symb{locate} returns all possible candidates irrespective of
+  location, but insists that the targets are
+  contemporaneous. \symb{locate*}, in contrast, does not enforce
   temporal consistency. Both are able to filter the results based on
-  location, class or the role targets play in the simulation.}
-The next searches for potential hiding places with the
-\texttt{look-for*} call. This call does not enforce synchrony\footnote{The
-  alternative \texttt{look-for} does enforce synchrony.}, and the last
-actually extracts targets' locations for subsequent use.
+  location, class or the role targets play in the simulation.}  The
+next searches for potential hiding places with the \method{look-for*}
+call. This call does not enforce synchrony\footnote{The alternative
+  \method{look-for} does enforce synchrony.}, and the last actually
+extracts targets' locations for subsequent use.
+
+Once an agent is aware of another agent, it will typically interact
+using either the \method{query} call or calls to the methods
+appropriate to the target. \footnote{The MOP paradigm makes it possible to use
+substantially the same code for many agents of many classes, but calls
+through \method{query} may be easier to convert for parallelism later.}
+
+
+\subsection{Maintaining state across representations}
+
+When an entity changes its representation, its current representation
+may create an encapsulation of its critical state variables in a
+closure that is bound to a function which is able to access these
+variables, and to maintain their values. The closure may ultimately pass these
+values back to another agent which will take over the role played by
+the model maintenance function.
+
+A typical closure definition might look like
+\Huge{NEEDS TO BE FIXED}
+\begin{verbatim}
+(define-update-closure 
+    fish-population
+    <FishPop> ;; used for identity checking
+    '(age mass contaminant) ;; state variables 
+    '(temp contlevel) ;; required external values
+    (begin
+       (set! mass (fishgrowth dt age mass (data-ref self 'temp))
+       (set! age (+ age dt))
+       (set! contaminant (fishcont dt mass contaminant contlevel))
+       )))
+\end{verbatim}
+In this example the state-variables age, mass and the contaminant
+level are all updated in the body; the update closure requires a
+temperature, \sttvar{temp}, and a contaminant level, \sttvar{contaminant}.
+The macro definition for \Syntax{define-update-closure} isn't
+necessarily simple to follow.
+
+\subsection{Using trees to assess model configurations}
+
+The model periodically runs \mclass{monitor} agents which generate
+``maps'' of the current configuration of the model as elements of
+the metric-space of the trees of Chapter~\ref{treering}.  We use
+this mapping to calculate the closest candidate configuration from a
+set of configurations we believe (or know) to represent the system
+well in a given part of its state space. Because the trees are
+elements of a ring, we can, in some cases, interpolate between
+configurations, arriving at possibly advantageous configurations which
+have not been explicitly specified.
+
+\subsection{Candidate configurations and state trees}\typeout{HERE: Unfinished business}
+
+Developing a body of configurations which function well is likely to
+be, at least initially, a process of intuitive selection and trial and
+error. Initially, we begin with coarse knowledge regarding the utility
+of particular representations under given conditions. \mloggers can
+collect and record information about the agents within the simulation,
+and their performance. This data can be used as the basis for the
+selection and testing of new configurations, and we can classify them
+into varying degrees of ``good'' and ``bad'' configurations.
+
+This process depends on being able to discriminate between
+configurations, and we do this by mapping configurations into
+state-trees which are constructed in a way which encodes coarse
+spatial information (the relationship between \mpatches, for example),
+the numbers of entities represented by different classes, and their
+own performance measures.
+
+%\subsection{Mapping from interpolated configurations to actual
+%  configurations}\typeout{HERE: Unfinished business}
 
 %% \textbf{CLARIFY THIS}
 %% Where closures are \emph{supposed} to be bound to communicate with
@@ -647,242 +912,73 @@ actually extracts targets' locations for subsequent use.
 %% This is an uncomplicated system, more significant issues would arise
 %% in a parallelised system.  
 
-
-\subsection{Methods, model bodies and closures}
-
-Methods are functions which are specifically associated with instances
-of a class.  \SCLOS supports having a number of distinct methods with
-the same name, but different arguments, as determined by their type.
-This means that \texttt{Seal} and \texttt{Shark} may both have an
-\texttt{Eat} method---moreover, sharks may have two \texttt{Eat}
-methods: one which recognises when the item being eaten is an
-\texttt{Animal}, and one where it is merely an \texttt{Object}, which
-would usually be inedible.  This multiple-dispatch means that no
-explicit test is required in the model code (beyond writing an
-``object'' version which spits out the offending item).  If there is
-only an \texttt{Fish} version of the \texttt{Eat} method for seals,
-they can only eat fish.  This makes the extension of classes much less
-vulnerable to mishandling interactions with instances of other
-classes.  
-
-Model bodies are special methods which are only called by either the kernel
-or by the subsidiary execution lists embedded in agents. There is no
-provision for an agent to directly call model bodies.
-
-Closures are the essential mechanism for implementing ``maintenance
-functions'' which preserve the essential state variables for particular
-representations.  A typical closure definition might look like
-\begin{verbatim}
-(define-update-closure fish-population
-                       <FishPop>
-                       '(age mass contaminant) ;; state variables 
-                       '(temp contlevel) ;; required external values
-                       (begin
-                         (set! mass (fishgrowth dt age mass temp))
-                         (set! age (+ age dt))
-                         (set! contaminant (fishcont dt mass contaminant contlevel))
-                         ))
-\end{verbatim}
-In this example the state-variables age, mass and the contaminant
-level are all updated in the body; the update closure requires a
-temperature, \texttt{temp}, and a contaminant level, \texttt{contaminant}.
-The macro definition for \texttt{define-update-closure} isn't
-necessarily simple to follow, a simple example of a closure might look
-like so:
-\begin{verbatim}
-(define counter 
-   (let ((n 0))
-      (lambda x 
-         (cond
-           ((null? x) (set! x (+ 1 x))
-           ((eqv? x '(reset)) (set! x 0))
-           (#t counter))))
-           )
-)
-\end{verbatim}
-The symbol \texttt{counter} is set to point to the function the
-\texttt{lambda} defines, and the state variable \texttt{counter} is
-``global'' to this function, rather like a static variable defined
-outside a function in a C source file. 
-             
+\section{Discussion}
 
 
-Functions with closures are used, most importantly, to implement the
-code run with the \TTC{model-maintenance} class. Here, an agent will
-create a closure containing a function which is able to access the
-variables within the closure, and maintain their values; it may
-ultimately pass these values back to another agent which will take
-over the role played by the model maintenance function.  Indeed,
-\Scheme was chosen specifically because these functions are a natural
-representation for a fragment of a model which needs to be
-maintained.\footnote{In principle, each class could be comprised of such
-fragments from the outset, but it seemed that the purpose of the
-work would be better served by a more traditional architecture.}
-
-Initialisation methods are run when instances of classes are created
-using the \texttt{make} function.  Two types of these functions occur
-in the code---\texttt{initialize} with a \emph{z} and
-\texttt{initialise} with an \emph{s}---and the distiction is that
-the \emph{z} versions are associated with the \SCLOS initialisation
-chain, and the \emph{s} version is associated with the modelling
-classes. When an instance is created the \TTC{object}
-\texttt{initialize} is called, and this chains to the framework's
-intitialisers.  When \TTC{object} derived class is instantiated, all of
-its parent initialisers (with an \emph{s}) are called.  The
-initialisers are
-\begin{description}
-  \item[\texttt{default-object-initialisation} and
-    \texttt{default-agent-initialisation}] which just initialise the
-    state-variables for the object or agent (see \TTC{polygon} in the
-    file ``landscape-methods.scm''). There is no scope for additional
-    processing using the default initialisation.
-  \item[\texttt{object-initialisation-method} and
-    \texttt{agent-initialisation-method}] which defines a method which
-    will be executed when the object is created.
-\end{description}
-In fact, the only significant differences between the \texttt{object-}
-and \texttt{agent-} versions are the error messages and the textual
-difference in the model code, but the different labels reinforce the
-different roles of the entities they refer to.
-    
-Model methods are rather like simple functions, except that they are
-explicitly associated with classes---there are several versions of
-the model method \texttt{dump}, and each is tied to particular a class
-and its descendants.  This ability to have several functions with the same
-name is made possible by the use of ``generic-methods'' which
-maintain a list of actual functions and information about the
-arguments they expect.  The generic function is able to 
-recognise the types of the arguments it is passed and to forward the
-call on to the appropriate actual implementation.  There are two
-consequences to this approach which ought to be mentioned
-\begin{description}
-  \item[Only define one generic method for each set of similar
-    functions] Redeclaring a generic-method ``(define hunt
-    (generic-method))'' cuts any previously declared ``hunt'' methods
-    (generic or otherwise!) out of the model's code path. To this end,
-    all declarations of generic methods are either in the
-    ``declarations.scm'' file, which contains the declarations for
-    most of the model-methods or in the ``framework-declarations.scm''
-    file which declares the generic-methods for methods required by
-    the lower levels of the framework.  Related to this is the problem
-    of defining a method before you have a generic-method declared---
-    the macros in ``framework'' should catch this.
-  \item[Don't try and construct methods that match the same argument
-    lists] Generally, \SCLOS is very good at getting the right
-    method for the job, but there are situations where it can be
-    confusing for it.  If you have a situation where there are several
-    possible desired code paths for essentially similar arguments, it
-    is clearer to have an explicit selection made within the body of a
-    single method.
-\end{description}
- 
-Each agent's \texttt{model-body} is run by the kernel at each of the
-agent's time steps. While there is an
-\texttt{object-initialisation-method} corresponding to an agent's
-\texttt{agent-initialisation-method}, there is no \texttt{object-body}
-since objects are not able to be run by the kernel.
-
-\section{Interactions}\label{interactions}
-
-The time taken to simulate interactions between individuals in an
-individual-based model is often a significant proportion of the total
-run-time, particularly when there are explicit searches for partners
-to interact with.  Population models suffer less from this particular
-source of overhead since, at least in ecological modelling,
-populations are often represented as arrays or function whose elements
-or values are an aggregation of individuals with respect to particular
-characteristics.
-
-Interactions between individuals are typically implemented or resolved
-by simulating (at least to some degree) the events which occur in the
-system being modelled. In contrast, interactions between the
-components of populations is necessarily less well resolved---the
-focus becomes the aggregate effects of the interaction, and these are
-often modelled either using integral transforms (in the case of
-functional representations) or repeated evaluations over the
-histograms representing the populations.
-
-We can map population histograms onto piecewise linear functions with
-the property that the partial integrals of the the linear functions
-correspond exactly to the partial sums of histograms at each boundary
-in the histogram.  If populations are functions, then we can evaluate
-the consequences on the population.
+{\Huge{HERE}}
 
 
-\subsubsection{Introspection agents}
-A special class of agents, the \mclass{introspection} agents which
-forks into two branches derived from  \mclass{logger} and
-\mclass{monitor} exist solely to poll the other agents within the
-system and either extract information in an analogue of the sampling
-undertaken by researchers, or to monitor the state of agents,
-ensembles and the model as a whole and effect change where
-necessary. The loggers handle all of the generation of output
-files---the code which makes up the submodels only provides one or more 
-\method{log-data} methods which the loggers use to assemble their
-output.  The notion is that the agents do not need to know about what
-is being sampled, only how to make the data they can provide
-``presentable'' and the loggers don't really need to know the details
-of a submodel's workings, only that it ought to obtain certain data from
-agents of particular types and generate an output file.
+\section{Further work: cross-representation predation\label{predation5}}
 
-
-
-
-
-
-
-
-
-
-\section{Maintaining state across representations}
-
-Unfinished business
-
-\section{Using trees to assess model configurations}
-
-The model periodically generates a ``map'' of the current
-configuration as an element in the space of the tree-ring elements of
-Chapter~\ref{treering}.  We use this mapping to calculate the
-closest candidate configuration from a set of configurations we
-believe (or know) to represent the system well in a given part of its
-state space. Because the trees are elements of a ring, we can, in some cases,
-interpolate between configurations, arriving at possibly advantageous
-configurations which have not been explicitly specified.
-
-\subsection{Candidate configurations}
-
-\typeout{HERE: Unfinished business}
-
-\subsection{Generating current-state trees}
-
-\typeout{HERE: Unfinished business}
-
-\subsection{Mapping from interpolated configurations to actual
-  configurations}
-
-\typeout{HERE: Unfinished business}
-
-
-
-
-\section{Further work: cross-representation predation}
-
-This discussion has not been implemented in the example model
-discussed in this section, but is included since the disparity between
+The work oulined in this section has not been implemented in the
+example model, but is included since the disparity between
 individual-based predation and population-level predation may be a
-frequent cause for representation changes.  It is possible for us to
+frequent cause for representation changes, and it provides a good
+example of how coupling and analytic component may be readily
+accomplished in a discrete model. Models at the ``individual-based''
+end of the spectrum can be very sensitive to fine changes in
+parameterisations or gradients within the model.  In some contexts,
+this is exactly what we wish for, but in others it can make tuning
+the model difficult and there may be underlying structural factors
+that have undue influence in the model's trajectory.\footnote{In an
+  unpublished model I wrote in the very early 1990's, simulated
+  fish lined up neatly on boundaries between the pixels of the digital
+  elevation map that made up the seabed -- they maximised their
+  access to prey by straddling the different domains.}
+Also, processes like predation are computationally expensive when
+large numbers of prey are present.  It is possible for us to
 model predation between individual-based and population-based
 representations, but to do so requires an approach quite unlike the
 approaches of conventional individual-based models, where the pursuit,
 capture and consumption may be explicitly simulated, or the approaches
-of conventional age-class structured population models which can often
-be thought of as
+of conventional age-class structured population models.
 
-\subsection{An individual-based and analytic approach}
+The time taken to simulate interactions between individuals in an
+individual-based model is often a significant proportion of the total
+run-time, particularly when there are explicit searches for partners
+to interact with.  While individual-based interactions are typically
+implemented or resolved by simulating (at least to some degree) the
+real-world events which occur in the system being modelled, the
+interactions between the components of populations are necessarily
+less well resolved -- the focus becomes the aggregate effects of the
+interaction, and these are often modelled either using integral
+transforms (in the case of functional representations) or repeated
+evaluations over the histograms representing the populations.
+
+Population models suffer less from this particular
+source of overhead since, at least in ecological modelling,
+populations are often represented as arrays or function whose elements
+or values are an aggregation of individuals with respect to particular
+characteristics. In domains where there are a large number of prey,
+this is likely to be both more computationally efficient and more
+likely to reflect the dynamics in the system being modelled.  It is
+easy to imagine conditions where we would like to model either
+predator or prey as an individual, and the other as a population.
+Relevant examples may be models of relic or marginal populations at
+risk of local extinction, or populations where the life-history of
+individuals has a bearing on the sustainability of the population as a
+whole (such as female elephants).  
+
+%We can map population histograms onto piecewise linear functions with
+%the property that the partial integrals of the the linear functions
+%correspond to the partial sums of histograms at each boundary
+%in the histogram.  If populations are functions, then we can evaluate
+%the consequences on the population.
 
 Let us consider the folowing ``known'' attributes in a system
 \begin{table}{ht}
   \begin{center}
+  \caption{Symbols\label{symbls}}
     \begin{tabular}{ll}
       $m_a (l)$ & the member distribution with respect to size of each agent of interest\cr
       $G_{i,j} (l, w)$ & the gape filter for predator $i$ with respect to prey \(j\)\cr
@@ -915,7 +1011,7 @@ which is the normalised predatory pressure with respect to size, and the
 normalised vulnerability
 \[ H_{i,j} (w) = \frac{1}{h_{i,j}} \int_0^{\infty} J_{i,j} (l, w) dl . \]
 Values of zero in $k_{i,j}$ and $h_{i,j}$ indicate that no predation is
-possible---usually because $M^{\ast}$ has collapsed. In this case we take
+possible -- usually because $M^{\ast}$ has collapsed. In this case we take
 either (or both) $K_{i,j} (w)$ and $H_{i,j} (w)$ to be zero.
 
 We calculate
@@ -1005,31 +1101,31 @@ with carefully in the division, and at all points $M^{\ast}_{T (a)} (w)
 
 
 
-\subsection{Comparison of states}
-The first step in being able to quantitatively compare configurations
-of models is to construct a means for encoding the state in a way that
-supports some sort of qualitative or quantitative comparison.  The
-trees described briefly in Chapter \ref{adaptiveselection} and more
-comprehensively in Chapter \ref{treering} are elements of a metric
-space. Since the set of indeterminate variables in the labels of these
-trees is quite arbitrary, we can identify cells and groups of cells
-explicitly with indeterminates, and we can also extend this to
-denoting representations which are in use or may be used.
+%% \subsection{Comparison of states}
+%% The first step in being able to quantitatively compare configurations
+%% of models is to construct a means for encoding the state in a way that
+%% supports some sort of qualitative or quantitative comparison.  The
+%% trees described briefly in Chapter \ref{adaptiveselection} and more
+%% comprehensively in Chapter \ref{treering} are elements of a metric
+%% space. Since the set of indeterminate variables in the labels of these
+%% trees is quite arbitrary, we can identify cells and groups of cells
+%% explicitly with indeterminates, and we can also extend this to
+%% denoting representations which are in use or may be used.
 
-\subsection{Partial ordering of trees and nodes}\label{partial-order}
-We can construct a partial order on nodes relatively simply.  In the
-first instance we normalise the polynomial labels if necessary (by
-collecting like terms) and sort nodes using their labels, where the polynomial labels are
-ordered canonically with indeterminate factors in each term sorted by
-lexicographic order, and the terms then sorted by degree.\footnote{Of course
-other sorting strategies are possible.} If two nodes, possess the same
-label, they are then ordered by their weights.  Should the weights
-\emph{also} match, they are sorted on the relative order of their set
-of children, with empty sets taking precedence over sets with
-children. We may have to exercise some care in ensuring that the
-lexical ordering doesn't unduly influence our ranking of different
-configurations. 
+%% \subsection{Partial ordering of trees and nodes}\label{partial-order}
+%% We can construct a partial order on nodes relatively simply.  In the
+%% first instance we normalise the polynomial labels if necessary (by
+%% collecting like terms) and sort nodes using their labels, where the polynomial labels are
+%% ordered canonically with indeterminate factors in each term sorted by
+%% lexicographic order, and the terms then sorted by degree.\footnote{Of course
+%% other sorting strategies are possible.} If two nodes, possess the same
+%% label, they are then ordered by their weights.  Should the weights
+%% \emph{also} match, they are sorted on the relative order of their set
+%% of children, with empty sets taking precedence over sets with
+%% children. We may have to exercise some care in ensuring that the
+%% lexical ordering doesn't unduly influence our ranking of different
+%% configurations. 
 
-The sorting order makes the construction of regular, readable output
-straightforward, since it largely conforms to one of the common
-patterns used in mathematics and computer science. 
+%% The sorting order makes the construction of regular, readable output
+%% straightforward, since it largely conforms to one of the common
+%% patterns used in mathematics and computer science. 

@@ -50,12 +50,20 @@
 	            ;;; radius (indicative of vegetation growth or loss)
 
 	plot-circle-facets ;; number of facets -- useful for differentiating species
-	plot-magnification ;; less than one contracts, 
 	))
 
 (define-class <plant-proxy>
-  (inherits-from <proxy>)
-  (state-variables lai leaf-mass))
+  (inherits-from <proxy> <plottable>) ;; needs projection for plotting 
+  (state-variables lai leaf-mass
+	default-color
+	dead-color
+	radius-color
+	foliage-color
+	stress-color
+	glyph
+	plot-circle-facets
+	circle-facets
+))
 
 
 (define-class <example-plant>
@@ -93,13 +101,20 @@
 
 (define-class <plant-array>
   (inherits-from <array>)
-  (state-variables patch-list lai)
+  (state-variables patch-list lai
+	default-color
+	dead-color
+	radius-color
+	foliage-color
+	stress-color
+	glyph
+	plot-circle-facets
+	circle-facets
+
    ;; data will be  a list with entries of the form
 	;; (state mass peak-mass age location leaf-area forage-damage water-stress domain)
 	;; state will either be 'dead or 'alive
-
-	
-)
+))
 
 ;-  The End 
 
@@ -111,3 +126,7 @@
 ;;; outline-regexp: ";-+" ;;;
 ;;; comment-column: 0 ;;;
 ;;; End:
+
+
+
+

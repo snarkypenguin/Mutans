@@ -144,7 +144,7 @@
 ;;; (declare-method location "return a location from an agent") -;
 ;;; (declare-method location* "return the entire location vector from an agent") -;
 ;;; (declare-method log-data "err, ...log data to an open output")  -;
-;;; (declare-method log-map-polygon "routine to plot a polygon for things like trees....") -;
+;;; (declare-method map-polygon "routine to plot a polygon for things like trees....") -;
 ;;; (declare-method log-this-agent "log an agent's data") -;
 ;;; (declare-method look-for<= "looks for the presence of specific categories of entities (mates, predators...)") -;
 ;;; (declare-method look-for>= "looks for the presence of specific categories of entities (mates, predators...)") -;
@@ -154,7 +154,7 @@
 ;;; (declare-method maintain-state "constructs a closure which can maintain and report the state, and provide a list of things needed from other representations") -;
 ;;; (declare-method manage-offspring-check "routine for ranking the management of offspring") -;
 ;;; (declare-method map-emit-page "specific for postscript output") -;
-;;; (declare-method map-log-track-segment "description needed") -;
+;;; (declare-method log-track-segment "description needed") -;
 ;;; (declare-method mass-at-age "mass-at-age") -;
 ;;; (declare-method mass "Return the mass of an entity") -;
 ;;; (declare-method max-bound "list of maxima for the dimensions") -;

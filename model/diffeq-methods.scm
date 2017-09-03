@@ -16,7 +16,6 @@
 ;; of the data --- all correspondences are an artifact of the data used
 ;; to initialise the variable-values, get-externals and external-update
 
-(include "framework")
 
 ;; this expects a list of functions which return reals
 ;--- model-method <diffeq-system> (set-system-dynamics! self . d/dt-list)
