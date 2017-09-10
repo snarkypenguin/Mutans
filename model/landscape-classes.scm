@@ -33,12 +33,17 @@
 	))
 
 
-(Comment "An <ecoservice> stands for biogenic parts of the system (ground
-water) The update function is of the form (lambda (self t dt) ...)
-where the args are specific things passed (like location, rainfall)
-and any specific 'parameters' ought to be part of the function's
-closure. The special growth functions 'sigmoidal and 'linear  can 
-be specified by passing the appropriate symbol.
+(Comment "An <ecoservice> typically stands for biogenic parts of the
+system (ground water), or a pool of plant/animal biomass.  In
+practice, it is any kind of quantity we might want to track -- numbers
+of pamphlet at kiosks, the number of unit length needles 
+touch parallel lines on an infinite xy-plane, each with integer x values....
+
+The update function is of the form (lambda (self t dt) ...)  where the
+args are specific things passed (like location, rainfall) and any
+specific 'parameters' ought to be part of the function's closure. The
+special growth functions 'sigmoidal and 'linear can be specified by
+passing the appropriate symbol.
 
 A typical construction of an ecoservice might look like
 (create <ecoservice> ecosrvtaxon
@@ -90,7 +95,9 @@ A typical construction of an ecoservice might look like
   )
 
 (define-class <patch> (inherits-from  <environment> <projection>)
-  (state-variables service-list caretaker notepad))
+  (state-variables service-list caretaker notepad
+						 index neighbour-list
+						 ))
 ;; This one needs a 'rep set (which is what <environment> provides
 ;; The caretaker variable may be a process of the form
 
@@ -99,6 +106,12 @@ A typical construction of an ecoservice might look like
 
 ;; notepad is (notionally) a list which can be used as quasi-permanent
 ;; storage
+
+;; neighbour-list is a list of pairs of the form (patchagent number|symbol)
+;; where a number indicates the "length" of the interface between the two and
+;; a symbol indicates an interface of some other sort.  This is either filled
+;; in by the routine that constructs the ensemble, by some other routine, or
+;; ignored utterly.
 
 
 (Comment "A patch is a geographic region with a list of ecological

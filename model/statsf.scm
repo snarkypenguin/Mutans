@@ -1104,22 +1104,22 @@ Examples:
 (define (sheltered-read-line inport)
   (let ((l (read-line inport))) (if (eof-object? l) "" l)))
 
-(define (data-ref WT HASH ll)
+(define (sfdata-ref WT HASH ll)
   (if (and use-hash HASH)
       (hash-ref HASH ll)
       (wt-tree/lookup WT ll #f)))
 
-(define (data-set! WT HASH ll vv)
+(define (sfdata-set! WT HASH ll vv)
   (if (and use-hash HASH)
       (hash-set! HASH ll vv)
-      (let ((dr (data-ref WT HASH ll)))
-;	(dnl "data-set!: before " ll ", " dr)
+      (let ((dr (sfdata-ref WT HASH ll)))
+;	(dnl "sfdata-set!: before " ll ", " dr)
 ;	(if dr 
 ;	    (pp (list 'KEY: (dr 'key)))
 ;	    (pp 'NO-KEY))
 		  (wt-tree/delete! WT ll)
 		  (wt-tree/add! WT ll vv)
-;	(dnl"data-set!: after " ll ", " (data-ref WT HASH ll))
+;	(dnl"sfdata-set!: after " ll ", " (sfdata-ref WT HASH ll))
 
 ;	(set! WT (wt-tree/add WT ll vv))
 		  vv))
@@ -1406,7 +1406,7 @@ Examples:
 				  )
 ;	  (dnl "input-key: " input-key)
 
-			 (let ((stats (if input-key (data-ref StatWT StatHash input-key) #f)))
+			 (let ((stats (if input-key (sfdata-ref StatWT StatHash input-key) #f)))
 ;	    (if stats
 ;		(dnl "stats: " (stats 'key))
 ;		(dnl 'NO-STATS))
@@ -1414,7 +1414,7 @@ Examples:
 				(if (and input-key (not (null? input-key)))
 					 (begin
 						(if (eqv? stats #f)
-							 (set! stats (data-set! StatWT StatHash input-key (stats-bins input-key (list-copy input-map) (list-copy covariant-map))))
+							 (set! stats (sfdata-set! StatWT StatHash input-key (stats-bins input-key (list-copy input-map) (list-copy covariant-map))))
 							 )
 						
 						(if (not stats) (exit 1))

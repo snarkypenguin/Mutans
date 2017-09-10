@@ -341,7 +341,7 @@
 (model-method (<environment>) (services% self syms)
 				  '())
 
-(model-body <environment>
+(model-body% <environment>
 				(call-all-parents)
 				dt)
 
@@ -409,7 +409,7 @@ via their containing patch.
 ;;--- ecoservice model-body support routines (mainly about growth)
 
 (UNFINISHED-BUSINESS "This should probably have bits disabled when there are active-subsidiary-agents")
-(model-body <ecoservice>
+(model-body% <ecoservice>
 						(kdebug '(model-bodies ecoservice-running) (cnc self) (my 'name)  "@"  t)
 						(let ((h (slot-ref self 'history)))
 						  (if h
@@ -417,6 +417,7 @@ via their containing patch.
 											  (cons (cons t (my 'value)) h)))
 						  )
 						
+						;;(dnl* (my 'name) (my 'sym) (my 'value))
 
 						(if (and (my 'do-growth)
 									(null? (my 'active-subsidiary-agents)))
@@ -665,6 +666,7 @@ via their containing patch.
 				  (area (my 'patch) passing))
 
 (model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug dnl*))
 						  ;;(f (if (pair? args) (car args) #f))
 						  ;;(p (if (and (pair? args)
@@ -689,10 +691,14 @@ via their containing patch.
 											(case format
 											  ((ps)
 												(file 'push-font (my 'default-font) (my 'default-size))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "["))
 												(file 'show (string-append " "
 																					(if (string? r)
 																						 r
 																						 (object->string r)) " "))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "]"))
 												(file 'pop-font)
 												)
 ;								 ((dump)
@@ -749,6 +755,8 @@ via their containing patch.
 																(set! leading-entry #t))
 														  (file 'show field)))
 												  
+												  (if (and (my 'always-log) (< t (my 'subjective-time)))
+														(file 'show "["))
 												  (let ((val (if (eqv? field 'name) 
 																	  (if (slot-ref self 'patch)
 																			(string-append
@@ -764,6 +772,9 @@ via their containing patch.
 														  (file 'show " ")
 														  (set! leading-entry #t))
 													 (file 'show val))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "]"))
+												  
 												  )
 												)
 											  
@@ -1421,6 +1432,7 @@ via their containing patch.
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
 
 (model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
+				  (dnl* "(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
 				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let* ((file (slot-ref logger 'file))
 								 (p (composite-prj_src->dst self logger))
@@ -1500,15 +1512,15 @@ via their containing patch.
 							 ;; (parent-log-data)
 							 ;; )
 							 (else
-							  (display (my 'name) file)
+							  (file 'show (my 'name))
 							  (for-each 
 								(lambda (x)
-								  (display " " file)
+								  (file 'show " ")
 								  (if (agent? x)
-										(display (value x))
-										(display x)))
+										(file 'show (value x))
+										(file 'show x)))
 								(map (lambda (x) (value x)) (my 'service-list)))
-							  (newline file)
+							  (file 'linefeed)
 							  ;;(parent-log-data)	
 							  )
 							 )
@@ -1527,7 +1539,7 @@ via their containing patch.
 				  (apply query (cons (my 'notepad) (cons cmd args))))
 
 ;--- model-body <patch>
-(model-body <patch>
+(model-body% <patch>
 				(call-all-parents)
 				(kdebug '(model-bodies patch-running)"In " (cnc self) (name self) "@" t)
 				(if (procedure? (my 'caretaker))
@@ -1667,7 +1679,34 @@ via their containing patch.
 		 (seq (length (car pointset)))))
 
 
-;; Returns a list of the form (patchlist patchgrid)
+;; Returns a list of lists, where the inner lists correspond to the rows in the grid.
+;; the grids are organised like so:
+
+;; __ __ __ __ __
+;;|00|01|02|03|04|
+;;|__|__|__|__|__|
+;;|10|11|12|13|14|
+;;|__|__|__|__|__|
+;;|20|21|22|23|24|
+;;|__|__|__|__|__|
+;; __    __    __    __
+;;/00\__/01\__/02\__/03\__
+;;\__/10\__/11\__/12\__/13\
+;;/20\__/21\__/22\__/23\__/
+;;\__/30\__/31\__/32\__/33\
+;;/40\__/41\__/42\__/43\__/
+;;\__/50\__/51\__/52\__/53\
+;;/60\__/61\__/62\__/63\__/
+;;\__/  \__/  \__/  \__/
+;; 
+;; The list representations for 'grid and 'hex are consistent with
+;; normal list indexing and the way we typically number things from
+;; top to bottom; reversing the list gives us a more tradition "map"
+;; ordering. 
+
+
+
+;; Returns a list of lists, where the inner lists correspond to the rows in the grid.
 (define (make-grid cell-class taxon name cell-type n m domain #!rest extras)
   (let* ((ll (car domain))
 			(ur (cadr domain))
@@ -1679,136 +1718,151 @@ via their containing patch.
 			(terrain (if (pair? extras) (car extras)))
 			(statevars (if (pair? extras) (cdr extras)))
 			)
-	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
-	 (dnl* "stepsizes" nscale mscale)
+	 (if #f
+		  (begin
+			 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+			 (dnl* "stepsizes" nscale mscale)))
 
 	 ;; The flag 'is-relative is set to false in the construction of the grid cells.
 	 ;; We could specify a single box and make the polygon vertices relative to the centre,
 	 ;; but this is not yet well exercised.  The distinction between the two is important when
 	 ;; debugging.
 
-	 (map-**-ix (lambda (x i)
-					  (let ((box (bbox (list (+ (car ll) (* nscale (car i)))
-													 (+ (cadr ll) (* mscale (cadr i))))
-											 (list (+ (car ll) (* nscale (+ 1 (car i))))
-													 (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
-							  (centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
-												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
-							  (pname (string-append name "-" (number->string (car i)) ","
-															(number->string (cadr i))))
-							  )
-						 ;;(dnl* "Box " pname x i box)
-						 (let* ((minx +nan.0)
-								  (miny +nan.0)
-								  (maxx +nan.0)
-								  (maxy +nan.0)
-								  (mB (extremum min box))
-								  (MB (extremum max box))
-								  (PP (create-	<polygon>
-													'location centre
-													'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
-													'perimeter box
-													'is-relative #f ;;;; (-: THIS IS IMPORTANT HERE---awkward bugs arise if this is wrong ;-)
-													'minv mB
-													'maxv MB
-													'note "generated by make-grid"
-													'dont-log #t ;; let them be logged by default
-													))
-								  (cell
-									(create 
-									 cell-class
-									 taxon
-									 'name pname
-									 'representation (cnc cell-type)
-									 'rep PP
-									 )))
-;;							(pp (dumpslots PP))
+	 (let ((M* ((map-**-ix
+						 (lambda (x i)
+									(let ((box (bbox (list (+ (car ll) (* nscale (car i)))
+																  (+ (cadr ll) (* mscale (cadr i))))
+														  (list (+ (car ll) (* nscale (+ 1 (car i))))
+																  (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
+											(centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
+															  (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
+											(pname (string-append name "-" (number->string (car i)) ","
+																		 (number->string (cadr i))))
+											)
+									  ;;(dnl* "Box " pname x i box)
+									  (let* ((minx +nan.0)
+												(miny +nan.0)
+												(maxx +nan.0)
+												(maxy +nan.0)
+												(mB (extremum min box))
+												(MB (extremum max box))
+												(PP (create-	<polygon>
+																	'location centre
+																	'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
+																	'perimeter box
+																	'is-relative #f ;;;; (-: THIS IS IMPORTANT HERE---awkward bugs arise if this is wrong ;-)
+																	'minv mB
+																	'maxv MB
+																	'note "generated by make-grid"
+																	'dont-log #t ;; let them be logged by default
+																	))
+												(cell
+												 (create 
+												  cell-class
+												  taxon
+												  'name pname
+												  'representation (cnc cell-type)
+												  'rep PP
+												  'index i
+												  )))
+										 ;;							(pp (dumpslots PP))
 ;							(dnl* "-->"(perimeter cell))
 ;							(dnl* "   " box)
-							(if (pair? statevars) (set-state-variables cell statevars))
-							;; so we can adjust things like dt.
+										 (if (pair? statevars) (set-state-variables cell statevars))
+										 ;; so we can adjust things like dt.
 
-							(set! patch-list (cons cell patch-list))
-							cell))
-						 )
-					M)
-	 ;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
-	 (reverse patch-list) 
+										 (set! patch-list (cons cell patch-list))
+										 cell))
+									)
+								 M)
+					))
+			 )
+		;; connect neighbours up .... this may take some time
+		(if #f
+			 "Not implemented yet!")
+				
+		;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
+		M*)
 	 )
   )
 
-
-
-
-
-
-
-
-
-
-
-
-;; Returns a list of the form (patchlist patchgrid)
-(define (bad-make-grid cell-class taxon name cell-type n m domain #!rest extras)
+(define (make-hex cell-class taxon name cell-type n m domain #!rest extras) 
   (let* ((ll (car domain))
 			(ur (cadr domain))
-			(nscale (real->integer (/ (- (car ur) (car ll)) (* 1.0 n))))
-			(mscale (real->integer (/ (- (cadr ur) (cadr ll)) (* 1.0 m))))
+			(nscale (/ (- (car ur) (car ll)) (* 1.0 n)))
+			(mscale (/ (- (cadr ur) (cadr ll)) (* 1.0 m)))
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
 			(terrain (if (pair? extras) (car extras)))
 			(statevars (if (pair? extras) (cdr extras)))
 			)
-	 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
-	 (dnl* "stepsizes" nscale mscale)
+	 (if #f
+		  (begin
+			 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+			 (dnl* "stepsizes" nscale mscale)))
 
-	 (map-**-ix (lambda (x i)
-					  (let ((box (bbox (list (+ (car ll) (* nscale (car i)))
-													 (+ (cadr ll) (* mscale (cadr i))))
-											 (list (+ (car ll) (* nscale (+ 1 (car i))))
-													 (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
-							  (centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
-												 (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
-							  (pname (string-append name "-" (number->string (car i)) ","
-															(number->string (cadr i))))
-							  )
-						 (dnl* "Box " pname x i box)
-						 (let* ((minx +nan.0)
-								  (miny +nan.0)
-								  (maxx +nan.0)
-								  (maxy +nan.0)
-								  (mB (extremum min box))
-								  (MB (extremum max box))
-								  (cell
-									(create 
-									 cell-class
-									 taxon
-									 'name pname
-									 'representation (cnc cell-type)
-									 'rep
-									 (create-
-									  <polygon>
-									  'location centre
-									  'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
-									  'perimeter box
-									  'minv mB
-									  'maxv MB
-									  'note "generated by make-grid"
-									  'dont-log #f ;; let them be logged by default
-									  ))))
-							(if (pair? statevars) (set-state-variables cell statevars))
-							;; so we can adjust things like dt.
+	 ;; The flag 'is-relative is set to false in the construction of the grid cells.
+	 ;; We could specify a single box and make the polygon vertices relative to the centre,
+	 ;; but this is not yet well exercised.  The distinction between the two is important when
+	 ;; debugging.
 
-							(set! patch-list (cons cell patch-list))
-							cell))
-						 )
-					M)
-	 ;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
-	 (reverse patch-list) 
+	 (let ((M* ((map-**-ix
+						 (lambda (x i)
+									(let ((box (bbox (list (+ (car ll) (* nscale (car i)))
+																  (+ (cadr ll) (* mscale (cadr i))))
+														  (list (+ (car ll) (* nscale (+ 1 (car i))))
+																  (+ (cadr ll) (* mscale (+ 1 (cadr i)))))))
+											(centre (list (+ (car ll) (* nscale (+ 0.5 (car i))))
+															  (+ (cadr ll) (* mscale (+ 0.5 (cadr i))))))
+											(pname (string-append name "-" (number->string (car i)) ","
+																		 (number->string (cadr i))))
+											)
+									  ;;(dnl* "Box " pname x i box)
+									  (let* ((minx +nan.0)
+												(miny +nan.0)
+												(maxx +nan.0)
+												(maxy +nan.0)
+												(mB (extremum min box))
+												(MB (extremum max box))
+												(PP (create-	<polygon>
+																	'location centre
+																	'radius (/ (sqrt (apply + (map sqr (map - MB mB)))) 2.0)
+																	'perimeter box
+																	'is-relative #f ;;;; (-: THIS IS IMPORTANT HERE---awkward bugs arise if this is wrong ;-)
+																	'minv mB
+																	'maxv MB
+																	'note "generated by make-grid"
+																	'dont-log #t ;; let them be logged by default
+																	))
+												(cell
+												 (create 
+												  cell-class
+												  taxon
+												  'name pname
+												  'representation (cnc cell-type)
+												  'rep PP
+												  )))
+										 ;;							(pp (dumpslots PP))
+;							(dnl* "-->"(perimeter cell))
+;							(dnl* "   " box)
+										 (if (pair? statevars) (set-state-variables cell statevars))
+										 ;; so we can adjust things like dt.
+
+										 (set! patch-list (cons cell patch-list))
+										 cell))
+									)
+								 M)
+					))
+			 )
+				  ;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
+		M*)
 	 )
   )
 
+
+(define (patch-list-from-cover cover)
+  (reverse (flatten cover)))
 
 ;; the services are defined by a list containing a name, a symbol, an
 ;; initial value, a capacity, its max dt, whether or not it grows, and
@@ -1885,7 +1939,8 @@ args can be  an update map or an update map and update equations
 
 
 (model-method <dynamic-patch> (dump% self count)
-				  (display (make-string count #\space))
+				  (display ,q
+							  (make-string count #\space))
 				  (display "<dynamic-patch>\n")
 				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
@@ -1906,6 +1961,7 @@ args can be  an update map or an update map and update equations
 
 ;--- model-method (<dynamic-patch> <procedure> <symbol> <procedure>)(log-data self logger format  targets)
 (model-method (<dynamic-patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
+				  (dnl* "(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug  dnl*))
 						  )
 					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
@@ -2283,6 +2339,7 @@ args can be  an update map or an update map and update equations
 
 ;--- (<landscape> <procedure>...) (log-data self logger format  targets)
 (model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
+				  (dnl* "(model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)")
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 					 

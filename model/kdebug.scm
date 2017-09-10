@@ -116,8 +116,6 @@ Landscape/habitat/patch/ecoservice messages:
 ;--- warnings
 
 (define show-warnings #f)
-
-
 (define (warning . args)
   (if show-warnings
 		(begin
@@ -139,13 +137,14 @@ Landscape/habitat/patch/ecoservice messages:
 (define get-kdebug-messages #!void)  ;; return the collection-list of matched messages
 (define clear-kdebug-messages #!void) ;; clear the collection-list of matched messages
 (define set-kdebug-msg-collection #!void) ;; indicate that matched messages should be added to the collection-list or not
-(define set-kdebug-msg-display #!void) ;; indicat that matched messages should be displayed or not
+(define set-kdebug-msg-display #!void) ;; indicate that matched messages should be displayed or not
 (define kdebug? #!void) ;; predicate that indicates if a kdebug would print
 (define kdebug-production! #!void) ;; set or unset production model (by-passes everything when set)
 (define kdebug-development! #!void) ;; unset or set production model (by-passes everything when set)
 (define kdebug-wildcards! #!void) ;; set or unset the use of wildcards in the tags
 (define kdebug-do-times! #!void) ;; 
 (define kdebug #!void)
+(define kdebug-flags #!void)
 ;; like 
 ;;     (kdebug 'things "yadda yadda" mass)
 ;;     (kdebug '(big-things little-things) "Y'know?")

@@ -1264,7 +1264,7 @@ A void or null result from a model body is treated like the symbol
 trap-model-bodies-with-bad-return-values variable to #t.
 
 A result consisting of a list must have one of the symbols 'spawn,
-'introdouce 'remove, or 'migrate-representation as the first element
+'introduce 'remove, or 'migrate-representation as the first element
 of the list, or it is treated as a fatal error.
 
 
@@ -1332,7 +1332,7 @@ code to suppress the error)
 		(set! N (if (null? N) #f (car N)))
 
 		(KCALL <kernel> 'set-Q! run-agent-runqueue)
-
+		(kdebug 'run-agent "Entering run-agent for " (name (car run-agent-runqueue)) " at " t " to " stop)
 		(cond
 		 ((or (member (slot-ref (car run-agent-runqueue) 'queue-state) '(terminated)) (not (slot-ref (car run-agent-runqueue)  'may-run)))
 		  (hoodoo (car run-agent-runqueue) "run-agent")

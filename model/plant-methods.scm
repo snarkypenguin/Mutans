@@ -72,10 +72,9 @@
  				((my 'mass-at-age) (+ (my 'age) dt)))
  			dt))))
 
+;; This ties the growth rate to its age rather than its mass
 (define (plant-growth mass-at-age age dt)
-  (/ (- (mass-at-age age)
-		  (mass-at-age(+ age dt)))
-	  dt))
+  (- (mass-at-age (+ age dt)) (mass-at-age age)))
 
 
 (model-method <plant> (initialise-instance self)
@@ -86,6 +85,9 @@
 
 	(if (uninitialised? self 'mass-radius)
 		 (set-my! 'mass-radius (std-mass-radius-function)))
+	
+	(if (uninitialised? self 'last-reproduced)
+		 (set-my! 'last-reproduced 0))
 	
 	(let* ((age (my 'age))
 			 (age-at-instantiation age)
@@ -155,7 +157,7 @@
 				  (set-uninitialised-slots self '(peak-mass water-stress water-use reproduction-mechanism forage-damage ) 0)
 				  (set-uninitialised-slots self '(water-stress-effect) #f)
 				  (set-uninitialised-slots self '(glyph) 18)
-				  (set-uninitialised-slots self '(plot-scale) 10)
+				  (set-uninitialised-slots self '(plot-scale) 3)
 				  (fail-on-uninitialised-slots self '(decay-rate leaf-mass omega-ind max-mass lai reproduction-mass
 																				 fruiting-probability fruiting-mass fruiting-rate
 																				 growth-rate seeds-per-fruit mass-radius))
@@ -176,14 +178,15 @@
 
 
 
-(model-method <plant> (fruit-count self #!optional locus)
-				  (truncate (* (slot-ref self 'fruiting-rate
-									(slot-ref self 'mass)
+(model-method (<plant> <number> <number>) (fruit-count self t dt #!optional locus)
+				  (truncate (* (/ (slot-ref self 'fruiting-rate)
+										(slot-ref self 'fruit-mass))
+									dt (slot-ref self 'mass)
 									(if (slot-ref self 'water-stress-effect)
 										 (- 1 (sqr (slot-ref self 'water-stress)))
 										 1.0)
 									))
-								))
+								)
 
 ;;; (agent-initialisation-method <plant> (args) (no-default-values) ;-
 ;;;  (set-state-variables self (list 'max-age 37.0 ;-
@@ -326,10 +329,8 @@
 		 (set-my! 'mass ((my 'mass-at-age) (my 'age))))
 
 	(let ((parent-return (call-all-parents)))
-
 	  (if (> (my 'mass) (my 'peak-mass)) (set-my! 'peak-mass (my 'mass)))
-
-	  (let ((return
+	  (let ((return 
 				(cond
 				 ;; DEAD AGENT
 				 ((dead? self)
@@ -374,7 +375,12 @@
 
 					 (kdebug 'model-body "plant 3")
 
-					 (do-fruiting self t dt)
+					 (if (ok-to-reproduce t (my 'age)
+												 (my 'reproduction-age)
+												 (my 'reproduction-offset)
+												 (my 'reproduction-period)
+												 (my 'reproduction-probability))
+						  (do-fruiting self t dt))
 
 					 ;; THIS (cond ...) RETURNS THE dt VALUE!!!
 					 (cond	;; determine if the plant dies this step
@@ -413,11 +419,10 @@
 					  )
 					 )
 				  ))
-				))
+		 ))
 		 return
 		 )
-	  )
-	dt
+	  dt)
 	)
 
 (define plant-arg-order
@@ -508,75 +513,82 @@
 ;         --___--
 
 (model-method <plant> (plot-plant self logger file)
-  (let* ((inner-glyph (slot-ref self 'glyph))
-			(outer-glyph (+ 3 (slot-ref self 'glyph)))
-			(scale (self 'plot-scale)
-			(mass-radius (let ((mr (slot-ref self 'mass-radius)))
-								(cond
-								 ((procedure? mr) mr)
-								 ((number? mr) (lambda (X x) (* mr X x)))
-								 (else (lambda (X x) (* 1 x))))))
-			
-			(iply (if (number? inner-glyph)
-						 (make-circle-perimeter
-						  (slot-ref self 'location) (* scale (radius self)) inner-glyph)
-						 (translate-glyph (slot-ref self 'location)
-												(rescale-glyph (* scale (radius self))
-																	inner-glyph))
-						 ))
-			(oply (if (number? outer-glyph)
-						 (make-circle-perimeter
-						  (slot-ref self 'location)
-						  (* scale (mass-radius (pristine-leaf-mass self) (leaf-mass self)))
-						  outer-glyph)
-						 (translate-glyph (slot-ref self 'location)
-												(rescale-glyph (* scale
-																		(mass-radius
-																		 (pristine-leaf-mass self)
-																		 (leaf-mass self)))
-																	outer-glyph))
-						 ))
-			(prj (composite-prj_src->dst self logger))
-			)
+  (if (>= (mass self) (* 0.1 kg))				  
+		(let* ((inner-glyph (slot-ref self 'glyph))
+				 (outer-glyph (+ 3 (slot-ref self 'glyph)))
+				 (scale (let ((pscale (slot-ref self 'plot-scale)))
+							 (cond
+							  ((number? pscale) pscale)
+							  ((symbol? pscale) (slot-ref self 'pscale))
+							  ((procedure? pscale) (pscale self))
+							  (else (error "bad plot-scale for plant" pscale)))))
+				 (mass-radius (let ((mr (slot-ref self 'mass-radius)))
+									 (cond
+									  ((procedure? mr) mr)
+									  ((number? mr) (lambda (X x) (* mr X x)))
+									  (else (lambda (X x) (* 1 x))))))
+				 
+				 (iply (if (number? inner-glyph)
+							  (make-circle-perimeter
+								(slot-ref self 'location) (* scale (radius self)) inner-glyph)
+							  (translate-glyph (slot-ref self 'location)
+													 (rescale-glyph (* scale (radius self))
+																		 inner-glyph))
+							  ))
+				 (oply (if (number? outer-glyph)
+							  (make-circle-perimeter
+								(slot-ref self 'location)
+								(* scale (mass-radius (pristine-leaf-mass self) (leaf-mass self)))
+								outer-glyph)
+							  (translate-glyph (slot-ref self 'location)
+													 (rescale-glyph (* scale
+																			 (mass-radius
+																			  (pristine-leaf-mass self)
+																			  (leaf-mass self)))f
+																			  outer-glyph))
+							  ))
+				 (prj (composite-prj_src->dst self logger))
+				 )
 
-	 (let ((dead (slot-ref self 'dead-color))
-			 (radcol (slot-ref self 'radius-color))
-			 (folcol (map (lambda (x y) (/ (+ x y) 2.0)) (slot-ref self 'foliage-color) (slot-ref self 'stress-color)))
+		  (let ((dead (slot-ref self 'dead-color))
+				  (radcol (slot-ref self 'radius-color))
+				  (folcol (map (lambda (x y) (/ (+ x y) 2.0)) (slot-ref self 'foliage-color) (slot-ref self 'stress-color)))
+				  )
+			 
+			 
+			 
+			 (if (dead? self)
+				  (begin
+					 (file 'comment " " (name self) " " (location self))
+					 (file 'push-color (slot-ref self 'dead-color))
+					 (adjusted-plot-polygon file 0.1 dead #t prj oply)
+					 (adjusted-plot-polygon file 0.25 dead #f prj iply)
+					 (file 'pop-color)
+					 )
+				  (begin
+					 (file 'comment " " (name self) " " (location self))
+					 (file 'push-color folcol)
+					 (adjusted-plot-polygon file 0.1 folcol #t prj oply)
+					 (file 'push-color radcol)
+					 (adjusted-plot-polygon file 0.25 radcol #f prj iply)
+					 (file 'pop-color)
+					 (file 'pop-color)
+					 )
+				  )
 			 )
-		
-		
-		
-		(if (dead? self)
-			 (begin
-				(file 'comment " " (name self) " " (location self))
-				(file 'push-color (slot-ref self 'dead-color))
-				(adjusted-plot-polygon file 0.1 dead #t prj oply)
-				(adjusted-plot-polygon file 0.25 dead #f prj iply)
-				(file 'pop-color)
-				)
-			 (begin
-				(file 'comment " " (name self) " " (location self))
-				(file 'push-color folcol)
-				(adjusted-plot-polygon file 0.1 folcol #t prj oply)
-				(file 'push-color radcol)
-				(adjusted-plot-polygon file 0.25 radcol #f prj iply)
-				(file 'pop-color)
-				(file 'pop-color)
-				)
-			 )
-		)
-	 ))
+		  ))
+  )
   
 
-(model-method (<plant> <log-introspection> <symbol> <list>)
-				  (log-data self logger format targets)
+(model-method (<plant> <log-introspection> <symbol> <list>) (log-data self logger format targets)
+				  (dnl* "(model-method (<plant> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
 				  (let ((file (slot-ref logger 'file))
 						  (leading-entry #f)
 						  (needs-newline #f)
 						  )
 					 ;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
 					 
-					 (if (or (and (is-class? self <plottable>) (is-class? logger <log-map>)) (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (begin
 							 ;; this handles "whole of agent" bits, like perimeters
 							 (cond
@@ -586,97 +598,99 @@
 										 ;;(prj (composite-prj_src->dst self logger))
 										 ;;(pply (map prj ply))
 										 )
-
 								  (plot-plant self logger file)
 								  ;;(adjusted-plot-polygon file 0.4 0.0 #f prj ply)
 								  ))
-							  )
-							 
-							 
-							 ;; This handles fields
-							 (for-each
-							  (lambda (field)
-								 ;;(dnl* "   fielding" field)
-								 (kdebug '(log-* log-plant) "[" (my 'name) ":"
-											(cnc self) "]" "checking" field)
-								 ;;(dnl* "  " (cnc self) (if (has-data? self field) "has" "doesn't have") field)
-								 (if (not (symbol? format)) (buggrit))
-								 (if (has-data? self field)
-									  (letrec ((r (data-ref self field)))
-										 #t
-										 ;;(dnl* "   processing" field "for" format "format")
-										 (cond
-										  ((postscript? file)
-											(set! needs-newline #t)
-											(file 'show (string-append
-															 (if (string? r)
-																  r
-																  (object->string r)) " "))
-											#t
-											)
-										  ((text? file)
-											(set! needs-newline #t)
-											(file 'show (string-append
-															 (if (string? r)
-																  r
-																  (object->string r)) " "))
-											#t
-											)
-										  ((output-port? file)
-											(let ((show-field-name
-													 (data-ref logger 'show-field-name))
-													(missing-val
-													 (data-ref logger 'missing-val))
-													)
-											  (if show-field-name
-													(begin
-													  (set! needs-newline #t)
-													  (if leading-entry
-															(file 'display " ")
-															(set! leading-entry #t))
-													  (set! needs-newline #t)
-													  (file 'display field)))
-											  
-											  (let ((val (if (eqv? field 'name) 
-																  (if (data-ref self 'domain)
-																		(string-append
-																		 (data-ref (data-ref self 'domain) 'name) ":" (name self))
-																		(name self))
-																  (if (has-data? self field)
-																		(data-ref self field)
-																		(data-ref logger 'missing-val)))))
-												 (if leading-entry 
-													  (file 'display " ")
-													  (set! leading-entry #t))
-												 (set! needs-newline #t)
-												 (file 'display val))
-											  )
-											)
+							  
+							  ;; This handles fields
+							  (for-each
+								(lambda (field)
+								  ;;(dnl* "   fielding" field)
+								  (kdebug '(log-* log-plant) "[" (my 'name) ":"
+											 (cnc self) "]" "checking" field)
+								  ;;(dnl* "  " (cnc self) (if (has-data? self field) "has" "doesn't have") field)
+								  (if (not (symbol? format)) (buggrit))
+								  (if (has-data? self field)
+										(letrec ((r (data-ref self field)))
+										  #t
+										  ;;(dnl* "   processing" field "for" format "format")
+										  (cond
+											((postscript? file)
+											 (set! needs-newline #t)
+											 (if (and (my 'always-log) (< t (my 'subjective-time)))
+												  (file 'show "["))
+											 (file 'show (string-append
+															  (if (string? r)
+																	r
+																	(object->string r)) " "))
+											 (if (and (my 'always-log) (< t (my 'subjective-time)))
+												  (file 'show "]"))											 #t
+											 )
+											((text? file)
+											 (set! needs-newline #t)
+											 (if (and (my 'always-log) (< t (my 'subjective-time)))
+												  (file 'show "["))
+											 (file 'show (string-append
+															  (if (string? r)
+																	r
+																	(object->string r)) " "))
+											 (if (and (my 'always-log) (< t (my 'subjective-time)))
+												  (file 'show "]"))											 #t
+											 )
+											((output-port? file)
+											 (let ((show-field-name
+													  (data-ref logger 'show-field-name))
+													 (missing-val
+													  (data-ref logger 'missing-val))
+													 )
+												(if show-field-name
+													 (begin
+														(set! needs-newline #t)
+														(if leading-entry
+															 (file 'show " ")
+															 (set! leading-entry #t))
+														(set! needs-newline #t)
+														(file 'show field)))
+												
+												(let ((val (if (eqv? field 'name) 
+																	(if (data-ref self 'domain)
+																		 (string-append
+																		  (data-ref (data-ref self 'domain) 'name) ":" (name self))
+																		 (name self))
+																	(if (has-data? self field)
+																		 (data-ref self field)
+																		 (data-ref logger 'missing-val)))))
+												  (if leading-entry 
+														(file 'show " ")
+														(set! leading-entry #t))
+												  (set! needs-newline #t)
+												  (file 'display val))
+												)
+											 )
 
-										  (else
-											(kdebug '(log-* log-ecoservice)
-													  "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
-													  "Ignoring " field " because I don't have it")
-											'ignore-unhandled-format)))						 (begin
+											(else
+											 (kdebug '(log-* log-ecoservice)
+														"<plant>:log-data [" (my 'name) ":" (cnc self) "]"
+														"Ignoring " field " because I don't have it")
+											 'ignore-unhandled-format)))						 (begin
 																											(kdebug '(log-* log-ecoservice)
 																													  "<plant>:log-data [" (my 'name) ":" (cnc self) "]"
 																													  "no service" field)
 																											#f)))
-							  (uniq (if #t
-											targets
-											(filter (not-memq (slot-ref logger 'dont-log)) targets)))
-							  )
+								(uniq (if #t
+											 targets
+											 (filter (not-memq (slot-ref logger 'dont-log)) targets)))
+								)
 							 )
 						  ;;(dnl* "Did not process" (name self))
+							 (if needs-newline (file 'newline))
 						  )
 
-					 (if needs-newline (file 'newline))
-
-					 (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
+						  (kdebug (list 'log-* 'log-plant (my 'name) (my 'taxon))
 								"<plant>:log-data --- Leaving [" (my 'name) ":" (cnc self) "]"
 								"in log-data")
 					 )
-				  )
+				  ))
 
 
 (UNFINISHED-BUSINESS "Need to flesh this out a bit")
@@ -687,26 +701,13 @@
 ;;; 									  (set-state-variables self args) ;; set specifics passed in here... ;-
 ;;; 									  ) ;-
 
-(model-method (<plant> <number> <number>) (do-fruiting self t dt)
-;(dnl* "<plant> fruiting")
-				  (let ((offset (my 'reproduction-offset))
-						  (reproduction-point (modulo (- t offset) (max 1 (my 'reproduction-period)))) ;; one day minimum
-						  (reprob (random-real))
-						  (fruiting? #f))
 
-					 (if (and (negative? reproduction-point)
-								 (< reprob (my 'fruiting-probability))
-								 (not (negative? (+ dt reproduction-point))))
-				;;; (if (not water-stress-effect)
-				;;; 	 #t
-				;;; 	 'true-for-the-moment-but-need-to-have-a-test-here
-				;;; 	 )
-						  
-						  (let* ((here (my 'domain))
-									(num-fruit (fruit-count self))
-									(current-fruit (value here 'fruit))
-									)
-							 (set-value! here 'f (+ current-fruit num-fruit))))))
+(model-method (<plant> <number> <number>) (do-fruiting self t dt)
+				  (let* ((here (my 'domain))
+							(num-fruit (fruit-count self t dt))
+							(current-fruit (value here 'fruit))
+							)
+					 (set-value! here 'fruit (+ current-fruit num-fruit))))
 
 
 (model-method <example-plant> (initialise-instance self)
@@ -867,76 +868,94 @@
 (model-body <plant-proxy>
 				(abort "This should never happen"))
 
+(model-method% (<plant-array> <log-introspection> <symbol> <list>) (log-data self logger format targets)
+		(kdebug 'log* "(model-method% (<plant-array> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
 
+		(let* ((file (slot-ref logger 'file))
+				 (leading-entry #f)
+				 (needs-newline #f)
+				 (show-field-name (data-ref logger 'show-field-name))
+				 (missing-val (data-ref logger 'missing-val))
+				 (P (slot-ref self 'test-subject))
+				 )
+		  (if (not (is-class? P <plant>)) (error "Reached log-data uninitialised"))
 
-(model-method (<plant-array> <log-introspection> <symbol> <list>)
-				  (log-data self logger format targets)
-				  (let* ((file (slot-ref logger 'file))
-							(leading-entry #f)
-							(needs-newline #f)
+		  (kdebug 'log* "#####"  t "---" (cnc logger) (cnc self) (name self) 'format: format)
+
+		  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+				(set-state-variables P (list 'taxon (my 'taxon) 'agent-state 'alive 'mass 0 'peak-mass 0 'age 0 'location (list 0 0 0) 'leaf-area 0 'forage-damage 0 'water-stress 0))
+						
+				;; this handles "whole of agent" bits, like perimeters
+				(for-each
+				 (lambda (q)
+					(let ((p (data-ref self q)))
+					  ;;(dnl* "Plotting <plant-array>:" p)
+					  (slot-set! P 'name (string-append (name self) "[" (number->string q) "]"))
+					  (slot-set! P 'agent-state (list-ref p 0))
+					  (slot-set! P 'mass (list-ref p 1))
+					  (slot-set! P 'peak-mass (list-ref p 2))
+					  (slot-set! P 'age (list-ref p 3))
+					  (slot-set! P 'location (list-ref p 4))
+					  (slot-set! P 'leaf-area (list-ref p 5))
+					  (slot-set! P 'forage-damage (list-ref p 6))
+					  (slot-set! P 'water-stress (list-ref p 7))
+					  (slot-set! P 'domain (list-ref p 8))
+					  (slot-set! P 'last-reproduced (list-ref p 9))
+
+					  (cond
+						((postscript? file)
+						 (kdebug 'log* "postscript output")
+						 (let* (;;(ply (make-circle-perimeter
+								  ;;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'glyph)))
+								  ;;(prj (composite-prj_src->dst self logger))
+								  ;;(pply (map prj ply))
+								  )
+;(dnl* "Plotting " (name P) (data-ref self q))
+
+							(plot-plant P logger file)
+
+							(for-each
+							 (lambda (f)
+								(let* ((textoffset (list 0 (* 4 m))))
+								  (file 'moveto (map + (list-ref P 4) textoffset))
+								  (set! needs-newline #t)
+								  (file 'show (string-append
+													(if (string? f)
+														 f
+														 (object->string f)) " "))
+								  (file 'show (object->string (data-ref P f)))
+								  ))
+							 (data-ref logger 'variables))
 							)
-					 (dnl* "****"  t "---" (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
-					 
-					 (if (or (and (is-class? self <plottable>) (is-class? logger <log-map>)) (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
-						  (let ((P (create <plant> ptax 'agent-state 'alive 'mass 0 'peak-mass 0 'age 0 'location (list 0 0 0) 'leaf-area 0 'forage-damage 0 'water-stress 0)))
-							 ;; this handles "whole of agent" bits, like perimeters
-							 (for-each
-							  (lambda (q)
-								 (let ((p (data-ref self q)))
-									;;(dnl* "Plotting <plant-array>:" p)
-									(slot-set! P 'name (string-append (name self) "[" (number->string q) "]"))
-									(slot-set! P 'agent-state (list-ref p 0))
-									(slot-set! P 'mass (list-ref p 1))
-									(slot-set! P 'peak-mass (list-ref p 2))
-									(slot-set! P 'age (list-ref p 3))
-									(slot-set! P 'location (list-ref p 4))
-									(slot-set! P 'leaf-area (list-ref p 5))
-									(slot-set! P 'forage-damage (list-ref p 6))
-									(slot-set! P 'water-stress (list-ref p 7))
-									(slot-set! P 'domain (list-ref p 8))
-
-									(cond
-									 ((postscript? file)
-									  (let* (;;(ply (make-circle-perimeter
-												;;		 (my 'location) (* (my 'plot-magnification)  (sqrt (leaf-area self))) (my 'glyph)))
-												;;(prj (composite-prj_src->dst self logger))
-												;;(pply (map prj ply))
-												)
-										 (dnl* "Plotting " (name P) (data-ref self q))
-
-												 (plot-plant P logger file)
-
-												 (for-each
-												  (lambda (r)
-													 (let* ((textoffset (list 0 (* 4 m))))
-														(file 'moveto (map + (list-ref q 4) textoffset))
-														(set! needs-newline #t)
-														(file 'show (string-append
-																		 (if (string? r)
-																			  r
-																			  (object->string r)) " "))
-														))
-												  '())
-												 )
-										 )
-									  ((text? file)
-										(for-each
-										 (lambda (f)
-											(let ((i (data-field-index self f)))
-											  (if i
-													(begin
-													  (file 'show (list-ref p i))
-													  (file 'show " ")))))
-										 (data-ref logger 'variables))
-										(if needs-newline (file 'newline))
-										)
-									  )
-									 )
-									)
-							  (seq (length (slot-ref self 'data)))
-							  )
-							 )
-						  )))
+						 )
+						((text? file)
+						 (kdebug 'log* "text output")
+						 (for-each
+						  (lambda (f)
+							 (set! needs-newline #t)
+							 (if show-field-name
+								  (file 'show (string-append
+													(if (string? f)
+														 f
+														 (object->string f)) " ")))
+							 (if (has-data? P f)
+								  (file 'show (data-ref P f))
+								  (file 'show (data-ref self f)))
+							 (file 'show " "))
+						  (data-ref logger 'variables))
+						 (if needs-newline
+							  (begin
+								 (set! needs-newline #f)
+								 (file 'newline)))
+						 )
+						(else (dnl* "Whaaaat?" (pp file)  (name self) (name logger) ))
+						)
+					  )
+					)
+				 (seq (length (slot-ref self 'data)))
+				 )
+				)
+		  ))
 
 
 ;; Isn't this a bit pointless ;-)
@@ -992,7 +1011,6 @@
 
 
 (model-method (<plant-array>) (radius self #!optional locus radius)
-				  (dnl* 'Bink)
 				  (let ((locix (if locus (lookup-locus self locus radius) #f)))
 					 (if locix
 						  (plant-mass->radius (data-ref self locix 'mass))
@@ -1051,13 +1069,15 @@
 (model-method <plant-array> (initialise-instance self)
   (parent-initialise-instance)
 
+  (slot-set! self 'data-names '(state mass peak-mass age location leaf-area forage-damage water-stress domain last-reproduced))
+
   (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-plant> (my 'taxon))))
   (if (uninitialised? (slot-ref self 'lai)) (slot-set! self 'lai (numeric-parameter-lookup <> (my 'taxon) 'lai)))
   )
 
 
 
-(model-body <plant-array>
+(model-body% <plant-array>
   ;;(dnl* (cnc self) "model-body")
   ;;(dnl* kdebug '(trace-bodies plant-running)  (cnc self) (name self) "@" t "/" dt)
 
@@ -1099,6 +1119,7 @@
 			  (forage-damage  (lambda (x) (list-ref x 6)))
 			  (water-stress   (lambda (x) (list-ref x 7)))
 			  (domain   		(lambda (x) (list-ref x 8)))
+			  (last-reproduced (lambda (x) (list-ref x 9)))
 
 			  ;;getters                 ;\
 			  (set-state!         set-car!)
@@ -1110,55 +1131,67 @@
 			  (set-forage-damage! (lambda (x v) (list-set! x 6 v)))
 			  (set-water-stress!  (lambda (x v) (list-set! x 7 v)))
 			  (set-domain!			 (lambda (x v) (list-set! x 8 v)))
+			  (set-last-reproduced! (lambda (x v) (list-set! x 9 v)))
 
 			  (fruiting-probability (slot-ref test-subject 'fruiting-probability))
 			  (mort-prob (slot-ref test-subject 'mort-prob))
 			  (decay-rate (slot-ref test-subject 'decay-rate))
+			  (reproduction-age (slot-ref test-subject 'reproduction-age))
 			  (reproduction-offset (slot-ref test-subject 'reproduction-offset))
 			  (reproduction-period (slot-ref test-subject 'reproduction-period))
+			  (reproduction-cycle (slot-ref test-subject 'reproduction-cycle))
+			  (reproduction-prob (slot-ref test-subject 'reproduction-probability))
 			  (regrowth-rate-multiplier (slot-ref test-subject 'regrowth-rate-multiplier))
 			  (lai (slot-ref test-subject 'lai))
 			  )
 
 		(for-each
-		 (lambda (p)
-			(if (not (isa?  (domain p) <patch>))
-				 (let ((pl (filter (lambda (pch) (contains? pch (location p))) patch-list)))
-					(set-domain! p pl)))
-			
-			(cond
-			 ((eq? (state p) 'dead) (set-mass! p (* (mass p) (exp (* (slot-ref test-subject 'decay-rate) dt)))))
-			 
-			 ;; check for death
-			 ((or (< (random-real) (slot-ref test-subject 'mort-prob))(< (- (mass p) (forage-damage p)) (* 1/3 (peak-mass p))))
-			  (set-state! p 'dead))
-			 ((let ((offset (slot-ref test-subject 'reproduction-offset))
-					  (period (slot-ref test-subject 'reproduction-period)))
-				 (and (< (remainder (inexact->exact (round (- t offset))) (inexact->exact (round period)))) (< (random-real) fruiting-probability)))
-			  ;; fruit!
+		 (lambda (p ix)
+			(let ((here (domain p)))
+			  (if (not (isa? here <patch>))
+					(let ((pl (filter (lambda (pch) (contains? pch (location p))) patch-list)))
+					  (dnl* "Setting domain for plant at" (location p))
+					  (set-domain! p pl)))
+			  
+			  (cond
+				((eq? (state p) 'dead)
+				 (dnl* 'dead-one)
+				 (set-mass! p (* (mass p) (exp (* (slot-ref test-subject 'decay-rate) dt)))))
+				
+				;; check for death
+				((or (< (random-real) (slot-ref test-subject 'mort-prob))(< (- (mass p) (forage-damage p)) (* 1/3 (peak-mass p))))
+				 (dnl* 'Newly-dead)
+				 (set-state! p 'dead))
 
-			  (slot-set! test-subject 'domain (domain p))
-			  (slot-set! test-subject 'subjective-time t)
-			  (slot-set! test-subject 'mass (mass p))
-			  (slot-set! test-subject 'leaf-area (leaf-area p))
-			  (slot-set! test-subject 'forage-damage (forage-damage p))
-			  (slot-set! test-subject 'age (age p))
+				(else 
+				 (slot-set! test-subject 'plot-scale (my 'plot-scale))
+				 (slot-set! test-subject 'domain here)
+				 (slot-set! test-subject 'subjective-time t)
+				 (slot-set! test-subject 'mass (mass p))
+				 (slot-set! test-subject 'leaf-area (leaf-area p))
+				 (slot-set! test-subject 'forage-damage (forage-damage p))
+				 (slot-set! test-subject 'age (age p))
 
-			  ;; add fruit to appropriate ecoservices
-			  (do-fruiting test-subject t dt)
+				 (if (ok-to-reproduce t (age p) reproduction-age reproduction-offset reproduction-period reproduction-prob)
+					  (begin
+						 ;; fruit!
+						 ;; add fruit to appropriate ecoservices
+						 (let* ((num-fruit (fruit-count test-subject t dt))
+								  (current-fruit (value here 'fruit))
+								  )
+							(set-value! here 'fruit (+ current-fruit num-fruit)))))
 
-			  #t)
-			 (else
-			  (let ((gr (plant-growth mass-at-age (age p) dt)))
-				 ;; check for water stress, reduce growth if necessary
-				 (set-mass! p (+ (mass p) gr ))
-				 (set-age! p (+ (age p) dt))
-				 (set-forage-damage! p (max 0 (- (forage-damage p) (* gr (slot-ref test-subject 'regrowth-rate-multiplier)))))
-				 (set-leaf-area! p  (general-leaf-area (mass p) (slot-ref test-subject 'lai)))
-				 )
+				 (let ((gr (plant-growth mass-at-age (age p) dt)))
+					;;(dnl* "Setting mass from" (mass p) "to" (+ (mass p) gr))
+					;; check for water stress, reduce growth if necessary
+					(@data-set! self ix 'mass (+ (mass p) gr ))
+					(@data-set! self ix 'age  (+ (age p) dt))
+					(@data-set! self ix 'forage-damage (max 0 (- (forage-damage p) (* gr (slot-ref test-subject 'regrowth-rate-multiplier)))))
+					(@data-set! self ix 'leaf-area (general-leaf-area (mass p) (slot-ref test-subject 'lai)))
+					)
+				 ))
 			  ))
-			)
-		 (my 'data))
+		 (my 'data) (seq (length (my 'data))))
 		dt
 		)
 	 ))

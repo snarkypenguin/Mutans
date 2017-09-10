@@ -1707,12 +1707,12 @@ Examples:
 (define (sheltered-read-line inport)
   (let ((l (read-line inport))) (if (eof-object? l) "" l)))
 
-(define (data-ref WT HASH ll)
+(define (sfdata-ref WT HASH ll)
   (if (and use-hash HASH)
       (hash-ref HASH ll)
       (wt-tree/lookup WT ll #f)))
 
-(define (data-set! WT HASH ll vv)
+(define (sfdata-set! WT HASH ll vv)
   (if (and use-hash HASH)
       (hash-set! HASH ll vv)
       (let ()
@@ -1971,11 +1971,11 @@ Examples:
 		 (- (inexact->exact (floor (list-ref input-key time-ix))) 
 		    (fmodulo (list-ref input-key time-ix) time-rounding))))
 	      )
-	  (let ((stats (if input-key (data-ref StatWT StatHash input-key) #f)))
+	  (let ((stats (if input-key (sfdata-ref StatWT StatHash input-key) #f)))
 	    (if (and input-key (not (null? input-key)))
 		(begin
 		  (if (eqv? stats #f)
-		      (set! stats (data-set! StatWT StatHash input-key (stats-bins (list-copy input-map) (list-copy covariant-map))))
+		      (set! stats (sfdata-set! StatWT StatHash input-key (stats-bins (list-copy input-map) (list-copy covariant-map))))
 		      )
 		  
 		  (if (not stats) (exit 1))

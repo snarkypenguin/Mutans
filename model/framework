@@ -53,6 +53,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
+
+(define-macro (define-unbound sig #!rest body)
+  (let* ((name (if (pair? sig) (car sig) sig))
+			(ok (##unbound? (##global-var-ref (##make-global-var name))))
+			)
+	 (if ok `(define ,sig ,@body))))
+
 (define-macro (assert tst #!rest msg)
   (if #t
 		`(if (not ,tst)
@@ -492,8 +500,6 @@
 						 ;;; 	result)
 						 )))
 
-
-
 (define-macro (model-method #!rest madness)
   ;; Call like (model-method classname (mname * args) #!rest body) where
   ;; the args doesn't include the call-parent-method and 'self' is
@@ -542,7 +548,7 @@
 		  (let ((txt `(let* ((M (make-method
 										 (list ,@classlst) ;; make-method returns a function....
 										 (lambda (,(string->symbol (string-append "parent-" (symbol->string mname))) self ,@mm-margs);; Provides ,parent-mname for the "best match"
-											(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Entering (" ',mname ',classlst  ") for" (cnc self))
+											(kdebug (list ',mname (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Entering (" ',mname ',classlst  ") for" (cnc self))
 ;											(dnl* "####### Entering" ,method-id)
 											(let* (;; note: the only args accepted by the call-parents routine are the parents to call.
 													 (kdebug-state #f)
@@ -592,11 +598,11 @@
 												 
 												 (let ((mm-result
 														  (begin
-															 (kdebug '(list ,(construct-symbol ',myclass 'model-method) model-methods (construct-symbol ,method-id)) "Running " method-id " for "  (cnc self) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
+															 (kdebug '(list ',mname  ,(construct-symbol ',myclass 'model-method) model-methods (construct-symbol ,method-id)) "Running " method-id " for "  (cnc self) (if (has-slot? self 'subjective-time) (string-append " at " (object->string (slot-ref self 'subjective-time ))) ""))
 															 dt ;; If there is no body, then we just assume that doing nothing is easy.
 															 ,@body) ))
 ;;													(dnl* "Leaving" ,method-id)
-													(kdebug (list (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Leaving (" ',mname ',classlst ") for" (cnc self)  "with" mm-result)
+													(kdebug (list ',mname  (construct-symbol (cnc self)) (construct-symbol (cnc self) 'methods) 'model-methods) "Leaving (" ',mname ',classlst ") for" (cnc self)  "with" mm-result)
 													mm-result)
 												 )
 											)

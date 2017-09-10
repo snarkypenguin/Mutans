@@ -3,7 +3,8 @@
 (define <patch>-parameters
   (list
 	(list 'service-list '())
-	(list 'always-log #t)
+	(list 'always-log #t) ;; patches should be interrogated each time a logger runs.
+	(list 'neighbour-list '())
   )
 )
 (set! global-parameter-alist (cons (cons <patch> <patch>-parameters) global-parameter-alist))

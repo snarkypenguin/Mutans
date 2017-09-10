@@ -24,31 +24,160 @@
 
 ;-  Code 
 
+
+;;; Gambit-C specific -- used to suppress definitions of already defined
+;;; routines (usually from postscript.scm)
+;; This is mostly to support compilation and the avoidance of symbol clashes
+
+
+(define-macro (define-unbound sig #!rest body)
+  (let* ((name  (if (pair? sig) (car sig) sig))
+			(ok (##unbound? (##global-var-ref (##make-global-var name))))
+			)
+	 (if ok `(define ,sig ,@body))))
+
+(define (unbound? name)
+  (##unbound? (##global-var-ref (##make-global-var name))))
+
+(define (bound? name)
+  (not (unbound? name)))
+
+
 ;(load "utils.scm")
 
 ;(load "constants.scm")
 
-(define e (exp 1))
-(define 1/e (/ 1 e))
-(define pi (acos -1))
-(define tau (* 2 pi))
-(define sqrt2pi (sqrt (* 2 pi)))
-(define e*2 (* 2 e))
-(define e*-2 (* -2 e))
-(define 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
+(define-unbound e (exp 1))
+(define-unbound 1/e (/ 1 e))
+(define-unbound pi (acos -1))
+(define-unbound tau (* 2 pi))
+(define-unbound sqrt2pi (sqrt (* 2 pi)))
+(define-unbound e*2 (* 2 e))
+(define-unbound e*-2 (* -2 e))
+(define-unbound 1-1/e (- 1 (/ 1 e))) ;; ~ .6321
 
-(define 2pi tau)
-(define pi*2 tau)
-(define sqrt-tau (sqrt tau))
-(define sqrt2pi sqrt-tau)
-(define 100tau 628)
-(define 10000tau 62832) ;; slightly large
-(define 100pi 314)
-(define 10000pi 31416) ;; slightly small
+(define-unbound 2pi tau)
+(define-unbound pi*2 tau)
+(define-unbound sqrt-tau (sqrt tau))
+(define-unbound sqrt2pi sqrt-tau)
+(define-unbound 100tau 628)
+(define-unbound 10000tau 62832) ;; slightly large
+(define-unbound 100pi 314)
+(define-unbound 10000pi 31416) ;; slightly small
+
+
+;; defined in postscript.scm
+;; (define (adjust operator deviant pointlist)
+;;   (if (pair? deviant)
+;; 		(map (lambda (pt) (map (lambda (s o) (operator s o )) deviant pt)) pointlist)
+;; 		(map (lambda (pt) (map (lambda (o) (operator deviant o )) pt)) pointlist)))
+
+;; (define (scale-point-list k pointlist)
+;;   (adjust * k pointlist))
+
+;; (define (translate-point-list k pointlist)
+;;   (adjust + k pointlist))
+
+
+(define-unbound (point-rotator theta)
+  (lambda (point)
+	 (let ((A (cos theta))
+			 (B (- (sin theta)))
+			 (C (sin theta))
+			 (D (cos theta)))
+		(list (+ (* A (car point)) (* B (cadr point)))
+				(+ (* C (car point)) (* D (cadr point)))))))
+
+(define-unbound (rotate-point theta point) ((point-rotator theta) point))
+(define-unbound (rotate-pointlist theta pointlist) (map (point-rotator theta) pointlist))
+
+
+"There are two versions of these tesselating shapes; the first lot have the size related to
+length, the second has it related to area."
+
+
+;; This is a hexagon inscribed in a circle of radius size, with a horizontal orientation
+(define (hexagon Size)
+  (let ((size (/ Size 2)))
+	 (list `(,size ,0.)
+			 (rotate-point (/ pi 3.) `(,size ,0.))
+			 (rotate-point (* 2. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point pi `(,size ,0.))
+			 (rotate-point (* 4. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point (* 5. (/ pi 3.)) `(,size ,0.))
+			 `(,size ,0.))))
+
+;; This is the upper half of a (hexagon size)
+(define (trapezoid size)
+  (let ((size (/ Size 2)))
+	 (list `(,size ,0.)
+			 (rotate-point (/ pi 3.) `(,size ,0.))
+			 (rotate-point (* 2. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point pi `(,size ,0.))
+			 `(,size ,0.))))
+
+(define (square size)
+  (let* ((s (/ size 2))
+			(-s (- s)))
+	 (list (list s s) (list -s s) (list -s -s) (list s -s) (list s s))))
+
+(define (triangle size)
+  (let ((s (/ size 2))
+		  (r3 (sqrt 3))
+		  )
+	 (list (list s (/ (- s) r3)) (list 0 (* s r3)) (list (- s) (/ (- s) r3)))
+	 ))
+
+;; This is a hexagon inscribed in a circle of radius size, with a horizontal orientation
+;; All of these geometric shapes (apart from the trapezoid) have unit area.  At least I hope so ;-)
+
+(define (hexarea s)
+  (* 6 (eqtriarea s)))
+
+(define (eqtriarea s)
+  (* (sqrt 3/16) s s))
+
+(define (sqarea s)
+  (* s s))
+
+(define unit-hexagon-scale (hexarea 1))
+(define unit-trapezoid-scale (hexarea 1))
+        ;; this remains tied to the hexagon so it will fit in tesselations
+(define unit-square-scale 1)
+(define unit-triangle-scale (eqtriarea 1))
+
+(define (hexagon* size)
+  (let ((size (/ size unit-hexagon-scale)))
+	 (list `(,size ,0.)
+			 (rotate-point (/ pi 3.) `(,size ,0.))
+			 (rotate-point (* 2. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point pi `(,size ,0.))
+			 (rotate-point (* 4. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point (* 5. (/ pi 3.)) `(,size ,0.))
+			 `(,size ,0.))))
+
+;; This is the upper half of a (hexagon size)
+(define (trapezoid* size)
+  (let ((size (/ size unit-trapezoid-scale)))
+	 (list `(,size ,0.)
+			 (rotate-point (/ pi 3.) `(,size ,0.))
+			 (rotate-point (* 2. (/ pi 3.)) `(,size ,0.))
+			 (rotate-point pi `(,size ,0.))
+			 `(,size ,0.))))
+
+(define (square* size)
+  (let* ((s (sqrt size))
+			(-s (- s)))
+	 (list (list s s) (list -s s) (list -s -s) (list s -s) (list s s))))
+
+(define (triangle* size)
+  (let ((size (/ size unit-triangle-scale)))
+	 (triangle (* size size (/ (sqrt 3) 4)))
+  ))
 
 
 
-(define log10 ;; defined this way so it doesn't recalculate ln10
+(define-unbound log10 ;; defined this way so it doesn't recalculate ln10
   (let ((ln10 (log 10)))
 	 (lambda (x)
 		(/ (log x) ln10))))
@@ -86,6 +215,7 @@
 
 (define unit-box '((0 0)(1 0) (1 1) (0 1) (0 0)))
 (define unit-box-points  '((0 0)(1 0) (1 1) (0 1)))
+
 
 (define (random-point-in-box ll #!optional ur)
   (if (not ur)
@@ -1191,11 +1321,11 @@
 
 
 ;; This is used by rk4-* ... it does traces through many dimensional spaces
-(define (interpolate pwl-pointlist x)
+(define (interpolate pwl-point-list x)
   (cond
-	((null? pwl-pointlist)  #f)
-	((and (not (pair? pwl-pointlist)) (not (pair? (car pwl-pointlist)))) #f)
-	((< 2 (length (car pwl-pointlist)))
+	((null? pwl-point-list)  #f)
+	((and (not (pair? pwl-point-list)) (not (pair? (car pwl-point-list)))) #f)
+	((< 2 (length (car pwl-point-list)))
 	 (map 
 	  (lambda (y) 
 		 (interpolate 
@@ -1205,14 +1335,14 @@
 				(car pt) 
 				(list-ref pt y)) 
 			  )
-			pwl-pointlist)
+			pwl-point-list)
 		  x))
-	  (map (lambda (x) (+ x 1)) (sequence (- (length (car pwl-pointlist)) 1)))))
-	((<= x (caar pwl-pointlist)) (cadar pwl-pointlist))
-	((null? (cdr pwl-pointlist)) (cadar pwl-pointlist))
-	((< x (caadr pwl-pointlist)) 
-	 (let* ((p1 (car pwl-pointlist))
-			  (p2 (cadr pwl-pointlist))
+	  (map (lambda (x) (+ x 1)) (sequence (- (length (car pwl-point-list)) 1)))))
+	((<= x (caar pwl-point-list)) (cadar pwl-point-list))
+	((null? (cdr pwl-point-list)) (cadar pwl-point-list))
+	((< x (caadr pwl-point-list)) 
+	 (let* ((p1 (car pwl-point-list))
+			  (p2 (cadr pwl-point-list))
 			  (a (car p1))
 			  (m (cadr p1))
 			  (b (car p2))
@@ -1235,7 +1365,7 @@
 					))
 			 )
 	)
-  (#t (interpolate (cdr pwl-pointlist) x)))
+  (#t (interpolate (cdr pwl-point-list) x)))
 )
 
 

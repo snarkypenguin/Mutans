@@ -30,12 +30,15 @@
 	water-use ;; amount of water required for a square metre
 	water-stress-effect ;; True if we factor water stress
 	;; into fruiting
+	last-reproduced
+	reproduction-age ;; how big it must be...
 	reproduction-mass ;; how big it must be...
 	reproduction-period ;; how long between reproductions
 	reproduction-offset ;;
 	reproduction-mechanism ;; <fruit> or (list <agent> method val)
 	fruiting-probability ;; probability at each opportunity
 	fruiting-mass ;; minimum mass for fruit production
+	fruit-mass ;; mass of fruit
 	fruiting-rate      ;; relative to surface area, influenced by
 
 	growth-rate        ;; 
@@ -101,7 +104,10 @@
 
 (define-class <plant-array>
   (inherits-from <array>)
-  (state-variables patch-list lai
+  (state-variables
+	patch-list
+	test-subject
+	lai
 	default-color
 	dead-color
 	radius-color

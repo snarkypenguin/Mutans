@@ -1132,7 +1132,7 @@
     (define (*newpage) (newline file) (set! column 0) (set! row 0) (set! pagecount (+ 1 pagecount)))
     (define (*newline) (newline file) (set! column 0) (set! row (+ row 1)))
     
-    (define (text-display txt #!rest args)
+    (define (NO-text-display #!rest args)
       (if (zero? pagecount) (set! pagecount 1))
       (let* ((strargs (strtok (apply string-append (map make-it-a-string args)) "\n")) ;; control for newlines
 				 (L (length strargs))
@@ -1149,7 +1149,44 @@
 			  (if (< (+ n 1) L) (*newline))
 			  )
 			strargs)))
-    
+
+    (define (text-display* #!rest args)
+	      (if (zero? pagecount) (set! pagecount 1))
+      (let* ((strargs (strtok (apply string-append (map make-it-a-string args)) "\n" )) ;; control for newlines
+				 (L (length strargs))
+				 (n 0)
+				 )
+			  (for-each
+				(lambda (line)
+				  (if (and (positive? left-margin)
+						  (zero? column))
+					(set! line (string-append (make-string left-margin #\space) line)))
+
+			  (display line file)
+			  (set! column (+ column (string-length line)))
+			  (if (< (+ n 1) L) (*newline))
+			  )
+			strargs)))
+
+    (define (text-show #!rest args)
+	      (if (zero? pagecount) (set! pagecount 1))
+      (let* ((strargs (strtok (apply string-append (map make-it-a-string args)) "\n" )) ;; control for newlines
+				 (L (length strargs))
+				 (n 0)
+				 )
+			  (for-each
+				(lambda (line)
+				  (if (and (positive? left-margin)
+						  (zero? column))
+					(set! line (string-append (make-string left-margin #\space) line)))
+
+			  (display line file)
+			  (set! column (+ column (string-length line)))
+			  )
+			strargs)))
+    (define text-display text-show) ;; this is in case we want to make "show" and "display" different one day
+
+
     (define (set-left-margin n)
       (set! left-margin (absolute-value n)))
 
@@ -1172,7 +1209,7 @@
 								  (*newline)
 								  )
 								(else
-								 (text-display entry)
+								 (text-display* entry)
 								 (*newline)))
 						  )
 						lst)))
@@ -1211,8 +1248,12 @@
 							  ((eq? cmd 'emit-margin)
 								(if (positive? left-margin) (text-display (make-string left-margin #\space)))
 								(set! margin-emitted #t))
-							  ((eq? cmd 'display) (apply text-display args))
-							  ((eq? cmd 'text) (apply text-display args))
+							  ((member cmd '(show))
+								(apply text-display args))
+							  ((member cmd '(display text))
+								(apply text-display args))
+							  ((member cmd '(display*))
+								(apply text-display* args))
 							  ((eq? cmd 'comment) 
 								(text-display (apply string-append (append (list "# ") (map make-it-a-string args) (list "\n"))))
 								)

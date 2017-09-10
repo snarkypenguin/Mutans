@@ -76,12 +76,12 @@ changes, we hope not too many.
 
 ;-- Niche monitors -- These create and store trees representing the possible configurations and their strengths/weaknesses
 ;--- Generic infrastructure 
-;---- (assess-representations domain) assesses the niches in a given domain
-(define (assess-representations domain)
-  (let* ((candidate-reps (slot-ref self 'representation-list)) ;; representations which the domain is sensitive to
+;---- (assess-representations domain) assesses the niches in a given assessment domain  (this is not necessarily a landscape domain!)
+(define (assess-representations assessment-domain)
+  (let* ((candidate-reps (slot-ref self 'representation-list)) ;; representations which the domain assessment is interested in
 			(candidate-trees (map (lambda (x) (list-copy zerotree)) candidate-reps)) ;; list of trees to hold the "state" of reps
 			(candidate-agents '()) ;; a-list of agents in domain keyed by representation class
-			(niches (slot-ref domain 'niche-list))
+			(niches (slot-ref assessment-domain 'niche-list))
 			)
 	 ;; Collect information about what agents are in each representation 
 	 (for-each
@@ -90,7 +90,7 @@ changes, we hope not too many.
 				  )
 			(set! candidate-agents (assoc-append candidate-agents agent-rep agent)) ;; makes new entry or appends agent to a-list entry
 			))
-	  (slot-ref domain 'agent-list))
+	  (slot-ref assessment-domain 'agent-list))
 
 	 ;; Construct set of assessment trees for each representation group
 	 (let ((nca (count-keyed-members candidate-agents)))
@@ -120,7 +120,7 @@ set-rep-assessor! to set the assessment routine.
 
 Because we use a symbol, rather than the class of an agent, to
 determine the representation, we can lump multiple 'species' into one
-bit of assessment.  This is more flexible wsince the actual class
+bit of assessment.  This is more flexible since the actual class
 implementation and gross agent specification is decoupled from the effective grouping. 
 
 Be warned, though: blithely using a label like 'animal may lump things together in an
@@ -144,7 +144,6 @@ inappropriate way.
 									none ;; if there is no matching assessor, indicate that no change is needed
 									(cdr a)))))
   )
-
 
 
   

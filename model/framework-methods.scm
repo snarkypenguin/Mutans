@@ -37,6 +37,10 @@
 
 (define restricted-kernel-access #f)
 
+(model-method (<agent> <symbol>) (has-data? self key)
+				  (and (agent? self)
+						 (has-slot? self key)))
+
 (model-method (<agent> <symbol>) (data-ref self key)
 				  (slot-ref self key))
 
@@ -296,6 +300,7 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method (<agent> <log-data> <symbol> <list>) (log-data self logger format targets)
+				  (dnl* "(model-method (<agent> <log-data> <symbol> <list>) (log-data self logger format targets)")
 				  (kdebug '(log-* log-data)
 							 (name self)
 							 "[" (my 'name) ":"
@@ -1477,7 +1482,8 @@ A typical defns list would be like
 
 
 
-(model-method (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)
+(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug dnl*))
 						  ;;(f (if (pair? args) (car args) #f))
 						  ;;(p (if (and (pair? args)
@@ -1554,7 +1560,8 @@ A typical defns list would be like
 				  )
 
 
-(model-method (<general-array> <integer>) (data-name self i)
+
+(model-method% (<general-array> <integer>) (data-name self i)
 				  (let ((dn (slot-ref self 'data-names)))
 				  (if (and (integer? i) (positive? i) (< i (length dn)))
 						(list-ref dn i)
@@ -1588,7 +1595,7 @@ A typical defns list would be like
 (model-method (<array>) (has-many-loci? self)
 				  #t)
 
-(model-method (<general-array> <agent> <symbol>)(query self questioner tag #!rest args)
+(model-method% (<general-array> <agent> <symbol>)(query self questioner tag #!rest args)
 				  (if (not (agent? questioner))
 						(error 'non-canonical-use-voids-warranty))
 				  (cond
@@ -1808,7 +1815,7 @@ A typical defns list would be like
 					 )
 				  ))
 					  
-(model-method (<array> <point> <number>) (lookup-locus self locus radius) ;; returns indices that will map to elements
+(model-method% (<array> <point> <number>) (lookup-locus self locus radius) ;; returns indices that will map to elements
 				  (if (has-data? self 'location)
 						(let* ((L (data-ref self 'location))
 								 (M (member (lambda (x) (eqv? locus x))  L))
@@ -1833,7 +1840,7 @@ A typical defns list would be like
 	 (create <general-array> "" 'data-names '(radius location value) 'data (map (lambda (r l v) (list r l v)) radii loci values))
 	 ))
 
-(model-method (<general-array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
+(model-method% (<general-array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
 				  (let ((d (member k (slot-ref self 'data-names))))
 					 (if d (car d)
 						  (has-slot? self k))))
@@ -1920,7 +1927,7 @@ A typical defns list would be like
 ;;; 					(else #f)
 ;;; 				  ))
 
-(model-method (<array>) (set-boundaries! self)
+(model-method% (<array>) (set-boundaries! self)
 				  (let ((data (slot-ref self 'data)))
 					 (if (and (list? data)
 								 (> (length data) 1)
@@ -1988,7 +1995,7 @@ A typical defns list would be like
 					))
 
 ;; If we rebase this (give it a new parent) this may need to be modified
-(model-method (<array> <symbol> <list>) (data-set! self s v)
+(model-method% (<array> <symbol> <list>) (data-set! self s v)
 				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
 
 				  (let ((ix (data-field-index self s)))
@@ -2001,12 +2008,12 @@ A typical defns list would be like
 								(error 'list-length-error)))
 					 (slot-set! self v)))
 
-(model-method (<array> <integer> <list>) (data-set! self i s l)
+(model-method% (<array> <integer> <list>) (data-set! self i s l)
 				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
 				  (set-car! (data-ref self i) (car l))
 				  (set-cdr! (data-ref self i) (cdr l)))
 
-(model-method (<array> <integer> <symbol>) (@data-set! self i s v)
+(model-method% (<array> <integer> <symbol>) (@data-set! self i s v)
 				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
 
 				  (list-set! (data-ref self i)
@@ -2014,7 +2021,7 @@ A typical defns list would be like
 
 
 
-(model-method (<general-array>) (data-names self)
+(model-method% (<general-array>) (data-names self)
 				  (slot-ref self 'data-names))
 
 (model-method (<general-array> <symbol>) (new-data-name self sym)
@@ -2029,13 +2036,13 @@ A typical defns list would be like
 						  (set-my 'data-names (append datasyms (list sym)))
 						  (error "data-names may not be altered if there is already data"))))
 
-(model-method (<general-array>) (data-index self selector #!rest args)
+(model-method% (<general-array>) (data-index self selector #!rest args)
 				  (cond
 					((symbol? selector) (apply data-field-index (cons self (cons selector args))))
 					((point? selector) (apply data-record-index (cons self (cons selector args))))
 					(else (error "Bad argument to (data-index...) for an array agent" selector))))
 
-(model-method (<general-array> <symbol>) (data-field-index self sym)
+(model-method% (<general-array> <symbol>) (data-field-index self sym)
 				  (let* ((data-names (my 'data-names))
 							;;(data (my 'data))
 							(ix (member sym data-names)))
@@ -2062,10 +2069,13 @@ A typical defns list would be like
 
 (model-method (<general-array> <list>) (add-data-record self lst)
 				  ;;(dnl* "Adding array element" (length (my 'data)) lst)
-				  
-				  (if (= (length lst) (length (my 'data-names)))
-						(set-my! 'data (append (my 'data) (list lst)))
-						(error)))
+				  (if (>= (length (my 'data)) (my 'max-records))
+						(error "Exceeded nominated <general-array> limits")
+						(if (= (length lst) (length (my 'data-names)))
+							 (set-my! 'data (append (my 'data) (list lst)))
+							 (begin
+								(dnl* "An array got" (length lst) "but expected" (length (my 'data-names)) "when adding a record")
+								(error self lst)))))
 
 (model-method (<general-array> <list> <integer>) (remove-data-record self lst i)
 				  (let ((data (my 'data)))
@@ -2079,7 +2089,11 @@ A typical defns list would be like
 ;;; 				  (dnl* 'data-ref-null)
 ;;; 				  (slot-ref self 'data))
 
-(model-method <general-array> (data-ref self #!rest args)
+(model-method% <general-array> (has-data? self key)  
+					(or (member key (slot-ref self 'data-names))
+						 (parent-has-data?)))
+
+(model-method% <general-array> (data-ref self #!rest args)
 				  (let* ((data (my 'data))
 							(h (if (null? args) #f (car args)))
 							(t (if h (if (pair? (cdr args)) (cdr args) #f) #f)))
@@ -2166,30 +2180,30 @@ A typical defns list would be like
 ;;; 								(slot-ref self s)
 ;;; 								(error 'bad-data/slot-symbol)))))
 
-(model-method (<general-array> <point>) (data-ref* self i*)
+(model-method% (<general-array> <point>) (data-ref* self i*)
 				  (map (lambda (i) (data-ref self i)) i*))
 
-(model-method (<general-array> <point> <symbol>) (data-ref* self i* s)
+(model-method% (<general-array> <point> <symbol>) (data-ref* self i* s)
 				  (map (lambda (i) (data-ref self i s)) i*))
 
-(model-method (<general-array> <list>) (data-ref* self s*)
+(model-method% (<general-array> <list>) (data-ref* self s*)
 				  (map (lambda (s) (data-ref self s)) s*))
 
-(model-method (<general-array> <integer> <list>) (data-ref* self i s*)
+(model-method% (<general-array> <integer> <list>) (data-ref* self i s*)
 				  (map (lambda (s) (data-ref self i s)) i s*))
 
-(model-method (<general-array> <point> <list>)  (data-ref* self i* s*)
+(model-method% (<general-array> <point> <list>)  (data-ref* self i* s*)
 				  (map (lambda (i)
 							(map (lambda (s) (data-ref self i s)) s*)) i*))
 
 
 ;; Returns the s element from the i'th row in data
-(model-method (<general-array> <integer> <symbol>) (@data-ref self i s)
+(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
 				  ;;(dnl* 'data-ref-IS)
 				  (list-ref (data-ref self s) i))
 
 ;; Returns the s element from the i'th row in data
-(model-method (<general-array> <integer> <symbol>) (@data-ref self i s)
+(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
 				  ;;(dnl* 'data-ref-IS)
 				  (list-ref (data-ref self s) i))
 
@@ -2227,7 +2241,7 @@ A typical defns list would be like
 ;;; 							i)))
 
 ;; If we rebase this (give it a new parent) this may need to be modified
-(model-method (<general-array> <symbol> <list>) (data-set! self s v)
+(model-method% (<general-array> <symbol> <list>) (data-set! self s v)
 				  (let ((ix (data-field-index self s)))
 					 (if ix
 						  (if (= (length v) (length (my 'data)))
@@ -2238,11 +2252,11 @@ A typical defns list would be like
 								(error 'list-length-error)))
 					 (slot-set! self v)))
 
-(model-method (<general-array> <integer> <list>) (data-set! self i s l) (set-car! (data-ref self i) (car l)) (set-cdr! (data-ref self i) (cdr l)))
+(model-method% (<general-array> <integer> <list>) (data-set! self i s l) (set-car! (data-ref self i) (car l)) (set-cdr! (data-ref self i) (cdr l)))
 
-(model-method (<general-array> <integer> <symbol>) (@data-set! self i s v) (list-set! (data-ref self i) (data-field-index self s) v))
+(model-method% (<general-array> <integer> <symbol>) (@data-set! self i s v) (list-set! (data-ref self i) (data-field-index self s) v))
 
-(model-method (<general-array> <agent> <symbol> <integer> <symbol>) (request-accessor self external-agent sym i s #!rest args)
+(model-method% (<general-array> <agent> <symbol> <integer> <symbol>) (request-accessor self external-agent sym i s #!rest args)
 				  (case sym
 					 ((set!)
 					  (lambda (val) (@data-set! self i s val)))
@@ -2263,7 +2277,7 @@ A typical defns list would be like
 	 )
 
 
-(model-body <general-array>
+(model-body% <general-array>
   (let ((parent-return (call-all-parents)))
 	 (if (and (pair? (my 'data-names)) (pair? (my 'data)))
 		  (begin
@@ -2346,6 +2360,10 @@ A typical defns list would be like
 ;; We resolve the reference with slot-ref since we might otherwise recurse forever
 
 
+(model-method (<proxy> <symbol>) (has-data? self sym)
+				  ((slot-ref self 'getter)
+					(slot-ref self 'super)
+					sym))
 
 (model-method (<proxy> <symbol>) (data-ref self sym)
 				  ((slot-ref self 'getter)
@@ -2361,6 +2379,7 @@ A typical defns list would be like
 				  ((slot-ref self 'setter)
 					(slot-ref self 'super)
 					sym value))
+
 (model-method (<proxy> <number>) (data-set! self i value)
 				  ((slot-ref self 'setter)
 					(slot-ref self 'super)
@@ -2386,7 +2405,7 @@ A typical defns list would be like
 (define (proxify A Q #!rest args)
   (if (void? A) (bugrit))
   (if (list? A) (set! A (denull-and-flatten	 A)))
-p
+
 ;  (dnl* "Proxification: " A)
 ;  (if (list? A) (dnl* " -->"(map cnc A)))
   
@@ -2563,6 +2582,7 @@ p
 
 
 (model-method (<plottable> <log-map> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method (<plottable> <log-map> <symbol>) (log-data self logger format targets)")
 				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let ((file (slot-ref logger 'file))
 								)
@@ -2578,6 +2598,7 @@ p
 				  )
 
 (model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)")
 				  (parent-log-data)
 				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let ((file (slot-ref logger 'file))

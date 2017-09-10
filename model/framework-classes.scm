@@ -192,6 +192,7 @@ direction"
 (define-class <general-array>
   (inherits-from <agent> <projection>) ;; We inherit from projection so that we may pass this as a target for <log-map>
   (state-variables
+	max-records ;; Maximum number of records permitted
 	test-subject
 	;; This is actually an agent of another sort, such as <plant>, which we can assign values to
 	;; if we want to call methods from its corpus.
@@ -254,6 +255,13 @@ direction"
 	max-age	;; This is either a precalculated hard-kill (corresponds, to genetic influence?) or a non-number
 	probability-of-mortality ;;; a number [typically compared against a (random-real) call] or a
 	                         ;;; procedure that takes the age of the entity and returns a number
+
+	reproduction-age         ;;; age at which reproduction can first occur
+	reproduction-cycle       ;;; total length of cycle (including fallow period)  for annual breeders this is (* 1 year)
+	reproduction-offset      ;;; offset from the start of the reproductive cycle before the reproduction-period
+   reproduction-period      ;;; period during which reproduction (fruiting, birth) occurs
+	reproduction-probability ;;; prob of success
+	
 	decay-rate ;; when it's no longer living
 	mass-at-age ;; not optional    but the growth will, so an entity that misses out on a bursty period
 					;; will always be smaller than others in its cohort

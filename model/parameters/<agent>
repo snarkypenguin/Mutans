@@ -27,6 +27,7 @@
 	(list 'subsidiary-agents '())
 	(list 'timestep-schedule '()) ;; does nothing unless there are numbers in it
 	(list 'always-log #f) ;; true or false -- this is used so that "context" agents appear irrespective of time
+	(list 'memory '()) 
 	(list 'dont-log
 			'(ready-for-prep
 			  ;; agent things

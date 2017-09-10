@@ -21,6 +21,7 @@
 	(inherits-from <introspection>)
 
 	(state-variables selector ;; selects agents (used mostly in derived classes)
+						  assessment-domain ;; a list which defines the ambit of the monitor
 						  configuration-candidates ;; 
 						  domain*-options ;; set of sets of trees associated with domains
 						  niche*-options  ;; set of sets of trees associated with niches
@@ -47,15 +48,11 @@ composition of both the population and the constituents which comprise
 an agent. In many ways, monitors are similar to introspection agents."
 
 
-
-
-
-
-(define-class <domain-monitor>
+(define-class <domain-monitor>  ;; most likely to be associated with the population of a landscape, but not necessarily so
   (inherits-from <monitor>)
   (state-variables domain-list domain-selector)
   ;; the domain list is the list of agents which comprise the notional domain
-  ;; the 
+  ;; the monitor patrols
   )
 
 ;; A domain monitor may have a number of niche level monitors which
@@ -63,7 +60,7 @@ an agent. In many ways, monitors are similar to introspection agents."
 ;; domain-list
 
 
-(define-class <niche-monitor>
+(define-class <niche-monitor> ;; this is most likely to be associated with the 'provides and 'needs/requires lists
   (inherits-from <monitor>)
   (state-variables representation-alternatives
 						 domain ;; contains candidate agents
@@ -72,7 +69,7 @@ an agent. In many ways, monitors are similar to introspection agents."
   )
 
 
-(define-class <agent-monitor>
+(define-class <agent-monitor> ;; test individual agents.  This is the one that will trigger the transition from  ABM to EBM at critical levels
   (inherits-from <monitor>)
   (state-variables zones indicator-function)
   ;; zones is a list of lists which are either of the form (variable-symbol flag-symbol min max) or

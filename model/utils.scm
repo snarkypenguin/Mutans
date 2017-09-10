@@ -284,7 +284,7 @@
 
 (define (o->s x) (if (string? x) x (object->string x)))
 
-(define (random-location minv #optional maxv)
+(define (random-location minv #!optional maxv)
   (cond
 	((and (not maxv) (= (length minv) 2) (pair? (car minv)) (pair? cadr minv)) (random-location (car minv) (cadr minv)))
 	((and (pair? minv) (pair? maxv))
@@ -448,34 +448,45 @@
 
 (define (rotate-list direction l)
   (case direction
-	 ((cw clockwise) (append (cdr l) (cons (car l) '())))
-	 ((ccw counter-clockwise) (let ((n (- (length l) 1))) (append (list-tail l n) (list-head l n))))
-	 (else (error "Unrecognised direction, should be cw or ccw" direction))))
-	 
-  
-		
+	 ((R r right cw clockwise) (append (cdr l) (cons (car l) '())))
+	 ((L l left ccw counter-clockwise) (let ((n (- (length l) 1))) (append (list-tail l n) (list-head l n))))
+	 (else (error "Unrecognised direction, try 'left or 'right" direction))))
 
+	 
 ;-- (**-map (lambda (oblst/ob) ...) ll*ist) -- preserves list structure
-(define (**-map L ll*ist)
+(define (**-map F ll*ist)
   (if (null? ll*ist)
 		'()
 		(cons 
 		 (if (atom? (car ll*ist))
-			  (L (car ll*ist))
-			  (**-map L (car ll*ist)))
-		 (**-map L (cdr ll*ist)))))
+			  (F (car ll*ist))
+			  (**-map F (car ll*ist)))
+		 (**-map F (cdr ll*ist)))))
 
+
+;-- (map-*-ix (lambda (oblst itlst) ..) objlst) 
+;; returns a list (with a depth of one) where the function has been applied to each element
+;; and the indices for each element are available to the processing function, F.
+
+(define (map-*-ix F oblst #!optional ITL)
+  (let* ((itl (if ITL ITL (iteration-list* oblst))) ; generates indices for stepping through objlst
+			(obl (map (lambda (x) (list-ref* oblst x)) itl)))
+	 (map F obl itl)))
 
 ;-- (map-**-ix (lambda (oblst itlst) ..) objlst) 
-;; returns a list (with a depth of one) where the function has been applied to each element
-;; and the indices for each element are available to the processing function, l.
+;; returns a list of the same form as objlst  where the function has been applied to each element
+;; and the indices for each element are available to the processing function, F.
 
-(define (map-**-ix l oblst)
-  (let* ((itl (iteration-list* oblst)) ; generates indices for stepping through objlst
-			(obl (map (lambda (x) (list-ref* oblst x)) itl)))
-	 (map l obl itl)))
+(define (map-**-ix F oblst)
+    (let* ((itl (iteration-list* oblst)) ; generates indices for stepping through objlst
+			  (Noblst (copy-list oblst))
+			  )
+		(map-*-ix (lambda (ob ix)
+						(list-set* Noblst ix (F ob)))
+					 oblst itl)
+		Noblst))
 
-;;; (map-** (lambda (x i) (dnl* "x" x "--" "i" i)) '((a b c d) (e f g h) (i j k l)))
+;;; (map-*-ix (lambda (x i) (dnl* "x" x "--" "i" i)) '((a b c d) (e f g h) (i j k l)))
 ;;; x a -- i (0 0)
 ;;; x b -- i (0 1)
 ;;; x c -- i (0 2)
@@ -803,7 +814,7 @@
 			 (abort 'list-ref-index-out-of-bounds)
 			 (%list-ref l i)))))
 
-; Takes sets an element in a list
+; sets an element in a list
 (define (list-set! l i v)
   (if (zero? i)
 		(set-car! l v)

@@ -209,7 +209,8 @@ exploration."
 						 subsidiary-agents active-subsidiary-agents
 
 						 ;;
-						 maintenance-list
+						 memory ;; used for caching information across invocations
+						 maintenance-list 
 						 initialised
 						 )
   )

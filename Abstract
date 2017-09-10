@@ -1,35 +1,3 @@
-Simulation models are often comprised of a number of distinct interacting 
-processes.  Traditional methods will usually address these process either
-by coupling them in an integrated way, or by connecting them loosely in
-a fashion characterised by "individual-based" models.
-
-In this discussion, we consider the state space of the model as a
-whole, and the more restricted state spaces of the components which
-comprise the model.  Alternative submodels for a component may have a
-part of the relevant component's state space in which it performs
-poorly or well relative to other submodels for that component.
-
-We construct a commutative non-unital ring with tree a metric
-that has trees as its elements which are used to represent loci in 
-state spaces and states associated with the model and its
-potential submodels.  With this structure we are able to define
-objective functions which reflect the utility of submodels with
-respect to the state of the model and its components.
-
-This work can be readily applied to agent-based ecosystem models,
-cellular automata, models of population dynamics which are coupled
-with environmental drivers, models of human activities, and models of
-physical or mechanical systems. There may be many candidates for the
-submodel used to represent a particular component of such and
-ensemble, and the different candidates may have quite different
-strengths and weaknesses.
-
-The thesis incorporates two published papers demonstrating the utility
-of the approach and two chapters which extend the work and provide
-a realised framework for further exploration and modelling work.
-
-An appendix is included, containing an example model model using the
-tree-ring with objective functions for submodels, the model as a
-whole, and submodel state maintenance.
+  35  287 1835
 		
 	

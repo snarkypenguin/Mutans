@@ -82,6 +82,14 @@
 	
 (clear-kdebug-msg-tags)
 
+(add-kdebug-msg-tag 'emit-page)
+(add-kdebug-msg-tag 'page-preamble)
+(add-kdebug-msg-tag 'page-epilogue)
+(add-kdebug-msg-tag 'log-data)
+(add-kdebug-msg-tag 'chaintrack)
+
+
+
 ;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
 ;(define kdebug kdebug?)        ;; We might later convert it to a macro that just "disappears"
 

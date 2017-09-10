@@ -7,7 +7,7 @@
 	(list 'default-color ps-green)
 	(list 'dead-color 0.3) ;; dark grey
 	(list 'radius-color ps-dark-green)
-	(list 'foliage-color ps-green)
+	(list 'foliage-color '(0.07 1 0.12))
 	(list 'stress-color ps-orange)
 	(list 'glyph 8) ;; numeric glyphs are converted to unit circles with the indicated number of facets
 	(list 'plot-magnification 3)
@@ -28,7 +28,7 @@
 	;;(list 'population-switch '<uninitialised>)
 
 
-	(list 'decay-rate (/ -2.0 (log (* 180 days)))) ;; half the body will be gone in 180 days (mostly due to decay)
+	(list 'decay-rate (/ -1 (* (log 2.0) 80 days ))) ;; half the body will be gone in 80 days (mostly due to decay)
 	(list 'max-age +inf.0) ;; they don't die by default
 	(list 'max-mass (* 150 kg))
 	(list 'mass 'none)
@@ -43,6 +43,7 @@
 	(list 'regrowth-rate-multiplier 1.2 "This posits that the plants in the model put a little extra effort into growth when they have been damaged -- no references")
 	(list 'age '<uninitialised>)
 	;;(list 'leaf-area '<uninitialised>) ;; real leaf area
+	(list 'reproduction-probability 0.6666)
 	(list 'reproduction-mass (* 18 kg))
 	(list 'reproduction-period 0) ;; continuous
 	(list 'reproduction-offset 0)

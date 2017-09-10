@@ -678,6 +678,18 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 			)
 	 (map (lambda (x) (* radius x)) (map + D dir))))
 		  
+(define (remainder* f g)
+  (remainder (inexact->exact (round f))
+				 (inexact->exact (round g))))
+
+;; treats the year as homogeneous
+(define (ok-to-reproduce t age min-age start duration probability)
+  (let ((y (remainder t year)))
+	 (and (> age min-age)
+			(>= y start)
+			(<= y (+ start duration))
+			(< (random-real) probability))))
+
 
 ;; (define trials (map (lambda (x) (stoch-walk 12 2 0.5 '(1 0) 2)) (seq 2000)))
 ;; (define trialdat (map vlen trials))

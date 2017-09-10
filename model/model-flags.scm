@@ -9,20 +9,14 @@ the predicate kdebug? with a list of tags, such as
     (if (kdebug? '(recast reorder)) (pp (refactor-object current-strategy complex-list-structure)))
 "
 
-(define use-proxies #f)        ;; enables or disables the use of the <proxy> class
+(define trap-model-bodies-with-bad-return-values #f)
 
 (define use-agent-register #f) ;; enables or disables the agent register -- if the agent register is active
                                ;; garbage collection of agents is stopped
 
-(define production-run #t)     ;; This indicates whether to include protective code in a number of fundamental
+(define use-proxies #f)        ;; enables or disables the use of the <proxy> class
+(define production-run #f)     ;; This indicates whether to include protective code in a number of fundamental
                                ;; routines [like the (my 'variable) and (set-my! 'variable val) calls]
-
-(define trap-model-bodies-with-bad-return-values #f)
-
-(kdebug-development! #t)  ;; enable kdebug or not
-(kdebug-message-state #f) ;; emit messages or not
-(kdebug-wildcards! #f)    ;; allow/disallow wildcards
-(kdebug-do-times! #f)     ;; tag output with elapsed cpu time
 
 ;(kdebug-message-state #t/#f) ; empty returns state, #t emits msgs, #f suppresses
 

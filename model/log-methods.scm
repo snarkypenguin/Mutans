@@ -2,7 +2,7 @@
 ;-  Identification and Changes
 
 (warning "I really need to separate the logging from the file handling.  
-At the moment we have the <logfile> branch and the <log-data> branch; this
+bAt the moment we have the <logfile> branch and the <log-data> branch; this
 needs to change: the creation of a logging agent needs to have a 
 file-handling class (logfile, snapshot, or output?) --- everything is 
 routed through these, and page-preamble and emit-page (called for each timestep)
@@ -124,26 +124,6 @@ close pages and emit 'showpage' for postscript stuff.
 				  )
 
 
-(model-method (<log-introspection>) (my-list self)
-				  (let ((mit (my 'introspection-targets))
-						  (Q (agent-kcall self 'runqueue))) ;; This is how an agent would usually call the kernel 
-
-					 (sortless-unique
-					  (letrec ((loop (lambda (mitr mlist)
-											 (cond
-											  ((null? mitr) mlist)
-											  ((isa? (car mitr) <agent>) (loop (cdr mitr) (cons (car mitr) mlist)))
-											  ((class? (car mitr)) (loop (cdr mitr) (append (filter (*is-class? (car mitr)) Q) mlist)))
-											  ((string? (car mitr)) (loop (cdr mitr) (append (filter (*is-taxon? (car mitr)) Q) mlist)))
-											  ((symbol? (car mitr)) (loop (cdr mitr) (append (filter (*has-slot? (car mitr)) Q) mlist)))
-											  ((procedure? (car mitr)) (loop (cdr mitr) (append (filter procedure Q) mlist)))
-											  (#t (error "args to my-list must be agents, strings, symbols classes or procedures" (car mlist)))))
-										  ))
-						 (loop mit '())))
-					 )
-				  )
-
-
 (model-method <log-introspection> (agent-shutdown self #!rest args)
 	      (let ((file (my 'file)))
 		(if (my 'file)
@@ -187,19 +167,17 @@ close pages and emit 'showpage' for postscript stuff.
 							 ;;(dnl* "   logger is currently examining the time" rec "<" t)
 							 )
 						  )
-
-
-					 (if (or (not rec) (and (number? t) (< rec t)))
-						  	(begin
-							  (table-set! tbl agent t)
-							  ;(dnl* "      returning #t")
-							  #t)
-							(begin
-							  ;(dnl* "      returning #f")
-							  #f))))
+					 (if (not (is-class? self <log-map>)) ;; log-map agents always emit and never record
+						  (if (or (not rec) (and (number? t) (< rec t)))
+								(begin
+								  (table-set! tbl agent t)
+								  #t)
+								#f)
+						  #t))) 
 								
 
 (model-method (<log-introspection>) (emit-page self)
+				  (kdebug '(chaintrack) "(model-method (<log-introspection>) (emit-page self)")
 				  ;(+kdebug!)
 				  (if (not (or (my 'file) (file-handle? (my 'file)) (output-port? (my 'file))))
 						(open-output-handle self))
@@ -209,20 +187,26 @@ close pages and emit 'showpage' for postscript stuff.
 								"[" (my 'name) ":" (cnc self) "]"
 								"Introspection: emit-page")
 					 (kdebug '(log-*) (my-list self))
+					 (kdebug '(chaintrack) "about to call page-preamble")
 					 (page-preamble self self format)
+					 (kdebug '(chaintrack) "back from page-preamble")
+					 
 					 (let ((proc (lambda (ila)
 										(kdebug '(log-* introspection-trace) " ==> processing "
 												  (cnc ila) " "  (procedure? ila) format (my 'variables))
+
+										(kdebug '(chaintrack) "about to call log-data" (my-list self))
 										(log-data ila self format (my 'variables))
+										(kdebug '(chaintrack) "back from log-data")
 										(kdebug '(log-* introspection-trace) " <== PROCESSED "
 												  (cnc ila) " "  (procedure? ila))
 										#f
 										)))
 						(for-each proc (my-list self))
 						)
-					 ;;(dnl* "Ummm, about to run epilogue")
+					 (kdebug '(chaintrack) "Ummm, about to run epilogue")
 					 (page-epilogue self self format)
-					 ;;(dnl* "Uhh, leaving emit page")
+					 (kdebug '(chaintrack) "Back from page-epilogue, leaving emit page")
 					 ))
 
 ;---- logfile methods -- <logfile>s open a single file and use that till they finish running
@@ -235,7 +219,8 @@ close pages and emit 'showpage' for postscript stuff.
 
 (model-method <logfile> (page-preamble self logger format)
 				  ;(+kdebug!)
-				  (kdebug '(page-boundary) "page-preamble " (cnc self) (name self) " " (name logger) " " format)				  (kdebug '(introspection logfile) "[" (my 'name) ":")
+				  (kdebug '(page-boundary) "page-preamble " (cnc self) (name self) " " (name logger) " " format)
+				  (kdebug '(introspection logfile) "[" (my 'name) ":")
 
 				  (let ((filename (my 'filename))
 						  (file (my 'file))
@@ -248,7 +233,6 @@ close pages and emit 'showpage' for postscript stuff.
 					 (kdebug 'logfile-issues "In: logfile preamble filename " filename "and file" file)
 					 )
 				  )
-
 
 
 (model-method <logfile> (page-epilogue self logger format)
@@ -359,6 +343,7 @@ close pages and emit 'showpage' for postscript stuff.
 (model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
+					 (kdebug '(chaintrack) "(model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)")
 					 
 					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
 					 (lambda (target)	
@@ -505,6 +490,8 @@ close pages and emit 'showpage' for postscript stuff.
 				  ;(+kdebug!)
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
+					 (kdebug '(chaintrack) "(model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)")
+					 (kdebug '(chaintrack) "in <log-data> (log-data" (name self) (name logger) format target-variables)
 									 
 					 ;; (error "(-: Oops, really ought to never get here. :-)")
 					 (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"

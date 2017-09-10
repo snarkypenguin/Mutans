@@ -88,6 +88,26 @@
 					 (parent-agent-shutdown)
 					 )
 
+(model-method (<introspection>) (my-list self)
+				  (let ((mit (my 'introspection-targets))
+						  (Q (agent-kcall self 'runqueue))) ;; This is how an agent would usually call the kernel 
+
+					 (sortless-unique
+					  (letrec ((loop (lambda (mitr mlist)
+											 (cond
+											  ((null? mitr) mlist)
+											  ((isa? (car mitr) <agent>) (loop (cdr mitr) (cons (car mitr) mlist)))
+											  ((class? (car mitr)) (loop (cdr mitr) (append (filter (*is-class? (car mitr)) Q) mlist)))
+											  ((string? (car mitr)) (loop (cdr mitr) (append (filter (*is-taxon? (car mitr)) Q) mlist)))
+											  ((symbol? (car mitr)) (loop (cdr mitr) (append (filter (*has-slot? (car mitr)) Q) mlist)))
+											  ((procedure? (car mitr)) (loop (cdr mitr) (append (filter procedure Q) mlist)))
+											  (#t (error "args to my-list must be agents, strings, symbols classes or procedures" (car mlist)))))
+										  ))
+						 (loop mit '())))
+					 )
+				  )
+
+
 (model-body <introspection>
 				(kdebug '(introspection-trace)
 						 "[" (my 'name) ":" (cnc self) " at " (subjective-time self) "]"

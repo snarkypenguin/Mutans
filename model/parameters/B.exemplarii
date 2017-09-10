@@ -77,11 +77,14 @@
 	 (list 'leaf-mass (/ (* 1 kg) (* 300))) ;; 300 leaves make a kilogram
 
 	 ;;(list 'leaf-area '<uninitialised>) ;; derive from mass : real leaf area
-    (list 'reproduction-mass (* 12 kg))
-    (list 'reproduction-period (* 7 days)) ;; need not be the same as the dt, but should not be shorter
-    (list 'reproduction-offset 0)
+    (list 'reproduction-age (* 160 weeks))
+    (list 'reproduction-mass (B.ex-mass (* 160 weeks)))
+    (list 'reproduction-period (* 2 weeks)) ;; need not be the same as the dt, but should not be shorter
+    (list 'reproduction-cycle (* 20 weeks)) ;; need not be the same as the dt, but should not be shorter
+    (list 'reproduction-offset (* 2 weeks))
+	 (list 'reproduction-probability 0.1)
     ;;(list 'reproduction-mechanism '<uninitialised>) ;; this should be set to the ecoservice assd with fruit in the domain
-    (list 'fruiting-rate (/ 28 (* 10 kg)))
+    (list 'fruiting-rate (/ 28 (/ 1 (* 3 kg day)))) ;; number of fruit for every kg per day
     (list 'seeds-per-fruit 30)
 	 (list 'speed 0)
 	 (list 'direction '(0 0))

@@ -8,130 +8,31 @@
 \WeAreOn{\cfive}\label{explicitmodel}
 
 
-Chapter~\ref{modelefficiency} argued that switching models are worth
-considering because they may provide benefits in fidelity and
-efficiency. The paper demonstrated significant advantages over
-non-switching versions of the the system.  The hypothetical example
-developed in Chapter~\ref{adaptiveselection} describes a model of a
-small trophic network in order to provide a platform to explore how a
-general model might be constructed. Here, we describe an explicit
-implementation of a system based on
-Chapter~\ref{adaptiveselection}. The role of this implementation is
-not primarily to provide a complete, efficient implementation of a
-framework supporting adaptive hybrid models --  its purpose is to
-provide a concrete starting point for further critique, exploration
-and development.  In this chapter, we describe the system, discuss the
-reasons certain approaches have been taken, and address both how the
-system could be used when implementing new models and avenues for
-further research.\footnote{ \textbf{Randall -- Remember}: \textit{parameter files, structure of output
-  mechanism (loggers) -- simulation/analogue of actual sampling
-  strategies, postscript output (glyphs, tracks, graphs, etc), scope for automatically generating
-  animated output }}
-
-
-The example model was implemented in the \Scheme programming language.
-\Scheme was chosen because it has long possessed properties that are
-only now becoming part of the standard in members of the \CC family, such as
-anonymous functions, and first-class closures. A simple example of a
-closure might look like so:
-\begin{verbatim}
-(define counter 
-   (let ((n 0))
-      (lambda x 
-         (cond
-           ((null? x) (set! x (+ 1 x))
-           ((eqv? x '(reset)) (set! x 0))
-           (#t counter))))
-           )
-)
-\end{verbatim}
-The variable \sttvar{counter} is set to point to the function the
-\Syntax{lambda} defines, and the state variable \sttvar{counter} is
-``global'' to this function, rather like a static variable defined
-outside a function in a C source file. Closures are a
-coupling of a procedural element with data which is preserved across
-invocations of the procedure.
-
-Using an interpreted language also meant that I could readily
-encorporate both physical units and the definition of parameters and
-that functions could also be treated as part of the set of
-``parameters'' in the parameter files (\emph{c.f.}  the files for the
-\method{mass-at-age} functions for animals and plants). \Scheme was,
-at its inception, designed to be a tool for exploration
-\cite{sussman1998first} and it remains an excellent tool for this
-purpose. \Scheme is an actively developing language, and there are a
-number of very good interpreters and compilers for it; many of these
-implementations are also amenable to integration with other languages,
-either through directly linking binary objects or by interacting
-through a virtual machine (such as a JVM).
-
-The class structure in the example model makes use of the \Scheme
-implementation of \SCLOS that was written
-by Gregor Kiczales \cite{kiczales1993xerox} while he was working at
-Xeros PARC in 1992 and 1993.  Kiczales has been an instrumental
-researcher and proponent for the use of metaobject protocols (MOPs) as
-a tool for making computer programs clearer, more efficient, and more
-robust.  The basic tenet is that generic methods or functions are used
-to manipulate objects, and that these generic objects inspect the
-nature of the data being passed to them and pass the processing to a
-specialised function which deals with the task most appropriately.
-While this is not an exact analogue to the problems we seek to address
-in this work, there is a substantial similarity and using \SCLOS
-with its implicit MOP seemed a natural fit.  \SCLOS has been
-the basis for many of the significant object-oriented  systems for
-\Scheme.
-
-I have used
-\GambitC\footnote{\URL{http://gambitscheme.org}}, a well
-regarded implementation of \Scheme which runs on all of the major
-platforms (\Linux, \Unix, \OSX, \Android and \Windows). \Gambit
-incorporates both a mature \Scheme interpreter and a compiler, and
-both can dynamically link programs with external, compiled code and
-libraries which may exist either as compiled \CC or \Scheme code.  The
-choice to use \Gambit, rather than another version of \Scheme,
-was heavily influenced by several points: it was the implementation
-used for the model in Chapter~\ref{modelefficiency}; its ability to
-link to compiled \CC and its own compiled code can combine to produce
-programs which are noticably faster than purely interpreted code; it
-supports very \CC-like infix notation (indeed, it can be programmed
-using syntax which is almost-native \CC syntax); and adding
-hand-crafted \CC or \Cpp code for particularly intensive routines is
-not difficult.  Porting the model to other versions of \Scheme should
-be relatively simple; the only potentially awkward issue in using a
-different \Scheme implementation would be the use of \sdefmac in the
-creation of the classes and methods in a model.  These macros are used
-to automatically incorporate code which maintains data-structures that
-provide information essential to the communication between submodels,
-and the system as a whole. The macros are also able to detect and
-respond to some sorts of oversights or inconsistencies in the
-construction of methods or model-bodies.  In principle, \sdefsyntax or
-other tools for syntactic extension or modification would be better
-means of obtaining many of the effects of the macros defined in the
-\fname{framework} file: \sdefmac was the basis for the first
-incarnation of this framework, and -- at the time -- was the more
-familiar mechanism, and I made the decision to perservere with it. The
-use of \sdefmac complicates the process of locating syntax errors,
-since the interpreter is unable to track the line numbers within a
-macro. \footnote{The macros which wrap the methods called by an agent
-  are implemented in such a way that the code they produce can be
-  written to a file, and that file may be included in the place of the
-  original block of code.  In this way, the shortcomings with respect
-  to line number tracking can be ameliorated somewhat.  Such code
-  could be used to generate a code-base for a model which was free of
-  macros.}  The only aspect associated with using macros which would
-require broader changes with \sdefsyntax is synthesising the
-context-specific identifiers (such as
-\symb{<animal>-model-body}) which refer to the ``body'' of the
-different classes of agents; this is not insurmountable, but will be
-left for a subsequent version of the modelling framework.
-
+Chapter~\ref{modelefficiency} demonstrated that switching models can
+provide benefits in fidelity and efficiency, when compared with
+non-switching alternative models.  The example developed in
+Chapter~\ref{adaptiveselection} describes a model of a small trophic
+network to use to explore how a general model might be
+constructed. Here, we describe an explicit implementation of a system
+based on Chapter~\ref{adaptiveselection}. The role of this
+implementation is to provide a concrete starting point for further
+exploration, development and critique.  In this chapter, we describe
+the system, discuss the reasons certain approaches have been taken,
+and address both how the system could be used when implementing new
+models and avenues for further research.\footnote{ \textbf{Randall --
+Remember}: HERE \textit{parameter files, structure of output mechanism
+(loggers) -- simulation/analogue of actual sampling strategies,
+postscript output (glyphs, tracks, graphs, etc), scope for
+automatically generating animated output }} The model this chapter
+refers to is released under the GPLv3 and available
+at \url{http://github.com/snarkypenguin/remodel.git}.
 
 \section{Design considerations}
 The general design of this example framework follows conventional
 patterns for an agent-based model, and it was influenced by my
 previous work (\cite{lyne1994pmez5, gray2006nws, gray2014}) designing
 and implementing the core of operational models for management
-strategy evaluation (MSE) in the context of anthropogenic effects on
+strategy evaluation (MSE) dealing with anthropogenic effects on
 marine ecosystems.  The principle behind MSE and adaptive management
 is that candidate strategies for managing the effects of human
 activity are explored in simulation\footnote{This is effectively
@@ -193,6 +94,7 @@ the environmental plume, there was no need to include mechanisms for
 agents to interact in a more general sense.
 
 \section{Model implementation}
+
 The model is based on the the description of the example in Chapter
 \ref{adaptiveselection}. In the example, the domain consists of nine
 cells containing tree-like plants. These trees are a critical food
@@ -207,6 +109,194 @@ model as a whole.  The implementation described here is not identical
 to the system described in the paper -- some inadequacies of the model
 presented in the paper have been addressed (such as the inability of
 the plants to recolonise a cell after they have become extinct in it).
+
+
+\subsection{Scheme}
+The design decisions for the modelling framework was heavily
+influenced by my experience with large ecosystem models which
+primarily used \Cpp and \CC.  While these models served their purposes
+well and I incorporated a number of what turned out to be
+``scheme-flavoured'' approaches in the handling of data, the
+development of non-traditional components was made
+difficult.\footnote{This was particularly well exemplified by the
+problems associated with modelled entities (whales) which would leave
+the domain of the model for much of the year, and during this period,
+they would calve.}
+
+The example model was implemented in the \Scheme programming language.
+\Scheme was chosen because it has long possessed properties that are
+only now becoming part of the standard in members of the \CC family,
+such as anonymous functions, and first-class closures. Closures are a
+natural way the data we want to preserve across transitions between
+representations. The data is encapsulated in a maintenance
+closure which holds and updates the data from a
+representation which has been replaced. \Scheme was designed with a
+minimalist approach and for exploring fundamental ideas about language
+design, such as \texttt{call-with-current-continuation} (often
+shortened to \texttt{call/cc}).  Scheme is a block-structured,
+lexically scoped language, and while the preponderance of parentheses
+(as well as brackets and braces in some dialects) can be daunting to
+newcomers, its small size and simple syntax make it relatively quick
+to learn.
+
+I have specifically avoided the use of \texttt{call/cc}, arguably the
+language's \emph{enfant terrible}. It is a control construct which is
+an obvious avenue for implementing the multitasking system in the
+model, but, somewhat like the bait in the trap, there are a number of
+costs that make its use in a project of this nature unappealing: most
+importantly, the behaviour of \texttt{call/cc} is not intuitively
+obvious to most modellers and programmers, and it brings additional
+complexity in debugging, and memory overheads with their associated
+run-time costs.
+
+A number of factors were important in the choice of implementation
+language, namely
+\begin{itemize}
+\item[--] class-based multiple inheritance with polymorphism\\
+\item[--] weak/dynamic typing\\
+\item[--] linking with compiled code in other languages,\\
+\item[--] able to support maintenace models\\
+\item[--] potential for parallelising and distributed execution.
+\listintertext*{and}
+\item[--] interpreted operation if possible,
+\end{itemize}
+
+I considered \Cpp and \CC as implementation languages, since they
+both\footnote{It isn't technically hard to construct a class system
+for \CC, with the desired properties, but there is a reasonable amount
+of effort, and the result would be idiosycratic.} can address most of
+these factors. I was disinclined to use other obvious candidates,
+notably \Java, and \Csharp, and \DD do not support multiple
+inheritance, and are strongly typed.
+
+Using an interpreted language also meant that I could readily
+encorporate both numeric quantities with physical units and functions
+in the parameterisation of modelled entities in the parameter files
+(\emph{c.f.}  the files for the
+\method{mass-at-age} functions for animals and plants). \Scheme was,
+at its inception, designed to be a tool for exploration
+\cite{sussman1998first} and it remains an excellent tool for this
+purpose. \Scheme is an actively developing language, and there are a
+number of very good interpreters and compilers for it; many of these
+implementations are also amenable to integration with other languages,
+either through directly linking binary objects or by interacting
+through a virtual machine (such as a JVM).
+
+
+A simple example of a closure might look like so:
+\begin{verbatim}
+;; The closure will be called like (@ 'tick dt) 
+(define @
+  (let ((TBT 0) ;; tributyltin
+        (depuration-rate 0.0001) 
+      (lambda (action #!rest x)
+       (cond
+        ((eqv? action 'reset) (set! x 0))
+        ((eqv? action 'value) TBT)
+        ((and (eq? action 'tick) (= (length x) 1) 
+           (number? (car x)))
+         (set! TBT 
+           (* TBT (- 1 (exp (* depuration-rate (cadr x)))))))
+       (else 'ignored)
+      ))))
+
+\end{verbatim}
+This example maintains a contaminant level in the absence of contact
+with the contaminant, TBT.  Should the representation of the
+modelled entity enter a situation where TBT is present, a monitor
+class may decide that a representation change is necessary, and the
+closure would be queried for the correct value for the contaminant
+level to use in the construction of the new representation.
+
+The variable \sttvar{TBT} is set to point to the function the
+\Syntax{lambda} defines, and the state variable \sttvar{counter} is
+``global'' to this function, rather like a static variable defined
+outside a function in a C source file. Closures are a
+coupling of a procedural element with data which is preserved across
+invocations of the procedure.
+
+\subsubsection{Interpreter/Compiler}
+I have used
+\GambitC,\footnote{\URL{http://gambitscheme.org}} a well
+regarded implementation of \Scheme which runs on all of the major
+platforms (\Linux, \Unix, \OSX, \Android and \Windows). \Gambit
+incorporates both a mature \Scheme interpreter and a compiler, and
+both can dynamically link programs with external, compiled code and
+libraries which may exist either as compiled \CC or \Scheme code.  The
+choice to use \Gambit, rather than another version of \Scheme,
+was heavily influenced by several points: it was the implementation
+used for the model in Chapter~\ref{modelefficiency}; its ability to
+link to compiled \CC and its own compiled code can combine to produce
+programs which are noticably faster than purely interpreted code; it
+supports very \CC-like infix notation (indeed, it can be programmed
+using syntax which is almost-native \CC syntax); and adding
+hand-crafted \CC or \Cpp code for particularly intensive routines is
+not difficult.
+
+Porting the model to other versions of \Scheme should be relatively
+simple; the only potentially awkward issue in using a
+different \Scheme implementation would be the use of \sdefmac in the
+creation of the classes and methods in a model.  These macros are used
+to automatically incorporate code which maintains data-structures that
+provide information essential to the communication between submodels,
+and the system as a whole. The macros are also able to detect and
+respond to some sorts of oversights or inconsistencies in the
+construction of methods or model-bodies.  In principle, \sdefsyntax or
+other tools for syntactic extension or modification would be better
+means of obtaining many of the effects of the macros defined in the
+\fname{framework} file: \sdefmac was the basis for the first
+incarnation of this framework, and -- at the time -- was the more
+familiar mechanism, and I made the decision to perservere with it.
+
+The use of \sdefmac complicates the process of locating syntax errors,
+since the interpreter is unable to track the line numbers within a
+macro. \footnote{The macros which wrap the methods called by an agent
+are implemented in such a way that the code they produce can be
+written to a file, and that file may be included in the place of the
+original block of code.  In this way, the shortcomings with respect to
+line number tracking can be ameliorated somewhat.  Such code could be
+used to generate a code-base for a model which was free of macros.}
+The only aspect associated with using macros which would require
+broader changes with \sdefsyntax is synthesising the context-specific
+identifiers (such as
+\symb{<animal>-model-body}) which refer to the ``body'' of the
+different classes of agents; this is not insurmountable, but will be
+left for a subsequent version of the modelling framework.
+
+\subsection{\SCLOS -- a \Scheme implementation of \CLOS}
+
+The class structure in the example model makes use of the \Scheme
+implementation of \SCLOS that was written
+by Gregor Kiczales \cite{kiczales1993xerox} while he was working at
+Xerox PARC in 1992 and 1993.  Kiczales has been an instrumental
+researcher and proponent for the use of metaobject protocols (MOPs) as
+a tool for making computer programs clearer, more efficient, and more
+robust.  The basic tenet is that generic methods or functions are used
+to manipulate objects, and that these generic objects inspect the
+nature of the data being passed to them and pass the processing to a
+specialised function which deals with the task most appropriately.
+While this is not an exact analogue to the problems we seek to address
+in this work, there is a substantial similarity and using \SCLOS
+with its implicit MOP seemed a natural fit.  \SCLOS has been
+the basis for many of the significant object-oriented  systems for
+\Scheme.  In the development of the model there have been some
+instances where the ``wrong'' methods seemed to have been
+called to act on an object, but these have inevitably been associated
+with a type error in the signature of an overloaded method (in
+the \SCLOS idiom, that would be a generic method with more than one
+implementation), or a case where a generic method has been defined
+twice. The modelling framework now protects against duplicate generic
+methods. 
+
+The basic \SCLOS library has been slightly modified
+(the \mclass{<object>} class of \SCLOS has been renamed
+to \mclass{primitive-object}) and additional support routines have
+been added in the file \fname{sclos+extn.scm}.  These additions
+include the recognition of a number of \Scheme data-types, routines to
+examine the parents of an object, registers which recognise objects
+and classes which have been instantiated, extended support for the
+initialisation of slots in an \SCLOS object (parameter files), and
+classification predicates.  
 
 \subsection{Class structure}
 The submodels in the example are all derived from a basic
@@ -232,17 +322,6 @@ ability to poll other agents at regular intervals.
     \toprule 
     \textbf{Classname} & \textbf{role} \\
     \midrule
-    \mclass{object} & This is the ``primal'' class for all of the
-      different agent classes, and the more complex data structures
-        like polygons  \\
-
-    \mclass{plottable} & Children of this class can be plotted in
-    map-like output. The attributes of this class include a ``glyph''
-    a location and an orientation, a preferred font, colour, glyph size
-    (which may be scaled by the value of a slot) and any additional
-    magnification which might be required to make things clear.
-    This is the class that provides location and orientation to the
-    animal and plant classes.\\
     \mclass{agent} & The agent class contains all the fundamental
     components for a model to run within the framework, such as
     essential state variables and common methods \\
@@ -255,12 +334,34 @@ ability to poll other agents at regular intervals.
     \mclass{introspection-agent} & The methods which allow
     \mclass{monitor} and \mclass{log-introspection} agents to operate is provided by
     this class -- it forms the basis for agents which poll other agents \\
-    \mclass{plottable} & The log-map classes regard children of this class
-    as being plottable in graphic output.  It incorporates 
-    preferences for font, colour, scale and, optionally a glyph for plotting\\
+    \mclass{plottable} & Children of this class can be plotted in
+    map-like output. The attributes of this class include a ``glyph''
+    a location, an orientation, a preferred font, colour, glyph size
+    (which may be scaled by the value of a slot) and an additional
+    magnification which can be used to adust the scale.
+    This is the class that provides location and orientation to the
+    animal and plant classes.\\
     \mclass{environment} & The basic spatial context is provided by
     this class; it maintains a bounding
     box and a link to an explicit representation\\
+    \bottomrule
+  \end{tabular}
+\end{center}
+\end{table}
+The classes in Table \ref{\classtable1} 
+
+
+
+\begin{table}[H]
+\begin{center}
+  \caption{More fundamental classes -- \fname{framework-classes.scm}\label{classtable2}}
+  \begin{tabular}{l L{7cm}}
+    \toprule 
+    \textbf{Classname} & \textbf{role} \\
+    \midrule
+    \mclass{object} & This is the ``primal'' class for all of the
+      different agent classes, and the more complex data structures
+        like polygons  \\
     \mclass{array} & Arrays are used to construct a collection of
     lists which often act as the basis for a model representation
     between a fully defined individual-based representation and an
@@ -426,7 +527,7 @@ based on \mclass{diffeq-system} is also implemented.
 There are essentially three implementations for modelling plants in
 the example model. \mclass<plant> is the basic starting point for
 the \mclass<example-plant>, which implements a model substanially
-similar to that described in Section \ref{plantch3}. The alternative
+similar to that described in Section \ref{adaptiveselection}.\ref{plantch3}. The alternative
 representation for plants is the \mclass{plant-array} which is an
 array of state-vectors which apply update methods to each of the state
 variables which are similar to those used for the individual based
@@ -835,6 +936,27 @@ appropriate to the target. \footnote{The MOP paradigm makes it possible to use
 substantially the same code for many agents of many classes, but calls
 through \method{query} may be easier to convert for parallelism later.}
 
+\section{Changing representations}
+
+The process of assessment and the management of the representations
+of the systems being modelled is reasonably simple to describe:
+periodically the monitoring agent will interrogate the subset of the
+model for which it is reponsible:
+\begin{itemize}
+\item[] Each of the agents it manages will be queried for its status
+and its own assessment of its state in the context of the other
+elements it interacts with.  This may be fairly trivial for many
+agents, particularly those which change slowly, or are not
+significantly influenced by the activities of other agents.
+\item[] The monitor synthesises a number of representative
+state-trees, most importantly a state-tree which describes the current
+configuration, and others dealing with significant conditions which
+pertain to the simulation -- perhaps relating the geographic
+distributions, population numbers or density, the abundance of
+resources, or the presence of significant conditions such as fire.
+{\Huge{HERE}}
+\end{itemize}
+
 
 \subsection{Maintaining state across representations}
 
@@ -915,10 +1037,64 @@ own performance measures.
 \section{Discussion}
 
 
-{\Huge{HERE}}
+
+\subsection{Conveniences}
+A number of features of the model have proved to be extremely useful
+during the construction of the model, and in playing with
+it. Particularly noteworthy items are the parameterisation mechanism,
+output generation, the instrumentation to collect the elapsed time
+within routines, and the code for debugging output.
+
+Parameter files are small snippets of \Scheme code which adhere to a
+particular form. In these files, data are associated with symbols
+which get used to determine what state variables are initialised to.
+The mechanism which support delayed evaluation of the value to
+initialise a state variable allows the modeller to perturb values
+(such as mass) in the instantiation of the agents.  Similarly, we are
+able to move functions that are traditionally coded as \emph{part of
+  the model} into the parameter space -- we could easily write one
+basic Galapagos finch model and parameterise the many different
+behaviours and food preferences.
+
+\vspace{3mm}
+All of the output in the model arises from one of two basic
+mechanisms: debugging/warning messages emitted by the ``kdebug''
+routines which were briefly discussed in Section~\ref{kdebug} or
+output generated by a \mlogger.  There have been a number of benefits
+from not incorporating the output within the models.  The most
+significant benefit is that it makes the task of producing ``exotic''
+output, such as postscript or animations, much more straightforward,
+and the code to produce the output is much less likely to interfere
+with the model itself, since the output routines are quite distinct
+from the models they may poll.  All an output routine needs to know is
+how to obtain data from an agent, and how to generate appropriate
+output. In this way, the \method{log-data} routines are able to be
+applied to a number of quite different models, and their output is
+consistent irrespective of the underlying model generating the data.
+
+The debugging messages provided by the \method{kdebug} call and its
+kin can be constructed to emit messages according to arbitrary flags
+which can consist of symbols, can contain wildcards, class-names, or
+parameter taxa.  The same mechanism can conditionally execute more
+complex debugging or validation code, and virtually vanishes when the
+no messages are required.  This has proved very useful both in
+debugging code, and in the parameterisation of models.
+
+\vspace{3mm}
+Model execution is often dominated by a few parts of the code which
+prove to be computationally intensive for one reason or another.  The
+\filename{framework} file provides the \Syntax{define\%},
+\Syntax{model-method\%} and \Syntax{model-body\%}
+alternatives to \Syntax{define}, \Syntax{model-method} and
+\Syntax{model-body}. These alternative add instrumentation to the code
+which allows the modeller to determine how much time was actually
+spent in the functions, methods or model-bodies, with a call
+to \texttt{(timing-report)}'.  This make the task of finding the
+bottlenecks in the code much simpler.
 
 
-\section{Further work: cross-representation predation\label{predation5}}
+
+\section{Further work: cross-representation predation and interaction\label{predation5}}
 
 The work oulined in this section has not been implemented in the
 example model, but is included since the disparity between
