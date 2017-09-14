@@ -21,7 +21,6 @@
 
 	 (list 'dt (* 8 hours))
     (list 'type 'herbivore)
-	 (list 'representation 'simple-individual)
 	 (list 'provides '(prey))
 	 (list 'requires '(fruit))
 	 ;;(list 'habitat '<uninitialised>) ;; should be set in the in the create args

@@ -9,7 +9,7 @@ associated with policies about, and responses to climate change and to
 predict the social and economic consequences of development arising
 from various scenarios. This was a significant change from previous
 representations of ``public'' participants, such as recreational
-fishers, tourists, accomodation and other small businesses, which were
+fishers, tourists, accommodation and other small businesses, which were
 modelled in fairly simple ways (\cite{fulton2011ningaloo,gray2014}).
 The specific goal was to be able to incorporate a simulation of the
 way public opinion changes in response to policy actions and changes
@@ -29,7 +29,7 @@ giving us an expression like ``\textsf{4/5 + climate\_change +
 way suggested that working with more intricate relationships might be
 possible.
 
-While my involvement in the project was shortlived, the problem the
+While my involvement in the project was short lived, the problem the
 data posed was engaging, and slowly it became evident how the the
 mathematical structures I was trying to construct could represent
 configurations of models, and that it might be able to incorporate the
@@ -38,14 +38,14 @@ simple way.  My hope was to be able to construct example
 configurations which were reasonable for particular conditions and to
 assess how close to ``known-good'' configurations the system was at
 any given point.  It also seemed possible that it might allow
-strategies which were apble to interpolate between ``good''
+strategies which were able to interpolate between ``good''
 configurations making intermediate transitions between configurations
 feasible. The natural network of dependencies exhibited by some
 components of past models suggested using tree structures to encode
 the configuration of a model as a starting point.
 
 The structure described in this chapter is the structure behind the
-work in Chapter \ref{adaptiveselection}.  The trees are comprised of
+work in \Cfive.  The trees are comprised of
 nodes which have a label and a weight (and, of course, children).
 Initially, the labels were simply symbols associated with certain
 attitudes or semantic data which were taken from a nominated set.
@@ -151,7 +151,7 @@ constraint in the pairwise multiplication of trees.
 
 First, the definitions for some basic tools for manipulating these
 trees. Some of the functions defined below are not used in this chapter, but
-play a role in the explicit model described in Chapter \ref{explicitmodel}.
+play a role in the explicit model described in \Cfive.
 
 \begin{definition}
   The cardinality of a tree is the number of nodes it contains. We
@@ -767,7 +767,7 @@ of vectors in this set.
 %% \footnote{The fact that we can construct a total order
 %%   on trees makes this quite straightforward
 %%   [c.f. Chapter\ref{explicitmodel}, Section \ref{partial-order}]}
-In the example model discussed in Chapter~\ref{explicitmodel} we 
+In the example model discussed in \Cfive we 
 make use of both this norm and the distance function
 $\nnorm{\node{u}-\node{v}}$.
 
@@ -881,10 +881,10 @@ the induced absolute value of \(\rnode{u}\in\DOMR\).
 
 
 \section{Element multiplication in $\DOMR$ and establishing the
-  properites similar to those of a ring}
+  properties similar to those of a ring}
 
 In this section, we will define a multiplicative operator for
-trees. My motivation for establising these properties is mainly that
+trees. My motivation for establishing these properties is mainly that
 it may broaden the set of mathematical tools we have at our
 disposal to analyse sets of trees (clustering, classification,
 interpolation, extrapolation\ldots).  The element \((1,1,\emptyset)\)
@@ -1012,7 +1012,7 @@ Multiplication of trees in $\DOMR$ is associative.
       \rnode{u}\tdot(\rnode{v}+\rnode{w})&=\SNode{u}\tdot\Bigl(\SNode{v}+\SNode{w}\Bigr)\\
       &=\SNode{u}\tdot\Node{\rv{v}+\rv{w}}{\rlabel{v}}{\rchild{v}\stplus\rchild{w}}\\
       &=\Node{\rv{u}(\rv{v}+\rv{w})}{\rlabel{u}\rlabel{v}}{\rlabel{v}\child{u}\stplus\rlabel{u}(\rchild{v}\stplus\rchild{w})}\\
-      \intertext{but since $\rlabel{u}\in\PLY{A}$ and polynomial multiplication distributes over addtion}
+      \intertext{but since $\rlabel{u}\in\PLY{A}$ and polynomial multiplication distributes over addition}
       &=\Node{\rv{u}\rv{v}+\rv{u}\rv{w}}{\rlabel{u}\rlabel{v}}{\rlabel{v}\child{u}\stplus(\rlabel{u}\rchild{v}\stplus\rlabel{u}\rchild{w})}\\
       &=\SNode{u}\tdot\SNode{v} + \SNode{u}\tdot\SNode{w}\\
       &=\rnode{u}\tdot\rnode{v}+\rnode{u}\tdot\rnode{w}.
@@ -1087,12 +1087,12 @@ whole, subdomains of the model and the components within the model are
 represented by representative trees.  There is also a set of trees
 which are identified by known-good configurations, and the
 mechanism which handles switching within the model uses the metric in
-its assessment.  Like the model in Chapter \ref{modelefficiency}, the
-approach is quite shallow, but the hope is that, having established
+its assessment.  Like the model in \Ctwo, the
+approach is relatively simple, but the hope is that, having established
 the ring-like properties, more advanced clustering and
 discrimination techniques can be brought to bear.
 
-In Chapter \ref{adaptiveselection} the model developed is concerned with
+In \Cthree the model developed is concerned with
 demonstrating the adaptive selection of models using abstracted
 representations of the model's components and of the model's
 configuration. These representations are in the form of trees in

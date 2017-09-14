@@ -21,7 +21,6 @@
 	 (list 'scale/slot (lambda (self) (min 1.0 (* 1.5 (/ (abs (slot-ref self 'mass)) 6)))))
 
     (list 'type 'carnivore)
-	 (list 'representation 'simple-individual)
 	 (list 'I-need '())
 	 (list 'provides '())
 	 (list 'requires '(prey))

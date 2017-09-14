@@ -26,8 +26,8 @@ CXXFLAGS = -g
 
 SCLOS = preamble.scm sort.scm utils.scm timer.scm sclos+extn.scm framework-declarations.scm framework.scm
 KERNEL = kdebug.scm kernel.scm
-DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm log-declarations.scm
-DECS = declarations.scm framework-declarations.scm $(DECLARATIONS)
+#DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm log-declarations.scm
+DECS = declarations.scm #framework-declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
 SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm papersizes.scm postscript.scm
@@ -68,7 +68,6 @@ declarations.scm: $(DECLARATIONS)
 	@echo ';;; End:' >> declarations.scm
 
 
-
 checks: linecount-nc
 	@./run-checks
 
@@ -81,7 +80,9 @@ linecount:
 
 linecount-nc:
 	@echo -n 'The number of lines of code is approximately: '
-	@grep '' $(ALLFILES) | fgrep -v ':;' | wc -l
+	@cat $(ALLFILES) | egrep -v '^;;' | wc -l
+	@echo -n 'The number of lines of code is approximately: '
+	@cat $(ALLFILES) | egrep -v -e '^;' | egrep -v -e '^\W*;' | wc -l
 
 
 #make-load-wrappers:

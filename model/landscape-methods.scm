@@ -6,6 +6,24 @@
 ;	Initial coding: 
 ;		Date: 2012.11.19
 ;		Location: odin:/home/gray/study/src/new/landscape.scm
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 ;
 ;	History:
 ;
@@ -477,7 +495,7 @@ via their containing patch.
   (if (pair? patch)
 		(set! patch (car patch)))
 		
-  (if (not (and (string? taxon)(string? name) (symbol? variable ) (number? value)
+  (if (not (and (string? taxon) (string? name) (symbol? variable ) (number? value)
 					 (number? cap) (number? r) (number? maxdt) (boolean? growing?)
 					 (or (symbol? growthmodel) (procedure? growthmodel))))
 			  (error "Type error in call to simple-ecosystem: "
@@ -496,7 +514,7 @@ via their containing patch.
     
   (let ((A (create <ecoservice> taxon
 						 'dt dt
-						 'name (strsub name " " "_")
+						 'name (string-append (name patch) ":" (strsub name " " "_"))
 						 ;; string corresponding to its name, like "Vulpes lagopus"
 						 'sym variable
 						 ;; 'Vl perhaps
@@ -1728,7 +1746,7 @@ via their containing patch.
 	 ;; but this is not yet well exercised.  The distinction between the two is important when
 	 ;; debugging.
 
-	 (let ((M* ((map-**-ix
+	 (let ((M* (map-**-ix
 						 (lambda (x i)
 									(let ((box (bbox (list (+ (car ll) (* nscale (car i)))
 																  (+ (cadr ll) (* mscale (cadr i))))
@@ -1739,7 +1757,7 @@ via their containing patch.
 											(pname (string-append name "-" (number->string (car i)) ","
 																		 (number->string (cadr i))))
 											)
-									  ;;(dnl* "Box " pname x i box)
+									  (dnl* "Box " pname x i)
 									  (let* ((minx +nan.0)
 												(miny +nan.0)
 												(maxx +nan.0)
@@ -1765,21 +1783,24 @@ via their containing patch.
 												  'rep PP
 												  'index i
 												  )))
-										 ;;							(pp (dumpslots PP))
-;							(dnl* "-->"(perimeter cell))
-;							(dnl* "   " box)
+;							(pp (dumpslots PP))
+							(dnl* "-->"(perimeter cell))
+							(dnl* "   " box)
 										 (if (pair? statevars) (set-state-variables cell statevars))
 										 ;; so we can adjust things like dt.
 
 										 (set! patch-list (cons cell patch-list))
+							(dnl* 'ta-taah)
 										 cell))
 									)
 								 M)
-					))
+					)
 			 )
+		(dnl* "Oh. I see.")
+
 		;; connect neighbours up .... this may take some time
-		(if #f
-			 "Not implemented yet!")
+		(if #t (dnl "Connections not implemented yet!")
+			 )
 				
 		;; (map (lambda (i) (slot-ref (slot-ref (list-ref patchlist i) 'rep) 'perimeter)) (seq (length patchlist)))
 		M*)
@@ -1862,7 +1883,7 @@ via their containing patch.
 
 
 (define (patch-list-from-cover cover)
-  (reverse (flatten cover)))
+  (flatten cover))
 
 ;; the services are defined by a list containing a name, a symbol, an
 ;; initial value, a capacity, its max dt, whether or not it grows, and

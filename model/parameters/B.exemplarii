@@ -25,7 +25,6 @@
 	 (list 'map-color ps-green)
 	 (list 'map-contrast-color ps-red)
     (list 'type 'plant)
-	 (list 'representation 'simple-individual)
 	 (list 'I-need '(water))
 	 (list 'provides '(vegetation)) ;; the tree itself does not provide fruit or seeds!
 	 (list 'requires '(water)

@@ -2,6 +2,10 @@
 'Parameters
 (define <simple-animal>-parameters
   (list
+	(list 'class-migration-list (list (cons 'super-individual <animal-array>)
+												 (cons 'eqn-based <population-system>))) ;; population-systems / diffeq-systems will need hand-tooled support
+	(list 'representation 'individual)
+	(list 'type 'animal)
 	(list 'ndt (* 15 minutes))
 	;;(list 'age '<uninitialised>)
 	;;(list 'sex '<uninitialised>)

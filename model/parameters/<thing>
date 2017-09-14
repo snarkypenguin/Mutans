@@ -2,6 +2,9 @@
 'Parameters
 (define <thing>-parameters
   (list
+	(list 'class-migration-list (list <array> <ecoservice>))
+	(list 'transition-points '(individual 40 super-individual 1500 eqn-based))
+	(list 'must-maintain '(location mass))
     ;;(list 'mass '<uninitialised>)
     ;;(list 'dim '<uninitialised>)
     ;;(list 'location '<uninitialised>) ;; Yeah. We know its velocity, but not its position.  Heisenberg, hey?

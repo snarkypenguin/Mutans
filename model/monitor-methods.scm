@@ -6,6 +6,24 @@
 ;	Initial coding: 
 ;		Date: 2016.08.01
 ;		Location: zero:/home/randall/Thesis/Example-Model/model/monitor-methods.scm
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 ;
 ;	History:
 
@@ -46,9 +64,11 @@ changes, we hope not too many.
 				  ;; and interdependencies.
 				  ;; The "trunk" of the tree is constructed here, agents may populate the leaves
 				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
-				  (let ((status ((my 'trigger-selector) subject)))
-					 (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))))
-				  #t)
+				  (if (adaptable? subject)
+						(let ((status ((my 'trigger-selector) subject)))
+						  (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))
+								#t))
+						#f))
 
 ;--- pass-resolution
 (model-method (<monitor> <list>) (pass-resolution self subject-list args)
@@ -76,93 +96,7 @@ changes, we hope not too many.
 
 ;-- Niche monitors -- These create and store trees representing the possible configurations and their strengths/weaknesses
 ;--- Generic infrastructure 
-;---- (assess-representations domain) assesses the niches in a given assessment domain  (this is not necessarily a landscape domain!)
-(define (assess-representations assessment-domain)
-  (let* ((candidate-reps (slot-ref self 'representation-list)) ;; representations which the domain assessment is interested in
-			(candidate-trees (map (lambda (x) (list-copy zerotree)) candidate-reps)) ;; list of trees to hold the "state" of reps
-			(candidate-agents '()) ;; a-list of agents in domain keyed by representation class
-			(niches (slot-ref assessment-domain 'niche-list))
-			)
-	 ;; Collect information about what agents are in each representation 
-	 (for-each
-	  (lambda (agent)
-		 (let* ((agent-rep (slot-ref agent 'representation))
-				  )
-			(set! candidate-agents (assoc-append candidate-agents agent-rep agent)) ;; makes new entry or appends agent to a-list entry
-			))
-	  (slot-ref assessment-domain 'agent-list))
-
-	 ;; Construct set of assessment trees for each representation group
-	 (let ((nca (count-keyed-members candidate-agents)))
-		(map
-		 (lambda (i)
-			(list (car list-ref candidate-agents i)
-					(apply
-					 tree+
-					 (map (lambda (j) ;; (assess-rep rep) returns a function to assess a particular representation
-							  ((assess-rep (car (list-ref candidate-agents i)))
-								(list-ref (cdr candidate-agents) j)))
-							(seq (list-ref nca i))	
-							)
-					 ))
-			(seq (length candidate-agents)))))
-	 ;; returns a list of keyed lists containing the aggregated assessment tree
-	  ))
-					 
-
-;--- (assess-rep repclass) and (set-rep-assessor! rep assessor)
-"The assess-rep function shares hidden information with the set-rep-assessor! function.
-The idea here is that the model cannot (accidentally) modify the
-assessment of a particular representation.  This could be implemented
-as a class with methods, and such, but a more direct approach feels
-more appropriate. The implementations of each representation will call
-set-rep-assessor! to set the assessment routine.
-
-Because we use a symbol, rather than the class of an agent, to
-determine the representation, we can lump multiple 'species' into one
-bit of assessment.  This is more flexible since the actual class
-implementation and gross agent specification is decoupled from the effective grouping. 
-
-Be warned, though: blithely using a label like 'animal may lump things together in an
-inappropriate way.
-"
-
-;;(define (delete-rep-assessor! rep assessor)  (lambda x #f()))
-(define (set-rep-assessor! rep assessor) (void))
-(define (assess-rep agnt)  #f)
-
-;; Encapsulate the rep register
-(let ((repreg '()) ;; repreg will only be visible *inside* the functions...
-		(none (lambda x 0))
-		)
-  (set! set-rep-assessor! ;;; Calling this twice will replace the first assignment with the second
-		  (lambda (rep assessor) ;; rep is the class of agents -- DO NOT MAKE THIS A PARENT CLASS WITHOUT THINKING ABOUT IT!
-			 (set! repreg (acons (!filter (lambda (x) (eq? (car x) rep)) repreg) rep assessor))))
-  (set! assess-rep (lambda (rep) ;; rep is the symbol associated with the representation
-							(let ((a (assoc repreg rep)))
-							  (if (or (not a) (null? a))
-									none ;; if there is no matching assessor, indicate that no change is needed
-									(cdr a)))))
-  )
-
-
   
-
-
-
-
-
-	 
-
-
-
-;--
-
-
-
-				
-
-
 
 ;-  The End 
 

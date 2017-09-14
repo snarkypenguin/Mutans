@@ -2,6 +2,9 @@
 'Parameters
 (define <patch>-parameters
   (list
+	(list 'representation 'fixed)
+	(list 'type 'domain)
+
 	(list 'service-list '())
 	(list 'always-log #t) ;; patches should be interrogated each time a logger runs.
 	(list 'neighbour-list '())

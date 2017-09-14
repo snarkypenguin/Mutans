@@ -2,6 +2,8 @@
 'Parameters
 (define <environment>-parameters
   (list
+	(list 'representation 'fixed)
+	(list 'type 'domain)
     (list 'default-value 0)
     (list 'minv '(-inf.0 -inf.0 0)) ;; defaults to an infinite plane
     (list 'maxv '(+inf.0 +inf.0 0))

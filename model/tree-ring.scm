@@ -10,6 +10,25 @@
 ;	History:
 ;
 
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
 ;-  Discussion 
 
 "
@@ -1519,13 +1538,55 @@ a root (the node which is (uniquely) the child of no other node in the set).
 "
 
 (define use-caution #t)
-(define node list) ;; makes it easier to read
+
+;-- Constructors 
+
+(define (node3 wt lbl children)
+  (if (and (number? wt)
+			  (polynomial? lbl)
+			  (or (null? children)
+					(apply andf (map node3? children))))
+		(list wt lbl children)
+		(error "Bad node3 specification" wt lbl children)))
+
+(define (node2 lbl children)
+  (if (and (polynomial? lbl)
+			  (or (null? children)
+					(apply andf (map node2? children))))
+		(list wt lbl children)
+		(error "Bad node2 specification" lbl children)))
+
+(define (children2% #!rest args)
+  (if (or (null? args) (apply andf (map node2? args)))
+		args
+		(error "Bad children2!" args)))
+
+(define (children3% #!rest args)
+  (if (or (null? args) (apply andf (map node3? args)))
+		args
+		(error "Bad children3!" args)))
+
+(define (children% #!rest args)
+  (if (null? args)
+		args
+		(case (length (car args))
+		  ((2) (apply children2% args))
+		  ((3) (apply children3% args))
+		  (else (error "Wicked children!" args)))))
+
+
+
+(define (node% #!rest args)
+  (case (length args)
+	 ((2) (apply node2 args))
+	 ((3) (apply node3 args))
+	 (else (error "Bad length in node constructor" args))))
 
 ;-- Important "constants": emptyset, zerotree
 
 (define emptyset '{})
-(define zerotree (node 0 0 emptyset))  ;; [Definition 1]
-(define onetree (node 1 0 emptyset))  ;; [Definition 1]
+(define zerotree (node% 0 0 emptyset))  ;; [Definition 1]
+(define onetree (node% 1 0 emptyset))  ;; [Definition 1]
 
 
 ;-- Accessors: weight label extension extension-set child children
@@ -1706,7 +1767,29 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				))
 	))
 
-(define tree? node?)
+
+
+(define (tree? n)
+  (if (pair? n)
+		(case (length n)
+		  ((2) (node2? n))
+		  ((3) (node3? n))
+		  (else #f)
+		  )
+		#f))
+
+(define (tree+? n)
+  (if (pair? n)
+		(case (length n)
+		  ((2) (and (zero-polynomial? (car n))
+						(tree? n)))
+		  ((3) (and (zero? (car n))
+						(zero-polynomial? (cadr n))
+						(tree? n)))
+		  (else #f)
+		  )
+		#f))
+(define tree*? tree+?)
 
 ;--- (simple-node? n)  node with empty set of children
 (define (simple-node? n)

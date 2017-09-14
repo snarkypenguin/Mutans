@@ -5,6 +5,8 @@
     (list 'variable-names '())
     (list 'variable-values '())
     (list 'variable-symbols '())
+	 (list 'type 'value)
+	 (list 'representation 'eqn-based)
     ;;(list 'd/dt-list '<uninitialised>)
     ;;(list 'subdivisions '<uninitialised>)
     ;;(list 'get-externals '<uninitialised>)

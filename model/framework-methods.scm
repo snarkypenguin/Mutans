@@ -1,6 +1,24 @@
 (include "framework")
 ;- Identification and Changes
 
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 ;- Load initial libraries 
 
 ;; these must be loaded before this is
@@ -36,6 +54,10 @@
 ;;;  		txt)))
 
 (define restricted-kernel-access #f)
+
+;; assesses the current representation of *this* agent
+
+
 
 (model-method (<agent> <symbol>) (has-data? self key)
 				  (and (agent? self)
@@ -349,7 +371,7 @@ commonly viewed as just a simple extension of sclos.
 							 (missing-val
 							  (if (not spaced-out)
 									(set! spaced-out #t)
- 								(file 'display " "))
+									(file 'display " "))
 							  (file 'display missing-val))
 							 (else
 							  (if (not spaced-out)
@@ -358,14 +380,14 @@ commonly viewed as just a simple extension of sclos.
 							  )	
 							 )
 							)
-							(unique (if #t targets
-											(filter (not-member (my 'dont-log)) targets))))
+						 (unique (if #t targets
+										 (filter (not-member (my 'dont-log)) targets))))
 						(file 'newline))
 					  ((member format '(ps))
 						#t)
+					  )
 					 )
 				  )
-)
 
 ;----- (name) 
 
@@ -398,7 +420,7 @@ commonly viewed as just a simple extension of sclos.
 						  )
 						(cnc self)
 						)
-)
+				  )
 
 ;(model-method <agent> (taxon self)
 ;				  (my 'taxon))
@@ -603,17 +625,17 @@ commonly viewed as just a simple extension of sclos.
 
 
 (model-method <agent> (change-taxon self taxon)
-				 (apply-parameters self (slot-ref self 'taxon)))
+				  (apply-parameters self (slot-ref self 'taxon)))
 
 ;(include "heritability")
 
 (model-method <agent> (change-taxon self taxon)
-				 (apply-parameters self (slot-ref self 'taxon)))
+				  (apply-parameters self (slot-ref self 'taxon)))
 
 
 ;; This is called with a class, a taxon symbol, and a list of initialisation pairs symbol value ...
 ;; and an optional, final init function that expects "self"
-		  
+
 
 
 (model-method <agent> (modal-dt self #!optional prospective-dt)
@@ -643,7 +665,7 @@ commonly viewed as just a simple extension of sclos.
 					  (if (null? args) (error 'bad-args))
 					  (let ((slt (car args)))
 						 (lambda (val) (slot-set! self slt (+ (slot-ref self slt) val))))
-					 )
+					  )
 					 )
 				  )
 
@@ -817,25 +839,25 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 
 
 (model-method <plottable> (location* self)
-						(slot-ref self 'location)
-						)
+				  (slot-ref self 'location)
+				  )
 
 (model-method <plottable> (location2 self)
-						(list-head (slot-ref self 'location) 2)
-						)
+				  (list-head (slot-ref self 'location) 2)
+				  )
 
 
 (model-method <plottable> (location3 self)
-						(list-head (slot-ref self 'location) 3)
-						'())
+				  (list-head (slot-ref self 'location) 3)
+				  '())
 
 (model-method <plottable> (location@ self)
 				  (case default-location-type
-						  ((*) (location* self))
-						  ((2 2d) (location2 self))
-						  ((3 3d map) (location3 self))
-						  (else (location* self)))
-						#f)
+					 ((*) (location* self))
+					 ((2 2d) (location2 self))
+					 ((3 3d map) (location3 self))
+					 (else (location* self)))
+				  #f)
 
 
 
@@ -918,9 +940,9 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 							 (file 'push-font 'Helvetica 7)
 							 (file 'linefeed)
 							 (if (number? units)
-									(file 'showright (number->string units))
-									(file 'showright  units)
-									)
+								  (file 'showright (number->string units))
+								  (file 'showright  units)
+								  )
 							 ))
 					 
 					 )
@@ -1047,7 +1069,7 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 					((member? tag (map car (class-slots (class-of self))))
 					 (slot-ref self tag))
 					(else (kquery self kernel tag args))
- 				  ))
+					))
 
 
 ;;; ;--- Helper classes (wart classes) 
@@ -1070,14 +1092,14 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 						))
 
 (model-method (<proxy>) (run self pt pstop pkernel)
-						(display "Attempt to (run ...) a <proxy>\n")
-						(error "+++Vegetable Underflow Error+++"  
-								 (slot-ref self 'name)))
+				  (display "Attempt to (run ...) a <proxy>\n")
+				  (error "+++Vegetable Underflow Error+++"  
+							(slot-ref self 'name)))
 
 (model-method (<object>) (run self pt pstop pkernel)
-						(display "Attempt to (run ...) an <object>\n")
-						(error "+++Auditor Error+++"  
-								 (slot-ref self 'name)))
+				  (display "Attempt to (run ...) an <object>\n")
+				  (error "+++Auditor Error+++"  
+							(slot-ref self 'name)))
 
 
 (definition-comment 'prune-local-time-queue
@@ -1174,6 +1196,732 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 						 (slot-set! x 'suspended-at (slot-ref x 'subjective-time))
 						 (excise x asubs))
 					  targets)))
+
+(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)")
+				  (let ((kdebug (if #t kdebug dnl*))
+						  ;;(f (if (pair? args) (car args) #f))
+						  ;;(p (if (and (pair? args)
+						  ;;			  (pair? (cdr args)))
+						  ;;		(cadr args)
+						  ;;		#f))
+						  )
+					 (kdebug '(log-horrible-screaming array log-array) (cnc self) (cnc format) (cnc (my 'name)))
+					 (if (or (my 'always-log) (and (is-class? self <plottable>) (is-class? logger <log-map>)) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						  (let ((file (slot-ref logger 'file)))
+							 (kdebug '(log-* log-array)
+										"[" (my 'name) ":" (cnc self) "]"
+										"in log-data")
+							 (let ((leading-entry #f))
+								(for-each
+								 (lambda (field)
+									(kdebug '(log-* log-array) "[" (my 'name) ":"
+											  (cnc self) "]" "checking" field)
+									(if (has-slot? self field)
+										 (let ((r (data-ref self field)))
+
+											(case format
+											  ((ps)
+												(file 'push-font (my 'default-font) (my 'default-size))
+												(file 'show (string-append " "
+																					(if (string? r)
+																						 r
+																						 (object->string r)) " "))
+												(file 'pop-font)
+												)
+;								 ((dump)
+;								  (with-output-to-port file
+;										(lambda ()
+;										  (dump self))))
+
+												  
+											  ;;; 	  (display S file)))
+											  ((text table dump)
+												(let ((show-field-name
+														 (slot-ref logger 'show-field-name))
+														(missing-val
+														 (slot-ref logger 'missing-val))
+														)
+												  (if #f
+														(begin
+														  (if leading-entry 
+																(file 'show " ")
+																(set! leading-entry #t))
+														  (file 'show field)))
+												  
+												  )
+												)
+											  
+											  (else
+												(kdebug '(log-* log-ecoservice)
+														  "[" (my 'name) ":" (cnc self) "]"
+														  "Ignoring " field " because I don't have it")
+												'ignore-unhandled-format)))
+										 (begin
+											(kdebug '(log-* log-array)
+													  "[" (my 'name) ":" (cnc self) "]"
+													  "no service" field)
+											#f)))
+								 (uniq (if #t
+											  targets
+											  (filter (not-member (slot-ref logger 'dont-log))
+														 targets)))
+								 )
+								(file 'newline)
+								)
+							 )
+						  )
+					 )
+				  )
+
+
+
+(model-method% (<general-array> <integer>) (data-name self i)
+				  (let ((dn (slot-ref self 'data-names)))
+				  (if (and (integer? i) (positive? i) (< i (length dn)))
+						(list-ref dn i)
+						;;(error 'bad-data-name-request i)
+						#f
+						)))
+
+;;; (model-method (<general-array> <agent> <symbol>) (alter self alien sym #!rest args)
+;;; 				  (case sym
+;;; 					 ((set-slot) (if (and (symbol? sym) (pair? args) (sym (car args)))
+;;; 									 (slot-set! self (car args) (cadr args))
+;;; 									 (error 'bad-arguments)))
+;;; 					 ((adjust#) (if (and (symbol? sym) (pair? args) (sym (car args)) (number? (cadr args)))
+;;; 										 (slot-set! self (car args)  (+ (cadr args) (slot-ref self (car args))))
+;;; 										 (error 'bad-arguments)))
+;;; 					 )
+;;; 				  )
+
+
+;; NOTE: the 
+
+;; Allows the kernel to make queries -- we do not want the kernel to be
+;; able to be accidentally "run" like an agent, hence the independent class
+(model-method (<general-array> <kernel> <symbol>) (query self questioner tag #!rest args)
+				  (let ((a (allocate-instance <agent>)))
+					 (apply query (cons self (cons a (cons tag args))))))
+
+(model-method (<general-array>) (has-many-loci? self)
+				  #f)
+
+
+
+(model-method (<array>) (has-many-loci? self)
+				  #t)
+
+(model-method% (<general-array> <agent> <symbol>)(query self questioner tag #!rest args)
+				  (if (not (agent? questioner))
+						(error 'non-canonical-use-voids-warranty))
+				  (cond
+					((eq? tag 'request-accessor)
+					 (let ((subject self)
+							 (instigator questioner))
+						(lambda args
+						  (let ((me instigator) (subject subject))
+							 (cond
+							  ((null? args) ;; no args returns the subject of the accessor
+								thee)
+							  ((eq? (car args) 'get)
+								(apply data-ref subject (cons thee (cdr args))))
+							  ((eq? (car args) 'set!)
+								(apply data-set! (cons subject (cdr args))))
+							  ((eq? (car args) 'adjust!) ;; This only works for numeric values
+								(let* ((sgra (reverse (cdr args)))
+										 (val (car sgra))
+										 (addr (reverse (cdr sgra))))
+								  (if (number? val)
+										(apply data-set! (cons subject (cons addr (list (+ (apply data-ref (cons subject addr)) val)))))
+										(error "attempt to adjust a non-numeric value using an accessor 'adjust! request"))))
+							  (else "Unrecognised accessor query"))
+							 ))))
+
+					((and (has-data? questioner 'location) (eq? tag 'distance) (null? args))
+					 (let ((L (location questioner)))
+						(if (has-data? self 'location)
+							 (let ((l (data-ref self 'location)))
+								(cond
+								 ((and (point? l) (point? L)) (distance l L))
+								 ((and (point-list? l) (point? L)) 
+								  (apply min (map (lambda (x) (distance x L)) l)))
+								 ((and (point? l) (point-list? L))
+								  (apply min (map (lambda (x) (distance l x)) L)))
+								 (else (error "bad mojo in 'distance query"))
+								 ))
+							 #f))
+					 )
+					
+					((eq? tag 'distance)
+					 (let ((L (if (and (point-list? args) (= 1 (length args))) (car args) (location questioner))))
+						(if (has-data? self 'location)
+							 (apply min (map (lambda (x) (distance x L)) (data-ref self 'location)))
+							 #f))
+					 )
+					
+					((and (eq? tag 'location*) (null? (cdr args))) (has-data? self 'location)
+					 (data-ref self 'location))
+
+					((and (eq? tag 'location) (null? (cdr args)) (has-data? self 'location))
+					 (if (has-data? questioner 'location)
+						  (let* ((qloc (location questioner))
+									(loc (data-ref self 'location))
+									(points 
+									 (cond
+									  ((and (or (point? qloc) (point-list? qloc)) (point? loc))
+										loc)
+									  ((point-list? loc)
+										(cond
+										 ((point? qloc)
+										  (let ((d (map (lambda (x) (list (distance x qloc) x)) loc)))
+											 (let loop ((ld d)
+															(best (car d))
+															)
+												(if (pair? ld) (dnl* 'location best (car ld)))
+												(cond
+												 ((null? ld) (cadr best))
+												 ((< (caar ld) (car best))
+												  (loop (cdr ld) (cadar ld)))
+												 (else (loop (cdr ld) best))))))
+										 ((point-list? qloc)
+										  (let ((X (cross (location loc) (location qloc))))
+											 (let ((d (map (lambda (x) (list (apply distance x) (car x))) X)))
+												(let loop ((ld d)
+															  (best (car ld))
+															  )
+												  (if (pair? ld) (dnl* 'Location  best (car ld)))
+												  (cond
+													((null? ld) (cadr best))
+													((= (caar ld) (car best))
+													 (loop (cdr ld) (cons (caar ld) (cons (caadar ld) (cdr best))))) 
+													((< (caar ld) (car best))
+													 (loop (cdr ld) (list (caar ld) (caadar ld))))
+													(else (loop (cdr ld) best)))))))
+										 (else #f)))
+									  ))
+									)
+							 (if (point-list? points) (list-ref points (random-integer (length points)))
+								  points))
+						  ;; the questioner doesn't have a location, so we give a centroid
+						  (let ((loc (data-ref self 'location)))
+							 (cond
+							  ((point? loc) loc)
+							  ((point-list? loc) (centroid loc))
+							  (else #f)))))
+
+					((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
+					 ;; return all entries in the tag entry
+					 (data-ref self tag))
+
+					((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
+					 ;; set the data associated with (car args); args should be like one of '(sym)  '(sym ()) '(sym (.....))
+					 (data-set! self tag (cadr args)))
+
+					((and (eq? tag 'set!) (= (length args) 3) (number? (caddr args)) (member (car args) (slot-ref self 'data-names)))
+					 ;; set the data associated with (car args); args should be like '(i sym val)
+					 (data-set! self (car args) (cadr args) (caddr args)))
+
+					((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
+					 ;; return entry for all indicated indices
+					 (list-ref% (data-ref self tag) (filter (lambda (x) (and (integer? x) (not (negative? x)) (< x (length (slot-ref self 'data))))) args)))
+
+					;; (query arragent 'nearest [location])
+					((and (eq? tag 'index-nearest) (has-data? self 'location))
+					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
+							  (N (if (pair? args) (car args) 1))
+							  (proxylist '())
+							  (countdown (car args))
+							  (dix (data-index self 'location))
+							  (D (slot-ref self 'data))
+							  (k (length D))
+							  (target (let search ((ix 0)
+														  (bestindex 0)
+														  (bestdist +inf.0)
+														  )
+											(if (>= ix k)
+												 bestindex
+												 (let ((ndist (distance (list-ref D ix) L)))
+													(if (< ndist (distance (list-ref D ix) L) bestdist)
+														 (search (+ 1 ix) ix ndist )
+														 (search (+ 1 ix) bestix bestdist ))
+													)
+												 )))
+							  )
+						target
+						))
+					
+					;; (query arragent 'proxy-nearest [17 [location]])
+					((and (eq? tag 'proxy-nearest) (has-data? self 'location))
+					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
+							  (N (if (pair? args) (car args) 1))
+							  (proxylist '())
+							  (countdown (car args))
+							  (dix (data-index self 'location))
+							  (D (slot-ref self 'data))
+							  (k (length D))
+							  (target (let search ((ix 0)
+														  (bestindex 0)
+														  (bestdist +inf.0)
+														  )
+											(if (>= ix k)
+												 bestindex
+												 (let ((ndist (distance (list-ref D ix) L)))
+													(if (< ndist (distance (list-ref D ix) L) bestdist)
+														 (search (+ 1 ix) ix ndist )
+														 (search (+ 1 ix) bestix bestdist ))
+													)
+												 )))
+							  )
+						(lambda (arr agent tag #!rest args)
+						  (let ((data (slot-ref self 'data))
+								  (data-names (slot-ref self 'data-names))
+								  (ix ix))
+							 (cond
+							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
+								(error) 
+								)
+							  ((and (eq? tag 'set!) (= (length args) 3)) (number? (caddr args) (member (car args) (slot-ref self 'data-names)))
+								(error) 
+								)
+							  ((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
+								(error) 
+								)
+							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
+								(error) 
+								)
+							  ((eq? tag 'distance)
+								(error) 
+								)
+							  ((and (eq? tag 'index-nearest) (has-data? self 'location))
+								)
+							)
+						))
+					))
+					
+					((member? tag (map car (class-slots (class-of self))))
+					 (slot-ref self tag))
+
+					(else (parent-query))
+					))
+
+(model-method (<array>) (initialise-instance self)
+				  (parent-initialise-instance)
+				  (set-boundaries! self)
+				  )
+
+(model-method (<array> <point> <boolean>) (get-loci% self locus)
+				  ;; returns indices that will map to elements
+				  (if (has-data? self 'location)
+						(let* ((data (slot-ref self 'data))
+								 (bolus (if dix (data-ref self 'location)))
+								 )
+						  bolus
+						  )
+						#f)
+				  )
+
+(model-method (<array> <point> <boolean>) (get-loci$ self locus)
+				  ;; returns indices that will map to elements
+				  (let* ((data (get-loci% self locus))
+							)
+					 (cond
+					  ((pair? data) (sort (lambda (x y) (<= (distance x locus) (distance y locus)) )) )
+					  ((null? data) '())
+					  (else data)
+					 )
+				  ))
+					  
+(model-method% (<array> <point> <number>) (lookup-locus self locus radius) ;; returns indices that will map to elements
+				  (if (has-data? self 'location)
+						(let* ((L (data-ref self 'location))
+								 (M (member (lambda (x) (eqv? locus x))  L))
+								 )
+						  (if M
+								(- (length L) (length M) 1)
+								#f))))
+
+
+;(model-method (<array>) (location self) ;; this will generally have less area than a bounding circle
+;				  (slot-ref self 'hull))
+
+
+(model-method (<general-array>) (supports-proxy? self)
+				  #f)
+
+(define (random-array-agent n)
+  (let ((radii (map (lambda (x) (random-integer n)) (seq n)))
+		  (loci (map (lambda (x) (list (random-integer n)(random-integer n))) (seq n)))
+		  (values (map (lambda (x) (+ n (random-integer n))) (seq n)))
+		  )
+	 (create <general-array> "" 'data-names '(radius location value) 'data (map (lambda (r l v) (list r l v)) radii loci values))
+	 ))
+
+(model-method% (<general-array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
+				  (let ((d (member k (slot-ref self 'data-names))))
+					 (if d (car d)
+						  (has-slot? self k))))
+
+;(model-method (<general-array> <integer>) (location self ix)
+;				  #f
+;				  )
+
+;(model-method (<general-array> <list>) (location self lst)
+;				  #f)
+	
+(model-method (<general-array>) (radius self)
+				  #f)
+
+
+
+(model-method% (<general-array>) (data-names self)
+				  (slot-ref self 'data-names))
+
+(model-method (<general-array> <symbol>) (new-data-name self sym)
+				  (let ((datasyms (my 'data-names)))
+					 (if (null? (my 'data))
+						  (set-my 'data-names (append datasyms (list sym)))
+						  (error "data-names may not be altered if there is already data"))))
+
+(model-method (<general-array> <list>) (new-data-names self syms)
+				  (let ((datasyms (my 'data-names)))
+					 (if (null? (my 'data))
+						  (set-my 'data-names (append datasyms (list sym)))
+						  (error "data-names may not be altered if there is already data"))))
+
+(model-method% (<general-array>) (data-index self selector #!rest args)
+				  (cond
+					((symbol? selector) (apply data-field-index (cons self (cons selector args))))
+					((point? selector) (apply data-record-index (cons self (cons selector args))))
+					(else (error "Bad argument to (data-index...) for an array agent" selector))))
+
+(model-method% (<general-array> <symbol>) (data-field-index self sym)
+				  (let* ((data-names (my 'data-names))
+							;;(data (my 'data))
+							(ix (member sym data-names)))
+					 (if (not ix)
+						  #f
+						  (- (length data-names) (length ix))
+						  )
+					 ))
+
+(model-method (<general-array> <list> <symbol>) (rec-ref self rec sym)
+				  (let ((i (data-field-index self sym)))
+					 (if (and i (< i (length rec)))
+						  (list-ref rec i)
+						  (error "Invalid record reference call: " rec sym))))
+
+(model-method (<general-array> <list> <symbol>) (rec-set! self rec sym val)
+				  (let ((i (data-field-index self sym)))
+					 (if (and i (< i (length rec)))
+						  (list-set! rec i val)
+						  (error "Invalid record reference call: " rec sym))))
+
+(model-method (<general-array>) (data-length self)
+				  (length (my data)))
+
+(model-method (<general-array> <list>) (add-data-record self lst)
+				  ;;(dnl* "Adding array element" (length (my 'data)) lst)
+				  (if (>= (length (my 'data)) (my 'max-records))
+						(error "Exceeded nominated <general-array> limits")
+						(if (= (length lst) (length (my 'data-names)))
+							 (set-my! 'data (append (my 'data) (list lst)))
+							 (begin
+								(dnl* "An array got" (length lst) "but expected" (length (my 'data-names)) "when adding a record")
+								(error self lst)))))
+
+(model-method (<general-array> <list> <integer>) (remove-data-record self lst i)
+				  (let ((data (my 'data)))
+					 (set-my! 'data (append (list-head data i) (list-tail data (+ 1 i))))))
+
+(model-method (<general-array> <list> <list>) (filter-array-fields self fieldlist reclist)
+					(map (lambda (r) (map (lambda (s) (list-ref r (data-field-index self s))) fieldlist)) reclist))
+
+;;; ;; Returns the data from list element i in data
+;;; (model-method (<general-array>) (all-data self)
+;;; 				  (dnl* 'data-ref-null)
+;;; 				  (slot-ref self 'data))
+
+(model-method% <general-array> (has-data? self key)  
+					(or (member key (slot-ref self 'data-names))
+						 (parent-has-data?)))
+
+(model-method% <general-array> (data-ref self #!rest args)
+				  (let* ((data (my 'data))
+							(h (if (null? args) #f (car args)))
+							(t (if h (if (pair? (cdr args)) (cdr args) #f) #f)))
+					 (cond
+					  ((not h) (slot-ref self 'data))
+					  ((and (symbol? h) (not t))
+						(let ((i (data-field-index self h)))
+						  (if i
+								(map (lambda (x) (list-ref x i)) data)
+								(if (has-slot? self h)
+									 (slot-ref self h)
+									 (error 'data-ref:bad-data/slot-symbol h)))))
+					  ((and (integer? h) (not t))
+						(let ((i h))
+						  (if (and (<= 0 i) (< i (length data)))
+								(list-ref data i)
+								(error 'data-ref:bad-index i))))
+					  ((and  (point? h) (not t))
+						(let ((i (data-record-index self h)))
+						  (if (and (number? i) (<= 0 i) (< i (length data)))
+								(list-ref data i)
+								#f)
+						  ))
+					  (t
+						(cond
+						 ((and (integer? h) (null? (cdr t)) (symbol? (car t)))
+						  (list-ref (list-ref (slot-ref self 'data) h) (data-field-index self (car t))))
+
+						 ((and (symbol? h) (null? (cdr t)) (integer? (car t)))
+						  (list-ref (list-ref (slot-ref self 'data) (car t)) (data-field-index self h)))
+
+						 ((apply andf (map symbol? args))
+						  (filter-array-fields self args data)
+						  ;;(map (lambda (r) (map (lambda (s) (list-ref r (data-field-index self s))) args)) data)
+						  )
+
+						 ((apply andf (map number? args))
+						  (map (lambda (r)
+									(list-ref data r)) args))
+
+						 ((and (integer? h) (apply andf (map symbol? t)))
+						  (let ((lst (data-ref self h)))
+							 (map (lambda (s) (rec-ref self lst s)) t)));; extract (by symbol) from the record
+
+						 ((and (symbol? h) (apply andf (map integer? t)))
+								(let ((recs (data-ref self h)))
+								  (map (lambda (i) (list-ref recs i)) t)))
+
+						 ((and (point? h) (number? (car t)) (pair? (cdr t)) (apply andf (map symbol? (cdr t))) (has-data? self 'location))
+						  ;;(dnl* 'psr*)
+						  (filter-array-fields self (cdr t) (data-ref self h (car t))))
+						 
+						 ((and (point? h) (number? (car t)) (has-data? self 'location))
+						  (let ((pt h) (rad (car t)))
+							 (filter (lambda (rec) (<= (distance h (rec-ref self rec 'location)) rad)) (slot-ref self 'data))))
+						 
+						 ((and (point? h) (apply andf (map symbol? t)) (has-data? self 'location))
+						  (let ((ix (data-field-index self (car t))))
+							 ;;(dnl* 'ps* h t ix)
+							 (if (not ix)
+								  #f
+								  (apply data-ref (cons self (cons ix t))))))
+
+						 (else (error 'data-ref:bad-arguments args))
+						 )
+						)
+					  (else (error 'data-ref:unfathomable-ingredients args))
+					  ))
+				  )
+
+;; Returns the list element i from data
+;;; (model-method (<general-array> <integer>) (data-ref self i) (list-ref (my 'data) i))
+
+;; Returns all the indicated slot entries from the data. Useful for things like (apply + (data-ref trees 'leaf-area))
+;; If we rebase this (give it a new parent) this may need to be modified
+;;; (model-method (<general-array> <symbol>) (data-ref self s)
+;;; 				  ;;(dnl* 'data-ref-S)
+;;; 				  (let* ((data (my 'data))
+;;; 							(i (data-field-index self s))
+;;; 							)
+;;; 					 (if i
+;;; 						  (map (lambda (x) (list-ref x i)) data)
+;;; 						  (if (has-slot? self s)
+;;; 								(slot-ref self s)
+;;; 								(error 'bad-data/slot-symbol)))))
+
+(model-method% (<general-array> <point>) (data-ref* self i*)
+				  (map (lambda (i) (data-ref self i)) i*))
+
+(model-method% (<general-array> <point> <symbol>) (data-ref* self i* s)
+				  (map (lambda (i) (data-ref self i s)) i*))
+
+(model-method% (<general-array> <list>) (data-ref* self s*)
+				  (map (lambda (s) (data-ref self s)) s*))
+
+(model-method% (<general-array> <integer> <list>) (data-ref* self i s*)
+				  (map (lambda (s) (data-ref self i s)) i s*))
+
+(model-method% (<general-array> <point> <list>)  (data-ref* self i* s*)
+				  (map (lambda (i)
+							(map (lambda (s) (data-ref self i s)) s*)) i*))
+
+
+;; Returns the s element from the i'th row in data
+(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
+				  ;;(dnl* 'data-ref-IS)
+				  (list-ref (data-ref self s) i))
+
+;; Returns the s element from the i'th row in data
+(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
+				  ;;(dnl* 'data-ref-IS)
+				  (list-ref (data-ref self s) i))
+
+;;; (model-method (<general-array> <integer> <symbol>) (data-ref self ix sym)
+;;; 				  (@data-ref self ix sym))
+
+;search by location
+(model-method (<general-array> <point>) (data-record-index self loc)
+				  (if (has-data? self 'location)
+						(let* ((k (member loc (data-ref self 'location)))
+								 (ix (if k (- (length (slot-ref self 'data)) (length k)) #f)))
+						  (if ix  ix #f))
+						(error 'no-location)))
+
+;search by location
+(model-method (<general-array> <point> <symbol>) (@data-ref self loc sym)
+				  (if (has-data? self 'location)
+						(let* ((k (member loc (data-ref self 'location)))
+								 (ix (if k (- (length (slot-ref self 'data)) (length k)) #f)))
+						  (if ix (@data-ref self ix sym) #f))
+						(error 'no-location)))
+
+;; If we rebase this (give it a new parent) this may need to be modified
+(model-method% (<general-array> <symbol> <list>) (data-set! self s v)
+				  (let ((ix (data-field-index self s)))
+					 (if ix
+						  (if (= (length v) (length (my 'data)))
+								(for-each
+								 (lambda (lst vv)
+									(list-set! lst ix vv))
+								 (my 'data))
+								(error 'list-length-error)))
+					 (slot-set! self v)))
+
+(model-method% (<general-array> <integer> <list>) (data-set! self i s l) (set-car! (data-ref self i) (car l)) (set-cdr! (data-ref self i) (cdr l)))
+
+(model-method% (<general-array> <integer> <symbol>) (@data-set! self i s v) (list-set! (data-ref self i) (data-field-index self s) v))
+
+(model-method% (<general-array> <agent> <symbol> <integer> <symbol>) (request-accessor self external-agent sym i s #!rest args)
+				  (case sym
+					 ((set!)
+					  (lambda (val) (@data-set! self i s val)))
+					 ((ref)
+					  (lambda (val) (@data-ref self i s)))
+					 ((adjust#)
+					  (lambda (val) (@data-set! self i s (+ (@data-ref self i s) val))))
+					 ((args) (list external-agent sym i s args)))
+					 (else (parent-request-accessor))
+				  )
+
+(model-method <general-array> (initialise-instance self)
+	 (parent-initialise-instance)
+
+
+	 (if (uninitialised? (slot-ref self 'data)) (slot-set! self 'data '()))
+	 (if (uninitialised? (slot-ref self 'data-names)) (slot-set! self 'data-names '()))
+	 )
+
+
+(model-body% <general-array>
+  (let ((parent-return (call-all-parents)))
+	 (if (and (pair? (my 'data-names)) (pair? (my 'data)))
+		  (begin
+			 (set-my 'data (filter (lambda (x) (not (member (car x) '(remove terminated)))) (slot-ref self 'data)))
+			 )
+		  )
+	 'ok
+	 )
+  )
+
+				  
+
+(model-method% (<array>) (set-boundaries! self)
+				  (let ((data (slot-ref self 'data)))
+					 (if (and (list? data)
+								 (> (length data) 1)
+								 (has-data? self 'location))
+						  
+						  (let* ((D (data-ref self 'location))
+									(C (centroid D))
+									(R (apply max (map car D)))
+									(L (apply min (map car D)))
+									(u (apply max (map cadr D)))
+									(l (apply min (map cadr D)))
+									(N (length (slot-ref self 'data)))
+									)
+							 (slot-set! self 'centre C)
+							 (slot-set! self 'radius (apply min (map (lambda (p) (distance C p)) D)))
+							 (slot-set! self 'hull (list (list L l) (list R l) (list R u) (list L u) (list L l))) ;; closed polygon
+							 (slot-set! self 'refresh-boundaries #f)
+							 ))))
+						
+									 
+(model-method (<array>) (radius self)
+				  (if (slot-ref  self 'refresh-boundaries)
+						(set-boundaries! self))
+				  (apply min (cons (slot-ref self 'radius) (map (lambda (x)  (distance (slot-ref self 'centre) x)) (slot-ref self 'hull)))))
+
+(model-method (<array>) (Radius self)
+				  (if (slot-ref  self 'refresh-boundaries)
+						(set-boundaries! self))
+				  (apply max (cons (slot-ref self 'radius) (map (lambda (x)  (distance (slot-ref self 'centre) x)) (slot-ref self 'hull)))))
+
+;; NOTE: (data-ref self 'radius) is not necessarily equal to (radius self) or (Radius self)
+;; (data-ref self 'radius) may find a 'radius field in the data-names, for a start, and even if it
+;; doesn't, it would return the value which is the farthest point from the centroid.  (radius self),
+;; in contrast, returns the size of the empty circle containing the centroid, and (Radius self)
+;; returns the size of the smallest circle about the centroid which contains all the locations
+;;
+;;                                          BE WARNED
+;;
+
+(model-method (<array> <list>) (radius self lst)
+				  (if (slot-ref  self 'refresh-boundaries)
+						(set-boundaries! self))
+
+				  (cond
+					((member 'radius (my 'data-names))
+					 (cond
+					  ((and (apply andf (map integer? lst)) (apply andf (map (lambda (x) (not (negative? x))) lst)))
+						(map (lambda (ix) (data-ref self ix 'radius)) lst))
+					  ((point? lst) ;; find point nearest to lst
+						(let loop ((ix 0)
+									  (data (my 'data))
+									  (got #f)
+									  (bestd +inf.0))
+						  (cond
+							((null? data)
+							 (data-ref self 'radius))
+							((< (distance (data-ref self 'radius ix) lst)  bestd)
+							 (loop (+ ix 1) (cdr data) ix (distance (data-ref self 'radius ix) lst)))
+							(else (loop (+ ix 1) (cdr data) got bestd)))
+						  )
+						(else #f)
+						)
+					  ))
+					(else (error 'uncool-call-to-radius))
+					))
+
+;; If we rebase this (give it a new parent) this may need to be modified
+(model-method% (<array> <symbol> <list>) (data-set! self s v)
+				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
+
+				  (let ((ix (data-field-index self s)))
+					 (if ix
+						  (if (= (length v) (length (my 'data)))
+								(for-each
+								 (lambda (lst vv)
+									(list-set! lst ix vv))
+								 (my 'data))
+								(error 'list-length-error)))
+					 (slot-set! self v)))
+
+(model-method% (<array> <integer> <list>) (data-set! self i s l)
+				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
+				  (set-car! (data-ref self i) (car l))
+				  (set-cdr! (data-ref self i) (cdr l)))
+
+(model-method% (<array> <integer> <symbol>) (@data-set! self i s v)
+				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
+
+				  (list-set! (data-ref self i)
+								 (data-field-index self s) v))
+
+
 
 
 
@@ -1482,813 +2230,9 @@ A typical defns list would be like
 
 
 
-(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (dnl* "(model-method% (<general-array> <log-introspection> <symbol>) (log-data self logger format targets)")
-				  (let ((kdebug (if #t kdebug dnl*))
-						  ;;(f (if (pair? args) (car args) #f))
-						  ;;(p (if (and (pair? args)
-						  ;;			  (pair? (cdr args)))
-						  ;;		(cadr args)
-						  ;;		#f))
-						  )
-					 (kdebug '(log-horrible-screaming array log-array) (cnc self) (cnc format) (cnc (my 'name)))
-					 (if (or (my 'always-log) (and (is-class? self <plottable>) (is-class? logger <log-map>)) (emit-and-record-if-absent logger self (my 'subjective-time)))
-						  (let ((file (slot-ref logger 'file)))
-							 (kdebug '(log-* log-array)
-										"[" (my 'name) ":" (cnc self) "]"
-										"in log-data")
-							 (let ((leading-entry #f))
-								(for-each
-								 (lambda (field)
-									(kdebug '(log-* log-array) "[" (my 'name) ":"
-											  (cnc self) "]" "checking" field)
-									(if (has-slot? self field)
-										 (let ((r (data-ref self field)))
 
-											(case format
-											  ((ps)
-												(file 'push-font (my 'default-font) (my 'default-size))
-												(file 'show (string-append " "
-																					(if (string? r)
-																						 r
-																						 (object->string r)) " "))
-												(file 'pop-font)
-												)
-;								 ((dump)
-;								  (with-output-to-port file
-;										(lambda ()
-;										  (dump self))))
 
-												  
-											  ;;; 	  (display S file)))
-											  ((text table dump)
-												(let ((show-field-name
-														 (slot-ref logger 'show-field-name))
-														(missing-val
-														 (slot-ref logger 'missing-val))
-														)
-												  (if #f
-														(begin
-														  (if leading-entry 
-																(file 'show " ")
-																(set! leading-entry #t))
-														  (file 'show field)))
-												  
-												  )
-												)
-											  
-											  (else
-												(kdebug '(log-* log-ecoservice)
-														  "[" (my 'name) ":" (cnc self) "]"
-														  "Ignoring " field " because I don't have it")
-												'ignore-unhandled-format)))
-										 (begin
-											(kdebug '(log-* log-array)
-													  "[" (my 'name) ":" (cnc self) "]"
-													  "no service" field)
-											#f)))
-								 (uniq (if #t
-											  targets
-											  (filter (not-member (slot-ref logger 'dont-log))
-														 targets)))
-								 )
-								(file 'newline)
-								)
-							 )
-						  )
-					 )
-				  )
 
-
-
-(model-method% (<general-array> <integer>) (data-name self i)
-				  (let ((dn (slot-ref self 'data-names)))
-				  (if (and (integer? i) (positive? i) (< i (length dn)))
-						(list-ref dn i)
-						;;(error 'bad-data-name-request i)
-						#f
-						)))
-
-;;; (model-method (<general-array> <agent> <symbol>) (alter self alien sym #!rest args)
-;;; 				  (case sym
-;;; 					 ((set-slot) (if (and (symbol? sym) (pair? args) (sym (car args)))
-;;; 									 (slot-set! self (car args) (cadr args))
-;;; 									 (error 'bad-arguments)))
-;;; 					 ((adjust#) (if (and (symbol? sym) (pair? args) (sym (car args)) (number? (cadr args)))
-;;; 										 (slot-set! self (car args)  (+ (cadr args) (slot-ref self (car args))))
-;;; 										 (error 'bad-arguments)))
-;;; 					 )
-;;; 				  )
-
-
-;; NOTE: the 
-
-;; Allows the kernel to make queries -- we do not want the kernel to be
-;; able to be accidentally "run" like an agent, hence the independent class
-(model-method (<general-array> <kernel> <symbol>) (query self questioner tag #!rest args)
-				  (let ((a (allocate-instance <agent>)))
-					 (apply query (cons self (cons a (cons tag args))))))
-
-(model-method (<general-array>) (has-many-loci? self)
-				  #f)
-
-(model-method (<array>) (has-many-loci? self)
-				  #t)
-
-(model-method% (<general-array> <agent> <symbol>)(query self questioner tag #!rest args)
-				  (if (not (agent? questioner))
-						(error 'non-canonical-use-voids-warranty))
-				  (cond
-					((eq? tag 'request-accessor)
-					 (let ((subject self)
-							 (instigator questioner))
-						(lambda args
-						  (let ((me instigator) (subject subject))
-							 (cond
-							  ((null? args) ;; no args returns the subject of the accessor
-								thee)
-							  ((eq? (car args) 'get)
-								(apply data-ref subject (cons thee (cdr args))))
-							  ((eq? (car args) 'set!)
-								(apply data-set! (cons subject (cdr args))))
-							  ((eq? (car args) 'adjust!) ;; This only works for numeric values
-								(let* ((sgra (reverse (cdr args)))
-										 (val (car sgra))
-										 (addr (reverse (cdr sgra))))
-								  (if (number? val)
-										(apply data-set! (cons subject (cons addr (list (+ (apply data-ref (cons subject addr)) val)))))
-										(error "attempt to adjust a non-numeric value using an accessor 'adjust! request"))))
-							  (else "Unrecognised accessor query"))
-							 ))))
-
-					((and (has-data? questioner 'location) (eq? tag 'distance) (null? args))
-					 (let ((L (location questioner)))
-						(if (has-data? self 'location)
-							 (let ((l (data-ref self 'location)))
-								(cond
-								 ((and (point? l) (point? L)) (distance l L))
-								 ((and (point-list? l) (point? L)) 
-								  (apply min (map (lambda (x) (distance x L)) l)))
-								 ((and (point? l) (point-list? L))
-								  (apply min (map (lambda (x) (distance l x)) L)))
-								 (else (error "bad mojo in 'distance query"))
-								 ))
-							 #f))
-					 )
-					
-					((eq? tag 'distance)
-					 (let ((L (if (and (point-list? args) (= 1 (length args))) (car args) (location questioner))))
-						(if (has-data? self 'location)
-							 (apply min (map (lambda (x) (distance x L)) (data-ref self 'location)))
-							 #f))
-					 )
-					
-					((and (eq? tag 'location*) (null? (cdr args))) (has-data? self 'location)
-					 (data-ref self 'location))
-
-					((and (eq? tag 'location) (null? (cdr args)) (has-data? self 'location))
-					 (if (has-data? questioner 'location)
-						  (let* ((qloc (location questioner))
-									(loc (data-ref self 'location))
-									(points 
-									 (cond
-									  ((and (or (point? qloc) (point-list? qloc)) (point? loc))
-										loc)
-									  ((point-list? loc)
-										(cond
-										 ((point? qloc)
-										  (let ((d (map (lambda (x) (list (distance x qloc) x)) loc)))
-											 (let loop ((ld d)
-															(best (car d))
-															)
-												(if (pair? ld) (dnl* 'location best (car ld)))
-												(cond
-												 ((null? ld) (cadr best))
-												 ((< (caar ld) (car best))
-												  (loop (cdr ld) (cadar ld)))
-												 (else (loop (cdr ld) best))))))
-										 ((point-list? qloc)
-										  (let ((X (cross (location loc) (location qloc))))
-											 (let ((d (map (lambda (x) (list (apply distance x) (car x))) X)))
-												(let loop ((ld d)
-															  (best (car ld))
-															  )
-												  (if (pair? ld) (dnl* 'Location  best (car ld)))
-												  (cond
-													((null? ld) (cadr best))
-													((= (caar ld) (car best))
-													 (loop (cdr ld) (cons (caar ld) (cons (caadar ld) (cdr best))))) 
-													((< (caar ld) (car best))
-													 (loop (cdr ld) (list (caar ld) (caadar ld))))
-													(else (loop (cdr ld) best)))))))
-										 (else #f)))
-									  ))
-									)
-							 (if (point-list? points) (list-ref points (random-integer (length points)))
-								  points))
-						  ;; the questioner doesn't have a location, so we give a centroid
-						  (let ((loc (data-ref self 'location)))
-							 (cond
-							  ((point? loc) loc)
-							  ((point-list? loc) (centroid loc))
-							  (else #f)))))
-
-					((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
-					 ;; return all entries in the tag entry
-					 (data-ref self tag))
-
-					((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
-					 ;; set the data associated with (car args); args should be like one of '(sym)  '(sym ()) '(sym (.....))
-					 (data-set! self tag (cadr args)))
-
-					((and (eq? tag 'set!) (= (length args) 3) (number? (caddr args)) (member (car args) (slot-ref self 'data-names)))
-					 ;; set the data associated with (car args); args should be like '(i sym val)
-					 (data-set! self (car args) (cadr args) (caddr args)))
-
-					((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
-					 ;; return entry for all indicated indices
-					 (list-ref% (data-ref self tag) (filter (lambda (x) (and (integer? x) (not (negative? x)) (< x (length (slot-ref self 'data))))) args)))
-
-					;; (query arragent 'nearest [location])
-					((and (eq? tag 'index-nearest) (has-data? self 'location))
-					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
-							  (N (if (pair? args) (car args) 1))
-							  (proxylist '())
-							  (countdown (car args))
-							  (dix (data-index self 'location))
-							  (D (slot-ref self 'data))
-							  (k (length D))
-							  (target (let search ((ix 0)
-														  (bestindex 0)
-														  (bestdist +inf.0)
-														  )
-											(if (>= ix k)
-												 bestindex
-												 (let ((ndist (distance (list-ref D ix) L)))
-													(if (< ndist (distance (list-ref D ix) L) bestdist)
-														 (search (+ 1 ix) ix ndist )
-														 (search (+ 1 ix) bestix bestdist ))
-													)
-												 )))
-							  )
-						target
-						))
-					
-					;; (query arragent 'proxy-nearest [17 [location]])
-					((and (eq? tag 'proxy-nearest) (has-data? self 'location))
-					 (let* ((L (if (and (pair? args) (pair? (cdr args)) (point-list? (cdr args)) (= 2 (length args))) (cadr args) (location questioner)))
-							  (N (if (pair? args) (car args) 1))
-							  (proxylist '())
-							  (countdown (car args))
-							  (dix (data-index self 'location))
-							  (D (slot-ref self 'data))
-							  (k (length D))
-							  (target (let search ((ix 0)
-														  (bestindex 0)
-														  (bestdist +inf.0)
-														  )
-											(if (>= ix k)
-												 bestindex
-												 (let ((ndist (distance (list-ref D ix) L)))
-													(if (< ndist (distance (list-ref D ix) L) bestdist)
-														 (search (+ 1 ix) ix ndist )
-														 (search (+ 1 ix) bestix bestdist ))
-													)
-												 )))
-							  )
-						(lambda (arr agent tag #!rest args)
-						  (let ((data (slot-ref self 'data))
-								  (data-names (slot-ref self 'data-names))
-								  (ix ix))
-							 (cond
-							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (eq? (car args) '*))
-								(error) 
-								)
-							  ((and (eq? tag 'set!) (= (length args) 3)) (number? (caddr args) (member (car args) (slot-ref self 'data-names)))
-								(error) 
-								)
-							  ((and (eq? tag 'set!) (<= (length args) 2)) (member (car args) (slot-ref self 'data-names))
-								(error) 
-								)
-							  ((and (member tag (slot-ref self 'data-names)) (pair? args) (apply andf (map number? args)))
-								(error) 
-								)
-							  ((eq? tag 'distance)
-								(error) 
-								)
-							  ((and (eq? tag 'index-nearest) (has-data? self 'location))
-								)
-							)
-						))
-					))
-					
-					((member? tag (map car (class-slots (class-of self))))
-					 (slot-ref self tag))
-
-					(else (parent-query))
-					))
-
-(model-method (<array>) (initialise-instance self)
-				  (parent-initialise-instance)
-				  (set-boundaries! self)
-				  )
-
-(model-method (<array> <point> <boolean>) (get-loci% self locus)
-				  ;; returns indices that will map to elements
-				  (if (has-data? self 'location)
-						(let* ((data (slot-ref self 'data))
-								 (bolus (if dix (data-ref self 'location)))
-								 )
-						  bolus
-						  )
-						#f)
-				  )
-
-(model-method (<array> <point> <boolean>) (get-loci$ self locus)
-				  ;; returns indices that will map to elements
-				  (let* ((data (get-loci% self locus))
-							)
-					 (cond
-					  ((pair? data) (sort (lambda (x y) (<= (distance x locus) (distance y locus)) )) )
-					  ((null? data) '())
-					  (else data)
-					 )
-				  ))
-					  
-(model-method% (<array> <point> <number>) (lookup-locus self locus radius) ;; returns indices that will map to elements
-				  (if (has-data? self 'location)
-						(let* ((L (data-ref self 'location))
-								 (M (member (lambda (x) (eqv? locus x))  L))
-								 )
-						  (if M
-								(- (length L) (length M) 1)
-								#f))))
-
-
-;(model-method (<array>) (location self) ;; this will generally have less area than a bounding circle
-;				  (slot-ref self 'hull))
-
-
-(model-method (<general-array>) (supports-proxy? self)
-				  #f)
-
-(define (random-array-agent n)
-  (let ((radii (map (lambda (x) (random-integer n)) (seq n)))
-		  (loci (map (lambda (x) (list (random-integer n)(random-integer n))) (seq n)))
-		  (values (map (lambda (x) (+ n (random-integer n))) (seq n)))
-		  )
-	 (create <general-array> "" 'data-names '(radius location value) 'data (map (lambda (r l v) (list r l v)) radii loci values))
-	 ))
-
-(model-method% (<general-array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
-				  (let ((d (member k (slot-ref self 'data-names))))
-					 (if d (car d)
-						  (has-slot? self k))))
-
-;(model-method (<general-array> <integer>) (location self ix)
-;				  #f
-;				  )
-
-;(model-method (<general-array> <list>) (location self lst)
-;				  #f)
-	
-(model-method (<general-array>) (radius self)
-				  #f)
-
-
-;(model-method (<array> <integer>) (location self ix)
-;				  (dnl* 'Boink)
-;				  (cond
-;					((member 'location (my 'data-names))
-;					 (if (number? ix) (data-ref self ix 'location)
-;						  (data-ref self 'location)))
-;					((has-slot? self 'location) (location self))
-;					(else #f)
-;				  ))
-
-; (model-method (<array> <list>) (location self lst)
-; 				  (cond
-; 					((not (has-slot? self 'location)) (error 'no-location-slot))
-; 					((member 'location (my 'data-names))
-; 					 (cond
-; 					  ((and (apply andf (map integer? lst)) (apply andf (map (lambda (x) (not (negative? x))) lst)))
-; 						(map (lambda (ix) (data-ref self ix 'location)) lst))
-; 					  ((point? lst) ;; find point nearest to lst
-; 						(let loop ((ix 0)
-; 									  (data (my 'data))
-; 									  (got #f)
-; 									  (bestd +inf.0))
-; 						  (cond
-; 							((null? data)
-; 							 (data-ref self 'location got))
-; 							((< (distance (data-ref self 'location ix) lst)  bestd)
-; 							 (loop (+ ix 1) (cdr data) ix (distance (data-ref self 'location ix) lst)))
-; 							(else (loop (+ ix 1) (cdr data) got bestd)))
-; 						  )
-; 						(else #f)
-; 						)))
-; 					(else (error 'uncool-call-to-location))
-; 					))
-					
-;;; (model-method (<array>) (radius self)
-;;; 				  (dnl* 'BINK)
-;;; 				  (cond
-;;; 					((member 'radius (my 'data-names))
-;;; 					 (data-ref self 'radius))
-;;; 					((has-slot? self 'radius) (slot-ref self 'radius))
-;;; 					(else #f)
-;;; 				  ))
-
-;;; (model-method (<array>) (radius self)
-;;; 				  (cond				  
-;;; 					((not (has-slot? self 'location)) (error 'no-location-slot))
-;;; 					((member 'location (my 'data-names))
-;;; 					 (cond
-;;; 					  ((and (apply andf (map integer? lst)) (apply andf (map (lambda (x) (not (negative? x))) lst)))
-;;; 						(map (lambda (ix) (data-ref self ix 'location)) lst))
-;;; 					  ((point? lst) ;; find point nearest to lst
-;;; 						(let loop ((ix 0)
-;;; 									  (data (my 'data))
-;;; 									  (got #f)
-;;; 									  (bestd +inf.0))
-;;; 						  (cond
-;;; 							((null? data)
-;;; 							 (data-ref self 'location got))
-;;; 							((< (distance (data-ref self 'location ix) lst)  bestd)
-;;; 							 (loop (+ ix 1) (cdr data) ix (distance (data-ref self 'location ix) lst)))
-;;; 							(else (loop (+ ix 1) (cdr data) got bestd)))
-;;; 						  )
-;;; 						(else #f)
-;;; 						)))
-
-;;; 					((member 'radius (my 'data-names))
-;;; 					 (data-ref self 'radius))
-;;; 					((has-slot? self 'radius) (slot-ref self 'radius))
-;;; 					(else #f)
-;;; 				  ))
-
-(model-method% (<array>) (set-boundaries! self)
-				  (let ((data (slot-ref self 'data)))
-					 (if (and (list? data)
-								 (> (length data) 1)
-								 (has-data? self 'location))
-						  
-						  (let* ((D (data-ref self 'location))
-									(C (centroid D))
-									(R (apply max (map car D)))
-									(L (apply min (map car D)))
-									(u (apply max (map cadr D)))
-									(l (apply min (map cadr D)))
-									(N (length (slot-ref self 'data)))
-									)
-							 (slot-set! self 'centre C)
-							 (slot-set! self 'radius (apply min (map (lambda (p) (distance C p)) D)))
-							 (slot-set! self 'hull (list (list L l) (list R l) (list R u) (list L u) (list L l))) ;; closed polygon
-							 (slot-set! self 'refresh-boundaries #f)
-							 ))))
-						
-									 
-(model-method (<array>) (radius self)
-				  (if (slot-ref  self 'refresh-boundaries)
-						(set-boundaries! self))
-				  (apply min (cons (slot-ref self 'radius) (map (lambda (x)  (distance (slot-ref self 'centre) x)) (slot-ref self 'hull)))))
-
-(model-method (<array>) (Radius self)
-				  (if (slot-ref  self 'refresh-boundaries)
-						(set-boundaries! self))
-				  (apply max (cons (slot-ref self 'radius) (map (lambda (x)  (distance (slot-ref self 'centre) x)) (slot-ref self 'hull)))))
-
-;; NOTE: (data-ref self 'radius) is not necessarily equal to (radius self) or (Radius self)
-;; (data-ref self 'radius) may find a 'radius field in the data-names, for a start, and even if it
-;; doesn't, it would return the value which is the farthest point from the centroid.  (radius self),
-;; in contrast, returns the size of the empty circle containing the centroid, and (Radius self)
-;; returns the size of the smallest circle about the centroid which contains all the locations
-;;
-;;                                          BE WARNED
-;;
-
-(model-method (<array> <list>) (radius self lst)
-				  (if (slot-ref  self 'refresh-boundaries)
-						(set-boundaries! self))
-
-				  (cond
-					((member 'radius (my 'data-names))
-					 (cond
-					  ((and (apply andf (map integer? lst)) (apply andf (map (lambda (x) (not (negative? x))) lst)))
-						(map (lambda (ix) (data-ref self ix 'radius)) lst))
-					  ((point? lst) ;; find point nearest to lst
-						(let loop ((ix 0)
-									  (data (my 'data))
-									  (got #f)
-									  (bestd +inf.0))
-						  (cond
-							((null? data)
-							 (data-ref self 'radius))
-							((< (distance (data-ref self 'radius ix) lst)  bestd)
-							 (loop (+ ix 1) (cdr data) ix (distance (data-ref self 'radius ix) lst)))
-							(else (loop (+ ix 1) (cdr data) got bestd)))
-						  )
-						(else #f)
-						)
-					  ))
-					(else (error 'uncool-call-to-radius))
-					))
-
-;; If we rebase this (give it a new parent) this may need to be modified
-(model-method% (<array> <symbol> <list>) (data-set! self s v)
-				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
-
-				  (let ((ix (data-field-index self s)))
-					 (if ix
-						  (if (= (length v) (length (my 'data)))
-								(for-each
-								 (lambda (lst vv)
-									(list-set! lst ix vv))
-								 (my 'data))
-								(error 'list-length-error)))
-					 (slot-set! self v)))
-
-(model-method% (<array> <integer> <list>) (data-set! self i s l)
-				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
-				  (set-car! (data-ref self i) (car l))
-				  (set-cdr! (data-ref self i) (cdr l)))
-
-(model-method% (<array> <integer> <symbol>) (@data-set! self i s v)
-				  (if (eq? s 'location) (slot-set! self 'refresh-boundaries #t))
-
-				  (list-set! (data-ref self i)
-								 (data-field-index self s) v))
-
-
-
-(model-method% (<general-array>) (data-names self)
-				  (slot-ref self 'data-names))
-
-(model-method (<general-array> <symbol>) (new-data-name self sym)
-				  (let ((datasyms (my 'data-names)))
-					 (if (null? (my 'data))
-						  (set-my 'data-names (append datasyms (list sym)))
-						  (error "data-names may not be altered if there is already data"))))
-
-(model-method (<general-array> <list>) (new-data-names self syms)
-				  (let ((datasyms (my 'data-names)))
-					 (if (null? (my 'data))
-						  (set-my 'data-names (append datasyms (list sym)))
-						  (error "data-names may not be altered if there is already data"))))
-
-(model-method% (<general-array>) (data-index self selector #!rest args)
-				  (cond
-					((symbol? selector) (apply data-field-index (cons self (cons selector args))))
-					((point? selector) (apply data-record-index (cons self (cons selector args))))
-					(else (error "Bad argument to (data-index...) for an array agent" selector))))
-
-(model-method% (<general-array> <symbol>) (data-field-index self sym)
-				  (let* ((data-names (my 'data-names))
-							;;(data (my 'data))
-							(ix (member sym data-names)))
-					 (if (not ix)
-						  #f
-						  (- (length data-names) (length ix))
-						  )
-					 ))
-
-(model-method (<general-array> <list> <symbol>) (rec-ref self rec sym)
-				  (let ((i (data-field-index self sym)))
-					 (if (and i (< i (length rec)))
-						  (list-ref rec i)
-						  (error "Invalid record reference call: " rec sym))))
-
-(model-method (<general-array> <list> <symbol>) (rec-set! self rec sym val)
-				  (let ((i (data-field-index self sym)))
-					 (if (and i (< i (length rec)))
-						  (list-set! rec i val)
-						  (error "Invalid record reference call: " rec sym))))
-
-(model-method (<general-array>) (data-length self)
-				  (length (my data)))
-
-(model-method (<general-array> <list>) (add-data-record self lst)
-				  ;;(dnl* "Adding array element" (length (my 'data)) lst)
-				  (if (>= (length (my 'data)) (my 'max-records))
-						(error "Exceeded nominated <general-array> limits")
-						(if (= (length lst) (length (my 'data-names)))
-							 (set-my! 'data (append (my 'data) (list lst)))
-							 (begin
-								(dnl* "An array got" (length lst) "but expected" (length (my 'data-names)) "when adding a record")
-								(error self lst)))))
-
-(model-method (<general-array> <list> <integer>) (remove-data-record self lst i)
-				  (let ((data (my 'data)))
-					 (set-my! 'data (append (list-head data i) (list-tail data (+ 1 i))))))
-
-(model-method (<general-array> <list> <list>) (filter-array-fields self fieldlist reclist)
-					(map (lambda (r) (map (lambda (s) (list-ref r (data-field-index self s))) fieldlist)) reclist))
-
-;;; ;; Returns the data from list element i in data
-;;; (model-method (<general-array>) (all-data self)
-;;; 				  (dnl* 'data-ref-null)
-;;; 				  (slot-ref self 'data))
-
-(model-method% <general-array> (has-data? self key)  
-					(or (member key (slot-ref self 'data-names))
-						 (parent-has-data?)))
-
-(model-method% <general-array> (data-ref self #!rest args)
-				  (let* ((data (my 'data))
-							(h (if (null? args) #f (car args)))
-							(t (if h (if (pair? (cdr args)) (cdr args) #f) #f)))
-					 (cond
-					  ((not h) (slot-ref self 'data))
-					  ((and (symbol? h) (not t))
-						(let ((i (data-field-index self h)))
-						  (if i
-								(map (lambda (x) (list-ref x i)) data)
-								(if (has-slot? self h)
-									 (slot-ref self h)
-									 (error 'data-ref:bad-data/slot-symbol h)))))
-					  ((and (integer? h) (not t))
-						(let ((i h))
-						  (if (and (<= 0 i) (< i (length data)))
-								(list-ref data i)
-								(error 'data-ref:bad-index i))))
-					  ((and  (point? h) (not t))
-						(let ((i (data-record-index self h)))
-						  (if (and (number? i) (<= 0 i) (< i (length data)))
-								(list-ref data i)
-								#f)
-						  ))
-					  (t
-						(cond
-						 ((and (integer? h) (null? (cdr t)) (symbol? (car t)))
-						  (list-ref (list-ref (slot-ref self 'data) h) (data-field-index self (car t))))
-
-						 ((and (symbol? h) (null? (cdr t)) (integer? (car t)))
-						  (list-ref (list-ref (slot-ref self 'data) (car t)) (data-field-index self h)))
-
-						 ((apply andf (map symbol? args))
-						  (filter-array-fields self args data)
-						  ;;(map (lambda (r) (map (lambda (s) (list-ref r (data-field-index self s))) args)) data)
-						  )
-
-						 ((apply andf (map number? args))
-						  (map (lambda (r)
-									(list-ref data r)) args))
-
-						 ((and (integer? h) (apply andf (map symbol? t)))
-						  (let ((lst (data-ref self h)))
-							 (map (lambda (s) (rec-ref self lst s)) t)));; extract (by symbol) from the record
-
-						 ((and (symbol? h) (apply andf (map integer? t)))
-								(let ((recs (data-ref self h)))
-								  (map (lambda (i) (list-ref recs i)) t)))
-
-						 ((and (point? h) (number? (car t)) (pair? (cdr t)) (apply andf (map symbol? (cdr t))) (has-data? self 'location))
-						  ;;(dnl* 'psr*)
-						  (filter-array-fields self (cdr t) (data-ref self h (car t))))
-						 
-						 ((and (point? h) (number? (car t)) (has-data? self 'location))
-						  (let ((pt h) (rad (car t)))
-							 (filter (lambda (rec) (<= (distance h (rec-ref self rec 'location)) rad)) (slot-ref self 'data))))
-						 
-						 ((and (point? h) (apply andf (map symbol? t)) (has-data? self 'location))
-						  (let ((ix (data-field-index self (car t))))
-							 ;;(dnl* 'ps* h t ix)
-							 (if (not ix)
-								  #f
-								  (apply data-ref (cons self (cons ix t))))))
-
-						 (else (error 'data-ref:bad-arguments args))
-						 )
-						)
-					  (else (error 'data-ref:unfathomable-ingredients args))
-					  ))
-				  )
-
-;; Returns the list element i from data
-;;; (model-method (<general-array> <integer>) (data-ref self i) (list-ref (my 'data) i))
-
-;; Returns all the indicated slot entries from the data. Useful for things like (apply + (data-ref trees 'leaf-area))
-;; If we rebase this (give it a new parent) this may need to be modified
-;;; (model-method (<general-array> <symbol>) (data-ref self s)
-;;; 				  ;;(dnl* 'data-ref-S)
-;;; 				  (let* ((data (my 'data))
-;;; 							(i (data-field-index self s))
-;;; 							)
-;;; 					 (if i
-;;; 						  (map (lambda (x) (list-ref x i)) data)
-;;; 						  (if (has-slot? self s)
-;;; 								(slot-ref self s)
-;;; 								(error 'bad-data/slot-symbol)))))
-
-(model-method% (<general-array> <point>) (data-ref* self i*)
-				  (map (lambda (i) (data-ref self i)) i*))
-
-(model-method% (<general-array> <point> <symbol>) (data-ref* self i* s)
-				  (map (lambda (i) (data-ref self i s)) i*))
-
-(model-method% (<general-array> <list>) (data-ref* self s*)
-				  (map (lambda (s) (data-ref self s)) s*))
-
-(model-method% (<general-array> <integer> <list>) (data-ref* self i s*)
-				  (map (lambda (s) (data-ref self i s)) i s*))
-
-(model-method% (<general-array> <point> <list>)  (data-ref* self i* s*)
-				  (map (lambda (i)
-							(map (lambda (s) (data-ref self i s)) s*)) i*))
-
-
-;; Returns the s element from the i'th row in data
-(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
-				  ;;(dnl* 'data-ref-IS)
-				  (list-ref (data-ref self s) i))
-
-;; Returns the s element from the i'th row in data
-(model-method% (<general-array> <integer> <symbol>) (@data-ref self i s)
-				  ;;(dnl* 'data-ref-IS)
-				  (list-ref (data-ref self s) i))
-
-;;; (model-method (<general-array> <integer> <symbol>) (data-ref self ix sym)
-;;; 				  (@data-ref self ix sym))
-
-;search by location
-(model-method (<general-array> <point>) (data-record-index self loc)
-				  (if (has-data? self 'location)
-						(let* ((k (member loc (data-ref self 'location)))
-								 (ix (if k (- (length (slot-ref self 'data)) (length k)) #f)))
-						  (if ix  ix #f))
-						(error 'no-location)))
-
-;search by location
-(model-method (<general-array> <point> <symbol>) (@data-ref self loc sym)
-				  (if (has-data? self 'location)
-						(let* ((k (member loc (data-ref self 'location)))
-								 (ix (if k (- (length (slot-ref self 'data)) (length k)) #f)))
-						  (if ix (@data-ref self ix sym) #f))
-						(error 'no-location)))
-
-;;; ;search by location
-;;; (model-method (<general-array> <point> <symbol>) (data-ref self loc sym)
-;;; 				  (@data-ref self loc sym))
-
-
-;; We cannot have this *and* searching by location ... 
-;;; ;; Returns the s element from the i'th row in data
-;;; (model-method (<general-array> <list> <symbol>) (@data-ref self i s)
-;;; 				  ;;(dnl* 'data-ref-IS)
-;;; 				  (let ((S (data-ref self s)))
-;;; 					 (map (lambda (x)
-;;; 							  (list-ref S x))
-;;; 							i)))
-
-;; If we rebase this (give it a new parent) this may need to be modified
-(model-method% (<general-array> <symbol> <list>) (data-set! self s v)
-				  (let ((ix (data-field-index self s)))
-					 (if ix
-						  (if (= (length v) (length (my 'data)))
-								(for-each
-								 (lambda (lst vv)
-									(list-set! lst ix vv))
-								 (my 'data))
-								(error 'list-length-error)))
-					 (slot-set! self v)))
-
-(model-method% (<general-array> <integer> <list>) (data-set! self i s l) (set-car! (data-ref self i) (car l)) (set-cdr! (data-ref self i) (cdr l)))
-
-(model-method% (<general-array> <integer> <symbol>) (@data-set! self i s v) (list-set! (data-ref self i) (data-field-index self s) v))
-
-(model-method% (<general-array> <agent> <symbol> <integer> <symbol>) (request-accessor self external-agent sym i s #!rest args)
-				  (case sym
-					 ((set!)
-					  (lambda (val) (@data-set! self i s val)))
-					 ((ref)
-					  (lambda (val) (@data-ref self i s)))
-					 ((adjust#)
-					  (lambda (val) (@data-set! self i s (+ (@data-ref self i s) val))))
-					 ((args) (list external-agent sym i s args)))
-					 (else (parent-request-accessor))
-				  )
-
-(model-method <general-array> (initialise-instance self)
-	 (parent-initialise-instance)
-
-
-	 (if (uninitialised? (slot-ref self 'data)) (slot-set! self 'data '()))
-	 (if (uninitialised? (slot-ref self 'data-names)) (slot-set! self 'data-names '()))
-	 )
-
-
-(model-body% <general-array>
-  (let ((parent-return (call-all-parents)))
-	 (if (and (pair? (my 'data-names)) (pair? (my 'data)))
-		  (begin
-			 (set-my 'data (filter (lambda (x) (not (member (car x) '(remove terminated)))) (slot-ref self 'data)))
-			 )
-		  )
-	 'ok
-	 )
-  )
-
-				  
 
 (define (patches-containing-locus loc Q)
   (filter (lambda (x) (contains? x loc)) (filter (lambda (x) (is-class? x <patch>)) Q)))

@@ -23,7 +23,15 @@
 (declare-method append-agent! "add an agent in the introspection list")
 (declare-method apply-parameters "load a new parameterisation and type from a file in ./params") ;; Hardcoded at the moment
 (declare-method area "area of an object")
+
+(declare-method assess-rep "an agents self-assessment routine -- totally internal")
+(declare-method assess-taxon "an agents self-assessment routine w.r.t. all taxon matches")
+(declare-method assess-niche "an agents self-assessment routine w.r.t. all other niche members")
+(declare-method assess-distribution "an agents self-assessment routine w.r.t. spatial distribution")
 (declare-method assess-local-environment "look around")
+(declare-method assess-configuration "an agents self-assessment routine -- broadest contribution")
+(declare-method assessment-suggestions "returns a list of alternative representations")
+
 (declare-method capacity "returns the carrying capacity of an ecoservice")
 (declare-method centre "returns the centre/centroid of an object")
 (declare-method change-taxon "change the taxon, probably trigger a resetting of state-variables")
@@ -203,6 +211,7 @@
 (declare-method scale! "scale!")
 (declare-method schedule-epsilon "return a schedule's epsilon")
 (declare-method schedule-times "return a schedule")
+(declare-method self-assess "used to generate an assessment tree for the representations of individual agents")
 (declare-method service-list-index "returns the index of a species in the species list")
 (declare-method service-list% "service-list%") ;; returns value
 (declare-method service-matrix-index "returns the index of a species in the species matrix")

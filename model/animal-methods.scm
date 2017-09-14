@@ -11,6 +11,24 @@
 ;
 ;	History:
 ;
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 
 
 ;-  Discussion 
@@ -318,7 +336,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 				  (slot-set! self 'sex n))
 
 ;----- (log-track-segment
-(model-method <simple-animal> (log-track-segment self track prj ps)
+(model-method <simple-animal> (log-track-segment self track prj ps #!rest args)
 				  (let ((map-color (my 'map-color))
 						  (default-color (my 'default-color)))
 					 ;;				  (dnl* "In log-track-segment" (cnc self) (name self) track)
@@ -335,7 +353,8 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					  (else (ps 'push-color 0))
 					  )
 					 (set-my! 'track-datum (my 'mass))
-					 (parent-log-track-segment)
+					 (call-parent-methods (list <tracked-agent>) log-track-segment self prj ps)
+
 					 (ps 'pop-color)
 					 ))
 
@@ -1009,7 +1028,16 @@ with the following differences:
   )
 
 
-						
+(model-method <animal-array> (initialise-instance self)
+  (parent-initialise-instance)
+
+  (slot-set! self 'data-names
+				 '(state mass age location domain last-reproduced
+							current-interest prey-list
+							)
+				 )
+  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-animal> (my 'taxon))))
+  )
 
 ;-  The End 
 

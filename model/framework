@@ -9,6 +9,28 @@
 ;	History:
 ;
 
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+
+
+
 ;;; The code in this file is supposed to make things a little easier.
 
 ;;;
@@ -190,48 +212,76 @@
 	 ;;(pp txt)
 	 txt))
 
-;; Calls to a closure function are of the form (name t dt reqvar1 reqvar2 ....)
-;; Calling a closure with no arguments at all causes it to return the symbols
-;; indicating the data it requires for update.  
 
-;; Note: both t and dt are passed in, since we don't want accidental multiple updates
-;; svlist is the list of state-variables to be maintained
-;; reqlist is the list of external data needed by the closure
+;; This is *totally* non-functional.  Looks good, but doesn't do the job
+(define-macro (update-closure clsid viup)
+  (if (not (apply = (cons 3 (map length  viup))))
+		(error "the second argument to an update-closure expression must be alist of triples of the form (vsym inival updatefunc)" viup))
 
-(define-macro (define-update-closure name class-id svlist reqlist . body)
-  `(define ,name
-	  (let* ((id ,class-id)
-			  ,@(map (lambda (sv) (list (list sv #f))) ,svlist)
-			  (Reqlist ',reqlist) ;; all possible requirements
-			  (reqlist ',reqlist) ;; current reqlist
-			  (T #f)
-			  (this-continuation
-				(lambda x
-				  (cond
-					((null? x)  ;; the closure with no arguments returns its requirements (which may change through time)
-					 reqlist)
-					((and (= 1 (length x))
-							(symbol? (car x)))
-					 (case (car x)
-						((requirements) reqlist)
-						((all-requirements) Reqlist)
-						((values) #f) ;; cannot ask for values without the class-id
-						((
-						(else (Error "bad call to update-closure function" x)))
-					 )
-					((and (number? (car x)) (number? (cadr x)))
-					 (if (= (length x) (+ 2 (length reqlist)))
-						  (let* ((dt (+ dt (- t T))))
-							 (let ((result (begin ,@body)))
-								(set! T (+ t dt))
-								result)
-							 )
-						  (Error "Failed to pass in the necessary number of arguments!" x)))
-					))
-					(#t (Error "+++Incomprehensible Update+++" x)))))
-			  )
-		 this-continuation))
-  )
+  (let ((vl (map (lambda (x) (list-head x 2)) viup))
+		  (up (map caddr viup))
+		  )
+
+	 (let ((txt `(let* ((initial-conditions ',viup)
+								(V (list ,@(map (lambda (x) (cons (car x) (cadr x))) vl))) ;; this is the a-list of values
+								(update ,(map cons (map car vl) up))
+								)
+						(lambda (action #!rest args)
+						  (case action
+							 ((variables) (map car V))
+							 ((values) (map cdr V))
+							 ((reset)  ,@(map (lambda (x)
+													  (list 'assoc-set! 'V (car x) (cadr x)))
+													(map (lambda (x) (list-head x 2)) viup)))
+							 ((id) id)
+							 ((update)
+							  (let ((dt (car args)))
+								 (let ((V2 (map (lambda (u x)
+														(cons x (apply u (cons dt (map cdr V)))))
+													 update V)))
+									(set! V V2))))
+							 (else 
+							  (dnl* "No, sorry.  You shouldn't have parked here."))))
+						))
+			 )
+		txt)))
+
+
+
+;;; (define-macro (define-update-closure name class-id svlist reqlist . body)
+;;;   `(define ,name
+;;; 	  (let* ((id ,class-id)
+;;; 			  ,@(map (lambda (sv) (list (list sv #f))) ,svlist)
+;;; 			  (Reqlist ',reqlist) ;; all possible requirements
+;;; 			  (reqlist ',reqlist) ;; current reqlist
+;;; 			  (T #f)
+;;; 			  (this-continuation
+;;; 				(lambda x
+;;; 				  (cond
+;;; 					((null? x)  ;; the closure with no arguments returns its requirements (which may change through time)
+;;; 					 reqlist)
+;;; 					((and (= 1 (length x))
+;;; 							(symbol? (car x)))
+;;; 					 (case (car x)
+;;; 						((requirements) reqlist)
+;;; 						((all-requirements) Reqlist)
+;;; 						((values) #f) ;; cannot ask for values without the class-id
+;;; 						((
+;;; 						(else (Error "bad call to update-closure function" x)))
+;;; 					 )
+;;; 					((and (number? (car x)) (number? (cadr x)))
+;;; 					 (if (= (length x) (+ 2 (length reqlist)))
+;;; 						  (let* ((dt (+ dt (- t T))))
+;;; 							 (let ((result (begin ,@body)))
+;;; 								(set! T (+ t dt))
+;;; 								result)
+;;; 							 )
+;;; 						  (Error "Failed to pass in the necessary number of arguments!" x)))
+;;; 					))
+;;; 					(#t (Error "+++Incomprehensible Update+++" x)))))
+;;; 			  )
+;;; 		 this-continuation))
+;;;   )
 					 
 
 (define-macro (UNFINISHED-BUSINESS . body)

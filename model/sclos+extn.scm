@@ -14,7 +14,25 @@
 
 ;
 ;   (C) 2016 Randall Gray
-;   All rights reserved
+
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 ;
 
 ;-  Discussion 
@@ -177,6 +195,12 @@ exploration."
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
   (state-variables name taxon representation
+
+						 class-migration-list ;; a list that indicates what the classes this class may be moved to
+						 transition-points ;; boundaries for transitions in the form (sym val sym val sym ...)
+						 transition-function ;; a function calculated using the transition points
+						 must-maintain ;; list of state variables that need to be maintained
+
 						 proxy-class
 						 replaced-by ;; There is no "replaces" ... if there were, there would be no way of garbage-collecting things (circular lists...)
 						 may-run                                ;; as it is, maintenace closures need to be carefully constructed to make sure that they
@@ -215,6 +239,9 @@ exploration."
 						 )
   )
 
+
+(declare-method adaptable? "indicate if the agent has an alternative representation")
+(model-method (<agent>) (adaptable? self) #f)
 
 (define (classes-of-supers x)
   (if (class? x)

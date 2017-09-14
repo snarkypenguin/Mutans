@@ -268,7 +268,7 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 					))
 	 grid))
 
-(define patchlist (patch-list-from-grid patchgrid))
+(define patchlist (patch-list-from-cover patchgrid))
 
 ;; We insert the patches into the queue so that their subjective time is incremented.
 ;; Bog standard patches don't *do* anything, so it is really just cosmetic ... if they
@@ -395,12 +395,12 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(let ((seed-death (numeric-parameter-lookup <> ptax 'seed-death))
 			(fruit-decay (numeric-parameter-lookup <> ptax 'fruit-decay)));; This is how to get a parameter from a taxon specific file ) ;; You can use numeric-... string-... symbol-... and list-parameter-lookup
 	  ;;                               taxon  dt         name         variable value cap r maxdt growing? growthmodel . patch
-	  (let ((seeds (simple-ecoservice "seeds" (* 4 days) "B. ex. seeds" 'seeds (nrnd (* 1.1 initial-fruit-m^2 (/ Model-Area (* N M)))) +inf.0 0 (* 6 hour) #t
+	  (let ((seeds (simple-ecoservice "seeds" (* 4 days) "seeds" 'seeds (nrnd (* 1.1 initial-fruit-m^2 (/ Model-Area (* N M)))) +inf.0 0 (* 6 hour) #t
 												 ;;(lambda (t dt val) (max 0 (* val (if seed-death (truncate (exp (* seed-death dt))) 1))))
 												 (lambda (t dt val) (max 0 (truncate (* val (if seed-death (exp (* seed-death dt))) 1))))
 												 c))
 
-			  (fruit (simple-ecoservice "fruit" (* 2 days) "B. ex. fruit" 'fruit (pprnd (* initial-fruit-m^2 (/ Model-Area (* N M)))) +inf.0 0 (* 6 hour) #t
+			  (fruit (simple-ecoservice "fruit" (* 2 days) "fruit" 'fruit (pprnd (* initial-fruit-m^2 (/ Model-Area (* N M)))) +inf.0 0 (* 6 hour) #t
 												 (lambda (t dt val) (max 0 (* val (if fruit-decay (exp (* fruit-decay dt)) 1))))
 												 c))
 			  )
@@ -438,111 +438,61 @@ on for a chain with a lenght equal to the number of cells we are using.
 (define HA '())
 (define CA '())
 
-(define use-animals-per-patch #f)
-(define N-jherb 0)
-(define N-aherb 0)
-(define N-acarn 0)
+(define use-animals-per-patch #t)
+(define N-jherb 4)
+(define N-aherb 2)
+(define N-acarn 1)
 
 
-(if use-animals-per-patch
-	 (for-each
-	  (lambda (p)
-		 (if use-jherb
-			  (for-each
-				(lambda (i)
-				  (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! HJ (cons a HJ))
-					 ))
-				(seq N-jherb)
+
+(for-each
+ (lambda (p)
+	(if use-jherb
+		 (for-each
+		  (lambda (i)
+			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+					 )
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
+				(slot-set! a 'domain p)
+				(slot-set! a 'domain p)
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
+				(set! Q (q-insert Q a Qcmp))
+				(set! HJ (cons a HJ))
 				))
-		 
-		 (if use-aherb
-			  (for-each
-				(lambda (i)
-				  (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! HA (cons a HA))
-					 ))
-				;;(seq 24/12)
-				(seq N-aherb)
-				)
-			  )
-		 
-		 (if use-acarn
-			  (for-each
-				(lambda (i)
-				  (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! CA (cons a CA))
-					 ))
-				(seq  N-acarn))
-			  )
-		 )
-	  patchlist)
-
-	 (begin
-		 (if use-jherb
-		  (for-each
-				(lambda (i)
-				  (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 100) (random-integer 100)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! HJ (cons a HJ))
-					 ))
-				(seq N-jherb)
+		  (seq N-jherb)
+		  ))
+	
+	(if use-aherb
+		 (for-each
+		  (lambda (i)
+			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+					 )
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
+				(slot-set! a 'domain p)
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
+				(set! Q (q-insert Q a Qcmp))
+				(set! HA (cons a HA))
 				))
-		 
-		 (if use-aherb
-			  (for-each
-				(lambda (i)
-				  (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 200) (random-integer 200)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! HA (cons a HA))
-					 ))
-				;;(seq 24/12)
-				(seq N-aherb)
-				)
-			  )
-		 
-		 (if use-acarn
-			  (for-each
-				(lambda (i)
-				  (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
-						  )
-					 (slot-set! a 'age-at-instantiation (slot-ref a 'age))
-					 (slot-set! a 'domain p)
-					 (slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
-					 (set! Q (q-insert Q a Qcmp))
-					 (set! CA (cons a CA))
-					 ))
-				(seq  N-acarn))
-			  )
+		  ;;(seq 24/12)
+		  (seq N-aherb)
+		  )
 		 )
-	 )
 	
-	
+	(if use-acarn
+		 (for-each
+		  (lambda (i)
+			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
+					 )
+				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
+				(slot-set! a 'domain p)
+				(slot-set! a 'location (map + (location p) (list (- (random-integer 200) (random-integer 200)) (- (random-integer 300) (random-integer 300)))))
+				(set! Q (q-insert Q a Qcmp))
+				(set! CA (cons a CA))
+				))
+		  (seq  N-acarn))
+		 )
+	)
+ patchlist)
 
 
 

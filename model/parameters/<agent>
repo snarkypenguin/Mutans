@@ -2,6 +2,9 @@
 'Parameters
 (define <agent>-parameters
   (list
+	(list 'transition-points '()) ;; default is no transitions at all...
+	(list 'class-migration-list '())
+	(list 'must-maintain '())
 	(list 'active-subsidiary-agents '())
 	(list 'replaced-by #f) ;; usually a list of the agent(s) which replaced it or #f
 	(list 'agent-body-ran #f)

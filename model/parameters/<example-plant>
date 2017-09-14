@@ -4,15 +4,16 @@
   (list
     ;;(list 'cell '<uninitialised>)
     ;;(list 'habitat '<uninitialised>)
-    (list 'mass '($ (* 5 (abs (lnrnd)))))
-    (list 'fruiting-mass (* 18 kg))
-    (list 'fruiting-prob (/ 0.1  week))
-    (list 'fruiting-rate (/ 2 kg))
-    (list 'seeds-per-fruit 60)
-    (list 'seed-queue '())
-    (list 'mort-mass 0.17) ;; a proportion which will be multiplied by peak mass
-    (list 'mort-prob '0.001)
-	 (list 'regrowth-rate-multiplier 1.35) ;; the plants in the example are even more responsive than just <plants>
+	(list 'type 'plant)
+	(list 'mass '($ (* 5 (abs (lnrnd)))))
+	(list 'fruiting-mass (* 18 kg))
+	(list 'fruiting-prob (/ 0.1  week))
+	(list 'fruiting-rate (/ 2 kg))
+	(list 'seeds-per-fruit 60)
+	(list 'seed-queue '())
+	(list 'mort-mass 0.17) ;; a proportion which will be multiplied by peak mass
+	(list 'mort-prob '0.001)
+	(list 'regrowth-rate-multiplier 1.35) ;; the plants in the example are even more responsive than just <plants>
   )
 )
 (set! global-parameter-alist (cons (cons <example-plant> <example-plant>-parameters) global-parameter-alist))

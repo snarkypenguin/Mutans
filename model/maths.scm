@@ -6,6 +6,27 @@
 ;		Date: 2008.05.04
 ;		Location: localhost:/usr/home/gray/Study/playpen/maths.scm
 ;
+
+
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
 ;-  Discussion 
 
 ;; Mostly only 2d vectors.  *Some* of the routines will go to higher dimensions,
@@ -116,7 +137,7 @@ length, the second has it related to area."
 			 (rotate-point pi `(,size ,0.))
 			 `(,size ,0.))))
 
-(define (square size)
+(define (quadrilateral size) ;; cannot call it a square, that is a std scm func
   (let* ((s (/ size 2))
 			(-s (- s)))
 	 (list (list s s) (list -s s) (list -s -s) (list s -s) (list s s))))
@@ -437,6 +458,38 @@ length, the second has it related to area."
 )
 
 
+
+  ;; this is a function that returns a single sawtooth the right or left
+;; side may stick at the peak if the interval goes to infinity on that
+;; side
+(define (triangle-function peak m M)
+  (if (or (not (pair? peak)) (not (= (length peak) 2))) (error "peak should be an (x y) location of the max value" peak))
+  (if (>= m M) (error "M <= m!" m M))
+  (if (or (infinite? (car peak)) (infinite? (cadr peak))) (error "infinite peak!"))
+  (let ((x (car peak))
+		  (y (cadr peak)))
+	 (cond
+	  ((and (infinite? m) (infinite? M))
+		(lambda (p) y))
+	  ((infinite? m)
+		(lambda (p) (cond
+						 ((< p x) y)
+						 ((< M p) 0)
+						 (else (* y (- 1. (/ (- p x) (- M x))))))))
+	  ((infinite? M)
+		(lambda (p) (cond
+						 ((< x p) y)
+						 ((< p m) 0)
+						 (else (* y (- 1. (/ (- x p) (- x m))))))))
+	  (else
+		(lambda (p) (cond
+						 ((< p m) 0)
+						 ((< M p) 0)
+						 ((<= p x) (* y (- 1. (/ (- x p) (- x m)))))
+						 ((<= x p) (* y (- 1. (/ (- p x) (- M x)))))))
+	  ))))
+
+
 ;; returns a decay function which has a coefficient of N and a decay lambda L
 ;; 
 (define (exp-decay-func N L)
@@ -566,7 +619,6 @@ length, the second has it related to area."
 
 
 ;	sourced from https://rosettacode.org/wiki/Gamma_function#Scheme
-
 (define gamma-lanczos
   (let ((p '(676.5203681218851 -1259.1392167224028 771.32342877765313 
              -176.61502916214059 12.507343278686905 -0.13857109526572012

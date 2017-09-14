@@ -2,6 +2,28 @@
 (include "framework")
 ;- Identification and Changes
 
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+
+
+
 "The basic classes from which the others are ultimately derived are
 kept in 'sclos+extn.scm' since they are supposed to be /fundamental/."
 
@@ -192,6 +214,14 @@ direction"
 (define-class <general-array>
   (inherits-from <agent> <projection>) ;; We inherit from projection so that we may pass this as a target for <log-map>
   (state-variables
+
+	;; 
+	assessment-rep ;; typically fine unless the number of elements drops too low or too high
+	assessment-collection 
+	assessment-taxon
+	assessment-niche
+	assessment-conf
+	
 	max-records ;; Maximum number of records permitted
 	test-subject
 	;; This is actually an agent of another sort, such as <plant>, which we can assign values to

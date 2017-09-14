@@ -1,5 +1,23 @@
 (include "framework")
 ;-  Identification and Changes
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
 
 ;--
 ;	animal-classes.scm -- Written by Randall Gray 
@@ -135,14 +153,12 @@
   ;; and breeding
   (state-variables
 	movement-speed ;; current speed to travel at
-
 	hunt-speed     ;; (max) speed to use when "hunting" -- for a c'vore, this is probably pursuit, for h'vore it's browsing
                   ;;                                           __
 	search-speed   ;; (max) speed used when searching for !food   \__  These are different so that we can use different 
 	forage-speed   ;; (max) speed when looking/catching for food__/    types of searching (ambush, vs tracking for example)
 
 	wander-speed   ;; speed when the animal is just moving about, not necessarily foraging or looking for a mate
-
 	objective      ;; for eating, mating, driving off.....
 
 	near-food-attraction
@@ -176,6 +192,24 @@
 	))
 
 
+(define-class <animal-array>
+  (inherits-from <array>)
+  (state-variables
+	reproduction-age
+	reproduction-mass
+	reproduction-prob
+;;	reproduction-delay ;; from the start of the year
+	reproduction-period
+	reproduction-ct
+	patch-list
+	default-color
+	dead-color
+	glyph
+	))
+					  
+					  
+
+
 (define-class <jherb>
   (inherits-from <example-animal>)
   (state-variables
@@ -203,6 +237,28 @@
   (inherits-from <example-animal>)
   (no-state-variables)
   )
+
+
+(define-class <animal-array>
+  (inherits-from <array>)
+  (state-variables
+	patch-list
+	test-subject
+	default-color
+	dead-color
+	radius-color
+	foliage-color
+	stress-color
+	glyph
+	plot-circle-facets
+	circle-facets
+
+   ;; data will be  a list with entries of the form
+	;; (state mass peak-mass age location leaf-area forage-damage water-stress domain)
+	;; state will either be 'dead or 'alive
+))
+
+
 
 
 

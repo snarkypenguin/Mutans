@@ -3,6 +3,12 @@
 (define <plant>-parameters
   (list
 	(list 'note "<plant> is based on data from the One Oak project.")
+
+	(list 'class-migration-list (list (cons 'super-individual <plant-array>)
+												 (cons 'eqn-based <population-system>))) ;; population-systems / diffeq-systems will need hand-tooled support
+	(list 'must-maintain '(agent-state mass peak-mass age location leaf-area forage-damage water-stress domain last-reproduced))
+
+	(list 'track-state #f)
 	;;(list 'proxy-class <plant-proxy>)
 	(list 'default-color ps-green)
 	(list 'dead-color 0.3) ;; dark grey
@@ -17,7 +23,7 @@
 	(list 'circle-facets 9)
 
 	(list 'dt (* 1 day))
-	(list 'type 'plant)
+	(list 'type 'plant);;
 	(list 'representation 'individual)
 	(list 'I-need '(water)) ;; for maintenance ... vector of values/sgetters  passed in, updated passed back
 	(list 'requires '(water))
@@ -26,7 +32,6 @@
 	(list 'population-switch (/ (* 10000 kg)  hectare));; if the density is greater than 10000 kg plants in a hectare
 	(list 'maintenance-list '())
 	;;(list 'population-switch '<uninitialised>)
-
 
 	(list 'decay-rate (/ -1 (* (log 2.0) 80 days ))) ;; half the body will be gone in 80 days (mostly due to decay)
 	(list 'max-age +inf.0) ;; they don't die by default

@@ -2,6 +2,9 @@
 'Parameters
 (define <population-system>-parameters
   (list
+	(list 'transition-points '(individual 40 super-individual 1200 eqn-based))
+	(list 'type 'value)
+	(list 'representation 'eqn-based)
     ;;(list 'patch '<uninitialised>)
     ;;(list 'value '<uninitialised>)
     ;;(list 'capacity '<uninitialised>)

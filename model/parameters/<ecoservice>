@@ -2,6 +2,7 @@
 'Parameters
 (define <ecoservice>-parameters
   (list
+	 (list 'transition-points '(eqn-based)) ;; this should usually be overridden in taxon files
     (list 'running-externally #f)
     (list 'external-rep-list '())
 	 (list 'dt (* 12 hours))
@@ -14,6 +15,8 @@
     ;;(list 'capacity +inf.0)
     ;;(list 'r '<uninitialised>)
     (list 'delta-T-max (* 6 days))
+	 (list 'type 'value)
+	 (list 'representation 'eqn-based)
     (list 'do-growth #f)
 	 ;;(list 'growth-model '<uninitialised>)
     (list 'history '())

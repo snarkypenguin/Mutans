@@ -3,8 +3,12 @@
 (define <animal>-parameters
   (list
 	(list 'current-interest '())
+	(list 'must-maintain '(age mass location sex domain last-reproduced))
 	(list 'last-reproduced +inf.0) ;; since they haven't reproduce yet by default
 	(list 'food-value mass) ;; default is mass, herbivores might use leaf-mass
+	(list 'representation 'individual)
+	;; (list 'type 'animal) ought to be in taxon file
+
 	;;(list 'movementspeed '<uninitialised>)
 	;;(list 'searchspeed '<uninitialised>)
 	;;(list 'foragespeed '<uninitialised>)

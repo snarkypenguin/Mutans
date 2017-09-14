@@ -19,24 +19,24 @@ representations used in the model based on the state of the system and
 the states of its components.
 
 Simple rules can be used to govern transitions from one representation
-to another (Chapter~\ref{modelefficiency}), but these local
-transitions may degrade the quality of the simulation as a whole. The
-biomass of grass a farm's paddocks is probably quite
-adequately represented by a single number if there is little or no
-grazing, but with more livestock we might need to represent each
-paddock's biomass individually, \ldots and possibly each paddock as a
-finely resolved field showing where the animals graze most intensely.
+to another (\Ctwo), but these local transitions may degrade the
+quality of the simulation as a whole. The biomass of grass a farm's
+paddocks is probably quite adequately represented by a single number
+if there is little or no grazing, but with more livestock we might
+need to represent each paddock's biomass individually, \ldots and
+possibly each paddock as a finely resolved field showing where the
+animals graze most intensely.
 
 The appendix to the paper is an early version of the mathematical
-machinery developed in Chapter~\ref{treering}. Since publication, the
-basic mathematical structure has changed somewhat.  Other, related
-representations have been explored in an attempt to simplify
-calculations involving elements of the vector space. Initial attempts
-were based on the notion of treating the scalar term of the lable in a
-node as its weight, but each of these formulations resulted in a loss
-of one or another of the algebraic properties which are useful to
-us. The algebraic structure described in the next chapter shares many
-of the properties of the subject of the appendix to this chapter, but
+machinery developed in \Cfour. Since publication, the basic
+mathematical structure has changed somewhat.  Other, related trees
+have been explored in an attempt to simplify calculations involving
+elements of the vector space; initial attempts were based on the
+notion of treating the scalar term of the lable in a node as its
+weight, but each of these formulations resulted in a loss of one or
+another of the algebraic properties which are useful to us. The
+algebraic structure described in the next chapter shares many of the
+properties of the trees defined in the appendix to this chapter, but
 differs in ways which simplify operations and make the interpretation
 of their effect somewhat more intuitive.
 
@@ -44,8 +44,7 @@ Here, the propositions and assertions in this chapter are presented
 largely without proof\footnote{Proofs of these propositions and
   assertions are available, but they haven't been included since the
   structure has been superceded.}, though the corresponding propositions
-for the work in Chapter~\ref{treering} are proved in the material in
-Chapter~\ref{treering}.
+for the work in \Cfour are proved in the material in \Cfour.
 
 \pagebreak
 \typeout{Chapter~3: Adaptive submodel selection in hybrid  models}
@@ -1558,7 +1557,7 @@ measure of the degree of divergence between two trees.
 \section{Epilogue to the paper}
 
 The model described in this paper has been used as a template for the
-model discussed in Chapter~\ref{explicitmodel}. The paper attempted to
+model discussed in \Cfive. The paper attempted to
 describe a credible ``toy'' model to provide a setting for the
 discussion. Unfortunately, when it came to implementation of the model
 the paper described, a few shortcomings came to light and some of the
@@ -1572,7 +1571,7 @@ the animals excreted them immediately. The consequence of this was
 that there was no way for plants to recolonise empty cells.
 
 This paper extended and generalised the simple state maintenance of
-Chapter~\ref{modelefficiency} by passing closures rather than a vector
+\Ctwo by passing closures rather than a vector
 of values and the confident knowledge that the closures embodied the
 correct process for update. By using closures, the actual machinery
 supporting the update of the state of a previous representation can be
