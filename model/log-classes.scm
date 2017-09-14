@@ -34,7 +34,7 @@
 
 (define logger-tags '())
 
-(define-class <log-introspection> (inherits-from <introspection>  <projection>)
+(define-class <log> (inherits-from <introspection>  <projection>)
   (state-variables file format variables
 						 filename
 						 variables-may-be-set missing-val show-field-name
@@ -54,7 +54,7 @@
 ;;- the introspection list is the list of agent to be looked at
 ;;- the timestep schedule is the set of times to run at
 
-(define-class <logfile> (inherits-from <log-introspection>)
+(define-class <logfile> (inherits-from <log>)
   (state-variables
 	pagecount
 	preamble-state introspection-targets
@@ -77,7 +77,7 @@
 ;;  to the filename
 
 
-;(define-class <snapshot> (inherits-from <log-introspection>)
+;(define-class <snapshot> (inherits-from <log>)
 ;									  (state-variables pagecount separate-pages))
 ;;- file is the output handle
 ;;- if filename is not a string, things go to stdout

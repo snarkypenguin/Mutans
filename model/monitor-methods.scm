@@ -54,6 +54,7 @@ changes, we hope not too many.
 				  (parent-body)
 				  (slot-set! tree '(0 0 {}))
 				  (slot-set! self 'flagged-agents '())
+				  ;; The flagged-agents will change representation
 				  )
 
 ;--- process-agent
@@ -64,11 +65,11 @@ changes, we hope not too many.
 				  ;; and interdependencies.
 				  ;; The "trunk" of the tree is constructed here, agents may populate the leaves
 				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
-				  (if (adaptable? subject)
-						(let ((status ((my 'trigger-selector) subject)))
-						  (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))
-								#t))
-						#f))
+				  
+				  (let ((status ((my 'trigger-selector) subject)))
+					 (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))))
+				  
+				  #t)
 
 ;--- pass-resolution
 (model-method (<monitor> <list>) (pass-resolution self subject-list args)

@@ -683,8 +683,8 @@ via their containing patch.
 (model-method <ecoservice> (area self #!optional passing)
 				  (area (my 'patch) passing))
 
-(model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)
-				  (dnl* "(model-method (<ecoservice> <log-introspection> <symbol>) (log-data self logger format targets)")
+(model-method (<ecoservice> <log> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method (<ecoservice> <log> <symbol>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug dnl*))
 						  ;;(f (if (pair? args) (car args) #f))
 						  ;;(p (if (and (pair? args)
@@ -1449,8 +1449,8 @@ via their containing patch.
 
 ;--- model-method (<patch> <agent> <symbol> <agent>) (log-data self logger format  targets)
 
-(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-				  (dnl* "(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
+(model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)
+				  (dnl* "(model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)")
 				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let* ((file (slot-ref logger 'file))
 								 (p (composite-prj_src->dst self logger))
@@ -1981,8 +1981,8 @@ args can be  an update map or an update map and update equations
 				  )
 
 ;--- model-method (<dynamic-patch> <procedure> <symbol> <procedure>)(log-data self logger format  targets)
-(model-method (<dynamic-patch> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (dnl* "(model-method (<patch> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
+(model-method (<dynamic-patch> <log> <symbol> <list>) (log-data self logger format  targets)
+				  (dnl* "(model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug  dnl*))
 						  )
 					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
@@ -2359,8 +2359,8 @@ args can be  an update map or an update map and update equations
 ;; p is usually something like mm->points
 
 ;--- (<landscape> <procedure>...) (log-data self logger format  targets)
-(model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)
-				  (dnl* "(model-method (<landscape> <log-introspection> <symbol> <list>) (log-data self logger format  targets)")
+(model-method (<landscape> <log> <symbol> <list>) (log-data self logger format  targets)
+				  (dnl* "(model-method (<landscape> <log> <symbol> <list>) (log-data self logger format  targets)")
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 					 

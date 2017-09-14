@@ -598,8 +598,8 @@
   )
   
 
-(model-method (<plant> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-				  (dnl* "(model-method (<plant> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
+(model-method (<plant> <log> <symbol> <list>) (log-data self logger format targets)
+				  (dnl* "(model-method (<plant> <log> <symbol> <list>) (log-data self logger format targets)")
 				  (let ((file (slot-ref logger 'file))
 						  (leading-entry #f)
 						  (needs-newline #f)
@@ -886,8 +886,8 @@
 (model-body <plant-proxy>
 				(abort "This should never happen"))
 
-(model-method% (<plant-array> <log-introspection> <symbol> <list>) (log-data self logger format targets)
-		(kdebug 'log* "(model-method% (<plant-array> <log-introspection> <symbol> <list>) (log-data self logger format targets)")
+(model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)
+		(kdebug 'log* "(model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)")
 
 		(let* ((file (slot-ref logger 'file))
 				 (leading-entry #f)

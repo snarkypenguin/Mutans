@@ -65,14 +65,14 @@ close pages and emit 'showpage' for postscript stuff.
 ;;	   (*is-taxon? (list "grocer" "haberdasher" "butcher" "wheelwright"))
 
 
-(model-method <log-introspection> (initialise-instance self)
+(model-method <log> (initialise-instance self)
 				  (if (uninitialised? (my 'report-time-table))
 						(begin
 						  ;(warning-log (dnl* "A" (cnc self) " had trouble setting up its report-time-table."))
 						  (slot-set! self 'report-time-table (make-table))))
 				  )				  
 
-(model-body <log-introspection>
+(model-body <log>
 				(let (
 						(file (my 'file))
 						)
@@ -109,7 +109,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 
-(model-method <log-introspection> (open-output-handle self)
+(model-method <log> (open-output-handle self)
 				  ;(+kdebug!)
   (let ((filename (slot-ref self 'filename))
 		  (file (slot-ref self 'file))
@@ -138,14 +138,14 @@ close pages and emit 'showpage' for postscript stuff.
 			 
 			 file))
 
-(model-method (<log-introspection> <number> <number>) (agent-prep self start end)
+(model-method (<log> <number> <number>) (agent-prep self start end)
 				  (parent-agent-prep) ;; parents should prep first
 				  (open-output-handle self)
 				  #t
 				  )
 
 
-(model-method <log-introspection> (agent-shutdown self #!rest args)
+(model-method <log> (agent-shutdown self #!rest args)
 	      (let ((file (my 'file)))
 		(if (my 'file)
 		    (cond
@@ -162,21 +162,21 @@ close pages and emit 'showpage' for postscript stuff.
 		(parent-agent-shutdown)
 		))
 
-(model-method (<log-introspection> <list>) (set-variables! self lst)
+(model-method (<log> <list>) (set-variables! self lst)
 				  ;(+kdebug!)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables lst)
 						(abort "cannot extend variables after it starts running")
 						))
 
-(model-method (<log-introspection> <list>) (extend-variables! self lst)
+(model-method (<log> <list>) (extend-variables! self lst)
 				  ;(+kdebug!)
 				  (if (and (my 'variables-may-be-set) (list? lst))
 						(set-my! 'variables (unique* (append (my 'variables) lst)))
 						(abort "cannot extend variables after it starts running")
 						))
 
-(model-method (<log-introspection> <agent> <number>) (emit-and-record-if-absent self agent t)
+(model-method (<log> <agent> <number>) (emit-and-record-if-absent self agent t)
 				  ;(+kdebug!)
 				  (let* ((tbl (my 'report-time-table))
 							(rec (table-ref tbl agent #f))
@@ -197,8 +197,8 @@ close pages and emit 'showpage' for postscript stuff.
 						  #t))) 
 								
 
-(model-method (<log-introspection>) (emit-page self)
-				  (kdebug '(chaintrack) "(model-method (<log-introspection>) (emit-page self)")
+(model-method (<log>) (emit-page self)
+				  (kdebug '(chaintrack) "(model-method (<log>) (emit-page self)")
 				  ;(+kdebug!)
 				  (if (not (or (my 'file) (file-handle? (my 'file)) (output-port? (my 'file))))
 						(open-output-handle self))
@@ -330,7 +330,7 @@ close pages and emit 'showpage' for postscript stuff.
 
 ;(use-parent-body <log-map>)
 
-(model-method (<log-map> <log-introspection> <symbol>) (page-preamble self logger format)
+(model-method (<log-map> <log> <symbol>) (page-preamble self logger format)
 				  ;(+kdebug!)
 				  (parent-page-preamble)
 				  ;; This *must* replace it's parent from <log-data> since
@@ -341,7 +341,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  ((my 'file) 'start-page)
 				  )
 
-(model-method (<log-map> <log-introspection> <symbol>) (page-epilogue self logger format)
+(model-method (<log-map> <log> <symbol>) (page-epilogue self logger format)
 				  ;; This *must* replace it's parent from <log-data> since
 				  ;; it doesn't work with a traditional port
 				  ;;(dnl* "IN LOG-MAP EPILOGUE")
@@ -361,10 +361,10 @@ close pages and emit 'showpage' for postscript stuff.
 
 
 ;; This logs to an open file
-(model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)
+(model-method (<log-map> <log> <symbol>) (log-data self logger format targets)
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
-					 (kdebug '(chaintrack) "(model-method (<log-map> <log-introspection> <symbol>) (log-data self logger format targets)")
+					 (kdebug '(chaintrack) "(model-method (<log-map> <log> <symbol>) (log-data self logger format targets)")
 					 
 					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
 					 (lambda (target)	
@@ -432,7 +432,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  (parent-agent-shutdown) ;; Parents should shutdown last
 				  )
 
-(model-method (<log-data> <log-introspection> <symbol>) (page-preamble self logger format)
+(model-method (<log-data> <log> <symbol>) (page-preamble self logger format)
 				  ;(+kdebug!)
 				  (kdebug 'log-issues "In: log-data preamble, filename: " (my 'filename) "and file" (my 'file))
 
@@ -507,11 +507,11 @@ close pages and emit 'showpage' for postscript stuff.
 				  
 				  )
 						
-(model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)
+(model-method (<log-data> <log> <symbol> <list>) (log-data self logger format target-variables)
 				  ;(+kdebug!)
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
-					 (kdebug '(chaintrack) "(model-method (<log-data> <log-introspection> <symbol> <list>) (log-data self logger format target-variables)")
+					 (kdebug '(chaintrack) "(model-method (<log-data> <log> <symbol> <list>) (log-data self logger format target-variables)")
 					 (kdebug '(chaintrack) "in <log-data> (log-data" (name self) (name logger) format target-variables)
 									 
 					 ;; (error "(-: Oops, really ought to never get here. :-)")
@@ -563,7 +563,7 @@ close pages and emit 'showpage' for postscript stuff.
 					 )
 				  )
 
-(model-method (<log-data> <log-introspection> <symbol>) (page-epilogue self logger format)
+(model-method (<log-data> <log> <symbol>) (page-epilogue self logger format)
 				  ;(+kdebug!)
 				  (kdebug '(log-* log-data) (name self) "[" (my 'name) ":"
 							 (cnc self) "]" "in page-epilogue")
