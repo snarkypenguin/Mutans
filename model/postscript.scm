@@ -598,7 +598,7 @@
       (set! marked #t)
       (for-each
        (lambda (x)
-			(ps-display (string-append "%%   " (make-it-a-string x))))
+			(ps-display (string-append "% " (make-it-a-string x))))
        args)
       )
     
@@ -606,18 +606,18 @@
       (set! marked #t)
       (for-each
        (lambda (x)
-			(ps-display (string-append "%%   " (make-it-a-string x) "\n%%")))
+			(ps-display (string-append "%% " (make-it-a-string x) "\n%%")))
        args)
       )
     
     (define (ps-COMMENT #!rest args)
       (set! marked #t)
-      (ps-display "%%\n%%")
+      (ps-display "%%%\n%%%")
       (for-each
        (lambda (x)
-			(ps-display (string-append "%%   " (make-it-a-string x))))
+			(ps-display (string-append "%%%   " (make-it-a-string x))))
        args)
-      (ps-display "%%\n%%")
+      (ps-display "%%%\n%%%")
       )
     
     (define (stringwidth s)
@@ -915,7 +915,7 @@
 ;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
 								)
 							  ((eq? cmd 'COMMENT) 
-								(apply ps-Comment args)
+								(apply ps-COMMENT args)
 ;(ps-display (apply string-append (append (list "\n%%\n%% ") (map make-it-a-string args) (list "\n%%\n"))))
 								)
 

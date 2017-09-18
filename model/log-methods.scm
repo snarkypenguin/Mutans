@@ -73,9 +73,7 @@ close pages and emit 'showpage' for postscript stuff.
 				  )				  
 
 (model-body <log>
-				(let (
-						(file (my 'file))
-						)
+				(let ((file (my 'file)))
 				  ;;(dnl* (cnc self) "model-body")
 					(kdebug '(log-* introspection-trace)
 							  "[" (my 'name) ":" (cnc self) "@" (subjective-time self) "]"
@@ -212,6 +210,9 @@ close pages and emit 'showpage' for postscript stuff.
 					 (page-preamble self self format)
 					 (kdebug '(chaintrack) "back from page-preamble")
 					 
+
+					 ;; The let assigns a function that calls log-data  to proc, which is in turn
+					 ;; iteratively applied to the members of the list returned by (my-list self)
 					 (let ((proc (lambda (ila)
 										(kdebug '(log-* introspection-trace) " ==> processing "
 												  (cnc ila) " "  (procedure? ila) format (my 'variables))
@@ -367,26 +368,62 @@ close pages and emit 'showpage' for postscript stuff.
 					 (kdebug '(chaintrack) "(model-method (<log-map> <log> <symbol>) (log-data self logger format targets)")
 					 
 					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
-					 (lambda (target)	
-						(kdebug '(log-* log-map) (name self) "[" (my 'name)
-								  ":" (cnc self) "]" "in log-data"
-								  (cnc target) (slot-ref target 'name))
 
-						(let* ((name (slot-ref target 'name))
-								 (p (slot-ref self 'local-projection))
-								 ;; to spit out a ps file we need to project the 
-								 ;; modelspace data into the PS domain
-								 (ps (slot-ref self 'file))
-								 )
-						  (ps 'Comment "logging data for " name "****************")
-						  (ps 'moveto (list (p '(20 20))))
-						  (ps 'push-color (my-map-color self))
-						  (ps 'Helvetica 14)
-						  (ps 'show (string-append (slot-ref self 'name)))
-						  (ps 'pop-color)
-						  (ps 'comment "finished logging data for " name)
-						  )))
+					 (for-each
+					  (lambda (target)	
+						 (kdebug '(log-* log-map) (name self) "[" (my 'name)
+									":" (cnc self) "]" "in log-data"
+									(cnc target) (slot-ref target 'name))
+
+						 (let* ((name (slot-ref target 'name))
+								  (p (slot-ref self 'local-projection))
+								  ;; to spit out a ps file we need to project the 
+								  ;; modelspace data into the PS domain
+								  (ps (slot-ref self 'file))
+								  )
+							(ps 'Comment "<log-map> <log>logging data for " name "****************")
+							(ps 'moveto (list (p '(20 20))))
+							(ps 'push-color (my-map-color self))
+							(ps 'Helvetica 14)
+							(ps 'show (string-append (slot-ref self 'name)))
+							(ps 'pop-color)
+							(ps 'comment "finished logging data for " name)
+							))
+					  targets
+					  )
+					 )
 				  )
+
+;; ;; This logs to an open file
+;; (model-method (<log-map> <log> <symbol>) (log-data self logger format targets)
+;; 				  (let ((kdebug (if #t kdebug dnl*))
+;; 						  )
+;; 					 (kdebug '(chaintrack) "(model-method (<log-map> <log> <symbol>) (log-data self logger format targets)")
+					 
+;; 					 (kdebug 'log-horrible-screaming 'log-map (cnc self) (cnc logger) (cnc format) (cnc targets))
+
+;; 					 ;; DANGER! DANGER WILL ROBINSON!
+;; 					 ;; Note that this returns a *function* ... the function is used
+;; 					 (lambda (target)	
+;; 						(kdebug '(log-* log-map) (name self) "[" (my 'name)
+;; 								  ":" (cnc self) "]" "in log-data"
+;; 								  (cnc target) (slot-ref target 'name))
+
+;; 						(let* ((name (slot-ref target 'name))
+;; 								 (p (slot-ref self 'local-projection))
+;; 								 ;; to spit out a ps file we need to project the 
+;; 								 ;; modelspace data into the PS domain
+;; 								 (ps (slot-ref self 'file))
+;; 								 )
+;; 						  (ps 'Comment "logging data for " name "****************")
+;; 						  (ps 'moveto (list (p '(20 20))))
+;; 						  (ps 'push-color (my-map-color self))
+;; 						  (ps 'Helvetica 14)
+;; 						  (ps 'show (string-append (slot-ref self 'name)))
+;; 						  (ps 'pop-color)
+;; 						  (ps 'comment "finished logging data for " name)
+;; 						  )))
+;; 				  )
 
 
 ;---- log-data methods (inherits from <logfile>)

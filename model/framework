@@ -1,4 +1,4 @@
-; -*- mode: scheme; -*-
+o; -*- mode: scheme; -*-
 ;-  Identification and Changes
 
 ;--
@@ -166,7 +166,7 @@
 
 (define-macro (define% formals #!rest body)
   `(define ,formals
-	  (timing-block ',(car formals)
+	  (timing-block ,(car formals)
 						 ,@body)))
 
 ;;; (define-macro (define% formals #!rest body)
@@ -213,38 +213,64 @@
 	 txt))
 
 
+;; Example:
+;; (update-closure <plant> (age mass taxon location)
+;;                         (list (slot-ref self 'age)
+;;                               (slot-ref self 'mass)
+;;                               (slot-ref self 'taxon)
+;;                               (slot-ref self 'location))
+;;                         (list (lambda (t dt a m t l) (set! age (+ age dt)))
+;;                               (lambda (t dt a m t l) (set! mass (mass-at-age (+ age dt))))
+;;                               (lambda (t dt a m t l) #!void)
+;;                               (lambda (t dt a m t l) #!void)
+;;                               
+;;                               
+
 ;; This is *totally* non-functional.  Looks good, but doesn't do the job
-(define-macro (update-closure clsid viup)
-  (if (not (apply = (cons 3 (map length  viup))))
-		(error "the second argument to an update-closure expression must be alist of triples of the form (vsym inival updatefunc)" viup))
+(define-macro (update-closure clsid v l u)
+  (let ((vluip (map list v l u)))
+	 (if (not (apply = (cons 3 (map length  viup))))
+		  (error "the second argument to an update-closure expression must be alist of triples of the form (vsym inival updatefunc)" viup))
 
-  (let ((vl (map (lambda (x) (list-head x 2)) viup))
-		  (up (map caddr viup))
-		  )
-
-	 (let ((txt `(let* ((initial-conditions ',viup)
-								(V (list ,@(map (lambda (x) (cons (car x) (cadr x))) vl))) ;; this is the a-list of values
-								(update ,(map cons (map car vl) up))
-								)
-						(lambda (action #!rest args)
-						  (case action
-							 ((variables) (map car V))
-							 ((values) (map cdr V))
-							 ((reset)  ,@(map (lambda (x)
-													  (list 'assoc-set! 'V (car x) (cadr x)))
-													(map (lambda (x) (list-head x 2)) viup)))
-							 ((id) id)
-							 ((update)
-							  (let ((dt (car args)))
-								 (let ((V2 (map (lambda (u x)
-														(cons x (apply u (cons dt (map cdr V)))))
-													 update V)))
-									(set! V V2))))
-							 (else 
-							  (dnl* "No, sorry.  You shouldn't have parked here."))))
-						))
+	 (let ((vl (map (lambda (x) (list-head x 2)) viup))
+			 (up (map caddr viup))
 			 )
-		txt)))
+
+		(let ((txt `(let* ((initial-conditions ',viup)
+								 (V (list ,@(map (lambda (x) (cons (car x) (cadr x))) vl))) ;; this is the a-list of values
+								 (update ,(map cons (map car vl) up))
+								 )
+						  (letrec ((L (lambda (action #!rest args)
+											 (case action
+												((quit) V)
+												((variables) (map car V))
+												((values) (map cdr V))
+												((reset)  ,@(map (lambda (x)
+																		 (list 'assoc-set! 'V (car x) (cadr x)))
+																	  (map (lambda (x) (list-head x 2)) viup)))
+												((id) id)
+												((update)
+												 (let ((dt (car args)))
+													(let ((V2 (map (lambda (u x)
+																		  (cons x (apply u (cons dt (map cdr V)))))
+																		update V)))
+													  (set! V V2))))
+												(else 
+												 (dnl* "No, sorry.  You shouldn't have parked here."))))
+										  ))
+							 ;; This indirection is so the memory associated with
+							 ;; the update becomes inaccessible automatically.  Of
+							 ;; course the calling code has to throw away the update function for cleanup to occur...
+							 (lambda (action #!rest args)
+								(if (eq? action 'quit)
+									 (let ((rslt (apply L (cons action args))))
+										(set! L #f)
+										rslt)
+									 (apply L (cons action args))))
+							 ))
+					  ))
+		  txt)))
+  )
 
 
 
@@ -544,7 +570,7 @@
 			(tag (string->symbol (string-append (symbol->string mname) "-" (symbol->string (car classlst)))))
 			)
 	 `(model-method ,classlst (,mname ,(cadadr madness) ,@mm-args)
-						 (timing-block ',tag	,@body)
+						 (timing-block ,tag	,@body)
 						 ;;; (let* ((result (begin (start-timer ',tag) ,@body)))
 						 ;;; 	(stop-timer ',tag)
 						 ;;; 	result)
@@ -701,7 +727,7 @@ will not have access to the kernel.
 ;;					  (let ((result (begin (start-timer ',tag)	,@body)))
 					  ;;						 (stop-timer ',tag)
 					  ;;result))))
-					  (timing-block ',tag ,@body))))
+					  (timing-block ,tag ,@body))))
 					  
 
 

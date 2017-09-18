@@ -1,7 +1,7 @@
 % -*- outline-regexp: "%--* ";  -*-
 \message{Chapter 4}
 
-\chapter[A RING-LIKE STRUCTURE OF TREES]{A non-unital ring-like structure of trees}\label{treering}
+\chapter[A RING-LIKE STRUCTURE OF TREES]{A ring-like structure of trees}\label{treering}
 \section{Introduction}
 The project which triggered the development of the structure in this
 chapter considered using the modeling of the social dynamics
@@ -53,10 +53,14 @@ This had the advantages of simplicity and clarity, but their very
 simplicity made the multiplicative operator much more complicated. I
 realised that much of the machinery associated with labels was really
 just a messy version of arithmetic in commutative ring-like structure of
-multinomials. I believe that using the field of rational multinomials
+multinomials. Once labels were identified with multinomials, everything became
+clear.  I believe that using the field of rational multinomials
 may be productive, but this notion has not been seriously explored.
-Once labels were identified with multinomials, everything became
-clear.
+
+The structure is, loosely speaking, a set comprised of disjoint
+subsets with a corresponding family of additive operators (one to
+each subset). Each subset is closed under its addition, and there is a
+multiplicative operator which is defined over the whole set.
 
 \section{Conventions and preliminary definitions}
 
@@ -87,16 +91,18 @@ called \emph{simple nodes, simple trees}, or \emph{leaf nodes}, and
 simple nodes which also have scalar multinomials as their labels may
 be referred to as \emph{scalar nodes} or \emph{scalar trees}. The
 domain of trees, $\DOMstar$, is the collection of only those trees
-with a finite number of nodes.  We will make use of a special element
-in $\DOMstar$, $\zerotree = (0, 0, \emptyset)$, which is an an
-analogue of zero that we will call the \emph{zerotree}.
+with a finite number of nodes.  We will make use of a set of special
+elements in $\DOMstar$, $\zerotree = (0, 0, \emptyset)$, which is an
+an analogue of zero that we will call the \emph{zerotree}.
 
-In this work, we will largely be concerned with a subset of
-$\DOMstar$, $\DOM$ which consists only of trees whose root nodes have
-a label equal to zero. This subdomain obviously includes \tzerotree,
-and will be closed under the arithmetic operations we define. The
-other
-
+In this work, we will occasionally restrict ourselves to an arbitrary
+subset of $\DOMstar$, Once labels were identified with multinomials,
+everything became clear. We will take $\DOMp$ to be the set of trees
+whose root nodes have a label equal to $\nlabel{p}$. The element
+$\pzerotree = (0, \nlabel{p}, \emptyset)$ will be shown to play the
+role of the additive identity in the set $\DOMp$; we will use the
+symbol \tzerotree more generally to refer to an appropriate member of
+the set of additive zero elements unless it creates ambiguity.
 
 %% \begin{definition}
 %% A node, $\node{u}$, is a representative of a recursive, acyclic
@@ -124,41 +130,41 @@ other
 
 Note that the choice to use elements of the \polytypes for labels is, in a
 sense, arbitrary: elements of any commutative ring will serve, though
-we will see that if we use a commutative ring, $\DOM$ and the derived
+we will see that if we use a commutative ring, $\DOMstar$ and the derived
 domains are also commutative; here, the \polytypes provide a
 simple example which is easily manipulated and printed. 
 $\FIELD$ is taken to be $\mathbb{R}$ or $\mathbb{Q}$.
 
 \begin{definition}\label{compatibility}
-Two nodes or trees, $\node{u}$, $\node{v}$ are said to be
-\emph{compatible\/} if they have the same label, or at least one has
-a label equal to zero.
+Two nodes or trees, $\node{u}$, $\node{v} \in \DOMp for
+some \nlabel{p} \in \PLY{A}$ are said to be
+\emph{compatible\/} if they have the same label.
 \[
   \node{u} \sim \node{v} \iff  
   \node{u}\in\set{R}_{\nlabel{v}} \iff 
   \node{v}\in\set{R}_{\nlabel{u}}.
 \]
-Clearly, all the trees in $\DOM$ are compatible.
+Clearly, all the trees in $\DOMp$ are compatible, and we will denote the
+set of all nodes of the form $(0, \nlabel{p}, \emptyset)$ with $\ZEROTREE$.
 \end{definition}
 
 When there is no risk of ambiguity, we will use the same symbol to
-refer to a set, $\DOM$ for example, and a vector space based on that
+refer to a set, $\DOMstar$ for example, and a vector space based on that
 set. Compatibility (or lack thereof) is really only pertinent to the
 addition of trees, in the same way that having the same row- and
 column-rank is only necessary in matrix addition.  There is no such
 constraint in the pairwise multiplication of trees.
 
-
 First, the definitions for some basic tools for manipulating these
 trees. Some of the functions defined below are not used in this chapter, but
-play a role in the explicit model described in \Cfive.
+play a role in the explicit model described in \Cfive.  
 
 \begin{definition}
-  The cardinality of a tree is the number of nodes it contains. We
+  The cardinality of a tree $\node{u}\in\DOMstar$ is the number of nodes it contains. We
   define it formally as
   \begin{align*}
   \Tcard{\node{u}} = \begin{cases}
-    0 & \text{ if } \node{u} = \zerotree\\
+    0 & \text{ if } \nv{u} = 0 \mand \child = \emptyset\\
     1 + \sum_{\node{e}\in\child{u}} \Tcard{\node{e}}.
     \end{cases}
   \end{align*}
@@ -168,11 +174,11 @@ cardinality of zero.
 \end{definition}
 
 \begin{definition}
-  For \(\node{u} \in \DOMstar\) we define the function
+  For any \(\node{u} \in \DOMstar\) we define the function for 
   \marginnote{\Defn of \(\depth(\node{u})\)}
-  \begin{align*}
+  \begin{align*} 
     \depth(\node{u}) = \begin{cases}
-      0 & \text{ if } \node{u} = (0,0,\emptyset) = \zerotree \\
+      0 & \text{ if } \nv{u} = 0 \mand \child = \emptyset\\
       1 & \text{ if } \node{u} \text{ is a simple node} \\
       1 + \max(\lbrace\depth(\node{v}):\forall \node{v} \in \child{u}\rbrace) & otherwise
     \end{cases}
@@ -185,9 +191,9 @@ cardinality of zero.
   \marginnote{\Defn of \(\trim(\node{u})\)}
   \begin{align*}
       \trim(\node{u}) = \begin{cases}
-        \zerotree & \text{ if } \node{u} = \zerotree \\
+        \zerotree & \nv{u} = 0 \mand \child = \emptyset\\
         \zerotree & \text{ if } \node{u} \text{ is simple} \\
-        \Node{\nv{u}}{\nlabel{u}}{\lbrace \trim(\node{e}): \forall\node{e}\in\child{u} \rbrace \setminus \{\zerotree\}} & otherwise.
+        \Node{\nv{u}}{\nlabel{u}}{\lbrace \trim(\node{e}): \forall\node{e}\in\child{u} \rbrace \setminus \{\ZEROTREE\}} & otherwise.
       \end{cases}
   \end{align*}
 \end{definition}
@@ -204,7 +210,7 @@ of trimming will be denoted \(\trim_{k}\), indicating that the tree
 The \emph{overlap} between two trees is defined
 \[
   \overlap(\node{u},\node{v}) = \begin{cases}
-    0 & \text{ if } \node{u} = \zerotree \mor \node{v} = \zerotree \mor \nlabel{u} \neq \nlabel{v} \\
+    0 & \text{ if } \node{u} \in \ZEROTREE \mor \node{v} \in \ZEROTREE \mor \nlabel{u} \neq \nlabel{v} \\
     1 + \displaystyle\sum_{\substack{\node{e}\in\child{u} \\
         \node{f}\in\child{v}}} \overlap(\node{e},\node{f}) & \text{otherwise}
   \end{cases}
@@ -213,9 +219,10 @@ The \emph{overlap} between two trees is defined
 Clearly two trees, \tnode{u} and \tnode{v}, are compatible if and only if \(\overlap(\node{u},\node{v}) \neq 0 \); they will
 be said to \emph{completely overlap} if \(\Tcard{\node{u}} = \Tcard{\node{v}} =
 \overlap(\node{u},\node{v})\).
-%We may also make use of the relative overlap of two nodes, \tnode{u} and \tnode{v}, given by \[\overlap_{r}(\node{u},\node{v})
-%= \frac{2 \overlap(\node{u},\node{v})}{\Tcard{\node{u}}+\Tcard{\node{v}}}.\] The relative overlap of  \tzerotree with itself is
-%not defined.
+
+We may also make use of the relative overlap of two nodes, \tnode{u} and \tnode{v}, given by \[\overlap_{r}(\node{u},\node{v})
+= \frac{2 \overlap(\node{u},\node{v})}{\Tcard{\node{u}}+\Tcard{\node{v}}}.\] The relative overlap of  \tzerotree with itself is
+not defined.
 \end{definition}
 
 \begin{definition}
@@ -223,10 +230,11 @@ The \emph{shadow} cast by a tree, \tnode{v}, onto another tree,
 \tnode{u}, is given by
 \[
 \shadow(\node{u},\node{v}) = \begin{cases}
-  \left(\nv{u},\nlabel{u},\{\shadow(\node{r},\node{s}):\node{r}\in\child{u},\node{s}\in\child{v}\}\setminus\{\zerotree\}\right)&\text{if~}\nlabel{u}=\nlabel{v}\\
+  \left(\nv{u},\nlabel{u},\{\shadow(\node{r},\node{s}):\node{r}\in\child{u},\node{s}\in\child{v}\}\setminus\{\ZEROTREE\}\right)&\text{if~}\nlabel{u}=\nlabel{v}\\
   \zerotree&\text{otherwise}
 \end{cases}
 \]
+where \tnode{u} and \tnode{v} are compatible.
 \end{definition}
 This lets us restrict our attention to those parts of a tree which
 conform to some ``template'' tree.  
@@ -286,7 +294,7 @@ The aim of this work is to be able to compare trees in a robust way
 and to manipulate them as though they were vectors: trees which form
 a vector space,  or -- better -- a metric space, which can be compared and
 clustered. We will start by defining scalar multiplication of the trees in
-$\DOM$, and then we will define a few useful mappings which will help
+$\DOMstar$, and then we will define a few useful mappings which will help
 keep the expressions simple. Our aim, in this section, is to define
 addition, and to show that the defined scalar multiplication and
 addition make this a vector space. When there is no risk of ambiguity,
@@ -331,12 +339,11 @@ Now we define the addition of two trees,
       \set{B}\stplus\set{C} = \childO{B}{C}{r}{s}{+}.
   \end{align*}
 \end{definition}
-\
 
 
 \section{Properties of a vector space}
-In this section we prove that the defined elements and operations give
-us a vector space.  
+In this section we prove that the elements of $\DOM$ and operations give
+us a vector space. 
 
 \begin{proposition}\label{vspace} $\DOM$, with scalar multiplication
   and tree addition is a vector space.
@@ -888,8 +895,7 @@ trees. My motivation for establishing these properties is mainly that
 it may broaden the set of mathematical tools we have at our
 disposal to analyse sets of trees (clustering, classification,
 interpolation, extrapolation\ldots).  The element \((1,1,\emptyset)\)
-acts as a multiplicative identity, but this will not be useful to us
-since it lies outside the domain we are considering.
+acts as a multiplicative identity.
 
 \begin{definition}\label{rtreemult}
   We define the multiplication of two trees (or nodes) to be
@@ -899,10 +905,9 @@ since it lies outside the domain we are considering.
      (\rv{u} \rv{v}, \rlabel{u} \rlabel{v}, \rlabel{u} \rchild{v} \stplus \rlabel{v} \rchild{u}) & \text{  otherwise}.
   \end{cases}
   \]
-  
 \end{definition}    
 
-where the notation $\rlabel{u} \rchild{v}$or $\rchild{v} \rlabel{u}$ corresponds to the set
+where the notation $\rlabel{u} \rchild{v}$ or $\rchild{v} \rlabel{u}$ corresponds to the set
 obtained by multiplying each label in the root node of the set
 $\rchild{v}$ by the label $\rlabel{u}$. Clearly, if the set in the
 operation (on either side) is null, then the result is null.
@@ -1060,7 +1065,7 @@ Multiplication of trees in $\DOMR$ is associative.
 
 \section{Discussion}
 
-This metric space arose from attempts to capture the nuanced
+This set of metric spaces arose from attempts to capture the nuanced
 associations in survey questions like \textsl{``Thinking about the
   weather forecast, how would you rate the chances of your favourite
   sporting team in the coming match?''\/} and to be able to incorporate
@@ -1071,16 +1076,23 @@ work became more coherent, the underlying mathematical structure began
 to emerge, and the realisation that the trees might be useful for
 representing more than survey responses came about. The basic
 heuristic comparisons used in exploring the survey data were replaced
-with a better behaved metric based on the tree norm
-
-Applying trees in this manner, in a program which might conceivably
-take weeks to run or be the basis of management decisions, would
-require more robust foundations than a heuristic function.
+with a better behaved metric based on the tree norm.
 
 The loosely defined structure was defined and converted into a vector
 space so that I could then construct model-spaces from a set of basis
 elements corresponding to submodels. Extending this structure to the
 assessment of configurations required a metric space.
+
+In principle, we can treat each distinct symbol in a label as a 
+length in an axis orthogonal to each of the other symbols.  This
+interpretation makes a heuristic ``distance'' function between trees
+quite simple.  This avenue has not yet been explored; the trees used
+in the example model of Chapters \ref{adaptiveselection}
+and \ref{explicitmodel} largely makes use of the simple functions for
+cardinality, overlap and shadow.
+
+
+
 
 In the example model developed later, the states of the model as a
 whole, subdomains of the model and the components within the model are
@@ -1097,7 +1109,6 @@ demonstrating the adaptive selection of models using abstracted
 representations of the model's components and of the model's
 configuration. These representations are in the form of trees in
 $\DOMR$ with particular forms.
-
 
 
 %% In this context, the difference between a conditional assessment and

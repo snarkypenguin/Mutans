@@ -203,7 +203,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 
 ;; Run till end without pause.  If you are a penguin, run without paws.
 (define (Doit q #!optional nend)
-  (if nend (set! end nend))
+  (if nend (set! end (* nend weeks)))
   (display "Ok.\n")
   (let ((state (kdebug-message-state))
 		  )
@@ -267,7 +267,7 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 ;;======================================================================
 
 (dnl "Run with (Doit Q) to run from the start to the end\n")
-(dnl "Run with (doit Q n) to run for n days (not necessarily n ticks!)")
+(dnl "Run with (doit Q n) to run for n weeks")
 (dnl "             so you can run the next step in a similar fashion\n")
 (dnl "Close up shop with (shutdown-agents Q) -- this closes files and things.")
 (dnl "Runtime data can be printed with (times), more detailed data comes with (timer-report)")

@@ -42,60 +42,108 @@ changes, we hope not too many.
 "
 ;-- fundamental monitor class methods
 
-;;; ;--- initialisation -;
-;;; (agent-initialisation-method <monitor> (args) (specific-targets '() selector (lambda x #f) tree '(0 0 {})) -;
-;;; 									  (parent-initialise) -;
-;;; 									  ;; call "parents" last to make the initialisation list work -;
-;;; 									  ) -;
+;--- model-body
+(model-body <monitor>
+				(let ((sched (my 'timestep-schedule))
+						)
+				  
+				  (if (kdebug? 'introspection-trace)
+						(pp (dumpslots self)))
+				  
+				  (set! dt (if (and (pair? sched) (< (car sched) (+ t dt)))
+									(- (car sched) t)
+									dt))
 
-;--- pass-preparation
+				  (kdebug '(monitor-* introspection-trace)
+							 "      list:     " (map name (my-list self)))
+				  (kdebug '(monitor-* introspection-trace)
+							 "      schedule: "
+							 (list-head (my 'timestep-schedule) 3)
+							 (if (> (length (my 'timestep-schedule)) 3)
+								  '... ""))
+
+				(kdebug '(monitor-bodies model-bodies) "In" (cnc self))
+				;; pass-preparation is subclass specific
+
+				(manage-configuration self)
+
+				(call-all-parents)
+				dt)
+				)
+
+
+
+;--- manage-configuration -- equivalent to emit-page
+(model-method (<monitor>) (manage-configuration self)
+				  (let ((kind (my 'assessment-domain)))
+				  (if (not (or (my 'file) (file-handle? (my 'file)) (output-port? (my 'file))))
+						(open-output-handle self))
+
+
+				  (pass-preparation self (unique (append (slot-ref self 'target-list) (slot-ref self 'specific-agents))) '())
+
+
+					 (let ((proc (lambda (ila)
+										(kdebug '(monitor-* introspection-trace) " ==> processing "
+												  (cnc ila) " "  (procedure? ila) kind)
+
+										(kdebug '(chaintrack) "about to call do-assessement" (my-list self))
+										(do-assessment ila self kind (my 'variables))
+										(kdebug '(chaintrack) "back from do-assessment")
+										(kdebug '(monitor-* introspection-trace) " <== PROCESSED "
+												  (cnc ila) " "  (procedure? ila))
+										#f
+										)))
+						(for-each proc (my-list self))
+						)
+
+				  ;; pass resolution *may* be subclass specific.
+				  ;;    The default calls (resolve-agent ...) for each of the members of flagged-agents
+
+				  (pass-resolution self kind)
+				  ))
+
+
+
+
+;--- pass-preparation -- equivalent to page-preamble
 ;; This method sets the list of agents to be dealt with to the empty list
-(model-method (<monitor> <list>) (pass-preparation self subject-list args)
+;; format indicates which level of assessment is happening
+(model-method (<monitor> <list>) (pass-preparation self format)   
 				  (parent-body)
 				  (slot-set! tree '(0 0 {}))
 				  (slot-set! self 'flagged-agents '())
 				  ;; The flagged-agents will change representation
+
+				  (do-assessment ila self format)
+
+				  ;; Set things up for constructing the set of trees that describe the configuration
+				  
 				  )
 
-;--- process-agent
+;--- do-assessement -- equivalent to log-data
 ;; the selector function returns #f only if an agent should be excluded
-(model-method (<monitor> <agent>) (process-agent self subject args)
+(model-method (<monitor> <agent>) (do-assessment self subject args)       ;; t
 				  ;; Usually restricted to a domain, niche or agent representation
 				  ;; primarily used to construct a tree to represent the configuration's suitability 
 				  ;; and interdependencies.
-				  ;; The "trunk" of the tree is constructed here, agents may populate the leaves
+
 				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
-				  
-				  (let ((status ((my 'trigger-selector) subject)))
-					 (if status (set-my! 'flagged-agents (cons subject (my 'flagged-agents)))))
 				  
 				  #t)
 
-;--- pass-resolution
-(model-method (<monitor> <list>) (pass-resolution self subject-list args)
+;--- pass-resolution --  equivalent of page-epilogue
+(model-method (<monitor> <list>) (pass-resolution self )  
 				  (for-each
 					(lambda (subject)
-					  (resolve-agent self subject-list args)
+					  (resolve-assessment self subject-list args) ;; 
 					  (kdebug "Tidying up" (slot-ref subject 'name) "at" t "+" dt))
 					subject-list)
 				  #t)
 
-;--- model-body
-(model-body <monitor>
-				(kdebug '(monitor-bodies model-bodies) "In" (cnc self))
-				;; pass-preparation is subclass specific
-				(pass-preparation self (unique (append (slot-ref self 'target-list) (slot-ref self 'specific-agents))) '())
-				(for-each
-				 (lambda (x)
-					(process-agent self x)) ;; defined by derived classes
-				 (kernel 'runqueue)) ;; gets the runqueue.  Does not consider agents which are not in the runqueue.
-				;; pass resolution *may* be subclass specific.
-				;;    The default calls (resolve-agent ...) for each of the members of flagged-agents
-				(pass-resolution self (slot-ref self 'flagged-agents) '())
-				(parent-body)
-				dt)
 
 ;-- Niche monitors -- These create and store trees representing the possible configurations and their strengths/weaknesses
+
 ;--- Generic infrastructure 
   
 

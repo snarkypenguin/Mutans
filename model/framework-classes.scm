@@ -106,6 +106,7 @@ direction"
 (define-class <plottable>
   (inherits-from <projection>)
   (state-variables location direction
+						 always-plot
 						 default-location-type
 						 default-font default-size 
 						 default-color
@@ -256,11 +257,12 @@ direction"
 (define-class <tracked-agent>
   (inherits-from <agent> <plottable>)
   (state-variables track track-state track-state-vars
+						 multiplicity 
 						 dim
 						 speed max-speed
 						 tracked-paths 
 						 track-datum ;; a value to be emitted with the track or #f
-))
+						 ))
 ;; "track" will either be a list like (... (t_k x_k y_k) ...) or false
 ;; "tracked-paths" is a list of non-false traces or false This is the
 ;; basic class to derive things that have a memory of their past.

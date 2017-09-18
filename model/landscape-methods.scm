@@ -389,17 +389,19 @@
 				  )
 
 
-(model-method (<environment>) (random-point self) ;; returns a random location in the environment
+(model-method (<environment>) (random-point self #!optional alien) ;; returns a random location in the environment
 				   ;;(let ((n (my 'minv)))
 				  ;;  (map + (map * (map random-real n) (map - (my 'maxv) (my 'minv))) (my 'minv)))
-				  (if #f
-						(random-location (my 'minv) (my 'maxv))
-						(let ((theta (* 2 (acos -1)))
-								;(r (random-real) (/ + (radius self) (Radius self)))
-								(r (* (random-real)  (radius self)))
-						  )
-						  (list (* r (cos theta)) (* r (sin theta)))
-				  )))
+				  (let ((RP  (if #f
+									  (random-location (my 'minv) (my 'maxv))
+									  (let ((theta (* 2 (acos -1)))
+											  ;;(r (random-real) (/ + (radius self) (Radius self)))
+											  (r (* (random-real)  (radius self)))
+											  )
+										 (list (* r (cos theta)) (* r (sin theta)))))))
+					 
+					 (if alien ((composite-prj_src->dst self alien) RP) RP)
+				  ))
 
 ;-- <ecoservice> methods and bodies
 
@@ -491,17 +493,17 @@ via their containing patch.
 
 
 ;; 
-(define (simple-ecoservice taxon dt name variable value cap r maxdt growing? growthmodel . patch)  
+(define (simple-ecoservice taxon dt nm variable value cap r maxdt growing? growthmodel . patch)  
   (if (pair? patch)
 		(set! patch (car patch)))
 		
-  (if (not (and (string? taxon) (string? name) (symbol? variable ) (number? value)
+  (if (not (and (string? taxon) (string? nm) (symbol? variable ) (number? value)
 					 (number? cap) (number? r) (number? maxdt) (boolean? growing?)
 					 (or (symbol? growthmodel) (procedure? growthmodel))))
 			  (error "Type error in call to simple-ecosystem: "
 						(cond
 						 ((not (string? taxon))  (string-append "taxon " (object->string taxon)))
-						 ((not (string? name))  (string-append "name " (object->string name)))
+						 ((not (string? nm))  (string-append "name " (object->string nm)))
 						 ((not (symbol? variable))  (string-append "variable " (object->string variable)))
 						 ((not (number? value))  (string-append "value " (object->string value)))
 						 ((not (number? cap))  (string-append "cap " (object->string C)))
@@ -514,7 +516,7 @@ via their containing patch.
     
   (let ((A (create <ecoservice> taxon
 						 'dt dt
-						 'name (string-append (name patch) ":" (strsub name " " "_"))
+						 'name (string-append (name patch) ":" (strsub nm " " "_"))
 						 ;; string corresponding to its name, like "Vulpes lagopus"
 						 'sym variable
 						 ;; 'Vl perhaps
@@ -560,6 +562,9 @@ via their containing patch.
 									 (newline))
 								  slots vals)))
 
+
+(model-method <ecoservice> (number-represented self)
+				  (slot-ref self 'value))
 
 ;---- query & set
 
@@ -693,7 +698,7 @@ via their containing patch.
 						  ;;		#f))
 						  )
 					 (kdebug '(log-horrible-screaming ecoservice log-ecoservice) (cnc self) (cnc format) (cnc (my 'name)))
-					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+					 (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (let ((file (slot-ref logger 'file)))
 							 (kdebug '(log-* log-ecoservice)
 										"[" (my 'name) ":" (cnc self) "]"
@@ -1451,7 +1456,7 @@ via their containing patch.
 
 (model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)
 				  (dnl* "(model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)")
-				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+				  (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let* ((file (slot-ref logger 'file))
 								 (p (composite-prj_src->dst self logger))
 								 )
@@ -1985,7 +1990,7 @@ args can be  an update map or an update map and update equations
 				  (dnl* "(model-method (<patch> <log> <symbol> <list>) (log-data self logger format targets)")
 				  (let ((kdebug (if #t kdebug  dnl*))
 						  )
-					 (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+					 (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (let ((file (slot-ref logger 'file))
 								  (p (slot-ref self 'projection-assoc-list)))
 							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))
@@ -2364,7 +2369,7 @@ args can be  an update map or an update map and update equations
 				  (let ((kdebug (if #t kdebug dnl*))
 						  )
 					 
-					 (if (emit-and-record-if-absent logger self (my 'subjective-time))
+					 (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						  (let ((ps (slot-ref logger 'file))
 								  (p (slot-ref self 'projection-assoc-list)))
 							 (if (or (not p) (null? p))  (set! p (lambda (x) x)))

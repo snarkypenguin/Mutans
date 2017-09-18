@@ -1,4 +1,4 @@
-;-*- mode: scheme; -*-
+
 ;-  Identification and Changes
 
 
@@ -684,6 +684,7 @@ which represents an exponent. "
 ;---- (polynomial item) make an object into a polynomial
 (define (polynomial item)
   (cond
+	((symbol? item) (symbol->polynomial item))
 	((string? item) (string->polynomial item))
 	((polynomial? item) item)
 	((term? item) (list item))
@@ -1385,6 +1386,9 @@ which represents an exponent. "
 				 ((null? st) (apply * nl))
 				 (#t (cons (apply * nl) st))))))))
 
+(define (symbol->polynomial s)
+  (list (list 1 (list s 1))))
+
 ;----- (polynomial->string p) and (string->polynomial pstr) convert between strings like 4 + 2 x + 2 x^2 y^3 and (4 (2 (x 1)) (2 (x 2)(y 3)))
 
 (define (string->polynomial pstr)
@@ -1503,6 +1507,21 @@ which represents an exponent. "
 				 )
 				(#t (error "bad polynomial" p))))))))
 
+
+;----- (polynomial->string p) returns either #f (not a polynomial that can be a symbol) or a symbol
+(define (polynomial->symbol p)
+  (if (and (pair? p) (null? (cdr p))
+			  (= 1 (caar p)) (null? (cddar pf))
+			  (pair? (cadar p))
+			  (null? (cddar p))
+			  (let ((f (cadar p)))
+				 (and (symbol? (car f))
+						(= 1 (cadr f))
+						(null? (cddr f)))))
+		(caadar p)
+		#f))
+
+
 ;----- (polynomial->string p) emit a string corresponding to the polynomial
 (define (polynomial->string p)
   (cond
@@ -1542,19 +1561,21 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;-- Constructors 
 
 (define (node3 wt lbl children)
-  (if (and (number? wt)
-			  (polynomial? lbl)
-			  (or (null? children)
-					(apply andf (map node3? children))))
-		(list wt lbl children)
-		(error "Bad node3 specification" wt lbl children)))
+  (cond
+	((symbol? lbl) (node3 wt (symbol->polynomial lbl) children))
+	((string? lbl) (node3 wt (string->polynomial lbl) children))
+	((and (number? wt) (polynomial? lbl)
+			(or (null? children) (apply andf (map node3? children))))
+	 (list wt lbl children))
+	(else  (error "Bad node3 specification" wt lbl children))))
 
 (define (node2 lbl children)
-  (if (and (polynomial? lbl)
-			  (or (null? children)
-					(apply andf (map node2? children))))
-		(list wt lbl children)
-		(error "Bad node2 specification" lbl children)))
+  (cond
+	((symbol? lbl) (node2 (symbol->polynomial lbl) children))
+	((string? lbl)	(node2 (string->polynomial lbl) children))
+	((and (polynomial? lbl)	(or (null? children) (apply andf (map node2? children))))
+	 (list wt lbl children))
+	(else (error "Bad node2 specification" lbl children))))
 
 (define (children2% #!rest args)
   (if (or (null? args) (apply andf (map node2? args)))
@@ -1581,6 +1602,13 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 ((2) (apply node2 args))
 	 ((3) (apply node3 args))
 	 (else (error "Bad length in node constructor" args))))
+
+(define (tree-root% #!rest children)
+  (cond
+	((children? children) (list 0 0 (list-copy children)))
+	((children? (car children)) (list 0 0 (list-copy (car children))))
+	(else (error "Bad, wicked, naughty, children!"))
+	))
 
 ;-- Important "constants": emptyset, zerotree
 
@@ -1789,6 +1817,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  (else #f)
 		  )
 		#f))
+
 (define tree*? tree+?)
 
 ;--- (simple-node? n)  node with empty set of children
@@ -2633,7 +2662,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 					  (map (lambda (x) (list-ref c2 (index-in klst (label x)))) c1))))
 	 R))
 
-;----  (boxplus X Y) the arguements are sets of children
+;----  (boxplus X Y) the arguments are sets of children
 
 (define (boxplus X Y)
   (let*((X+y (U-restricted-to-V X Y))
@@ -2659,9 +2688,17 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			 (equal '() (children x))))
 	A))
 
-(define (boxcross p C)
-	(less-zerotree (map (lambda (c) (list (weight c) (p* p (label c)) (children c))) C))
-  )
+
+
+
+
+
+
+(define (boxcross A B)
+ (less-zerotree  (let ((Y (map (lambda (c) (tree* (label B) c)) (children A)))
+							  (X (map (lambda (c) (tree* (label A) c)) (children B)))
+							  )
+						 (boxplus X Y))))
 
 ;----  (tree3+ x y) 
 (define (tree3+ x y)
@@ -2869,18 +2906,20 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				)))
 	  (else (error "too many arguments to tree2*" args))
 	  )
-	 )
+  )
+
+
 
 (define (tree3* . args)
-  (let* ((tP (filter polynomial? args))
-			(P (let ((Q (apply p* tP)))
+  (let* (;; the product of the polynomials & numbers
+			(P (let ((Q (apply p* (filter polynomial? args))))    
 				  (cond
 					((null? Q) 1)
 					((number? Q) Q)
 					((and (list? Q) (= 1 (length Q)) (number? (car Q)))	(car Q))
 					(#t Q))))
+			;; The trees in the product
 			(T (filter node? (!filter polynomial? args)))
-			(result #f)
 			)
 	 (let ((R
 			  (cond
@@ -2891,8 +2930,10 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				 (let ((A (car T))(B (cadr T)))
 					(list (* (weight A) (weight B))
 							(p* (label A) (label B))
-							(boxplus (boxcross (label B) (children A))
-										(boxcross (label A) (children B))))))
+							
+							;(boxplus (boxcross (label B) (children A))
+							;			  (boxcross (label A) (children B)))
+							)))
 				(#t (let ((B (apply tree3* (cdr T))))
 						(tree3* (car T) B)))))
 			 )
@@ -3078,7 +3119,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 (define (tree-interpolate t1 t2 pivot)
   (if (and (<= 0 pivot) (<= pivot 1))
-		(tree+ (tree* (- 1 pivot) t1) (tree* pivot t2))
+		(ree+ (tree* (- 1 pivot) t1) (tree* pivot t2))
 		(error "the pivot must be in [0,1]" pivot)))
 
 (define (p-n . arg)

@@ -684,7 +684,7 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 
 
 
-(define (stoch-walk here there dt ndt attr sp)	 
+(define (stoch-walk- here there dt ndt attr sp)	 
   (let* ((v-component (lambda (p v) (map (lambda (x) (* p x)) v)))
 			(dir (v-component attr (normalise (map - there here))))
 			(theta (* (- (* 2 (random-real)) 1) pi))
@@ -695,6 +695,15 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 			)
 	 (map (lambda (x) (* radius x)) (map + D dir))))
 		  
+(define (stoch-walk here there dt ndt attr sp)	 
+  (let* ((direct (normalise (sub there here))) ;; direction of travel
+			(Dmax (* dt sp)) ;; maximum displacement
+			(theta (* (- (* 2 (random-real)) 1) pi))
+			(delta (list (cos theta) (sin theta)))
+			(r (min (* sp (/ dt ndt)) (power (random-real) -1/2))))
+	 (add (mult (* attr r) direct) (mult (* (sub 1 attr) r) delta))))
+		  
+
 (define (remainder* f g)
   (remainder (inexact->exact (round f))
 				 (inexact->exact (round g))))

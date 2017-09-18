@@ -53,10 +53,12 @@
 ;;;  		;;(pp txt) ;; Uncomment to print the constructed code during the startup phase 
 ;;;  		txt)))
 
+
 (define restricted-kernel-access #f)
 
 ;; assesses the current representation of *this* agent
 
+(model-method (<agent>) (number-represented self) 1)
 
 
 (model-method (<agent> <symbol>) (has-data? self key)
@@ -650,9 +652,10 @@ commonly viewed as just a simple extension of sclos.
 ;; is automatically lost, that *only* the allowed changeds are possible, and that we can
 ;; enforce controls on what is granted access.
 
+;; [EXAMPLE of constructing an accessor function]
 (model-method (<agent> <agent> <symbol>) (request-accessor self intruder sym #!rest args)
 				  (case sym
-					 ((set!) ;; This shows how to restrict the ability to make a setter to members of 
+					 ((set!) ;; This shows how to restrict the ability to make a setter to members of  
 					  (if (not (eq? (class-of self) (class-of intruder))) ;; the same class, for example
 							(error)
 							(let ((slt (car args)))
@@ -802,7 +805,6 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
   ;; radius
   ;; polygon
   
-
   (if (location-needs-location@ self)
 		(let ((p (apply location@ (cons self args))))
 		  (if (not (or (point? p) (point-list? p)))
@@ -837,6 +839,8 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 		)
   )
 
+(model-method (<projection> <projection>) (get-location self source)
+				  ((composite-prj_src->dst source self) (location source)))
 
 (model-method <plottable> (location* self)
 				  (slot-ref self 'location)
@@ -1196,6 +1200,10 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 						 (slot-set! x 'suspended-at (slot-ref x 'subjective-time))
 						 (excise x asubs))
 					  targets)))
+
+(model-method (<general-array>)
+				  (number-represented self)
+				  (length (slot-ref self 'data)))
 
 (model-method% (<general-array> <log> <symbol>) (log-data self logger format targets)
 				  (dnl* "(model-method% (<general-array> <log> <symbol>) (log-data self logger format targets)")
@@ -2388,10 +2396,6 @@ A typical defns list would be like
   )
 		
 		  
-		
-		
-
-
 
 ;---- <tracked-agent> methods
 
@@ -2406,13 +2410,15 @@ A typical defns list would be like
 
 ;; This records the track in the native ordinate space of the submodel!
 (model-method (<tracked-agent> <number> <point>) (track-location! self t loc)
-				  (let ((myt (my 'track)))
+				  (let ((myt (my 'track))
+						  (myts (my 'track-state)))
 					 (if (eq? myt #t) (set! myt '()))
+					 (if (eq? myts #t) (set! myts '()))
 
 					 (set! myt (append myt (list (cons t loc)))) ;; t, (x y z) --> (t x y z)
 					 (set-my! 'track myt)
 
-					 (if (and (my 'track-state)(my 'track-state-vars))
+					 (if (and (my 'track-state) (my 'track-state-vars))
 						  (let ((stt (append (list (cons t (map (lambda (s) (slot-ref self s)) (my 'track-state-vars))) (my 'track-state)))))
 							 (set-my! 'track-state (cons stt (my 'track-state)))))
 					 ))
@@ -2527,7 +2533,7 @@ A typical defns list would be like
 
 (model-method (<plottable> <log-map> <symbol>) (log-data self logger format targets)
 				  (dnl* "(model-method (<plottable> <log-map> <symbol>) (log-data self logger format targets)")
-				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+				  (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let ((file (slot-ref logger 'file))
 								)
 						  (kdebug '(log-* log-tracked-agent) ":" targets)
@@ -2544,7 +2550,7 @@ A typical defns list would be like
 (model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)
 				  (dnl* "(model-method (<tracked-agent> <log-map> <symbol>) (log-data self logger format targets)")
 				  (parent-log-data)
-				  (if (or (my 'always-log) (emit-and-record-if-absent logger self (my 'subjective-time)))
+				  (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
 						(let ((file (slot-ref logger 'file))
 								)
 						  (kdebug '(log-* log-tracked-agent) ":" targets)
@@ -2592,6 +2598,8 @@ A typical defns list would be like
 (model-method (<tracked-agent>) (speed self)
 					(slot-ref self 'speed))
 
+(model-method (<tracked-agent>)
+				  (number-represented self) 1)
 
 ;----- (set-speed!) 
 (model-method (<tracked-agent> <number>) (set-speed! self n)

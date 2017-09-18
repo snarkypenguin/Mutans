@@ -38,7 +38,7 @@
   (state-variables file format variables
 						 filename
 						 variables-may-be-set missing-val show-field-name
-						 preamble-state introspection-targets
+						 preamble-state ;;introspection-targets
 						 report-time-table ;output-projection
 						 ;; These last two are here because it is
 						 ;; entirely likely that there will be
@@ -57,7 +57,7 @@
 (define-class <logfile> (inherits-from <log>)
   (state-variables
 	pagecount
-	preamble-state introspection-targets
+	preamble-state ;;introspection-targets
 	default-file-arguments
 	include-key
 	separate-pages ;; -- #t indicates that you want

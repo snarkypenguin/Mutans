@@ -195,7 +195,6 @@ exploration."
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
   (state-variables name taxon representation
-
 						 class-migration-list ;; a list that indicates what the classes this class may be moved to
 						 transition-points ;; boundaries for transitions in the form (sym val sym val sym ...)
 						 transition-function ;; a function calculated using the transition points
@@ -223,6 +222,9 @@ exploration."
 						 ;; this needs to be true if the agent does
 						 ;; not implement its own model-body
 
+						 ;; a list of "niches" this fills.
+
+						 niche
 						 ;; a list of things the agent "provides"
 						 provides 
 						 ;; a list of things the agent "requires"

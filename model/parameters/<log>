@@ -1,6 +1,6 @@
 ; -*- mode: scheme; -*-
 'Parameters
-(define <log-introspection>-parameters
+(define <log>-parameters
   (list
 	 (list 'report-time-register '($ (make-table))) ;; This is done on a by/agent basis for obvious reasons
 	 ;;(list 'type 'logger)
@@ -22,4 +22,4 @@
 	 (list 'default-color ps-black)
   )
 )
-(set! global-parameter-alist (cons (cons <log-introspection> <log-introspection>-parameters) global-parameter-alist))
+(set! global-parameter-alist (cons (cons <log> <log>-parameters) global-parameter-alist))

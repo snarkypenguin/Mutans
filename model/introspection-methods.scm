@@ -106,7 +106,7 @@
 
 (model-method (<introspection>) (my-list self)
 				  (let ((mit (my 'introspection-targets))
-						  (Q (agent-kcall self 'runqueue))) ;; This is how an agent would usually call the kernel 
+						  (Q (agent-kcall self 'runqueue))) ;; This is how an agent would usually call the kernel [EXAMPLE]
 
 					 (sortless-unique
 					  (letrec ((loop (lambda (mitr mlist)

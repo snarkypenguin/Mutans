@@ -38,14 +38,13 @@
 (define-class <monitor>
 	(inherits-from <introspection>)
 
-	(state-variables selector ;; selects agents (used mostly in derived classes)
+	(state-variables file ;; for recording actions
 						  assessment-domain ;; a list which defines the ambit of the monitor
-						  configuration-candidates ;; 
 						  domain*-options ;; set of sets of trees associated with domains
 						  niche*-options  ;; set of sets of trees associated with niches
 						  assessment-function ;; compares set of states
 						  history  ;; records transitions
-						  target-list ;; target agents 
+						  ;;introspection-targets ;; target agents 
 						  specific-agents ;; agents which are always included
 						  KnownGood KnownBad
 
@@ -66,16 +65,14 @@ composition of both the population and the constituents which comprise
 an agent. In many ways, monitors are similar to introspection agents."
 
 
-(define-class <domain-monitor>  ;; most likely to be associated with the population of a landscape, but not necessarily so
+(define-class <agent-monitor> ;; test individual agents.  This is the one that will trigger the transition from  ABM to EBM at critical levels
   (inherits-from <monitor>)
-  (state-variables domain-list domain-selector)
-  ;; the domain list is the list of agents which comprise the notional domain
-  ;; the monitor patrols
-  )
-
-;; A domain monitor may have a number of niche level monitors which
-;; are associated with it; they would typically be included in its
-;; domain-list
+  (state-variables zones indicator-function)
+  ;; zones is a list of lists which are either of the form (variable-symbol flag-symbol min max) or
+  ;; of the form (flag-symbol indicator-function) where the function is passed "self"
+  ;; if the indicated variable has a value in a given interval, or the function returns #t,
+  ;; the corresponding flag is included in a component list of a returned list.
+)
 
 
 (define-class <niche-monitor> ;; this is most likely to be associated with the 'provides and 'needs/requires lists
@@ -86,15 +83,18 @@ an agent. In many ways, monitors are similar to introspection agents."
 						 )
   )
 
+;; A domain monitor may have a number of niche level monitors which
+;; are associated with it; they would typically be included in its
+;; domain-list
 
-(define-class <agent-monitor> ;; test individual agents.  This is the one that will trigger the transition from  ABM to EBM at critical levels
+(define-class <domain-monitor>  ;; most likely to be associated with the population of a landscape, but not necessarily so
   (inherits-from <monitor>)
-  (state-variables zones indicator-function)
-  ;; zones is a list of lists which are either of the form (variable-symbol flag-symbol min max) or
-  ;; of the form (flag-symbol indicator-function) where the function is passed "self"
-  ;; if the indicated variable has a value in a given interval, or the function returns #t,
-  ;; the corresponding flag is included in a component list of a returned list.
-)
+  (state-variables domain-list domain-selector)
+  ;; the domain list is the list of agents which comprise the notional domain
+  ;; the monitor patrols
+  )
+
+
 
 
 

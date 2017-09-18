@@ -20,21 +20,49 @@
 
 (define model-timing-data '())
 
-(define (timing-report)
+(define (timing-report #!optional flag)
+  (let ((mtd (case flag
+				  ((#f all cpu) (sort model-timing-data (lambda (x y) (<= (cadr x) (cadr y)))))
+				  ((sys) (sort model-timing-data (lambda (x y) (<= (cadr x) (caddr y)))))
+				  ((real) (sort model-timing-data (lambda (x y) (<= (cadr x) (cadddr y)))))
+			  )
+
+
+
   (for-each
 	(lambda (x)
-	  (dnl* (let* ((s (object->string (car x))) (S (string-append (make-string (max 0 (- 40 (string-length s))) #\space) s))) S)
-;			  "| cpu:"  (cadr x) ": sys" (caddr x) ": real-time" (cadddr x)
-			  "| cpu:"  (cadr x) ": real-time" (cadddr x)
-			  ))
+	  (apply dnl* (let* ((s (object->string (car x))) (S (string-append (make-string (max 0 (- 40 (string-length s))) #\space) s))) S)
+				(case flag
+				  ((#f)  (list "| cpu:"  (cadr x) ": real-time" (cadddr x)))
+				  ((all) (list "| cpu:"  (cadr x) ": sys" (caddr x) ": real-time" (cadddr x)))
+				  ((cpu) (list "| cpu:"  (cadr x)))
+				  ((sys) (list "| sys" (caddr x)))
+				  ((real) (list "| real-time" (cadddr x)))
+			  )))
 	model-timing-data))
 
 (define (aggregate-model-timing-data)
-  (dnl* 'Oink)
   (for-each
 	(lambda (x)
 	  (let ((dat (apply add (cdr x))))
 		 (set-cdr! x dat) ;; dat is a list of lists of numbers, we want the colum sums
 		 ))
 	model-timing-data))
+
+(define (elapsed-times tag)
+  (let ((v (assq tag model-timing-data)))
+	 (if v (list-tail  1) v)))
+
+(define (elapsed-cpu-time tag)
+  (let ((v elapsed-times tag))
+	 (if v (car v) v)))
+
+(define (elapsed-sys-time tag)
+  (let ((v elapsed-times tag))
+	 (if v (cadr v) v)))
+
+(define (elapsed-real-time tag)
+  (let ((v elapsed-times tag))
+	 (if v (caddr v) v)))
+
 

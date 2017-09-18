@@ -1,4 +1,4 @@
--*- mode: scheme; -*-
+;-*- mode: scheme; -*-
 ;-  Identification and Changes
 
 
@@ -766,6 +766,7 @@ which represents an exponent. "
 ;---- (polynomial item) make an object into a polynomial
 (define (polynomial item)
   (cond
+	((symbol? item) (symbol->polynomial item))
 	((string? item) (string->polynomial item))
 	((polynomial? item) item)
 	((term? item) (list item))
@@ -1467,6 +1468,13 @@ which represents an exponent. "
 				 ((null? st) (apply * nl))
 				 (#t (cons (apply * nl) st))))))))
 
+
+;----- (symbol->polynomial pstr) 
+
+(define (symbol->polynomial sym)
+  (list (list 1 (list sym 1))))
+
+
 ;----- (polynomial->string p) and (string->polynomial pstr) convert between strings like 4 + 2 x + 2 x^2 y^3 and (4 (2 (x 1)) (2 (x 2)(y 3)))
 
 (define (string->polynomial pstr)
@@ -1507,6 +1515,7 @@ which represents an exponent. "
 		(if (null? P)
 			 '(0)
 			 P))))
+
 
 ;----- (poly-string-term t form) generate a string for a term
 (define (poly-string-term t form)

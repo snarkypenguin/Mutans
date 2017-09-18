@@ -2,6 +2,10 @@
 'Parameters
 (define <animal>-parameters
   (list
+   ;; operational limits (instance-min instance-max multiplicity-min multiplicity-max fidelity speed)
+	(list 'rep-limits (list '(0 55 1 1 5 (/ 600 minute))))
+
+	(list 'always-plot #t)
 	(list 'current-interest '())
 	(list 'must-maintain '(age mass location sex domain last-reproduced))
 	(list 'last-reproduced +inf.0) ;; since they haven't reproduce yet by default

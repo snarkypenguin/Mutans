@@ -1,4 +1,5 @@
 ; -*- mode: scheme; -*-
+
 ;-  Identification and Changes
 
 ;--
@@ -75,6 +76,8 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 ; (map (lambda (x) ((mapf (slot-ref pslog 'model->local)) x)) (map perimeter patchlist))
 
+(define PLOT-SCALE 10)
+
 
 ;-- generate output mappings (must happen after the model domain is set
 ;;  using set-model-domain
@@ -137,8 +140,8 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (if (> treescale 2) (set! tree-configuration 'array))
 
 (define chains-per-patch (* treescale 1))
-(define clusters-per-chain (* treescale 2))
-(define trees-per-cluster (* treescale 3))
+(define clusters-per-chain (* treescale 1))
+(define trees-per-cluster (* treescale 1))
 
 
 (dnl "The set") ;-------------------------------------------------------------------
@@ -229,7 +232,9 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 																														 (plant (create <example-plant> ptax
 																																			 'location (random-point self)
 																																			 'domain self 
-																																			 'age A 'mass (mass A))))
+																																			 'age A 'mass (mass A)
+																																			 'plot-scale PLOT-SCALE ;; to make them easier to see
+																																			 )))
 																												  (slot-set! self 'memory (cons plant (slot-ref self 'memory)))
 																												  ;; each patch has a list of trees so we can keep density dependence effects
 																												  plant
@@ -335,7 +340,9 @@ on for a chain with a lenght equal to the number of cells we are using.
 				 (list
 				  (create <example-plant> ptax
 							 'age (* 36 years) 'age-at-instantiation (* 36 years) 'location domain-centre
-							 'domain (car patchlist) 'domain (car patchlist))
+							 'domain (car patchlist) 'domain (car patchlist)
+							 'plot-scale PLOT-SCALE
+							 )
 				  t)) ;; mass is set using the mass-at-age function in the agent-prep stage
 				
 				((array)
@@ -358,6 +365,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 				(else
 				 (map (lambda (x) ;; x marks the spot
 						  (create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x))
+						  'plot-scale PLOT-SCALE
 						  ) ;; mass is set using the mass-at-age function in the agent-prep stage
 						Loci)
 				 ))
@@ -439,8 +447,8 @@ on for a chain with a lenght equal to the number of cells we are using.
 (define CA '())
 
 (define use-animals-per-patch #t)
-(define N-jherb 4)
-(define N-aherb 2)
+(define N-jherb 1)
+(define N-aherb 1)
 (define N-acarn 1)
 
 
@@ -450,7 +458,9 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-jherb
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
+							 'plot-scale PLOT-SCALE
+									))
 					 )
 				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
 				(slot-set! a 'domain p)
@@ -465,7 +475,9 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-aherb
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)))
+			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
+							 'plot-scale PLOT-SCALE
+									))
 					 )
 				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
 				(slot-set! a 'domain p)
@@ -481,7 +493,9 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-acarn
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)))
+			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)
+							 'plot-scale PLOT-SCALE
+									))
 					 )
 				(slot-set! a 'age-at-instantiation (slot-ref a 'age))
 				(slot-set! a 'domain p)
@@ -568,7 +582,9 @@ on for a chain with a lenght equal to the number of cells we are using.
 							  'local->model (mapping 'inverse)
 							  'dt (* 5 days)
 							  'filename-timescale days
-							  'introspection-targets (list <plant-array> <plant> <animal>)
+							  'introspection-targets
+							  ;(list <plant-array> <plant> <animal> <patch>)
+							  (list <patch> <plant-array> <plant> <aherb> <jherb> <acarn>)
 							  ;(append (list <patch> <example-plant> <aherb> <jherb>) patchlist)
 							  )))
 			 (set! Q (q-insert Q pslog Qcmp)) ;; these will go in earlier than the others 

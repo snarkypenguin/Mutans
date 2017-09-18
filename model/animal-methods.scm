@@ -359,7 +359,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					 ))
 
 
-(model-method (<simple-animal> <number> <point> <number> <number>)
+(model-method (<simple-animal> <number> <point> <number> <number>) ;; point must already be in the agent's model space
 				  (wander-around self dt point attr speed)
 				  ;; This is not ideal, but will have to do.
 				  (let ((vector-to-target  (map - point (my 'location)))
@@ -370,7 +370,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 					 (set-my! 'location (map + (my 'location) displacement))
 					 ))
 
-(model-method (<simple-animal> <number> <point> <number> <symbol>)
+(model-method (<simple-animal> <number> <point> <number> <symbol>) ;; point must already be in the agent's model space
 				  (wander-around self dt point attr speedtag) ;;
 				  (wander-around self dt point attr (my speedtag)))
 
@@ -384,7 +384,7 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 							(sated-quantity (my 'sated-quantity))
 							(max-satiety (my 'max-satiety))
 							)	
-					  (timing-block 'simple-animal-modal-dt
+					  (timing-block simple-animal-modal-dt
 										 (set! dt (modal-dt self dt)))
 
 					  ;; body for juvenile herbivores
@@ -508,9 +508,9 @@ with the following differences:
 				  )
 
 ;; This routine brings a consumer to within the 'eat-radius of the prey
-;; It does *not* select prey
-(model-method (<example-animal> <thing>) (hunt self dt target #!optional target-location)
-				  (if (not target-location) (set! target-location (location target)))
+;; It does *not* select prey; if target-location is specified, it must already be in the agent's coord system
+(model-method (<example-animal> <thing>) (hunt self dt target #!optional target-location) 
+				  (if (not target-location) (set! target-location (get-location self target)))
 				  (let* ((location (my 'location))
 							(D (distance location target-location))
 							(H (if (has-slot? self 'hunt-speed) (my 'hunt-speed) +nan.0)) ;; pursuit
@@ -529,7 +529,7 @@ with the following differences:
 					 (set-speed! V)
 					 (set-my! 'movement-speed V)
 					 ;;HERE!!!
-					 (wander-around self dt point 0.85 dv) ;; the 0.9 gives us overshoot and cornering error
+					 (wander-around self dt target-location 0.85 dv) ;; the 0.9 gives us overshoot and cornering error
 					 
 					 (cond
 					  ((and (<= (distance (location self) (location target)) (my 'capture-radius))
@@ -654,7 +654,7 @@ with the following differences:
 													((null? interest) 'wander)
 													(else interest))))
 
-						(if (and (eq? main-interest 'hunting) (<= (min (cons +inf.0 (map (lambda (x) (distance (my 'location) (location x))) (my 'prey-list))))
+						(if (and (eq? main-interest 'hunting) (<= (min (cons +inf.0 (map (lambda (x) (distance (my 'location) (get-location self x))) (my 'prey-list))))
 																				(my 'eat-radius)))
 							 (set! main-interest 'eating))
 
@@ -662,7 +662,9 @@ with the following differences:
 						  ('flee
 							;; flight is simpler than hunting
 							(let ((point (map (lambda (x) (* max-speed dt x))
-													(map - (my 'location) (my 'objective))))
+													(map - (my 'location) (if (agent? (my 'objective))
+																					  (get-location self (my 'objective))
+																					  (my 'objective)))))
 									)
 							  (wander-about self dt point 0.8 max-speed) ;; Without inertia, this may be a bit wonky.
 							  )
@@ -674,7 +676,7 @@ with the following differences:
 								((not (null? F))
 								 (set-my! 'main-interest 'hunting)
 								 (set-my! 'objective (car F))
-								 (wander-about self (* 0.8 dt) (location (car F)) 0.8 hunt-speed) ;; Without inertia, this may be a bit wonky.
+								 (wander-about self (* 0.8 dt) (get-location self (car F)) 0.8 hunt-speed) ;; Without inertia, this may be a bit wonky.
 								 )
 								(else
 								 (wander-about self dt (random-point (my 'environment)) 0.6 hunt-speed) ;; Without inertia, this may be a bit wonky.
@@ -828,17 +830,24 @@ with the following differences:
 
 						(if (or (> (my 'period-of-hunger) (* 1 day)) (< fruit-density (my 'food-density-limit)))
 							 (let* ((loc (location self))
-									  (wt (lambda (x) (/ (value x 'fruit) (+ 1 (distance loc (location x)))))) ; move
+									  (wt (lambda (x) (/ (value x 'fruit) (+ 1 (distance loc (get-location self x)))))) ; move
+									   ;;(target (let look ((p patchlist) (b (wt (my 'domain))) (cp (my 'domain)))
+										;;				 (if (null? p)
+										;;					  cp
+										;;					  (let ((nb (wt (car p))))
+										;;						 (look (cdr p) (if (> nb b) nb b) (if (> nb b) (car p) cp))))))
 									  (target (let look ((p patchlist) (b (wt (my 'domain))) (cp (my 'domain)))
-														 (if (null? p)
-															  cp
-															  (let ((nb (wt (car p))))
-																 (look (cdr p) (if (> nb b) nb b) (if (> nb b) (car p) cp))))))
+													(if (null? p)
+														 cp
+														 (let ((nb (wt (car p))))
+															(look (cdr p) (if (> nb b) nb b) (if (> nb b) (car p) cp))))))
 									  )
 								(if #t
 									 (dnl* "jherb: hungry" (my 'period-of-hunger) "fruit-density" fruit-density "/" (my 'food-density-limit)))
+									
+								(dnl* (name self) (location self) (location target) (get-location self target))
 
-								(wander-around self dt (location target) 0.8 (my 'forage-speed))
+								(wander-around self dt ((composite-prj_src->dst self target)(random-point target)) 0.8 (my 'forage-speed))
 								))
 
 						;; This may get bumped by short timesteps, .... 
@@ -860,6 +869,7 @@ with the following differences:
 
 				 ;; *****************************************************************************************
 				 ;; This is an example of preserving state information for transfer to a new representation
+				 ;; [EXAMPLE of state preservation for new rep'n]
 				 ;; 
 				 ((and (not (member (agent-state self) '(dead terminated))) (>= (+ (my 'age) dt) (my 'max-age)))
 				  (let ((slotset (filter (lambda (x)

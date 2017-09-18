@@ -3,10 +3,13 @@
 (define <plant>-parameters
   (list
 	(list 'note "<plant> is based on data from the One Oak project.")
+   ;; operational limits (instance-min instance-max multiplicity-min multiplicity-max fidelity speed)
+	(list 'rep-limits (list '(0 200 1 1 5 (/ 800 minute))))
 
 	(list 'class-migration-list (list (cons 'super-individual <plant-array>)
 												 (cons 'eqn-based <population-system>))) ;; population-systems / diffeq-systems will need hand-tooled support
 	(list 'must-maintain '(agent-state mass peak-mass age location leaf-area forage-damage water-stress domain last-reproduced))
+	(list 'always-plot #t)
 
 	(list 'track-state #f)
 	;;(list 'proxy-class <plant-proxy>)
