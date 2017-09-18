@@ -21,25 +21,22 @@
 (define model-timing-data '())
 
 (define (timing-report #!optional flag)
-  (let ((mtd (case flag
-				  ((#f all cpu) (sort model-timing-data (lambda (x y) (<= (cadr x) (cadr y)))))
-				  ((sys) (sort model-timing-data (lambda (x y) (<= (cadr x) (caddr y)))))
-				  ((real) (sort model-timing-data (lambda (x y) (<= (cadr x) (cadddr y)))))
-			  )
-
-
-
-  (for-each
-	(lambda (x)
-	  (apply dnl* (let* ((s (object->string (car x))) (S (string-append (make-string (max 0 (- 40 (string-length s))) #\space) s))) S)
-				(case flag
-				  ((#f)  (list "| cpu:"  (cadr x) ": real-time" (cadddr x)))
-				  ((all) (list "| cpu:"  (cadr x) ": sys" (caddr x) ": real-time" (cadddr x)))
-				  ((cpu) (list "| cpu:"  (cadr x)))
-				  ((sys) (list "| sys" (caddr x)))
-				  ((real) (list "| real-time" (cadddr x)))
-			  )))
-	model-timing-data))
+  (let ((ref (case flag
+				  ((#f all cpu) cadr)
+				  ((sys) caddr)
+				  ((real) cadddr)
+				  (else (error "Unrecognised flag, should be left blank, or 'all 'cpu 'sys or 'real" flag)))))
+	 (for-each
+	  (lambda (x)
+		 (apply dnl* (let* ((s (object->string (car x))) (S (string-append (make-string (max 0 (- 40 (string-length s))) #\space) s))) S)
+				  (case flag
+					 ((#f)  (list "| cpu:"  (cadr x) ": real-time" (cadddr x)))
+					 ((all) (list "| cpu:"  (cadr x) ": sys" (caddr x) ": real-time" (cadddr x)))
+					 ((cpu) (list "| cpu:"  (cadr x)))
+					 ((sys) (list "| sys" (caddr x)))
+					 ((real) (list "| real-time" (cadddr x)))
+					 )))
+	  (sort model-timing-data (lambda (x y) (<= (ref x) (ref y)))))))
 
 (define (aggregate-model-timing-data)
   (for-each
