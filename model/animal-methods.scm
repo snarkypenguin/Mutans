@@ -297,21 +297,6 @@ food-satiety-rate is how many satiety points a mass of generic food is worth
 						  (* (- 1 (/ er (my 'recovery-time))) ms)
 						  ms)))
 
-;----- (self-assessment)
-"This is a placeholder ... it almost certainly needs to change"
-(model-method <simple-animal> (representation-assessment self #!rest args) 
-				  (if (null? args) ;; only passed self
-						(let ((rgr (/ (my 'mass) (* (my 'age))))
-								)
-						  (if (< rgr (* ngr 2)) 0 (- (/ rgr ngr) 2)) ;; steps over at (> rgr (* 3 ngr))
-						  )
-						(let ((n (car args)) ;; mixing assumption 
-								)
-						  (+ (/ n (my 'population-switch)))
-						  ))
-				  )
-
-
 
 
 ;----- (age) 

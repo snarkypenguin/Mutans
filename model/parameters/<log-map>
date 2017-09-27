@@ -5,6 +5,7 @@
   (list
   	 (list 'type 'log-data)
 	 (list 'no-model-body #t)
+	 (list 'representation 'graphic)
 	 (list 'format 'ps)
 	 (list 'default-file-arguments '(Helvetica Helvetica-Italic Helvetica-Bold
 																  Times-Roman Times-Italic Times-Bold))

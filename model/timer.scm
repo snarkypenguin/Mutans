@@ -51,15 +51,15 @@
 	 (if v (list-tail  1) v)))
 
 (define (elapsed-cpu-time tag)
-  (let ((v elapsed-times tag))
+  (let ((v (elapsed-times tag)))
 	 (if v (car v) v)))
 
 (define (elapsed-sys-time tag)
-  (let ((v elapsed-times tag))
+  (let ((v (elapsed-times tag)))
 	 (if v (cadr v) v)))
 
 (define (elapsed-real-time tag)
-  (let ((v elapsed-times tag))
+  (let ((v (elapsed-times tag)))
 	 (if v (caddr v) v)))
 
 

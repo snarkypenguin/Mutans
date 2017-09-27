@@ -390,6 +390,13 @@ commonly viewed as just a simple extension of sclos.
 					  )
 					 )
 				  )
+;----- (s/n% self)
+(model-method (<agent>) (s/n% self)
+				  (if #t
+						(string-append  (name self) "/"(symbol->string (representation self))"/" (number->string (my 's/n)))
+						(string-append  (name self) "/"(cnc self)"/" (number->string (my 's/n)))
+				  ))
+
 
 ;----- (name) 
 

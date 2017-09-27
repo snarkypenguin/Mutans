@@ -68,7 +68,68 @@
 (define abc (map (lambda (a) (list->string (list a)))
 					  (map (lambda (x) (integer->char (+ (char->integer #\a) x)))
 							 (seq 26))))
+(define abc$ (map string->symbol abc))
 
+
+;; (define (partition-set selector set)
+;;   (let loop ((alist '())
+;; 				 (S set))
+;; 	 (if (null? S)
+;; 		  (map cdr alist)
+;; 		  (let ((sig (selector (car S))))
+;; 			 (cond
+;; 			  ((null? S) alist)
+;; 			  ((null? alist)
+;; 				(loop (acons sig (car S) alist) (cdr S)))
+;; 			  ((member sig (map (car alist)))
+;; 				  (let ((R (assoc sig alist)))
+;; 					 (let ((r (cdr R)))
+;; 						(set-cdr! r (cons (car r) (cdr r)))
+;; 						(set-car! r (car s))))
+;; 				  (loop alist (cdr S)))
+;; 			 (else (loop (acons sig (car S) alist) (cdr S))))))))
+
+
+(define (dotted-pair? c)
+  (and (pair? c) (atom? (cdr c)) (not (null? (cdr c)))))
+
+(define (undot list-like)
+  (cond
+	((not (pair? list-like)) list-like)
+	((dotted-pair? list-like) (undot (car list-like)) (set-cdr! list-like (list (cdr list-like))))
+	(else (undot (car list-like)) (undot (cdr list-like))))
+  (void)
+  )
+								
+(define (append! lst bit)
+  (let ((L (cond
+				((null? lst) (list bit)) ;; This only works if we are defining or using (set! lst (append!...))
+				((and (pair? lst) (null? (cdr lst))) (set-cdr! lst (list bit)))
+				((pair? lst) (append! (cdr lst) bit)))))
+	 L))
+
+(define (insert! lst bit)
+  (let ((L (cond
+				((null? lst) (list bit)) ;; This only works if we are defining or using (set! lst (insert!...))
+				((pair? lst) (set-cdr! lst (cons (car lst) (cdr lst))) (set-car! lst bit))
+				(else (error "bad list" lst)))))
+	 L))
+  
+
+(define (partition-set selector set)
+  (let ((binning (map cons (map selector set) set)))
+	 (let ((bins (map list (sortless-unique (map car binning)))))
+		(for-each
+		 (lambda (item)
+			(for-each
+			 (lambda (bin)
+				(if (equal? (car bin) (car item))
+					 (set-cdr! bin (cons (cdr item) (cdr bin)))
+					 ))
+			 bins))
+		 binning)
+		(map cdr bins))))
+			
 (define (scaleT T)
   (cond
 	((< T 600) T)
@@ -545,6 +606,20 @@
 				(loop (cdr l))))))
 
 ;; This should be called like (set! lst (assoc-append lst ...))
+(define (assoc-insert alist key value)
+  (if (or (null? alist) (not (assoc key alist)))
+		(acons key (list value) alist)
+		(map (lambda (x)
+				 (if (and (pair? x) (equal? (car x) key))
+					  (set-cdr! x (if (pair? (cdr x))
+											(cons value (cdr x))
+											((if #t list cons) value (cdr x))))
+					  x))
+			  alist)
+		)
+  )
+
+;; This should be called like (set! lst (assoc-append lst ...))
 (define (assoc-append alist key value)
   (if (or (null? alist) (not (assoc key alist)))
 		(acons key (list value) alist)
@@ -609,17 +684,17 @@
 		  #f)))
 
 ;; Commented out only to avoid multiple definitions
-;;; (define (list2-assq-set! k v k2 v2) 
-;;;   (let loop ((kl k) (vl v))
-;;; 	 (cond ((or (null? kl) (null? vl)) #f)
-;;; 			 ((eqv? (car kl) k2) (set-car! vl v2))
-;;; 			 (else (loop (cdr kl) (cdr vl))))))
+;; (define (list2-assq-set! k v k2 v2) 
+;;    (let loop ((kl k) (vl v))
+;;  	 (cond ((or (null? kl) (null? vl)) #f)
+;; 			 ((eqv? (car kl) k2) (set-car! vl v2))
+;; 			 (else (loop (cdr kl) (cdr vl))))))
 
-;;; (define (list2-assq k v k2) 
-;;;   (let loop ((kl k) (vl v))
-;;; 	 (cond ((or (null? kl) (null? vl)) #f)
-;;; 			 ((eqv? (car kl) k2) vl)
-;;; 			 (else (loop (cdr kl) (cdr vl))))))
+;; (define (list2-assq k v k2) 
+;;   (let loop ((kl k) (vl v))
+;; 	 (cond ((or (null? kl) (null? vl)) #f)
+;; 			 ((eqv? (car kl) k2) vl)
+;; 			 (else (loop (cdr kl) (cdr vl))))))
 
 ;;(define-macro (++ i) `(let ((j ,i)) (set! ,i (+ 1 j))))
 ;;(define-macro (-- i) `(let ((j ,i)) (set! ,i (+ -1 j))))

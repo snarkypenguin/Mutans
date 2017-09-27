@@ -64,6 +64,7 @@ close pages and emit 'showpage' for postscript stuff.
 ;;    (*is-taxon? "Red VW-microbus" 'ci)
 ;;	   (*is-taxon? (list "grocer" "haberdasher" "butcher" "wheelwright"))
 
+(model-method <log> (number-represented self) 0) ;; they aren't *in* the model per se
 
 (model-method <log> (initialise-instance self)
 				  (if (uninitialised? (my 'report-time-table))

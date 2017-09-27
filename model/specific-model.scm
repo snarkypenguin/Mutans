@@ -132,12 +132,12 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define bigtrees #t)
 (define treescale 1)
 
+'(wasteland onetree trees array array+trees)
 ;(define tree-configuration 'wasteland)
 ;(define tree-configuration 'bush)
-(define tree-configuration 'array)
+;(define tree-configuration 'array)
 
-
-(if (> treescale 2) (set! tree-configuration 'array))
+(define tree-configuration 'array+trees)
 
 (define chains-per-patch (* treescale 1))
 (define clusters-per-chain (* treescale 1))
@@ -152,124 +152,161 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 (define ptax "B.exemplarii")
 
-;;(dnl* 'FRUIT  (* (numeric-parameter-lookup <example-plant> ptax 'fruit-mass) initial-fruit-m^2 (/ Model-Area (* M N))))
+'(dnl* 'FRUIT  (* (numeric-parameter-lookup <example-plant> ptax 'fruit-mass) initial-fruit-m^2 (/ Model-Area (* M N))))
 
 (define patchgrid
-  (let* ((grid (make-grid <patch> "ch3cell" "gridcell" 'area
-								  N M ;; array 
-								  Domain ;; geographic ll and ur
-								  (lambda (x y) ;; vertical displacement function
-									 (let ((x (/ x 10))
-											 (y (/ y 10)))
-										(* 10 (sqrt (+ (* x x) (* y y))))))
-								  'dt (* 1 days)
+  (let* ((grid (make-grid <patch> "ch3cell" "gridcell"
+					  'area ;; area is the representation
+					  N M ;; array 
+					  Domain ;; geographic ll and ur
+					  (lambda (x y) ;; vertical displacement function
+						 (let ((x (/ x 10))
+								 (y (/ y 10)))
+							(* 10 (sqrt (+ (* x x) (* y y))))))
+					  'dt (* 1 days)
+					  'caretaker
+ 					  (lambda (self t dt)
+						 ;; The number of seeds is attenuated by the ecoservice;
+						 ;; here, we potentially germinate some....
+						 
+						 ;; Filter the non-alive plants
+						 (slot-set! self 'memory
+										(let loop ((onpad (slot-ref self 'memory))
+													  (nnpad '()))
+										  (cond
+											((null? onpad) (reverse nnpad))
+											((and (is-class? (car onpad) <plant>)
+													(eq? (agent-state (car onpad)) 'alive))
+											 (loop (cdr onpad) (cons (car onpad) nnpad)))
+											((and (list? (car onpad)) (eq? (caar onpad) 'alive))
+											 (loop (cdr onpad) (cons (car onpad) nnpad)))
+											(else (loop  (cdr onpad) nnpad)))))
 
-								  'caretaker (lambda (self t dt)
-								  					;; The number of seeds is attenuated by the ecoservice;
-								  					;; here, we potentially germinate some....
+						 (let* ((seeds (value self 'seeds))
+								  (fruit (value self 'fruit))
+								  (^4 (lambda (x) (square (square x))))
+								  (competition
+									(^4
+									 (min 1. (/ patch-carrying-capacity
+													(+ 1 (length (slot-ref self 'memory)))))))
+								  (sgerminated
+									(max
+									 0 (+ -1
+											(inexact->exact
+											 (truncate
+											  (* seeds (- 1 (exp (- (* competition 0.001 (/  dt year)))))))))))
+								  (fgerminated
+									(max
+									 0 (+ -1
+										   (inexact->exact
+											 (truncate
+											  (* fruit (- 1 (exp (- (* competition 0.0001 (/  dt year)))))))))))
+								  (caretaker (list <agent> 'name "Treebeard" 'taxon 'O.tolkienii))
+								  ;; Onodrim tolkienii -- only here because KCALL needs something in the role.
+								  )
+							'(dnl* "Taking care" (name self) 't t 'Δ dt "|-- competition" competition
+									 "--|" seeds '+ fruit 'i '∈ (/ Model-Area (* M N)) "m^2"
+									 '==> sgerminated '+ fgerminated 'i)
 
-													;; Filter the non-alive plants
-													(slot-set! self 'memory
-																  (let loop ((onpad (slot-ref self 'memory))
-																				 (nnpad '()))
-																	 (cond
-																	  ((null? onpad) (reverse nnpad))
-																	  ((and (is-class? (car onpad) <plant>) (eq? (agent-state (car onpad)) 'alive))
-																		(loop (cdr onpad) (cons (car onpad) nnpad)))
-																	  ((and (list? (car onpad)) (eq? (caar onpad) 'alive))
-																		(loop (cdr onpad) (cons (car onpad) nnpad)))
-																	  (else (loop  (cdr onpad) nnpad)))))
-
-								  					(let* ((seeds (value self 'seeds))
-								  							 (fruit (value self 'fruit))
-															 (competition (square (square (min 1. (/ patch-carrying-capacity (+ 1 (length (slot-ref self 'memory))))))))
-															 ;;(sgerminated (max 0 (+ -1 (inexact->exact (truncate (* seeds (- 1 (exp (- (* competition
-															 ;;																					  0.001 (/  dt year)))))))))))
-															 ;;(fgerminated (max 0 (+ -1 (inexact->exact (truncate (* fruit (- 1 (exp (- (* competition
-															 ;;																					  0.0001 (/  dt year)))))))))))
-															 (sgerminated (max 0 (+ -1 (inexact->exact (truncate (* seeds (- 1 (exp (- (* competition 0.001 (/  dt year)))))))))))
-															 (fgerminated (max 0 (+ -1 (inexact->exact (truncate (* fruit (- 1 (exp (- (* competition 0.0001 (/  dt year)))))))))))
-															 (caretaker (list <agent> 'name "Treebeard" 'taxon 'O.tolkienii))
-															 ;; Onodrim tolkienii -- only here because KCALL needs something in the role.
-								  							 )
-													  ;;(dnl* "Taking care" (name self) 't t 'Δ dt "|-- competition" competition "--|" seeds '+ fruit 'i '∈ (/ Model-Area (* M N)) "m^2" '==> sgerminated '+ fgerminated 'i)
-								  					  (if (> (+ sgerminated fgerminated) 0)
-								  							(begin
-															  (if #t (let* ((nseeds (- seeds sgerminated))
-																				 (tnfruit (- fruit fgerminated))
-																				 (nfruit (if (< 0.5 tnfruit) 0 tnfruit)))
-																				 
-																		  (set-value! self 'seeds nseeds)
-																		  (set-value! self 'fruit nfruit))
-																	;(dnl* 'TRACKING (value self 'seeds) (value self 'fruit))
-																	)
-															  
-															  (let ((K (min patch-carrying-capacity (max 0 (+ sgerminated (magnitude fgerminated))))))
-																 ;; Clip the maximum number that can germinate 
-																 (if #t
-																	  (begin
-																		 (dnl* "Caretaker| total number of seeds and fruit:" (+ seeds (* fruit 0+1i)))
-																		 (dnl* "         |                      germinates:" K (+ sgerminated (* fgerminated 0+1i)))
-																		 (dnl* "         |                Number of plants:" (length (KCALL caretaker 'locate* (*is-class? <example-plant>))))
-																		 (dnl* "         |        Number of plants in array:"
-																				 (apply + (map (lambda (a) (if a (length (slot-ref a 'data)) 0))
-																									(KCALL caretaker 'locate* (*is-class? <plant-array>) Q)))
-																				 )
-
-																		 
-																		 ))
-																 
-																 (if #t (let* ((age (lambda () (* (+ 3 (random-real)) weeks))) ;; this keeps the place from looking too uniform
-																					(mass (lambda (a) (* (+ 1 (* 0.1 (- (random-real) 0.5))) (B.ex-mass a)))) ;; individual life-history perturbations
-																					(lai (numeric-parameter-lookup <example-plant> ptax 'lai))
-																					)
-																			 
-																			 (if #f
-																				  (begin
-																					 (list 'introduce (map
-																											 (lambda (i)
-																												(let* ((A (age))
-																														 (plant (create <example-plant> ptax
-																																			 'location (random-point self)
-																																			 'domain self 
-																																			 'age A 'mass (mass A)
-																																			 'plot-scale PLOT-SCALE ;; to make them easier to see
-																																			 )))
-																												  (slot-set! self 'memory (cons plant (slot-ref self 'memory)))
-																												  ;; each patch has a list of trees so we can keep density dependence effects
-																												  plant
-																												  ))
-																											 (seq K))
-																							 )
-																					 )
-																				  (let* ((F-list (KCALL caretaker 'locate* "B.exemplarii"))
-																							(forest (filter (*is-class? <plant-array>) F-list)))
-																					 (for-each
-																					  (lambda (i)
-																						 (if (and forest (not (null? forest)))
-																							  (let* ((A (age))
-																										(M (mass A))
-																										(plant (list 'alive M M A
-																														 (random-point self)
-																														 (general-leaf-area M lai) 0 0 self 0)))
-																								 (add-data-record (car forest) plant)
-																								 (slot-set! self 'memory (cons plant (slot-ref self 'memory))))
-																							  ;; each patch has a list of trees so we can keep density dependence effects
-																							  ;;(dnl* "NO FOREST")
-																							  )
-																						 )
-																					  (seq K))
-																					 'ok
-																					 ))
-																			 'ok)
-																	  'ok)
-																 )
-															  )
-															;; else nothing to do
-															)
+							(if (> (+ sgerminated fgerminated) 0)
+								 (begin
+									(if #t (let* ((nseeds (- seeds sgerminated))
+													  (tnfruit (- fruit fgerminated))
+													  (nfruit (if (< 0.5 tnfruit) 0 tnfruit)))
+												
+												(set-value! self 'seeds nseeds)
+												(set-value! self 'fruit nfruit))
+;(dnl* 'TRACKING (value self 'seeds) (value self 'fruit))
+										 )
+									
+									(let ((K (min patch-carrying-capacity
+													  (max 0 (+ sgerminated (magnitude fgerminated))))))
+									  ;; Clip the maximum number that can germinate 
+									  (if #t
+											(begin
+											  (dnl* "Caretaker| total number of seeds and fruit:"
+													  (+ seeds (* fruit 0+1i)))
+											  (dnl* "         |                      germinates:"
+													  K (+ sgerminated (* fgerminated 0+1i)))
+											  (dnl* "         |                Number of plants:"
+													  (length (KCALL caretaker 'locate*
+																		  (*is-class? <example-plant>))))
+											  (dnl* "         |        Number of plants in array:"
+													  (apply + (map (lambda (a)
+																			(if a (length (slot-ref a 'data)) 0))
+																		 (KCALL caretaker 'locate*
+																				  (*is-class? <plant-array>) Q)))
 													  )
-													) ;; end of caretaker lambda
-								  ) ;; end of make-grid
+
+											  
+											  ))
+									  
+									  (if #t (let* ((age (lambda () ;; this keeps the place from looking too uniform
+																  (* (+ 3 (random-real)) weeks))) 
+														 (mass (lambda (a) ;; individual life-history perturbations
+																	(* (+ 1 (* 0.1
+																				  (- (random-real) 0.5)))
+																		(B.ex-mass a)))) 
+														 (lai (numeric-parameter-lookup <example-plant> ptax 'lai))
+														 )
+												  
+												  (if #f
+														(begin
+														  (list 'introduce
+																  (map
+																	(lambda (i)
+																	  (let* ((A (age))
+																				(plant
+																				 (create
+																				  <example-plant> ptax
+																				  'location (random-point self)
+																				  'domain self 
+																				  'age A 'mass (mass A)
+																				  'plot-scale PLOT-SCALE
+																				  ;; to make them easier to see
+																				  )))
+																		 (slot-set! self
+																						'memory 
+																						(cons plant
+																								(slot-ref self 'memory)))
+																		 ;; each patch has a list of trees so we can
+																		 ;; keep density dependence effects
+																		 plant
+																		 ))
+																	(seq K))
+																  )
+														  )
+														(let* ((F-list (KCALL caretaker 'locate* "B.exemplarii"))
+																 (forest (filter (*is-class? <plant-array>) F-list)))
+														  (for-each
+															(lambda (i)
+															  (if (and forest (not (null? forest)))
+																	(let* ((A (age))
+																			 (M (mass A))
+																			 (plant
+																			  (list 'alive M M A
+																					  (random-point self)
+																					  (general-leaf-area M lai) 0 0 self 0)))
+																	  (add-data-record (car forest) plant)
+																	  (slot-set! self 'memory
+																					 (cons plant (slot-ref self 'memory))))
+																	;; each patch has a list of trees so we can
+																	;; keep density dependence effects
+																	;;(dnl* "NO FOREST")
+																	)
+															  )
+															(seq K))
+														  'ok
+														  ))
+												  'ok)
+											'ok)
+									  )
+									)
+								 ;; else nothing to do
+								 )
+							) ;; end of let*?
+						 ) ;; end of caretaker lambda
+					  ) ;; end of make-grid
 					))
 	 grid))
 
@@ -339,12 +376,46 @@ on for a chain with a lenght equal to the number of cells we are using.
 				((onetree)
 				 (list
 				  (create <example-plant> ptax
-							 'age (* 36 years) 'age-at-instantiation (* 36 years) 'location domain-centre
+							 'age (* 36 years)
+							 'age-at-instantiation (* 36 years)
+							 'location domain-centre
 							 'domain (car patchlist) 'domain (car patchlist)
 							 'plot-scale PLOT-SCALE
 							 )
 				  t)) ;; mass is set using the mass-at-age function in the agent-prep stage
 				
+				((array+trees)
+				 (let ((k (length Loci))
+						 (n (inexact->exact (truncate (/ (length Loci) 2)))))
+					(dnl* "Making" k "trees:" n "as <plant-array> vectors," (- k n) "as <plants>")
+					(cons 
+					 (create <plant-array> ptax
+						'provides '(vegetation)
+									
+						;; this *should* come from the parameter file
+									
+						'data (map (lambda (loc)
+										 (let* ((mass-at-age
+													(procedure-parameter-lookup
+													 <example-plant> ptax 'mass-at-age))
+												  (age (+ 10 (pprnd (* 4 years))))
+												  (mass (mass-at-age age))
+												  (area (general-leaf-area
+															mass
+															(numeric-parameter-lookup
+															 <example-plant> ptax 'lai)))
+												  (damage (pprnd (* 0.5 area)))
+												  )
+											(list 'alive mass mass age (car loc)
+													area damage 0.0 (cadr loc) 0)))
+									  (list-tail Loci n)))
+					 (map (lambda (x) ;; x marks the spot
+							  (create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x)
+										 'plot-scale PLOT-SCALE)
+							  ) ;; mass is set using the mass-at-age function in the agent-prep stage
+							(list-head Loci n))
+					 ))
+				 )
 				((array)
 				 (list (create <plant-array> ptax
 									'provides '(vegetation)
@@ -364,15 +435,23 @@ on for a chain with a lenght equal to the number of cells we are using.
 				
 				(else
 				 (map (lambda (x) ;; x marks the spot
-						  (create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x))
-						  'plot-scale PLOT-SCALE
-						  ) ;; mass is set using the mass-at-age function in the agent-prep stage
+						  (let ((p (create <example-plant> ptax 'location (car x)
+												 'domain (cadr x) 'domain (cadr x)
+												 'plot-scale PLOT-SCALE)
+									  ))
+							 (if (not (is-class? <example-plant>))
+								  (bad seeds))
+							 ;; mass is set using the mass-at-age function in the agent-prep stage
+							 ))
 						Loci)
 				 ))
 			 '())
 		)
 
+(dnl* "================>" (map cnc trees))
+
 (for-each (lambda (t) (set! Q (q-insert Q t Qcmp))) trees)
+
 (define N-trees (apply + (map (lambda (x) (cond ((is-class? x <plant>) 1) ((is-class? x <plant-array>) (length (slot-ref x 'data))) (else 0))) trees)))
 
 (dnl* "The rangeland contains" N-trees "plants")
@@ -593,7 +672,6 @@ on for a chain with a lenght equal to the number of cells we are using.
 		)          ;;; *is-class? creates a predicate function, there are also
                  ;;; *is-taxon? *has-slot?
   )
-
 
 
 ;========================================================================

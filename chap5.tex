@@ -151,6 +151,7 @@ language, namely
 \item[--] linking with compiled code in other languages,\\
 \item[--] able to support maintenance models\\
 \item[--] potential for parallelising and distributed execution.\\
+
 \listintertext*{and}
 \item[--] interpreted operation if possible,
 \end{itemize}
@@ -477,7 +478,7 @@ with a predator in a location and avoid the area.
 
 \begin{table}[H]
 \begin{center}
-  \caption{Basic individual-based rep\-re\-senta\-tions
+  \caption{Basic individual-based representations
   -- \fname{framework-classes.scm}\label{classtableIII}} 
   \begin{tabular}{l L{7cm}}
     \toprule 
@@ -1057,16 +1058,25 @@ ring, we can, in some cases, interpolate between configurations,
 arriving at possibly advantageous configurations which have not been
 explicitly specified.
 
-The processing has a number of steps:
+There is an overhead to using monitors to adjust the configuration,
+like loggers, they must run periodically and poll agents. While
+branching within a model is undoubtedly a lower cost, the tests
+attendent to both will be substantially similar, and by shifting the
+business of changing representation to an appropriate monitor, all
+representations for an entity automatically become capable of making
+that change without altering their code. 
+
+The processing loop for a \mclass{monitor} agent has a number of
+steps:
 \begin{itemize}
-\item[] Each of the agents will be queried for its status
+\item[---] Each of the agents will be queried for its status
 and its own assessment of its state in the context of the other
 elements it interacts with.  This may be fairly trivial for most
 agents, particularly those which change slowly, or are not
 significantly influenced by the activities of other agents.
 In the majority of cases, the agents will return a list with a
 self-assessment of their current levels of fidelity and cost.
-\item[] The monitor synthesises a number of representative
+\item[---] The monitor synthesises a number of representative
 state-trees which describe the status of the configuration of agents
 by taxon and niche, and it generates a state-tree which describes the
 current configuration. Other factors dealing with significant
@@ -1075,7 +1085,7 @@ geographic distributions, population numbers or density, the abundance
 of resources, or the presence of significant conditions such as fire,
 may be incorporated into the configuration trees and the candidate
 configuration trees.
-\item[] The monitor then compares the current state against
+\item[---] The monitor then compares the current state against
 the \emph{known-good} and \emph{known-bad} configurations, and records
 these values.  Each of the generated status trees is then compared
 with appropriate \emph{good} and \emph{bad} trees, and these data are
@@ -1127,15 +1137,14 @@ the pool.\footnote{This sort of issue is easy to recognise -- the
 computer rapidly becomes sluggish or almost completely unresponsive
 because it is spending all its time in swap space.}
 
-
 \subsubsection{Maintaining state across representations}
 
-When an entity changes its representation, its current representation
-may create an encapsulation of its critical state variables in a
-closure that is bound to a function which is able to access these
-variables, and to maintain their values. The closure may ultimately pass these
-values back to another agent which will take over the role played by
-the model maintenance function.
+When an entity is being prepared to change its representation, its
+current representation may create an encapsulation of its critical
+state variables in a closure that is bound to a function which is able
+to access these variables, and to maintain their values. The closure
+may ultimately pass these values back to another agent which will take
+over the role played by the model maintenance function.
 
 A typical closure definition might look like
 \begin{verbatim}
@@ -1186,16 +1195,134 @@ are returned with their symbolic tags in an association list.
 %% This is an uncomplicated system, more significant issues would arise
 %% in a parallelised system.  
 
-%% \subsection{Comparison of states}
-%% The first step in being able to quantitatively compare configurations
-%% of models is to construct a means for encoding the state in a way that
-%% supports some sort of qualitative or quantitative comparison.  The
-%% trees described briefly in \Cthree and more
-%% comprehensively in \Cfour are elements of a metric
-%% space. Since the set of indeterminate variables in the labels of these
-%% trees is quite arbitrary, we can identify cells and groups of cells
-%% explicitly with indeterminates, and we can also extend this to
-%% denoting representations which are in use or may be used.
+\subsection{Comparison of states}
+The first step in being able to quantitatively compare configurations
+of models is to construct a means for encoding the state in a way that
+supports some sort of qualitative or quantitative comparison.  The
+trees described briefly in \Cthree and more comprehensively in \Cfour
+are elements of a metric space. Since the set of indeterminate
+variables in the labels of these trees is quite arbitrary, we can
+identify any particular attributes of interest in a family of
+representations with with indeterminates, and we can also extend this
+to denoting the various representations for the modelled entities.
+
+The framework maps the configuration of the model to a tree in the
+metric space defined in \Cfour as a means in order to allow us to
+calculate how close one configuration is to another.  The example tree
+(below) consists of only a few agents, but it illustrates the
+type of structure and information used in determining the relative
+merits of different configurations. Only three taxa are represented in
+this tree -- \emph{fruit}, \emph{seeds} and \emph{B.exemplarii}, and
+only the plants are represented by more than one type of agent.
+The tree includes in ``leafmost'' nodes the identifying information
+that ties specific agents to particular branches of the tree.  In this
+way, we can apply a $\trim$ operation (Def. \ref{trim}) and calculate
+the distance between representations without the details of specific
+members of the aggregate data interfering in the result.
+
+In this example, the numbers in the ``weight'' position, after the
+colon, refer either to the aggregate values (in the case of
+equation-based ecoservices), the numbers of distinct agents, or the
+serial numbers of the specific agents in leafmost nodes.  A number of
+useful indicators can be constructed from the simple operations
+defined at the begining of \Cfour.
+
+\begin{verbatim}\label{tree1}
+(taxon : 0 {
+     (fruit : 2792746.800173795 
+      {(fruit + eqn-based + <ecoservice> : 625055.9572307098 
+          {(gridcell-1,2:fruit : 21  {})})
+         (fruit + eqn-based + <ecoservice> : 132324.34236008758 
+          {(gridcell-1,1:fruit : 19  {})})
+         (fruit + eqn-based + <ecoservice> : 362001.18511443434 
+          {(gridcell-1,0:fruit : 17  {})})
+         (fruit + eqn-based + <ecoservice> : 696015.3639367699 
+          {(gridcell-0,2:fruit : 15  {})})
+         (fruit + eqn-based + <ecoservice> : 462154.55908067356 
+          {(gridcell-0,1:fruit : 13  {})})
+         (fruit + eqn-based + <ecoservice> : 515195.3924511202 
+          {(gridcell-0,0:fruit : 11  {})})
+         }
+     )
+     (seeds : 4950004.701824954 
+      {(seeds + eqn-based + <ecoservice> : 825000.4339876496 
+          {(gridcell-1,2:seeds : 20  {})})
+         (seeds + eqn-based + <ecoservice> : 825000.6790376918 
+          {(gridcell-1,1:seeds : 18  {})})
+         (seeds + eqn-based + <ecoservice> : 824999.6759855568 
+          {(gridcell-1,0:seeds : 16  {})})
+         (seeds + eqn-based + <ecoservice> : 825001.7606296955 
+          {(gridcell-0,2:seeds : 14  {})})
+         (seeds + eqn-based + <ecoservice> : 825000.96499662 
+          {(gridcell-0,1:seeds : 12  {})})
+         (seeds + eqn-based + <ecoservice> : 825001.1871877399 
+          {(gridcell-0,0:seeds : 10  {})}
+         )}
+     )
+     (B.exemplarii : 6 
+      {(super-individual + B.exemplarii + <plant-array> : 3 
+          {(B.exemplarii_1 : 6  {})})
+         (individual + B.exemplarii + <example-plant> : 1 
+          {(B.exemplarii_4 : 9  {})})
+         (individual + B.exemplarii + <example-plant> : 1 
+          {(B.exemplarii_3 : 8  {})})
+         (individual + B.exemplarii + <example-plant> : 1 
+          {(B.exemplarii_2 : 7  {})})
+         }
+     )}
+ )
+\end{verbatim}
+
+Analogous trees can be constructed which can be used in a similar way
+to match spatial patterns. We do this by identifying the neighbours of
+a region with symbolic variables in the labels of nodes; a very simple
+example using gridcells might look like so:
+
+\begin{verbatim}\label{tree2}
+(taxon : 0 {
+     (gridcell-1,1 : 1044
+      {(gridcell-2,1 : 37 {})}
+      {(gridcell-2,2 : 637 {})}
+      {(gridcell-1,2 : 937 {})}
+     )
+
+     (gridcell-2,1 : 37
+      {(gridcell-1,1 : 1044 {})}
+      {(gridcell-2,2 : 637 {})}
+      {(gridcell-1,2 : 937 {})}
+     )
+
+     (gridcell-1,2 : 1044
+      {(gridcell-2,1 : 37 {})}
+      {(gridcell-2,2 : 637 {})}
+      {(gridcell-1,1 : 1044 {})}
+     )
+
+     (gridcell-2,2 : 637
+      {(gridcell-2,1 : 37 {})}
+      {(gridcell-1,1 : 1044 {})}
+      {(gridcell-1,2 : 937 {})}
+     )
+
+     }
+ )
+\end{verbatim}
+
+Like the status trees in the first example, these trees can be
+compared to reference patterns to identify spatial distributions which
+require the intervention of a monitor.  An example of this type of
+situation might occur in a model of suburban housing: if large numbers
+of residents are leaving in one particular region, there may effects
+on the surrounding regions -- increase in civil disorder, for example
+-- which are not accounted for by the representations for those areas.
+
+Monitors can be constructed to maintain a list of status trees which
+track changes in the ensemble through time. At the moment, this would
+be a computationally expensive process, but as the
+implementation of the underlying mathematical machinery improves, the
+notion of using this kind of higher order analysis of the dynamics in
+the system becomes more tenable.
+
 
 %% \subsection{Partial ordering of trees and nodes}\label{partial-order}
 %% We can construct a partial order on nodes relatively simply.  In the
@@ -1249,6 +1376,15 @@ ability to use temporary instances of other agents as intermediaries
 a temporary plant is used to sequentially hold the essential data to
 pass to the tree plotting routine -- makes the process of constructing
 new representations much easier than expected.
+
+Current efforts are focused on making the framework more robust and
+simpler to use, particularly with respect to mainenance
+closures. While constructing closures to maintain variables is
+straight-forward in \Scheme, a means of implementation that did not
+rely on a reasonable fluency in the language would be better.
+Similarly, additional support routines for crafting \mclass{monitor}
+agents would help. Reference trees must currently be constructed by
+hand, and this can be a somewhat fraught process.
 
 
 \subsection{Conveniences}

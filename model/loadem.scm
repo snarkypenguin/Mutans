@@ -42,7 +42,7 @@
 ;; initial parsing of the code.
 
 
-(for-each load (map sym->scm '(sort wildmatch utils timer tree-ring kdebug model-flags sclos registers)))
+(for-each load (map sym->scm '(sort wildmatch utils a*list timer tree-ring kdebug model-flags sclos registers)))
 (include "framework") ;; must come before sclos+extn.scm
 
 (for-each load (map sym->scm '(sclos+extn)))
@@ -60,6 +60,7 @@
 ;; We want to load a single declarations file....(for-each load (map sym->scm '(framework-wrappers declarations framework-methods)))
 (for-each load (map sym->scm '(introspection-methods monitor-methods log-methods)))
 (for-each load (map sym->scm '(landscape-methods oak plant-methods animal-methods)))
+(for-each load (map sym->scm '(assessment-methods)))
 
 ;; The kernel alway comes last.
 (load "kernel.scm")

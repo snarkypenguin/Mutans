@@ -194,7 +194,7 @@ exploration."
 
 (define-class <agent>
   (inherits-from <object>) ;; type is used as a categorical value in kernel-calls
-  (state-variables name taxon representation
+  (state-variables s/n name taxon representation
 						 class-migration-list ;; a list that indicates what the classes this class may be moved to
 						 transition-points ;; boundaries for transitions in the form (sym val sym val sym ...)
 						 transition-function ;; a function calculated using the transition points
@@ -241,6 +241,8 @@ exploration."
 						 )
   )
 
+(declare-method s/n "return the serial number of an agent")
+(model-method <agent> (s/n self) (slot-ref self 's/n))
 
 (declare-method adaptable? "indicate if the agent has an alternative representation")
 (model-method (<agent>) (adaptable? self) #f)
@@ -972,6 +974,8 @@ the corpus.
 			)
 	 L)) ;;... and no take-backs!
 
+;; This is actually accessible generally unlike the s/n
+;; ... the number bits may not always be equal
 (define (serial-number it)
   (let ((name (cond
 					((string? it) it)
@@ -980,10 +984,11 @@ the corpus.
 					((class? it) (class-name-of it))
 					((instance? it) (class-name-of (class-of it)))
 					(#t (object->string it)))))
-	 (if (eqv? name (void))
-		  (set! name (object->string it)))
-	 (string-append name ":" (number->string (**entity-index**)))))
-
+	 (cond
+	  ((eq? it #!void) (number->string (**entity-index**)))
+	  ((eqv? name (void)) (string-append (object->string it) "_" (number->string (**entity-index**))))
+	  (else (string-append name "_" (number->string (**entity-index**)))))
+	 ))
 
 
 (define (string-tail s n)
@@ -1258,46 +1263,56 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 		))
   )
 
-(define (create class taxon #!rest statevars)
-  (if (and (= (length statevars) 1) (list? (car statevars)))
-		(set! statevars (car statevars)))
-  (if (not (string? taxon))
-		(begin
-		  (dnl* "The indicated taxon for" class
-				  "is a symbol.  Taxa should always be specified as strings,")
-        (dnl* "and this is treated as a fatal error." class taxon)
-		  (abort)))
 
-  (let* ((instance (create- class statevars))
-			)
-	 (kdebug '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
-	 (if use-agent-register (agent-register 'add instance class))
-	 (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
-	 
-	 (slot-set! instance 'may-run #t) ;; all agents may run by default, except for <proxy> agents
-	 (slot-set! instance 'subjective-time 0)
-	 (slot-set! instance 'counter 0)
-	 (slot-set! instance 'queue-state 'ready-for-prep)
-	 (slot-set! instance 'agent-state 'ready-for-prep)
-	 (slot-set! instance 'current-class-depth 0) ;; 0 is the "leafmost" class
+;; We define things this way so that each agent gets a unique serial number
+;; which may be useful for making identifiers unique.
+(define create
+  (let* ((S/N 0)
+			(CREATE
+			 (lambda (class taxon #!rest statevars) 
+				(if (and (= (length statevars) 1) (list? (car statevars)))
+					 (set! statevars (car statevars)))
+				(if (not (string? taxon))
+					 (begin
+						(dnl* "The indicated taxon for" class
+								"is a symbol.  Taxa should always be specified as strings,")
+						(dnl* "and this is treated as a fatal error." class taxon)
+						(abort)))
 
-	 ;; subjective time must be set either in the taxon, in the
-    ;; statevars, or explicitly after initialisation
-	 (apply-initialisation instance taxon)
-	 (slot-set! instance 'initialised #t)
+				(let* ((instance (create- class statevars))
+						 )
+				  (slot-set! instance 's/n S/N)
+				  (set! S/N (+ S/N 1))
 
-	 (set-state-variables instance statevars)
+				  (kdebug '(agent-creation initialisation) "Creating agent" (class-name-of class) taxon statevars)
+				  (if use-agent-register (agent-register 'add instance class))
+				  (if (has-slot? instance 'taxon) (slot-set! instance 'taxon taxon))
+				  
+				  (slot-set! instance 'may-run #t) ;; all agents may run by default, except for <proxy> agents
+				  (slot-set! instance 'subjective-time 0)
+				  (slot-set! instance 'counter 0)
+				  (slot-set! instance 'queue-state 'ready-for-prep)
+				  (slot-set! instance 'agent-state 'ready-for-prep)
+				  (slot-set! instance 'current-class-depth 0) ;; 0 is the "leafmost" class
 
-	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
-				(eqv? (slot-ref instance 'name) <nameless>))
-		  (slot-set! instance 'name (serial-number taxon))) ;; may be overridden/overwritten
+				  ;; subjective time must be set either in the taxon, in the
+				  ;; statevars, or explicitly after initialisation
+				  (apply-initialisation instance taxon)
+				  (slot-set! instance 'initialised #t)
 
-	 (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
+				  (set-state-variables instance statevars)
 
-	 ;;(initialise instance) This is done in the prep-agent routine.
-	 instance
-	 )
-  )
+				  (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
+							 (eqv? (slot-ref instance 'name) <nameless>))
+						(slot-set! instance 'name (serial-number taxon))) ;; may be overridden/overwritten
+
+				  (if (not (number? (slot-ref instance 'jiggle))) (slot-set! instance 'jiggle 0))
+
+				  ;;(initialise instance) This is done in the prep-agent routine.
+				  instance
+				  )
+				)))
+	 CREATE))
 
 ;-  The End 
 

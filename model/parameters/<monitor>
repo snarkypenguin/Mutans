@@ -2,6 +2,7 @@
 'Parameters
 (define <monitor>-parameters
   (list
+	(list 'representation 'monitor)
     ;;(list 'selector '<uninitialised>)
     ;;(list 'configuration-candidates '<uninitialised>)
     ;;(list 'domain*-options '<uninitialised>)

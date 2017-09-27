@@ -1,4 +1,4 @@
-
+;-*- mode: scheme; -*-
 ;-  Identification and Changes
 
 
@@ -6,8 +6,6 @@
 ;	Initial coding: 
 ;		Date: 2016.09.28
 ;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/pt.scm
-;
-;	History:
 ;
 
 "
@@ -43,11 +41,13 @@ constructors to generate it.
 ;--  Variables/constants both public and static
 (define tr-debugging #f)
 
-(define (dnl* . args)
+(define (dnl* #!rest args)
 	 (apply dnl (apply append (map (lambda (x) (list x " ")) args))))
 
 (define plus " + ") ;; used to denote polynomial addition 
 (define minus " - ") ;; used to denote polynomial subtraction
+
+(define swap-weight-and-label #t)
 
 (define multiplier ;; head of the list does the job
   '(
@@ -75,7 +75,9 @@ constructors to generate it.
 
 ;-  Infrastructure and polynomial code
 
-(define (equal*? x y . z)
+(define (s/s? x) (or (symbol? x) (string? x)))
+
+(define (equal*? x y #!rest z)
   (and (equal? x y)
 		 (or (null? z)
 			  (apply equal*? (cons x z)))))
@@ -88,8 +90,8 @@ constructors to generate it.
 														  (list x y)) b)) a)))
   )
 
-;--- (cross** . args) basic cross product using %cross2
-(define (cross** . args)
+;--- (cross** #!rest args) basic cross product using %cross2
+(define (cross** #!rest args)
   (define (c2 a b)
 	 (%cross2 (car args) (cadr args)))
 
@@ -103,8 +105,8 @@ constructors to generate it.
 	 (map (lambda (x) (cons (car x) (cadr x))) (%cross2 (car args) (apply cross** (cdr args)))))
 	))
 
-;--- (map* mapping . args) Map with implicit cross product to construct args
-(define (map* mapping . args)
+;--- (map* mapping #!rest args) Map with implicit cross product to construct args
+(define (map* mapping #!rest args)
   (map (lambda (args) (apply mapping args)) (apply cross** args)))
 			  
 ;-- Extra list modifiers
@@ -152,19 +154,33 @@ constructors to generate it.
 		lst)) ;; Probably ought to return an error... but we are trying to delete a phantom element.
 
 
+
+
 (define (set-weight! t w)
-  (cond
-	((= 3 (length t))	(set-car! t w))
-	((= 2 (length t))	(error "not yet implemented for node2"))
-	(#t #f)
-	))
-	 
+  (if swap-weight-and-label
+		(cond
+		 ((= 3 (length t))	(set-cadr! t w))
+		 ((= 2 (length t))	(error "not yet implemented for node2"))
+		 (#t #f)
+		 )		
+		(cond
+		 ((= 3 (length t))	(set-car! t w))
+		 ((= 2 (length t))	(error "not yet implemented for node2"))
+		 (#t #f)
+		 )))
+  
 (define (set-label! t w)
-  (cond
-	((= 3 (length t))	(set-cadr! t w))
-	((= 2 (length t))	(set-car! t w))
-	(#t #f)
-	))
+  (if swap-weight-and-label
+		(cond
+		 ((= 3 (length t))	(set-car! t w))
+		 ((= 2 (length t))	(set-car! t w))
+		 (#t #f)
+		 )
+		(cond
+		 ((= 3 (length t))	(set-cadr! t w))
+		 ((= 2 (length t))	(set-car! t w))
+		 (#t #f)
+		 )))
 
 (define (set-children! t w)
   (cond
@@ -236,8 +252,8 @@ constructors to generate it.
 ;-- type predicates and query functions
 (define (Zero? x)
   (cond
+	((polynomial? x) (apply = (cons 0 (map car x))))
 	((or (number? x) (string? x)) (Zero? (canonical-label x)))
-	((polynomial? x) (and (= (length x) 1) (= (car x) 0)))
 	(#t #f)))
 
 ;--- (type%? x) returns the type (node2 and node3  are distinct) or #f
@@ -282,31 +298,30 @@ constructors to generate it.
 ;--- (Type? x) Wrapper that returns 'tree
 (define (Type? x)
   (cond
-	((node3? x)
-	 (if (Zero? (label x)) 'tree3 'node3))
+	((node3? x) 'tree3)
 	((node2? x) 'tree2)
 	(#t (type? x))))
 
 ;-- Supporting code: string and list utilities, simple polynomial arithmetic
 ;--- Mostly convenience functions, utilities
 ;---- display with implicit newline
-(define (dnl . args) (if (null? args) (display "") (let () (map display args) (newline))))
-(define (DNL . args) (if debugging (apply dnl args)))
+(define (dnl #!rest args) (if (null? args) (display "") (let () (map display args) (newline))))
+(define (DNL #!rest args) (if debugging (apply dnl args)))
 
-;---- (ddnl . args) a version of dnl that only works if tr-debugging is true
-(define (ddnl . args)
+;---- (ddnl #!rest args) a version of dnl that only works if tr-debugging is true
+(define (ddnl #!rest args)
   (if tr-debugging
 		(apply dnl args)))
 
 ;---- functional versions for and and or
-;----- (andf . args) can be used with apply 
-(define (andf . args)
+;----- (andf #!rest args) can be used with apply 
+(define (andf #!rest args)
   (if (null? args)
 		#t
 		(and (car args) (apply andf (cdr args)))))
 
-;----- (orf . args) can be used with apply 
-(define (orf . args)
+;----- (orf #!rest args) can be used with apply 
+(define (orf #!rest args)
   (if (null? args)
 		#f
 		(or (car args) (apply orf (cdr args)))))
@@ -398,7 +413,7 @@ constructors to generate it.
 
 ;---- (list-intersection* a b) intersection 
 ;; functionally identical to (list-intersection%* = (lambda (x) (x)) ....)
-(define (list-intersection* . args )
+(define (list-intersection* #!rest args )
   (case (length args)
 	 ((0) '())
 	 ((1) (car args))
@@ -416,7 +431,7 @@ constructors to generate it.
 
 ;---- (list-intersection%* a b) intersection of lists 
 ; op is a predicate, selector extracts things from a and b
-(define (list-intersection%* op selector . args )
+(define (list-intersection%* op selector #!rest args )
   (let ((li?* (lambda x (apply list-intersection%* (cons op (cons selector x))))))
 	 (case (length args)
 		((0) '())
@@ -452,8 +467,8 @@ constructors to generate it.
 (define (string-cdr s)
   (string-tail s (- (string-length s) 1)))
 
-;---- (string-contains? str . targets) 
-(define (string-contains? str . targets) ;; (string-contains? "The quick brown fox" "ox" "hen") ==> #t (string-contains? "The quick brown fox" "oxo" "hen") ==> #f
+;---- (string-contains? str #!rest targets) 
+(define (string-contains? str #!rest targets) ;; (string-contains? "The quick brown fox" "ox" "hen") ==> #t (string-contains? "The quick brown fox" "oxo" "hen") ==> #f
   (if (= (length targets) 1)
       (let* ((st (car targets))
 				 (n (string-length st))
@@ -527,10 +542,10 @@ constructors to generate it.
 				(strcspan-loop (substring s 1 (string-length s)))
 				(- (string-length str) (string-length s))))))
 
-;---- (collapsing-strtok str . separator)  analogous to strtok(3)
+;---- (collapsing-strtok str #!rest separator)  analogous to strtok(3)
 ;; This silently collapses multiple instances of either spaces or the indicated separator
 ;; eats extra separators
-(define (collapsing-strtok str . separator)
+(define (collapsing-strtok str #!rest separator)
   (if (null? separator)
 		(set! separator " ")
 		(set! separator (car separator)))
@@ -547,9 +562,9 @@ constructors to generate it.
 							 (substring sstr (strspn sstr separator) (string-length sstr)))))))
   )
 
-;---- (strtok str . separator)  analogous to strtok(3)
+;---- (strtok str #!rest separator)  analogous to strtok(3)
 ;; This does not collapse multiple instances of either spaces or the indicated separator 
-(define (strtok str . separator)
+(define (strtok str #!rest separator)
   (if (null? separator)
 		(set! separator " ")
 		(set! separator (car separator)))
@@ -568,9 +583,9 @@ constructors to generate it.
   )
 
 
-;---- (define (reconstruct-string strarray . separator) 
+;---- (define (reconstruct-string strarray #!rest separator) 
 ;; reconstructs the string either with spaces or the indicated separator  (the obverse of strtok)
-(define (reconstruct-string strarray . separator)
+(define (reconstruct-string strarray #!rest separator)
   (if (null? separator)
 		(set! separator " ")
 		(set! separator (car separator)))
@@ -583,10 +598,10 @@ constructors to generate it.
 				ns
 				(restring-loop (cdr sa) (string-append ns separator (car sa)))))))
 
-;---- (simple-split-string-at-separator str . separatorstring) similar to strtok, but with a "substring"
+;---- (simple-split-string-at-separator str #!rest separatorstring) similar to strtok, but with a "substring"
 ;; Like strtok, but it separates with a string rather than a set of characters
 ;; separator defaults to ","
-(define (simple-split-string-at-separator str . separatorstring)
+(define (simple-split-string-at-separator str #!rest separatorstring)
   (let ((sep (if (null? separatorstring)
 					  ","	(car separatorstring))))
 	 (let ((ns (string-length sep)))
@@ -599,10 +614,10 @@ constructors to generate it.
 					(cons (substring s 0 n) r))
 				  (reverse (cons s r))))))))
 
-;---- (simple-split-string-at-separator+ str . separatorstring) similar to simple-split-string-at-separator
+;---- (simple-split-string-at-separator+ str #!rest separatorstring) similar to simple-split-string-at-separator
 ;; Like simple-split-string-at-separator, but includes the instances of the separatorstring in the list
 ;; separator defaults to ","
-(define (simple-split-string-at-separator+ str . separatorstring)
+(define (simple-split-string-at-separator+ str #!rest separatorstring)
   (let ((sep (if (null? separatorstring)
 					  ","	(car separatorstring))))
 	 (let ((ns (string-length sep)))
@@ -982,8 +997,8 @@ which represents an exponent. "
 		  (display "polynomial? p -- ")(pp p)
 		  (display "polynomial? q -- ")(pp q)
 
-		  (let ((p (if (string? p) (string->polynomial p) p))
-				  (q (if (string? q) (string->polynomial q) q)))
+		  (let ((p (if (s/s? p) (polynomial p) p))
+				  (q (if (s/s? q) (polynomial q) q)))
 
 			 (if (not (polynomial? p))
 				  (begin
@@ -1026,15 +1041,15 @@ which represents an exponent. "
   (if (not (null? children))
 		(sort! (children t) node<?)))
 
-;------ (probe . args)  tracking code
-(define (probe . args)
+;------ (probe #!rest args)  tracking code
+(define (probe #!rest args)
   ;;(dnl args)
   #t)
 
 ;------ (node<? n m)
 ;------  (node<? n m)
 (define (node<? n m)
-  (define (ndl . arg)
+  (define (ndl #!rest arg)
 	 (if #f
 		  (begin
 			 (apply dnl (cons '--> arg))
@@ -1268,13 +1283,13 @@ which represents an exponent. "
 
 
 ;---- arithmetic ops for polynomials
-;----- (p+ . args)  polynomial addition ... too simple for words
-(define (p+ . args)
+;----- (p+ #!rest args)  polynomial addition ... too simple for words
+(define (p+ #!rest args)
   (normalise-polynomial (apply append (map polynomial (map rectify args)))))
 
 ;----- (_t* a b) multiplies terms in polynomials
 ;;; (define (_t* a b) ;;;
-;;;   (define (__t* . args) ;;;
+;;;   (define (__t* #!rest args) ;;;
 ;;; 	 ;;  (if (not (apply andf (map term? args))) (error "non-term passed to _t*" (list args (map term? args)))) ;;;
 ;;; 	 (rectify-numbers ;;;
 ;;; 	  (normalise-terms (apply append (map (lambda (x) (if (pair? x) x (list x))) args))))) ;;;
@@ -1307,8 +1322,8 @@ which represents an exponent. "
 	  (map* (lambda (x y)
 				 (t* x y)) a b))))
 
-;-----  (p* . args)
-(define (p* . args)
+;-----  (p* #!rest args)
+(define (p* #!rest args)
   (let ((args (map polynomial args)))
 	 (case (length args)
 		((0) '(1))
@@ -1317,8 +1332,8 @@ which represents an exponent. "
 		(else (normalise-polynomial (p2* (car args) (apply p* (cdr args)))))))
   )
 
-;-----  (sp* . args) (apply p* (map string->polynomial args)))
-(define (sp* . args) (apply p* (map string->polynomial args)))
+;-----  (sp* #!rest args) (apply p* (map string->polynomial args)))
+(define (sp* #!rest args) (apply p* (map polynomial args)))
 
 ;---- (evaluate-polynomial P codex)
 
@@ -1361,7 +1376,7 @@ which represents an exponent. "
 ;---- polynomial->string & string->polynomial routines
 
 ;----- (string->term str) maps a term in string form to a polynomial
-(define (string->term str . neg)
+(define (string->term str #!rest neg)
   "4 a b^3 c^2 d"
 
   (set! neg (if (null? neg) '(1) '(-1)))
@@ -1385,9 +1400,6 @@ which represents an exponent. "
 				 ((null? nl) st)
 				 ((null? st) (apply * nl))
 				 (#t (cons (apply * nl) st))))))))
-
-(define (symbol->polynomial s)
-  (list (list 1 (list s 1))))
 
 ;----- (polynomial->string p) and (string->polynomial pstr) convert between strings like 4 + 2 x + 2 x^2 y^3 and (4 (2 (x 1)) (2 (x 2)(y 3)))
 
@@ -1472,7 +1484,7 @@ which represents an exponent. "
 	))
 
 ;----- (poly-string-polynomial p op cp) generate a string for a polynomial (with appropriate bracketting)
-(define (poly-string-polynomial p op cp . latex-fracform)
+(define (poly-string-polynomial p op cp #!rest latex-fracform)
   (set! latex-fracform (if (pair? latex-fracform) (car latex-fracform) #f))
 
   (erode-whitespace
@@ -1508,10 +1520,18 @@ which represents an exponent. "
 				(#t (error "bad polynomial" p))))))))
 
 
-;----- (polynomial->string p) returns either #f (not a polynomial that can be a symbol) or a symbol
+;----- (symbol->polynomial pstr) 
+
+(define (symbol->polynomial sym)
+  (list (list 1 (list sym 1))))
+
+(define (polynomial->symbol* ply) ;; This will handle symbols with embedded spaces!
+  (symbol->string (polynomial->string ply)))
+
+;----- (polynomial->symbol p) returns either #f (not a polynomial that can be a symbol) or a symbol
 (define (polynomial->symbol p)
   (if (and (pair? p) (null? (cdr p))
-			  (= 1 (caar p)) (null? (cddar pf))
+			  (= 1 (caar p)) (null? (cddar p))
 			  (pair? (cadar p))
 			  (null? (cddar p))
 			  (let ((f (cadar p)))
@@ -1560,19 +1580,40 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 ;-- Constructors 
 
-(define (node3 wt lbl children)
-  (cond
-	((symbol? lbl) (node3 wt (symbol->polynomial lbl) children))
-	((string? lbl) (node3 wt (string->polynomial lbl) children))
-	((and (number? wt) (polynomial? lbl)
-			(or (null? children) (apply andf (map node3? children))))
-	 (list wt lbl children))
-	(else  (error "Bad node3 specification" wt lbl children))))
+(define (node3 a1 a2 children)
+  (let ((wt (if swap-weight-and-label a2 a1))
+		  (lbl (if swap-weight-and-label a1 a2)))
+	 (if swap-weight-and-label
+		  (cond
+			((or (symbol? lbl) (string? lbl)) (node3 (polynomial lbl) wt children))
+			((and (number? wt) (polynomial? lbl)
+					(or (null? children) (apply andf (map node3? children))))
+			 (list lbl wt children))
+			(else
+			 (if (not (or (symbol? lbl) (string? lbl) (polynomial? lbl)))
+				  (dnl* "bad label" lbl "[" (symbol? lbl) (string? lbl) (polynomial? lbl)"]"))
+			 (if (not (number? wt)) (dnl* "bad weight" wt))
+			 (if (not (apply andf (map node3? children)))
+				  (dnl* "bad children" (map node3? children)))
+			 (error "Bad node3 specification" lbl wt children)))
+		  (cond
+			((s/s? lbl) (node3 wt (polynomial lbl) children))
+			((and (number? wt) (polynomial? lbl)
+					(or (null? children) (apply andf (map node3? children))))
+			 (list wt lbl children))
+			(else
+			 (if (not (or (symbol? lbl) (string? lbl) (polynomial? lbl)))
+				  (dnl* "bad label" lbl  "[" (symbol? lbl) (string? lbl) (polynomial? lbl)"]"))
+			 (if (not (number? wt)) (dnl* "bad weight" wt))
+			 (if (not (apply andf (map node3? children)))
+				  (dnl* "bad children" (map node3? children)))
+			 (error "Bad node3 specification" lbl wt children)))
+			))
+	 )
 
 (define (node2 lbl children)
   (cond
-	((symbol? lbl) (node2 (symbol->polynomial lbl) children))
-	((string? lbl)	(node2 (string->polynomial lbl) children))
+	((s/s? lbl)	(node2 (polynomial lbl) children))
 	((and (polynomial? lbl)	(or (null? children) (apply andf (map node2? children))))
 	 (list wt lbl children))
 	(else (error "Bad node2 specification" lbl children))))
@@ -1623,19 +1664,33 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 ;----  (weight n) 
 (define (weight v)
-  (cond
-	((null? v) 0)
-	((= (length v) 2) (scalar-term (label v)))
-	((= (length v) 3) (car v))
-	(#t (bad argument))))
-  
+  (if swap-weight-and-label
+		(cond
+		 ((null? v) 0)
+		 ((= (length v) 2) (scalar-term (label v)))
+		 ((= (length v) 3) (cadr v))
+		 (#t (bad argument)))
+		(cond
+		 ((null? v) 0)
+		 ((= (length v) 2) (scalar-term (label v)))
+		 ((= (length v) 3) (car v))
+		 (#t (bad argument))))
+  )
+
 ;----  (label v) 
 (define (label v)
-  (cond
-	((null? v) 0)
-	((= (length v) 2) (car v))
-	((= (length v) 3) (cadr v))
-	(#t (bad argument))))
+  (if swap-weight-and-label
+		(cond
+		 ((null? v) 0)
+		 ((= (length v) 2) (car v))
+		 ((= (length v) 3) (car v))
+		 (#t (bad argument)))
+		(cond
+		 ((null? v) 0)
+		 ((= (length v) 2) (car v))
+		 ((= (length v) 3) (cadr v))
+		 (#t (bad argument))))
+  )
 
 ;----  (scalar-term lbl) 
 (define (scalar-term lbl)
@@ -1688,8 +1743,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 #f)))
 						 
 
-;--- (children<- . args) construct a set of children
-(define (children<- . kids)
+;--- (children<- #!rest args) construct a set of children
+(define (children<- #!rest kids)
   (if (apply andf (map node? kids))
 		(list-copy kids)
 		(error "Bad element(s) in children" kids)))
@@ -1721,15 +1776,15 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			 (car r)
 			 r))))
 
-;----  (union . args) 
-(define (union . args)  (unique (apply append args)))  ;; makes it nice and readable for set operations
+;----  (union #!rest args) 
+(define (union #!rest args)  (unique (apply append args)))  ;; makes it nice and readable for set operations
 
-;----  (union+ . args) 
-(define (union+ . args)  (apply append args))          ;; like union, but preserves multiplicity
+;----  (union+ #!rest args) 
+(define (union+ #!rest args)  (apply append args))          ;; like union, but preserves multiplicity
 
-;--- (intersection op sel . args)
+;--- (intersection op sel #!rest args)
 ;; op is a function of the form (pred key matchlist) and returns #t if key is in matchlist
-(define (intersection op sel . args)
+(define (intersection op sel #!rest args)
   (let* ((s (map (lambda  (x) (map sel x)) args))
 			(S (apply list-intersection* s))
 			(candidates (apply union+ args))
@@ -1737,12 +1792,12 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 (filter (lambda (x) (op x S)) candidates)))
   
 
-;----  (intersection-l*= . args) 
-(define (intersection-l*= . args) ;; the intersection of the sets is the set of elements which have labels which are identical
+;----  (intersection-l*= #!rest args) 
+(define (intersection-l*= #!rest args) ;; the intersection of the sets is the set of elements which have labels which are identical
   (apply intersection (cons trees-with-labels (cons label args))))
 
-;----  (intersection-l*~ . args) 
-(define (intersection-l*~ . args) ;; the intersection of the sets is the set of elements which have labels which are similar
+;----  (intersection-l*~ #!rest args) 
+(define (intersection-l*~ #!rest args) ;; the intersection of the sets is the set of elements which have labels which are similar
   (apply intersection (cons trees-with-similar-labels (cons label args))))
 
 ;-- Predicates: zerotree? node? tree? simple-node? children?
@@ -1794,8 +1849,6 @@ a root (the node which is (uniquely) the child of no other node in the set).
 							(apply andf (map node3? (children n)))))
 				))
 	))
-
-
 
 (define (tree? n)
   (if (pair? n)
@@ -2001,7 +2054,11 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (trim tree)
   (if (simple-node? tree)
 		tree
-		(list (label tree) (!filter null? (map trim (children tree))))))
+		(if (node3? tree)
+			 (if swap-weight-and-label
+				  (list (label tree) (weight tree) (!filter null? (map trim (children tree))))
+				  (list (weight tree) (label tree) (!filter null? (map trim (children tree)))))
+		(list (label tree) (!filter null? (map trim (children tree)))))))
 
 ;---- (card tree) returns the cardinality of the tree (the number of non-zero nodes [Definition 4]
 (define (card tree)
@@ -2025,12 +2082,61 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 u)
 	((= 3 (length u) (length v))
 		(if (equal? (label u) (label v))
-			 (list (weight u) (label u) (!filter null0? (map (lambda (x) (apply shadow x)) (cross** (children u) (children v)))))
+			 (if swap-weight-and-label
+				  (list (label u)
+						  (weight u)
+						  (!filter null0?
+									  (map (lambda (x)
+												(apply shadow x))
+											 (cross** (children u) (children v)))))
+				  (list (weight u)
+						  (label u)
+						  (!filter null0?
+									  (map (lambda (x)
+												(apply shadow x))
+											 (cross** (children u) (children v))))))
 			 '())
 		)
 	(#t (error "Bad arguments passed to shadow" u v))))
 		
+(define (relative-overlap u v)
+  (let ((v (/ (* 2 (overlap u v)) (+ (card u) (card v)))))
+	 (if #t
+		  (exact->inexact v)
+		  v)))
 
+
+(define (relative-shadow u v)
+  (let ((v (/ (* 2 (card (tree+ (shadow u v) (shadow v u))))
+				  (+ (card u) (card v)))))
+	 (if #t
+		  (exact->inexact v)
+		  v)))
+
+
+(define (tree->schema T) ;; this basically reduces the tree to labels and zeros everywhere else
+  (let ((L (polynomial->symbol (label T)))
+		  (C (!filter null? (map tree->schema (children T))))
+		  )
+	 (if swap-weight-and-label
+		  (list L 0 C)
+		  (list 0 L C))))
+		  
+(define (tree->schematic T) ;; this basically reduces the tree to labels and zeros everywhere else
+  (let ((L (polynomial->symbol (label T)))
+		  (C (!filter null? (map tree->schematic (children T))))
+		  )
+	 (if (null? C)
+		  (list L)
+		  (list L C))))
+		  
+(define (has-term? trm)
+  (lambda (x) (member trm x)))
+;; as in (filter (has-term? '(1 (individual 1))) (map car (map self-assess Q)))
+
+
+;;; NOTE relative-overlap = relative-shadow because
+;;; overlap(t u) = card(shadow (t u))
 
 ;--- tree mutators (and a supporting routine)
 
@@ -2038,7 +2144,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (canonical-label L)
   (cond
 	((number? L) (list L))
-	((string? L) (string->polynomial L))
+	((s/s? L) (polynomial L))
 	((symbol? L) (list (list 1 (list L 1))))
 	((polynomial L) L)
 	(#t (error "Bad label"))))
@@ -2047,7 +2153,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (change-weight! tree list-of-labels  value)
   (cond
 	((not (pair? tree)) #f)
-	((and (pair? tree) (= (length tree) 3))
+	((node3? tree)
 	 (cond
 	  ((and (polynomial? (canonical-label list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
 		(set-weight! tree value)
@@ -2073,7 +2179,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				(change-weight (list-ref (children tree) ix) (cdr list-of-labels) value)
 				(result #f 2))))
 	  (#t (result #f 3))))
-	((and (pair? tree) (= (length tree) 2))
+	((node? tree)
 	 (error "Not yet implemented for two element trees"))
 	(#t (error "Bad mojo in change-weight"))))
 
@@ -2081,7 +2187,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (change-label! tree list-of-labels  value)
   (cond
 	((not (pair? tree)) #f)
-	((and (pair? tree) (= (length tree) 3))
+	((node3? tree)
 	 (cond
 	  ((and (polynomial? (canonical-label list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
 		(set-label! tree value)
@@ -2107,7 +2213,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				(change-label (list-ref (children tree) ix) (cdr list-of-labels) value)
 				(result #f 2))))
 	  (#t (result #f 3))))
-	((and (pair? tree) (= (length tree) 2))
+	((node2? tree)
 	 (error "Not yet implemented for two element trees"))
 	(#t (error "Bad mojo in change-label"))))
 
@@ -2115,7 +2221,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (change-children! tree list-of-labels value)
   (cond
 	((not (pair? tree)) #f)
-	((and (pair? tree) (= (length tree) 3))
+	((node3? tree)
 	 (cond
 	  ((and (polynomial? (canonical-children list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
 		(set-children! tree value)
@@ -2149,7 +2255,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (replace-child! tree list-of-labels  new-child) ;; the new child need not have the same label as the old one
   (cond
 	((not (pair? tree)) #f)
-	((and (pair? tree) (= (length tree) 3))
+	((node3? tree)
 	 (cond
 	  ((and (polynomial? (canonical-label list-of-labels)) (equal? (canonical-label list-of-labels) (label tree)))
 
@@ -2176,7 +2282,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				(replace-child! (list-ref (children tree) ix) (cdr list-of-labels) new-child)
 				#f)))
 	  (#t #f)))
-	((and (pair? tree) (= (length tree) 2))
+	((node2? tree)
 	 (error "Not yet implemented for two element trees"))
 	(#t (error "Bad mojo in replace-child!"))))
 
@@ -2305,8 +2411,11 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	(let ((S (tidy-string-ends
 				 (strsub*
 				  (strsub*
-					(strsub* (filter-formatting (tidy-string-ends S))
-								"  " " ")
+					(strsub* 
+					 (strsub* 
+					  (strsub* (filter-formatting (tidy-string-ends S)) "  " " ")
+					  "}" ")")
+					 "{" "(")
 					"( " "(")
 				  " )" ")")
 				 ))
@@ -2330,7 +2439,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  'bad-node-string:lparen
 		  (let* ((rs (strcdr s))
 					(i (strindex rs "("))
-					(poly (string->polynomial (substring rs 0 i)))
+					(poly (polynomial (substring rs 0 i)))
 					(kinder (substring rs i (- (string-length rs) 1))))
 			 (list poly (string->children kinder))
 		))))
@@ -2338,15 +2447,17 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 ;----  (string->node3 S) 
 (define (string->node3 S)
-  (let ((s (rectify-tree-string S)))
-	 (if (not (char=? (strcar s) #\())
-		  'bad-node-string:lparen
-		  (let* ((rs (strcdr s))
-					(j (strindex rs ":"))
-					(i (strindex rs "("))
-					(wt (string->number (substring rs 0 j )))
-					(poly (string->polynomial (substring rs (+ j 1) i)))
-					(kinder (substring rs i (- (string-length rs) 1))))
+  (if swap-weight-and-label
+		(let ((s (rectify-tree-string S)))
+		  (if (not (char=? (strcar s) #\())
+				'bad-node-string:missing-lparen
+				(let* ((rs (strcdr s))
+						 (j (strindex rs ":"))
+						 (i (strindex rs "("))
+						 )
+				  (let* ((poly (string->number (substring rs 0 j )))
+							(wt (polynomial (substring rs (+ j 1) i)))
+							(kinder (substring rs i (- (string-length rs) 1))))
 			 ;;; (dnl* 'rs rs) ;;;
 			 ;;; (dnl* 'j j (substring rs 0 j )) ;;;
 			 ;;; (dnl* 'wt wt (substring rs 0 j)) ;;;
@@ -2354,10 +2465,31 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			 ;;; (dnl* 'poly poly (substring rs (+ j 1) i)) ;;;
 			 ;;; (dnl* 'kinder kinder) ;;;
 			 ;;; (dnl* 'result (list wt poly (string->children kinder))) ;;;
-			 (list wt poly (string->children kinder))
-		))))
+					 (if (< i j) (error "i is less than j ... expecting a node3, probably got node2"))
+					 (list poly wt (string->children kinder))
+				  ))))
+		(let ((s (rectify-tree-string S)))
+		  (if (not (char=? (strcar s) #\())
+				'bad-node-string:lparen
+				(let* ((rs (strcdr s))
+						 (j (strindex rs ":"))
+						 (i (strindex rs "("))
+						 (wt (string->number (substring rs 0 j )))
+						 (poly (polynomial (substring rs (+ j 1) i)))
+						 (kinder (substring rs i (- (string-length rs) 1))))
+			 ;;; (dnl* 'rs rs) ;;;
+			 ;;; (dnl* 'j j (substring rs 0 j )) ;;;
+			 ;;; (dnl* 'wt wt (substring rs 0 j)) ;;;
+			 ;;; (dnl* 'i i (substring rs i (string-length rs))) ;;;
+			 ;;; (dnl* 'poly poly (substring rs (+ j 1) i)) ;;;
+			 ;;; (dnl* 'kinder kinder) ;;;
+			 ;;; (dnl* 'result (list wt poly (string->children kinder))) ;;;
+				  (list wt poly (string->children kinder))
+				  ))))
+  )
 	 
 (define (string->node3-take1 S)
+  (error)
 ;;  (dnl "Node3")
   (let ((s (rectify-tree-string S)))
 	 (if (not (char=? (strcar s) #\())
@@ -2366,7 +2498,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 					(j (strindex rs ":"))
 					(i (strindex rs "("))
 					(wt (string->number (substring rs 0 j )))
-					(poly (string->polynomial (substring rs j i)))
+					(poly (polynomial (substring rs j i)))
 					(kinder (substring rs i (- (string-length rs) 1))))
 			 ;;; (dnl* 'rs rs) ;;;
 			 ;;; (dnl* 'j j) ;;;
@@ -2379,7 +2511,10 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 
 
 ;----  string->tree 
-(define string->tree string->node)
+(define string->tree
+  (if #t
+		(lambda (x) 'broken)
+		string->node))
 
 ;---- (L u) returns the set of labels associated with the elements of the set u [Definitions 7 & 8]
 (define (L u)
@@ -2513,7 +2648,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;----  (factor-list p) 
 (define (factor-list p)
   (if (string? p)
-		(factor-list (string->polynomial p))
+		(factor-list (polynomial p))
 		;;(map (lambda (x) (!filter number? x)) (!filter number? p)))
 		(!filter number? p))
 		
@@ -2533,8 +2668,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (p-related-s r p set) ;; r is the relation, p is the thing that we are looking for relatives of
   (apply orf (map (lambda (x) (r p x)) set)))
 
-;----  (partition-sets r u v . verbose) 
-(define (partition-sets r u v . verbose)
+;----  (partition-sets r u v #!rest verbose) 
+(define (partition-sets r u v #!rest verbose)
   "In the returned value the car is the list of matches for u+v the cdr are the non-matches"
   (let ((L (list
 				(append 	(filter (lambda (x) (p-related-s r (label x) (label v))) u)
@@ -2580,7 +2715,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 							(cons (map normalise-tree2 (sort (children t) node<?)) '())))
 				)
 		  (if (null? (car T))
-				(set-car! T '(0)))
+				(set-label! T '(0)))
 		  
 		  (if #f
 				(if (zero? (content T))
@@ -2601,7 +2736,9 @@ a root (the node which is (uniquely) the child of no other node in the set).
 						  (map normalise-tree3 (children t)))
 						 )
 		  )
-	 (list w l c)))
+	 (if swap-weight-and-label
+		  (list l w c)
+		  (list w l c))))
 
 
 (define (normalise-tree3--ok-as-far-as-it-goes t)
@@ -2609,24 +2746,35 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		(begin
 		  (set! booboo t)
 		  (dnl "Bad tree\n" t))
-		(let ((T (cons (weight t) (cons (normalise-polynomial (label t))
-												  (cons (!filter (lambda (x)
-																		 (zero? (content3 x)))
-																	  (map normalise-tree3
-																			 (sort (children t) node<?))) '())))
-				))
-		  (if (not (number? (weight T)))
-				(set-car! T 0))
+		
+		(let ((T (if swap-weight-and-label
+						 (cons (normalise-polynomial (label t))
+								 (cons (weight t)
+										 (cons (!filter (lambda (x)
+																(zero? (content3 x)))
+															 (map normalise-tree3
+																	(sort (children t) node<?)))
+												 '())))
+						 (cons (weight t)
+								 (cons (normalise-polynomial (label t))
+										 (cons (!filter (lambda (x)
+																(zero? (content3 x)))
+															 (map normalise-tree3
+																	(sort (children t) node<?))) '())))
+						 )))
+				(if (not (number? (weight T)))
+					 (set-weight! T 0))
 
-		  (if (null? (label T))
-				(set-cadr! T '(0)))
-		  
-		  (if #f
-				(if (zero? (content T))
-					 zerotree
+				(if (null? (label T))
+					 (set-label! T '(0)))
+				
+				(if #f
+					 (if (zero? (content T))
+						  zerotree
+						  T)
 					 T)
-				T)
-		  )))
+				)
+				))
 
 ;----  (operator-curry op lst) 
 (define (operator-curry op lst)
@@ -2704,11 +2852,13 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (tree3+ x y)
   (let* ((E (equal? (label x) (label y)))
 			(T (normalise-tree3 (if E
-											(begin
-											  (list (+ (weight x) (weight y))
-													  (label x)
-													  (boxplus x y))
-											  )
+											(if swap-weight-and-label
+												 (list (label x)
+														 (+ (weight x) (weight y))
+														 (boxplus x y))
+												 (list (+ (weight x) (weight y))
+														 (label x)
+														 (boxplus x y)))
 											(or (list 0 0 '())
 												 (error "Attempt to add nodes which are not compatible\n  " x 'AND y)))
 									  ))
@@ -2721,11 +2871,11 @@ a root (the node which is (uniquely) the child of no other node in the set).
   (list (p+ (label x) (label y))
 		  (sort (n-Lambda^sigma (union+ (children x) (children y))) node<?)))
 
-;---- (tree+ . args)
+;---- (tree+ #!rest args)
 ;; Because the addition of trees incorporates the addition of children, adding a tree and its negative
 ;; yields a tree with an absolute magnitude of zero.
 
-(define (tree+ . args)
+(define (tree+ #!rest args)
 	 (case (length args)
 		((0) zerotree)
 		((1) (car args))
@@ -2739,8 +2889,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				 (A very bad thing)))
 		))
 
-;----  (tree- . args) 
-(define (tree- . args)
+;----  (tree- #!rest args) 
+(define (tree- #!rest args)
 	 (case (length args)
 		((0) zerotree)
 		((1) (tree* -1 (car args)))
@@ -2760,25 +2910,37 @@ a root (the node which is (uniquely) the child of no other node in the set).
 												 (zero? (absolute-value x)))
 											)
 										 (map T/Z (children t))) node<?)))
-	 (if (zero? (apply + (map absolute-value childs)))
-		  (list (weight t) (label t) emptyset)
-		  (list (weight t) (label t) (!filter null? childs))
-		  )))
+	 (if swap-weight-and-label
+		  (if (zero? (apply + (map absolute-value childs)))
+				(list (label t) (weight t) emptyset)
+				(list (label t) (weight t) (!filter null? childs))
+				)
+		  (if (zero? (apply + (map absolute-value childs)))
+				(list (weight t) (label t) emptyset)
+				(list (weight t) (label t) (!filter null? childs))
+				))
+	 ))
 
-(define (norm t)
-  (+ (sqr (weight t))
-	  (if (pair? (children t))
-			(apply + (map norm (children t)))
-			0)))
+(define (tree-norm t)
+  (letrec ((tn (lambda (t)
+				  (+ (sqr (weight t))
+					  (if (pair? (children t))
+							(apply + (map tn (children t)))
+							0)))))
+	 (if #t
+		  (exact->inexact (tn t))
+		  (tn t))
+	 ))
 
 (define (distance s t)
-  (if (equal? (Type? s) (Type? t))
-		(case (Type? s)
-		  ((number) (abs (- s t)))
-		  ((Vector) (sqrt (apply + (map sqr (map - s t)))))
-		  ((tree3) (sqrt (norm (tree- s t))))
-		  (else #f))
-		#f))
+  (let  ((st (Type? s)) (tt (Type? t)))
+	 (if (equal? st tt)
+		  (case st
+			 ((number) (abs (- s t)))
+			 ((tree3 node3) (sqrt (tree-norm (tree- s t))))
+			 ((Vector) (sqrt (apply + (map sqr (map - s t)))))
+			 (else #f))
+		  #f)))
 
 ;--- (absolute-value t)  returns the absolute magnitude of a tree [Definition 11]
 (define (absolute-value t)
@@ -2806,8 +2968,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
     'experimental
   )
 
-;--- (* . args)
-(define (tree* . args)
+;--- (* #!rest args)
+(define (tree* #!rest args)
   (let ((t3 (apply orf (map node3? args)))
 		  (t2 (apply orf (map node2? args)))
 		  )
@@ -2818,8 +2980,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	  (t2 (apply tree2* args))
 	  (#t (apply p* args)))))
 
-;--- (* . args) two argument multiplication of trees
-(define (tree2* . args)
+;--- (* #!rest args) two argument multiplication of trees
+(define (tree2* #!rest args)
   ;; (dnl "B " (type-tests B))
   ;; (dnl "C " (type-tests C))
   (case (length args)
@@ -2910,7 +3072,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 
 
 
-(define (tree3* . args)
+(define (tree3* #!rest args)
   (let* (;; the product of the polynomials & numbers
 			(P (let ((Q (apply p* (filter polynomial? args))))    
 				  (cond
@@ -2928,18 +3090,27 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				 (car T))
 				((= (length T) 2)
 				 (let ((A (car T))(B (cadr T)))
-					(list (* (weight A) (weight B))
-							(p* (label A) (label B))
-							
-							;(boxplus (boxcross (label B) (children A))
-							;			  (boxcross (label A) (children B)))
-							)))
+					(if swap-weight-and-label
+						 (list (p* (label A) (label B))
+								 (* (weight A) (weight B))
+								 (boxplus (boxcross (label B) (children A))
+								 			  (boxcross (label A) (children B)))
+								 )
+						 (list (* (weight A) (weight B))
+								 (p* (label A) (label B))
+								 (boxplus (boxcross (label B) (children A))
+								 			  (boxcross (label A) (children B)))
+								 ))						 
+					))
 				(#t (let ((B (apply tree3* (cdr T))))
 						(tree3* (car T) B)))))
 			 )
 		(if (and (polynomial? P) (not (number? P)))
 			 (error "Multiplication by non-scalar polynomials is not supported" P args))
-		(list (* P (weight R)) (label R) (map (lambda (x) (tree3* P x)) (children R))))))
+		(if swap-weight-and-label
+			 (list (label R) (* P (weight R)) (map (lambda (x) (tree3* P x)) (children R)))
+			 (list (* P (weight R)) (label R) (map (lambda (x) (tree3* P x)) (children R))))
+		)))
 
 ;- Routines for use by models
 
@@ -2959,26 +3130,39 @@ a root (the node which is (uniquely) the child of no other node in the set).
   (cons (polynomial->string (label t))
 		  (list (map tree->wordies (children t)))))
 
-;-- (tree->string t . indent)
-(define (tree->string t . indent)
-			(string-append
-			 "("
-			 (if (node3? t)
-				  (string-append (number->string (weight t)) ": ")
-				  "")
-			 (cond
-			  ((null? (label t)) "0 ")
-			  ((string? (label t)) (label t))
-			  (#t (polynomial->string (label t))))
-			 (if (null? (children t))
+;-- (tree->string t #!rest indent)
+(define (tree->string t #!rest indent)
+  (if (and (node3? t) swap-weight-and-label)
+		(string-append
+		 "("
+		 (cond
+		  ((null? (label t)) "0 ")
+		  ((string? (label t)) (label t))
+		  (#t (polynomial->string (label t))))
+		 ": "
+		 (number->string (weight t))
+		 (if (null? (children t))
 				  (begin
 					 " {}")
-				  (children->string (sort (children t) node<?)))
-			 ")"
-	 ))
+				  (children->string (sort (children t) node<?))))
+		(string-append
+		 "("
+		 (if (node3? t)
+			  (string-append (number->string (weight t)) ": ")
+			  "")
+		 (cond
+		  ((null? (label t)) "0 ")
+		  ((string? (label t)) (label t))
+		  (#t (polynomial->string (label t))))
+		 (if (null? (children t))
+			  (begin
+				 " {}")
+			  (children->string (sort (children t) node<?)))
+		 ")"
+		 )))
 
-;-- (children->string es . indent) maps an extension set to a string
-(define (children->string es . indent)
+;-- (children->string es #!rest indent) maps an extension set to a string
+(define (children->string es #!rest indent)
   (string-append
 	(if (null? es)
 		 " {}"		 
@@ -2993,64 +3177,100 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  " "
 		  "}"))))
 
-;-- (tree->display-string t . args) -- with formatting (but not latex)
-(define (tree->display-string t . indent)
-  (set! indent (if (null? indent) 0 (car indent)))
-  (string-append
-	(tree->display-string% t indent)
-	"\n"))
+
+;-- (display-tree tree)
+(define (display-tree tree)
+  (display (tree->display-string tree)))
 
 ;--- (make-space n) makes a string n spaces long for indents
 (define (make-space n)
   (make-string n #\space))
 
+;-- (tree->display-string t #!rest args) -- with formatting (but not latex)
+(define (tree->display-string t #!rest indent)
+  (set! indent (if (null? indent) 0 (car indent)))
+  (string-append
+	(tree->display-string% t indent)
+	"\n"))
+
 ;--- (tree->display-string% t indent) This does the heavy lifting
 (define (tree->display-string% t indent)
   (let ((emit-space #t))
 	 (string-append
-	  (if (null? t)
-			""
-			(string-append
-			 "(" 
-			 (if (= (length t) 3)
-						  (string-append (number->string (weight t)) ": ")
-						  "")
-			 (if (string? (label t)) (label t) (polynomial->string (label t))) 
-			 (if (null? (children t))
-				  (begin
-					 (set! emit-space #f)
-					 " {}")
-				  (children->display-string (children t) (+ 2 indent)))
-			 (if emit-space (make-space (+ indent 1)) "")
-			 ")"
-			 )))
-	 ))
+	  "(" 
+	  (cond
+		((null? t)
+		 "")
+		((and (= (length t) 3) swap-weight-and-label)
+		 (string-append
+		  (if (string? (label t)) (label t) (polynomial->string (label t))) 
+		  " : "
+		  (number->string (weight t)) 
+		  ))
+		((= (length t) 3)
+		 (string-append
+		  (number->string (weight t)) 
+		  " : "
+		  (if (string? (label t)) (label t) (polynomial->string (label t))) 
+		  ))
+		(else
+		 (if (string? (label t)) (label t) (polynomial->string (label t))) 
+		  ))
+	  " "
+	  (if (null? (children t))
+			(begin
+			  (set! emit-space #f)
+			  " {}")
+			(children->display-string (children t) (+ 2 indent)))
+	  (if emit-space (make-space (+ indent 1)) "")
+	  ")"
+	  ))
+	 )
 
-;--- (tree->display-string%% t indent) This does the heavy lifting
-(define (tree->display-string%% t indent)
+;-- (tree->latex-display-string t #!rest args) -- with formatting (but not latex)
+(define (tree->latex-display-string t #!rest indent)
+  (set! indent (if (null? indent) 0 (car indent)))
+  (string-append
+	(tree->latex-cdisplay-string% t indent)
+	"\n"))
+
+;--- (tree->latex-display-string% t indent) This does the heavy lifting
+(define (tree->latex-display-string% t indent)
   (let ((emit-space #t))
 	 (string-append
-	  (if (null? t)
-			""
-			(string-append
-			 "(" 
-			 (if (= (length t) 3)
-						  (string-append "\"" (number->string (weight t)) ": \" ")
-						  "")
-			 "\""
-			 (if (string? (label t)) (label t) (polynomial->string (label t))) "\""
-			 (if (null? (children t))
-				  (begin
-					 (set! emit-space #f)
-					 " {}")
-				  (children->display-string (children t) (+ 2 indent)))
-			 (if emit-space (make-space (+ indent 1)) "")
-			 ")"
-			 )))
-	 ))
+	  "(" 
+	  (cond
+		((null? t)
+		 "")
+		((and (= (length t) 3) swap-weight-and-label)
+		 (string-append
+		  (if (string? (label t)) (label t) (polynomial->latex-string (label t))) 
+		  " : "
+		  (number->string (weight t)) 
+		  ))
+		((= (length t) 3)
+		 (string-append
+		  (number->string (weight t)) 
+		  " : "
+		  (if (string? (label t)) (label t) (polynomial->latex-string (label t))) 
+		  ))
+		(else
+		 (if (string? (label t)) (label t) (polynomial->latex-string (label t))) 
+		  ))
+	  " "
+	  (if (null? (children t))
+			(begin
+			  (set! emit-space #f)
+			  " {}")
+			(children->latex-display-string (children t) (+ 2 indent)))
+	  (if emit-space (make-space (+ indent 1)) "")
+	  ")"
+	  ))
+	 )
 
-;-- (children->display-string es . indent) maps an extension set to a string
-(define (children->display-string es . indent)
+
+;-- (children->display-string es #!rest indent) maps an extension set to a string
+(define (children->display-string es #!rest indent)
   (set! indent (if (null? indent) 0 (car indent)))
   (string-append
 	(if (null? es)
@@ -3065,6 +3285,27 @@ a root (the node which is (uniquely) the child of no other node in the set).
 							 (string-append " "
 												 (make-space (+ 2 indent))
 												 (tree->display-string x (+ 2 indent))))
+						  (cdr es)))
+		  (make-space (+ 2 indent))
+		  " "
+		  "}\n"))))
+
+;-- (children->latex-display-string es #!rest indent) maps an extension set to a string
+(define (children->latex-display-string es #!rest indent)
+  (set! indent (if (null? indent) 0 (car indent)))
+  (string-append
+	(if (null? es)
+		 " {}"		 
+		 (string-append
+		  "\n"
+		  (make-space indent)
+		  "{"
+		  (tree->latex-display-string (car es) (+ 2 indent))
+		  (apply string-append
+					(map (lambda (x)
+							 (string-append " "
+												 (make-space (+ 2 indent))
+												 (tree->latex-display-string x (+ 2 indent))))
 						  (cdr es)))
 		  (make-space (+ 2 indent))
 		  " "
@@ -3102,8 +3343,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 (define (dnlc t)
   (display (children->string t)))
 
-;----  (tdnl . args) 
-(define (tdnl . args)
+;----  (tdnl #!rest args) 
+(define (tdnl #!rest args)
   (apply dnl 
 			(map (lambda (x)
 					 (cond
@@ -3122,7 +3363,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		(ree+ (tree* (- 1 pivot) t1) (tree* pivot t2))
 		(error "the pivot must be in [0,1]" pivot)))
 
-(define (p-n . arg)
+(define (p-n #!rest arg)
   (if (null? arg)
 		(if (even? (random-integer 3)) 1 -1)
 		(* (if (even? (random-integer 3)) 1 -1) (car arg))))
@@ -3158,7 +3399,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 			)
 	 (normalise-polynomial (cons s pt))))
 
-(define (rand-poly . args)
+(define (rand-poly #!rest args)
   (random-polynomial '(w x y z) 3 6 3))
 
 ;;; This is wrong now.... ;;;
@@ -3182,15 +3423,17 @@ a root (the node which is (uniquely) the child of no other node in the set).
   (let ((n (length lst)))
 	 (list-ref lst (random-integer n))))
 
-(define (mkrnd-node3% . kinder)
-  (list 
-	(rndel '(-3 -2 -1 0 0 0 1 2 3 5 7 11))
-	(rand-poly rand-poly 3 12 '(x y z) 3)
-	kinder))
+(define (mkrnd-node3% #!rest kinder)
+  (let ((w (rndel '(-3 -2 -1 0 0 0 1 2 3 5 7 11)))
+		  (p (rand-poly rand-poly 3 12 '(x y z) 3))
+		  )
+	 (if swap-weight-and-label
+		  (list p w kinder)
+		  (list w p kinder))))
 
 (define coefficient-lst '(-4 -3 -1 0 1 3 5 7 11 13))
 
-(define (mkrnd-node3 depth nkids . val)
+(define (mkrnd-node3 depth nkids #!rest val)
   (let ((n (if (< depth 2)
 					(mkrnd-node3%)
 					(let* ((k (seq (+ 1 (random-integer nkids))))
@@ -3202,20 +3445,20 @@ a root (the node which is (uniquely) the child of no other node in the set).
 		  )
 	 n))
 
-(define tst1 (string->tree "(0: 0  {(5: c +  b + a {(4: 2 m c + 3 m b - m a {}) 
-                                            (1/2:  n c - n b + 2 n a {})
-                                            (7/2:  n c - n b + n a {})
-                                            (1/3:-1 + p c + 2 p b - 2 p a {})})})"))
+(define tst1 (string->tree "(0: 0  {(c +  b + a {(2 m c + 3 m b - m a : 5 {}) 
+                                            (n c - n b + 2 n a : 1/2 {})
+                                            (n c - n b + n a : 7/2 {})
+                                            (-1 + p c + 2 p b - 2 p a : 1/3 {})})})"))
 
-(define tst2 (string->tree "(0: 0 {(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
-                                            (1/5:  n c - n b + 2 n a {})
-                                            (1/7:-1 + p c + 2 p b + 3 p a {})})})"))
+(define tst2 (string->tree "(0 : 0 {(c + b + a :0 {(2 m c + 3 m b - m a : 1/2 {}) 
+                                            (n c - n b + 2 n a :1/5 {})
+                                            (-1 + p c + 2 p b + 3 p a :1/7 {})})})"))
 
 						  
-(define tst3 (string->tree "(0: 0 {(3: c + b + a {(1/2: 2 m c + 3 m b - m a {}) 
-                                            (1/5:  n c - n b + 2 n a {})
-                                            (6: n + 3 m {})		
-                                            (1/7:-1 + p c + 2 p b + 3 p a {})})})"))
+(define tst3 (string->tree "(0 : 0 {(c + b + a :3 {(2 m c + 3 m b - m a :1/2 {}) 
+                                            ( n c - n b + 2 n a : 1/5 {})
+                                            (n + 3 m :6 {})		
+                                            (-1 + p c + 2 p b + 3 p a : 1/7{})})})"))
 ;; model status format
 
 ;;    model --> domain* --> niche* --> agent* --> sub-agents
@@ -3229,25 +3472,25 @@ a root (the node which is (uniquely) the child of no other node in the set).
 ;; In the schema below, "gn" denotes the \it{goodness} of a niche's current
 ;; aggregate representation, "" is a number of 
 
-(define *model (string->tree "(0: model {
-  (0: A {(0: plant {(0: tree {(1: individuals {})} )} )
-         (0: aherbivore {(0: Hanimal {(1: individuals {})} )} )
-         (0: jherbivore {(0: jHanimal {(1: individuals {})} )} )
-         (0: acarnivore {(0: Canimal {(1: individuals {})} )} )
-         (0: jcarnivore {(0: jCanimal {(1: individuals {})} )} )
+(define *model (string->tree "( model : 0 {
+  (0: A {(plant : 0 {( tree:0 {(individuals : 1 {})} )} )
+         (aherbivore :0{(Hanimal :0 {(individuals :1  {})} )} )
+         (jherbivore :0 {(jHanimal:0 {(individuals :1  {})} )} )
+         (acarnivore :0{(Canimal:0 {(individuals :1 {})} )} )
+         (jcarnivore :0{( jCanimal :0 {( individuals :1 {})} )} )
    } )
-  (0: B {(0: plant {(0: eqntree {(1: biomass {})} )} )
-         (0: aherbivore {(0: eqnaHerb {(1: biomass {})} )} )
-         (0: jherbivore {(0: eqnjHerb {(1: biomass {})} )} )
-         (0: acarnivore {(0: eqnCarn {(1: biomass {})} )} )
-         (0: jcarnivore {(0: eqnjCarn {(1: biomass {})} )} ) })
-  (0: C {})
-  (0: D {})
-  (0: E {})
-  (0: F {})
-  (0: G {})
-  (0: H {})
-  (0: I {})})"))
+  ( B :0 {( plant :0 {( eqntree :0 {( biomass :1 {})} )} )
+         ( aherbivore :0 {( eqnaHerb :0 {( biomass :1 {})} )} )
+         ( jherbivore :0 {( eqnjHerb :0 {( biomass :1 {})} )} )
+         ( acarnivore :0 {( eqnCarn :0 {( biomass :1 {})} )} )
+         ( jcarnivore :0 {( eqnjCarn :0 {( biomass :1 {})} )} ) })
+  ( C :0 {})
+  ( D :0 {})
+  ( E :0 {})
+  ( F :0 {})
+  ( G :0 {})
+  ( H :0 {})
+  ( I :0 {})})"))
 
 ;;; (0: model-lbl {set-of-domains}) ;;;
 ;;; (nD: domain-lbl {set-of-niches}) ;;;

@@ -403,6 +403,11 @@
 					 (if alien ((composite-prj_src->dst self alien) RP) RP)
 				  ))
 
+(model-method (<environment>) (number-represented self)
+				  1 ;; a single contributor to the sum
+				  ;(apply * (map - maxv minv))
+				  ) ;; area covered
+
 ;-- <ecoservice> methods and bodies
 
 ;; By convention we give ecoservices names which are strings, types
@@ -1085,6 +1090,9 @@ via their containing patch.
 
 (model-method (<patch>) (area self #!optional passing-argument)
 				  (area (my 'rep) passing-argument))
+
+(model-method (<patch>) (number-represented self)
+				  (area self))
 
 (model-method (<patch>) (centre self)
 				  (centre (my 'rep)))
@@ -1784,7 +1792,7 @@ via their containing patch.
 												  cell-class
 												  taxon
 												  'name pname
-												  'representation (cnc cell-type)
+												  'representation cell-type
 												  'rep PP
 												  'index i
 												  )))
@@ -1866,7 +1874,7 @@ via their containing patch.
 												  cell-class
 												  taxon
 												  'name pname
-												  'representation (cnc cell-type)
+												  'representation cell-type
 												  'rep PP
 												  )))
 										 ;;							(pp (dumpslots PP))
@@ -2150,6 +2158,12 @@ args can be  an update map or an update map and update equations
 				  (display ":\n")
 				  (for-each (lambda (x) (dump% x (+ 4 count))) (my 'patch-list)))
 
+(model-method <landscape> (area self)
+				  (apply + (map area (my 'patchlist))))
+
+(model-method <landscape> (number-represented self)
+				  (area self))
+				  
 
 ;--- model-method (<habitat> <patch>) (add-patch! self patch) add a
 ;                                                            patch to the habitat

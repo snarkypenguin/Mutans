@@ -4,6 +4,7 @@
   (list
     (list 'type 'log-data)
 	 (list 'filetype ".data")
+	 (list 'representation 'data)
 	 (list 'format 'text)
 	 (list 'output-projection #f)
     (list 'local->model '($ (cdr (assoc 'I *default-projections*))))         ;; takes model space to local space

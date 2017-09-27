@@ -6,6 +6,7 @@
 	 ;;(list 'type 'logger)
 	 (list 'dt (* 1 day))
     (list 'file #f)
+	 (list 'representation 'logger)
 	 (list 'current-filename '<uninitialised>)
     (list 'filename #f)
     (list 'filetype #f)

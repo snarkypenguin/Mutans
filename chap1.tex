@@ -33,29 +33,31 @@ made in the representation as the conditions within the model change.
 
 Such a strategy has a number of potential benefits:
 \begin{itemize}
-\item[] we can make many simple representations, submodels, for a niche
+\item[--] we can make many simple representations, submodels, for a niche
          (\emph{sensu}~\cite{gray2006nws} and~\cite{gray2014}) in the
         model, each of which deals well with a particular part of the
         submodel's domain;
-\item[] the comparative simplicity of these representations effectively 
+\item[--] the comparative simplicity of these representations effectively 
       reduces the number of potential code paths within a model at any
       given moment, since representations do not have to cope with
       edge cases, they merely indicate that they are entering a marginal
       or inappropriate domain;
-\item[] we can use analytic representations which are more efficient at
+\item[--] we can use analytic representations which are more efficient at
       representing large numbers of entities;
-\item[] we can use individual-based representations which capture
+\item[--] we can use individual-based representations which capture
       the fine-scale dynamics that dominate when we are dealing with
       discrete events or low numbers of entities;
-\item[] we can choose representations that make the best use of available
+\item[--] we can choose representations that make the best use of available
       data within the model, or can ask for better representations
       in the ensemble;
-\item[] it is simple to incorporate code to track information about
+\item[--] it is simple to incorporate code to track information about
       representation changes, relative execution speed, and cumulative
       error into the modelling system;
-\item[] we can include (or not) agents that identify the emergence of 
+\item[--] we can include (or not) agents that identify the emergence of 
       perverse dynamics within the system;
-\item[] we can decouple the production of the results from processes
+
+\listintertext*{and} 
+\item[--] we can decouple the production of the results from processes
       which simulate the systems and subsystems being modelled.
 \end{itemize}
 
@@ -255,6 +257,39 @@ of types of submodels and their complexity by roughly a factor of four
 every seven years. These rates may be limited by the
 capacity of the hardware available, as well as the human limits which
 arise in the design, implementation and testing of models.
+
+\Cite{fultonPhD} is a comprehensive survey of the effect of the
+complexity and structure of models.  This thesis uses marine
+ecosystems to couch the discussion, but the issues are more general.
+Fulton articulates five essential conclusions; while the first of
+these -- that shallow, enclosed marine systems may be predisposed to
+eutrophication -- seems specific to the domain on the surface, but it
+actually alludes to what may be a more pervasive condition, namely
+that isolated, constrained environments may be more vulnerable to
+radical switching. The remaining conclusions
+\begin{itemize}
+\item[---] indicator groups can be used to monitor the effects of
+management strategies and environmental condition
+\item[---] designing management strategies based on a small part of
+the trophic system can have perverse consequences
+\item[---] multi-species models have more discriminatory power with
+respect to environmental conditions and the effects of external
+forcing
+
+\listintertext{and}
+\item[---] the use of different models (model-configurations) as a
+means of broadening the number of perspectives on the modelled system
+is of significant value in many ways.
+\end{itemize}
+can be used to guide the development of the control mechanisms for an
+adaptive hybrid-model. The first provides a indication of
+situations where model changes are likely to be rapid and dramatic,
+the following points indicate important features to consider when
+designing the strategies that oversee the mix of model
+components. The mechanisms described in \Cfive have been designed with
+these points in mind: we need a reasonable number of grouping to be
+assessed, and that analysing them in different ways can prove
+illuminating. 
 
 \Cite{fulton2010approaches} provides a comprehensive overview
 of \emph{end-to-end} or \emph{whole-of-system} models drawn from the
@@ -554,11 +589,19 @@ would have missed one of the most important parts of the problem.
 --- --- ---
 \end{center}
 
-The corpus of code in the framework is a little over 24,000 lines of
-\Scheme code and is freely available at \repos.  While the model does
-not require \swname{SLIB} by Dr Aubrey Jaffer, it can make use of it
-and it is available at
-\URL{http://people.csail.mit.edu/jaffer/SLIB.html}.
+The corpus of code in the framework is a little under 28,500 lines of
+\Scheme code and is freely available at\\
+\makebox[\textwidth]{\repos}
+
+The interpreter/compiler used in this work is \Gambit developed by
+Marc Feeley.  It has a thriving community, excellent support and
+integrates well with \CC and \Cpp, and is available from the GitHub
+repository\\
+\makebox[\textwidth]{\URL{https://github.com/gambit}}
+
+While the model does not require \SLIB by Aubrey Jaffer, \SLIB
+provide a broad range of useful functions. \SLIB is available at\\
+\makebox[\textwidth]{\URL{http://people.csail.mit.edu/jaffer/SLIB.html}}
 
 
 

@@ -256,20 +256,6 @@
 												 (map projection (make-circle-perimeter (my 'location) (* 250 (radius self)) (if (eq? (agent-state self) 'dead) 5 12))))
 				  )
 
-
-;----- (self-assessment)
-(UNFINISHED-BUSINESS "<plant> (representation-assessment self #!rest args): This is a placeholder ... it almost certainly needs to change")
-(model-method <plant> (representation-assessment self #!rest args)
-				  ;; the return value for an assessment is a (possibly complex) number, or a symbol
-				  0
-				  ;;; (if (null? args) ;; only passed self ;-
-				  ;;; 		0 ;-
-				  ;;; 		(let ((n (car args)) ;; mixing assumption  ;-
-				  ;;; 				) ;-
-				  ;;; 		  (+ (/ n (my 'population-switch))) ;-
-				  ;;; 		  )) ;-
-				  )
-
 ;;; (model-method <plant> (lose-foliage self leafmass)
 ;;; 				  (set-my! 'leaf-area (plant-leaf-area self))
 ;;; 				  (let* ((la (leaf-area self))
@@ -869,6 +855,7 @@
 
 (model-body <plant-proxy>
 				(abort "This should never happen"))
+
 
 (model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)
 		;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))

@@ -95,7 +95,7 @@
 					 ;; at the start of the simulation
 ;#############################################################
 
-
+(define global-time 0)
 
 (define Mortuary '());; We collect terminated agent here.  Termination *ought* to call shutdown!
 (define Cemetary '());; We collect dead agents here when they are terminated.  Termination *ought* to call shutdown!
@@ -473,6 +473,7 @@
 
   (if (not clock-started)
 		(set! clock-started (real-time)))
+  (set! global-time t)
   
   (set! tracing-q (sort runqueue Qcmp))
   
@@ -1320,7 +1321,9 @@ code to suppress the error)
 				)
 								
 		(if (and (pair? args) (>= (length args) 2))
-			 (let ((a (apply make (if (list? classy) classy (list classy)))))
+			 (let ((a (apply make (append (if (list? classy) classy (list classy))
+													(list 't global-time	'dt 1)))
+						 ))
 				(case call
 				  ((set-Q!)
 					(if (= (length args) 3)	(set! Q (car extras)) (error "bad KCALL 'set-Q" args)))

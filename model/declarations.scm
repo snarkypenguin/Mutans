@@ -25,7 +25,8 @@
 (declare-method area "area of an object")
 
 (declare-method assessment-suggestions "returns a list of alternative representations")
-(declare-method assess-rep "an agent's self-assessment routine -- totally internal")
+(declare-method self-assess "an agent's self-assessment routine -- totally internal")
+(declare-method assess-rep "assess a representation's suitability")
 (declare-method assess-taxon "assessment routine w.r.t. all taxon matches")
 (declare-method assess-niche "assessment routine w.r.t. all other niche members")
 (declare-method assess-distribution "assessment routine for a region")
@@ -199,6 +200,7 @@
 (declare-method representation-assessment "method to return an assessment")
 (declare-method representation "individual, aggregate, analytic, circle, polygon...")
 (declare-method rep "returns the representation object")
+(declare-method rep-tree "returns a rep's tree")
 (declare-method reproduce "create offspring")
 (declare-method request-accessor "get a hunk of code that gives access to internal state")
 (declare-method requires! "add to the list of requirements")
@@ -216,6 +218,7 @@
 (declare-method schedule-epsilon "return a schedule's epsilon")
 (declare-method schedule-times "return a schedule")
 (declare-method self-assess "used to generate an assessment tree for the representations of individual agents")
+(declare-method s/n% "returns the s/n of an agent -- assigned separately from the serial-number")
 (declare-method service-list-index "returns the index of a species in the species list")
 (declare-method service-list% "service-list%") ;; returns value
 (declare-method service-matrix-index "returns the index of a species in the species matrix")

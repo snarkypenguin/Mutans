@@ -159,7 +159,7 @@ First, the definitions for some basic tools for manipulating these
 trees. Some of the functions defined below are not used in this chapter, but
 play a role in the explicit model described in \Cfive.  
 
-\begin{definition}
+\begin{definition}\label{Tcard}
   The cardinality of a tree $\node{u}\in\DOMstar$ is the number of nodes it contains. We
   define it formally as
   \begin{align*}
@@ -173,7 +173,7 @@ Simple nodes are the only nodes which have a cardinality of one, and \tzerotree 
 cardinality of zero.
 \end{definition}
 
-\begin{definition}
+\begin{definition}\label{depth}
   For any \(\node{u} \in \DOMstar\) we define the function for 
   \marginnote{\Defn of \(\depth(\node{u})\)}
   \begin{align*} 
@@ -186,7 +186,7 @@ cardinality of zero.
   which gives us the depth of the tree.
 \end{definition}
 
-\begin{definition}
+\begin{definition}\label{trim}
   We will also define for \(\node{u} \in \DOMstar\),
   \marginnote{\Defn of \(\trim(\node{u})\)}
   \begin{align*}
@@ -206,7 +206,7 @@ of trimming will be denoted \(\trim_{k}\), indicating that the tree
 \(\trim_{\depth(\node{u})}{\node{u}} = 0\) and
 \(\depth(\trim_{\depth{\node{u}}-1}{\node{u}}) = 1\).
 
-\begin{definition}
+\begin{definition}\label{overlap}
 The \emph{overlap} between two trees is defined
 \[
   \overlap(\node{u},\node{v}) = \begin{cases}
@@ -225,7 +225,7 @@ We may also make use of the relative overlap of two nodes, \tnode{u} and \tnode{
 not defined.
 \end{definition}
 
-\begin{definition}
+\begin{definition}\label{shadow}
 The \emph{shadow} cast by a tree, \tnode{v}, onto another tree,
 \tnode{u}, is given by
 \[
@@ -237,7 +237,9 @@ The \emph{shadow} cast by a tree, \tnode{v}, onto another tree,
 where \tnode{u} and \tnode{v} are compatible.
 \end{definition}
 This lets us restrict our attention to those parts of a tree which
-conform to some ``template'' tree.  
+conform to some ``template'' tree.  It is easy to see that
+$\overlap(\node{u},\node{v})$ is precisely
+$\Tcard(\shadow(\node{u},\node{v}))$.
 
 \begin{definition}\label{useful-set-functions}
   We will define a few useful notations for sets derived from sets of
