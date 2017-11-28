@@ -9,6 +9,7 @@
 \ackpage
 \pagenumbering{arabic}
 
+\tableofcontents  
 
 % Note that the text in the [] brackets is the one that will
 % appear in the table of contents, whilst the text in the {}
@@ -34,7 +35,7 @@ made in the representation as the conditions within the model change.
 Such a strategy has a number of potential benefits:
 \begin{itemize}
 \item[--] we can make many simple representations, submodels, for a niche
-         (\emph{sensu}~\cite{gray2006nws} and~\cite{gray2014}) in the
+        (in the sense used in \cite{gray2006nws} and \cite{gray2014}) in the
         model, each of which deals well with a particular part of the
         submodel's domain;
 \item[--] the comparative simplicity of these representations effectively 
@@ -72,7 +73,7 @@ population of a coastal city, we may have a number of
 different \emph{submodels} with different levels of aggregation and
 different temporal or spatial scales.  In a simulation of a cyclone
 season, we may start with a simple single age-histogram representation.
-As a tropical storm build we may disaggregate the histogram,
+As a tropical storm builds we may disaggregate the histogram,
 appropriately distributing the population to finer age-histograms
 associated with localities throughout the region.  As it approaches
 the coastline, the essentially static representations which lie in
@@ -85,35 +86,36 @@ risk.  In the aftermath, aggregation may occur in regions where there
 are no acute effects, but other parts of the system may remain finely
 resolved.
 
-In this example, we change the representations to deal with both
-of the questions above.  We initially assumed that for most of the
+In this example, we change the representations to deal with both of
+the questions above.  We initially assumed that for most of the
 purposes of the simulation, our population could be treated as
 relatively homogeneous, and may have kept aggregate information about
 population distribution, wealth and demographic characteristics, but
-as the storm hits, the simulation needs to change the state of
-a portion of the population (those with damaged property, for
-example), and we have to refine our representation.  Similarly, the
-behaviours following the storm are modally different: those who live
-in protected areas are mostly free to carry on with essentially the
-same ``normal'' representation, but those who living in damaged areas
-must engage in quite different activities, and may have quite a
-different exposure to risks.
+as the storm hits, the simulation needs to change the state of a
+portion of the population (those with damaged property, for example),
+and we have to refine our representation.  Similarly, the behaviours
+following the storm are modally different: those who live in protected
+areas are mostly free to carry on with essentially the same ``normal''
+representation, but those who are living in damaged areas must engage
+in quite different activities, and may have quite a different exposure
+to risks.
 
-Adaptive approaches commonly occur in numerical technique for
+Adaptive approaches commonly occur in numerical techniques for
 numerical approximation (regression, root finding, and parameter
 estimation for example), numerical solutions for systems of
 differential equations, feature detection and recognition, control
 systems and route planning.  Often these approaches involve adjusting
 the size of the domain considered (subdivisions or step size), or the
 rates associated with a process. In the case of route planning, sets
-of routes may be marked as ``impassible'' as data becomes available,
+of routes may be marked as ``impassable'' as data becomes available,
 triggering a reassessment of the set of possible routes. More
 broadly, \emph{domain adaptation} describes a general approach where a
 model or system adjusts itself to the data it works with -- one of the
-canonical examples is Bayesian spam filter which includes a user's
+canonical examples is a Bayesian spam filter which includes a user's
 assessment of whether email is spam or not in its subsequent
 assessments. A common trait these adaptive techniques share is that
-\emph{algorithm} which processes the data remains essentially the same.
+the \emph{algorithm} which processes the data remains essentially the
+same.
 
 \Cite{DBLP:ZhangZR16} describe a system for the detection and tracking
 of pedestrians which selects the algorithms and parameters to be used
@@ -127,7 +129,7 @@ are commonplace. The scales of systems that exhibit switching
 behaviour range from a molecular level, such as the behaviour of
 freezing liquids, through to climatic changes.  The discussion of
 ``tipping points'' has increased dramatically in the last decade
-(\citep{bhatanacharoentipping}), indicating a broad recognition that
+\citep{bhatanacharoentipping}, indicating a broad recognition that
 systems' dynamics can (and do) switch rapidly from one mode to another
 
 \Cite{huston1988new} is an early review paper which deals with
@@ -143,8 +145,8 @@ and that the fine scale dynamics experienced by individuals plays a
 significant role in many of the population scale patterns observed in
 ecological studies.
 
-Individual-based or super-individual-based models are not a panacea,
-however, models of this sort may become quite costly as the number of
+Individual-based or super-individual-based models are not a panacea.
+Models of this sort may become quite costly as the number of
 individuals or the interactions between individuals or
 super-individuals grows, and small discrepancies between the
 ``behaviour'' or parameterisation of the modelled entities and their
@@ -155,12 +157,12 @@ estimate \emph{in situ}, and so the effects of individuals' modelled
 behaviours or processes may not scale well when incorporated in larger
 systems.
 
-It is not uprising that exogenous factors, such as changing
-environ\-mental conditions such as the availability of water or prey
-can significantly alter the behaviour of organisms.  Migrations are
+It is well known that exogenous factors, such as changing
+environ\-mental conditions (\eg the availability of water or prey
+can significantly alter the behaviour of organisms).  Migrations are
 common in many populations, reasons include moving to particular
 locations for breeding, avoiding seasonal scarcity of resources, or
-the encroachment of competing species such as \emph{H. sapiens}.
+the encroachment of competing species such as \textit{Homo sapiens}.
 These examples are relatively predictable, and typically involve a
 homogeneous response from the migrating population.
 \Cite{ward1985behavioural} discusses the behaviour of
@@ -172,20 +174,20 @@ sample size was small, the distinct responses suggest that lynx
 populations respond to prey scarcity in a heterogeneous way and, as a
 result, may be less amenable to modelling as a population.
 
-Toxicants and other chemical contamination in the environment are
-likely to have a contained spatial distribution and an uneven impact
-on members of a population. The significant issues in modelling this
-type of interaction is that the population can be fragmented into a
-number of distinct sub populations bases on their level of contact and
-uptake, and airborne or water born contaminants' footprint may vary
-dramatically through time. \Cite{zala2004abnormal} presents a useful
-review of the the effects of behaviour disrupting contaminants in a
-broad range of animals.  Even in simple situations, where the behaviour
-and viability of members of a population are not compromised, the
-consequences of contact may percolate through the food-chain to higher
-order predators. \Cite{swan2006toxicity} has found that very low
-levels of cloven are fatal to old world vultures which acquire it
-by scavenging carcasses of dead cattle, and the bio magnification and
+Toxicants and other chemical contamination in a terrestrial
+environment are likely to have a proscribed footprint; where toxicants
+are air-born or water-born they may disperse more readily and
+advection may increase the area of potential contact.  In models of
+these situations, the populations can be fragmented into a number of
+distinct, possibly mobile, sub-populations. \Cite{zala2004abnormal}
+presents a useful review of the the effects of behaviour disrupting
+contaminants in a broad range of animals.  Even in simple situations,
+where the behaviour and viability of members of a population are not
+compromised, the consequences of contact may percolate through the
+food-chain to higher order predators. \Cite{swan2006toxicity} has
+found that very low levels of the anti-inflammatory drug diclofenac
+are fatal to old world (\textit{Gyps}) vultures which acquire it by
+scavenging carcasses of dead cattle, and the bio magnification and
 effects of DDT in the food chain have been well discussed in the
 scientific literature since 1964.
 
@@ -193,22 +195,23 @@ When an altered behaviour is associated with the spread or
 reproduction of organisms; in these cases, the scope for positive
 feedback is increased, and the dynamics can diverge rapidly from
 representations that are adequate for an unperturbed system.  The
-effects of \emph{T. gondii} on rats (\citep{berdoy2000fatal}) is an
-ideal example: rats exposed to infected cat feces lose their innate
-fear of cats -- the positive reinforcement on the spread
-of \emph{T. gondii} afforded by this leads to greater potential for
-the pathogen to infect more cats, and hence, more
-rats. \Citet{dobson1988population} investigates the population
-dynamics of these kinds of interactions, and present a useful approach
-to incorporating these effects into analytic models. This paper
-explored the population dynamics of parasite-host systems where the
-parasites influenced host behaviour found that the reproductive
-capacity of the host populations could be significantly modified by
-the behaviour altering parasites. \Citep{dobben1952food} observes that
-roaches infected with \emph{Lingua intestinalis} were three to five
-times more numerous in cormorant catches than in the roach population
-of the IJsselmeer (as estimated from commercial catches), suggesting
-that something in the fish's behaviour makes them more susceptible to
+effects of \textit{Toxoplasma gondii} on rats
+\cite{berdoy2000fatal} is an ideal example: rats exposed to
+infected cat feces lose their innate fear of cats -- the positive
+reinforcement on the spread of \textit{T. gondii} afforded by this
+leads to greater potential for the pathogen to infect more cats, and
+hence, more rats. \Citet{dobson1988population} investigates the
+population dynamics of these kinds of interactions, and present a
+useful approach to incorporating these effects into analytic
+models. This paper explored the population dynamics of parasite-host
+systems where the parasites influenced host behaviour found that the
+reproductive capacity of the host populations could be significantly
+modified by the behaviour altering parasites. \Citep{dobben1952food}
+observes that roaches infected with \textit{Lingua intestinalis} were
+three to five times more numerous in cormorant catches than in the
+roach population of the IJsselmeer\footnote{A large lake in the
+Netherlands.} (as estimated from commercial catches), suggesting that
+something in the fish's behaviour makes them more susceptible to
 capture. \Cite{poulin1994meta} assesses the effect on host behaviour
 in a number of host-parasite pairings, and found that the parasites
 had a significant effect on the behaviour of their hosts.  In the
@@ -217,7 +220,7 @@ and the infected individuals are often either disproportionately
 preyed upon, or involved in the parasite's reproductive cycle.
 
 The situation is more complex when there are endogenous reasons for
-fundamental changes in their basic dynamics. This kind of situation
+fundamental changes in an organism's basic dynamics. This kind of situation
 can induce radical, even pathological, changes in behaviour.  Social
 animal populations may behave in quite strange ways when their
 population density grows too large or the population's social profile
@@ -258,15 +261,10 @@ every seven years. These rates may be limited by the
 capacity of the hardware available, as well as the human limits which
 arise in the design, implementation and testing of models.
 
-\Cite{fultonPhD} is a comprehensive survey of the effect of the
-complexity and structure of models.  This thesis uses marine
-ecosystems to couch the discussion, but the issues are more general.
-Fulton articulates five essential conclusions; while the first of
-these -- that shallow, enclosed marine systems may be predisposed to
-eutrophication -- seems specific to the domain on the surface, but it
-actually alludes to what may be a more pervasive condition, namely
-that isolated, constrained environments may be more vulnerable to
-radical switching. The remaining conclusions
+\Cite{fultonPhD} surveys the effects of the
+complexity and structure in models of marine ecosystems to couch the
+discussion, but the issues are more general.  Fulton articulates five
+essential conclusions:
 \begin{itemize}
 \item[---] indicator groups can be used to monitor the effects of
 management strategies and environmental condition
@@ -281,12 +279,14 @@ forcing
 means of broadening the number of perspectives on the modelled system
 is of significant value in many ways.
 \end{itemize}
-can be used to guide the development of the control mechanisms for an
-adaptive hybrid-model. The first provides a indication of
-situations where model changes are likely to be rapid and dramatic,
-the following points indicate important features to consider when
-designing the strategies that oversee the mix of model
-components. The mechanisms described in \Cfive have been designed with
+
+While the fifth -- that shallow, enclosed marine systems may
+be predisposed to eutrophication -- seems specific to the domain on
+the surface, it actually alludes to what may be a more pervasive
+condition, namely that isolated, constrained environments may be more
+vulnerable to radical switching.  The remaining conclusions can be used
+to guide the development of the control mechanisms for an adaptive
+hybrid-model.  The mechanisms described in \Cfive have been designed with
 these points in mind: we need a reasonable number of grouping to be
 assessed, and that analysing them in different ways can prove
 illuminating. 
@@ -308,7 +308,7 @@ that
     single right model. All models have problems and it is best (where
     possible) to use a range of models that can address the question
     in different ways.
-\end{quote} (\cite{FAO2008ecosystems}, p. 78).
+\end{quote} [\cite{FAO2008ecosystems}, p. 78].
 While the thrust of the quotation is more in the direction of
 conventional ensemble modelling, the observations apply equally well
 to the argument that using the best representation at the
@@ -319,6 +319,26 @@ Fulton also addresses issues associated with parametric uncertainty
 and structural uncertainty.  This latter element is particularly
 significant in systems where the prevailing structures may switch
 between a number of distinct, locally stable modes.
+
+\Cite{rose10:1} identifies and explores nine significant issues in
+marine ecosystem models, and takes particular care in addressing the
+increasing need to incorporate climatic changes into end-to-end
+ecosystem models.  While their focus is on marine systems, the issues
+they highlight are pertinent to the modelling of a wide range of
+systems.  The salient issues they pose fall into essentially four groups:
+\begin{itemize}
+\item[1,2,4,5] deal with the nature of the submodels used to
+represent a component of the modelled system;
+\item[3] managing multiple physical scales;
+\item[7 and 8] the monitoring and assessment of the model as a whole
+and of the component submodels;
+\item[6, 9] the access or development of an interested community and
+tools to make the coupling of models or components of models feasible.
+\end{itemize}
+In some ways the paper acts as an annotated road map and poses the
+question, ``Where should we all meet?''  A great deal of the work in
+this thesis has been concerned with the first three of these
+categories, and may offer some aid with the last.
 
 
 \typeout{Chapter 1: Historical work}
@@ -377,7 +397,7 @@ depuration.
 The \InVitro based model discussed in~\cite{gray2014}
 and~\cite{fulton2009crossingscales} simulates the effect of a number
 of strategies for managing human recreational and industrial activity
-along the northwestern coastline of Australia. The model incorporated
+along the northwestern coastline of Australia. The model 
 incorporated distinct individuals, super-individuals, mean field
 submodels, submodels which were equivalent to cellular automata and
 systems of differential equations. In this model, the representation
@@ -385,9 +405,11 @@ of whales was notable because individual whales would be transferred
 to another (mostly inaccessible) domain when their migration took them
 outside the model's domain: the whales would be maintained in a
 rudimentary way until it was time for them to migrate back into the
-model domain. Other agents within the model, predators, wildlife
-management and tourism operators, were influenced in their decision
+model domain. Other agents within the model (predators, wildlife
+management and tourism operators) were influenced in their decision
 processes by the presence or absence of whales in the model domain.
+%%% brief comment on trends in the field???
+
 
 \section{Structure }
 Models of complex systems usually incorporate alternative code paths
@@ -414,18 +436,18 @@ The decision to change the representation of a submodel occupying a
 niche in the model is based on the state of the system, the
 capabilities (or incapability) of the agents in the system and the
 objectives of the modeller -- in configuring a model, we might
-prioritise speed over accuracy in a real-time simulation in a computer
-game or combat training simulator, or the obverse for a scientific
+prioritise speed over accuracy in a real-time simulation, a computer
+game or a combat training simulator; conversely, for a scientific
 extrapolation of the state of a harbour for each of a number of
-development scenarios.
+development scenarios, we might choose accuracy over speed.
 
 Representing the state of the model, either as a whole or of its
-constituent parts, is not simple: not only may the filling the niches
-of the model vary through time, but their own dependences on other
-components and niches may change as the state of the model changes. A
-model which contains a ``whale spotting'' tourism venture may follow
-the activities of whales at particular times of the year, but be
-utterly indifferent to the whales at times when there is little
+constituent parts, is not simple: not only may the sub-model mix in
+the niches of the model vary through time, but their dependences
+on other components and niches may change as the state of the model
+changes. A model which contains a ``whale spotting'' tourism venture
+may follow the activities of whales at particular times of the year,
+but be utterly indifferent to the whales at times when there is little
 likelihood of their presence in an accessible location. Similarly, the
 association of entities represented by a population-based model may
 need to be maintained if the population dis\-aggregates into agents
@@ -448,10 +470,10 @@ models), or by a similar assertion from some higher agency
 (a \emph{monitor\/} in the discussion which follows) which assesses
 states more broadly.  In the case of an agent determining that it
 needs to change, such as a penguin moving from the ``nestling''
-submodel to the ``juvenile'' submodel, this can be effected directly,
-though the more general (and in this case, burdensome) strategy would
-be for the desired state-change to be flagged and acted on by
-a \emph{monitor\/}.
+submodel to the ``juvenile'' submodel, this can be effected directly;
+the more general (and in this case, burdensome) strategy would
+for a \emph{monitor\/} to flag the desired state change and then act
+on it when appropriate.
 
 The models explored in this work bear a resemblance to a multitasking
 operating system, but, unlike an operating system, the model's ``kernel''
@@ -586,7 +608,7 @@ the ``cardinality'' of the system would have been much simpler, but it
 would have missed one of the most important parts of the problem.
 
 \begin{center}
---- --- ---
+---
 \end{center}
 
 The corpus of code in the framework is a little under 28,500 lines of

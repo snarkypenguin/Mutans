@@ -1,3 +1,57 @@
 % app0.tex (file to switch to appendix mode)
 % No need to alter this file...
 \appendix
+\chapter[APPENDIX A]{Appendix A}\label{appixa}
+Some of the syntactic attributes of code in the example implementation
+are represented with particular print styles, specifically
+
+\begin{table}[H]
+\begin{center}
+  \caption{Printing styles\label{printstyles}}
+  \begin{tabular}{l L{7cm}}
+    \toprule
+    \textbf{Example} & \textbf{role} \cr
+    \midrule
+    \Syntax{scheme-syntax} & indicates a syntactic component
+      of \Scheme, or a macro declared in \fname{framework}\cr
+    \hline & \cr
+    \symbolic{symbolic-value} & indicates a \Scheme symbol\cr
+    \hline & \cr
+    \strng{string} & indicates a string of characters\cr
+    \hline & \cr
+    \variable{varname} & a variable name\cr
+    \hline & \cr
+    \method{methodname} & the name of a method\cr
+    \hline & \cr
+    \sttvar{agent-state-variable} & a state variable associated with   an agent\cr
+    \hline & \cr
+    \mclass{classname} & an \SCLOS class.\cr
+    \bottomrule
+  \end{tabular}
+\end{center}
+\end{table}
+
+The following are examples of the output produced by
+a \mclass{log-map} agent.
+
+\begin{figure}\label{timesstepo}
+\begin{center}
+  \includegraphics[width=15cm, height=21cm]{T00}
+  \caption{Initial state of the domainfor example run.}
+  \end{center}
+\end{figure}
+
+\begin{figure}\label{timessteptf}
+\begin{center}
+  \includegraphics[width=15cm, height=21cm]{T25}
+  \caption{The domain after 25 days.}
+  \end{center}
+\end{figure}
+
+\begin{figure}\label{timesstepfo}
+\begin{center}
+  \includegraphics[width=15cm, height=21cm]{T50}
+  \caption{The domain after 50 days.}
+  \end{center}
+\end{figure}
+

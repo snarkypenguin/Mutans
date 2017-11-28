@@ -67,11 +67,9 @@ an agent. In many ways, monitors are similar to introspection agents."
 
 (define-class <agent-monitor> ;; test individual agents.  This is the one that will trigger the transition from  ABM to EBM at critical levels
   (inherits-from <monitor>)
-  (state-variables zones indicator-function)
-  ;; zones is a list of lists which are either of the form (variable-symbol flag-symbol min max) or
-  ;; of the form (flag-symbol indicator-function) where the function is passed "self"
-  ;; if the indicated variable has a value in a given interval, or the function returns #t,
-  ;; the corresponding flag is included in a component list of a returned list.
+  (state-variables assessment-function aggregate-data)
+  ;; the aggregate data is a list of the individual assessments (as called in do-assessment)
+  ;; which is used by pass-resolution, the analogue of emit-data.
 )
 
 

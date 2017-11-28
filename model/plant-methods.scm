@@ -857,6 +857,41 @@
 				(abort "This should never happen"))
 
 
+;-- Agent monitors -- collects data regarding the state of an agent's appropriateness
+
+(model-method (<plant-array> <agent-monitor>) (do-assessment self monitor)
+				  ;; This needs to deal with all the plants represented in the array
+
+				  (let ((assessment ((slot-ref monitor 'assessment-function) self))
+						  )
+					 (slot-set! monitor 'aggregate-data (cons assessment (slot-ref monitor 'aggregate-data)))
+					 )
+				  )
+
+
+(model-method (<plant-array>) (resolve-assessment self assessment-list)
+				  "An assessment is one of the following:
+                  #t or a self assessment in the form of some sort of 'error value' [0 would not necessarily be 
+                  treated the same way as #t]
+               a list of alien assessments -- each of the members of the list consists of the entity with the
+               problem with the current representation, an indication of what sort of problem it is, and 
+               how severe the problem is (an indication of the magnitude of the error induced).
+               Problems are described as lists of the form '(error-type desired-rep-type appropriate-scale)
+               where an error type might be things like 'spatial-representation, 'too-few,  'too-many
+               and 'time-step-too-short, timestep-too-long ...; desired-rep-type would typically be either 
+               a class, a 'requires' symbol, or a symbol indicating a needed attribute (a method, 
+               a slot-variable, or a more generic tag); an indicated scale is typically a number or list of 
+               numbers.
+              "
+				  (cond
+					((null? assessment-list) #t ;; Just keep going
+					 )
+					((not (pair? assessment-list))
+					 (error 'bad-assessment-list assessment-list))
+					)
+				  )
+(HERE)
+
 (model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)
 		;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
 		(kdebug 'log* "(model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)")

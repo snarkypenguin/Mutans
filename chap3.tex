@@ -703,7 +703,7 @@ than the local availability of food.
 There are no real programmatic differences between the
 \IB\ rep\-re\-sen\-ta\-tions of herbivores and carnivores; their differences
 lie in their choices of food and the way their ``time-to-eat''
-variable is initially managed. In\-Di\-Vidu\-Al-based, new-born carnivores
+variable is initially managed. In\-di\-vidu\-al-based, new-born carnivores
 begin with a long time till they need to eat. This reflects a reliance
 on some unmodeled foodstuff until they are large enough to prey on
 the juvenile herbivores.  In contrast, the juvenile herbivores must
@@ -979,9 +979,9 @@ we might use something like the simple function
 \end{equation*}
 but for a more comprehensive treatment which factors values which are
 incorporated into the candidate and status trees we might apply the
-$\devi{}{}$ or $\dist{}{}$ functions described in the \appendixname. The
+$\deviO{}{}$ or $\dist{}{}$ functions described in the \appendixname. The
 $\dist{}{}$ function is a well-defined distance over the vector space of
-trees, while the $\devi$ function is an index of similarity that
+trees, while the $\deviO{}{}$ function is an index of similarity that
 incorporates structural characteristics as well as the numerical
 distance between compatible subtrees.  To refine such an analysis we could apply
 $\mask$ and $\nmask$ to select only the relevant parts of the
@@ -1536,7 +1536,7 @@ that it induces a distance function \[\dist(\node{u},\node{v}) = \nabs{\node{u} 
 
 %--- define deviation
 
-We now finish with a definition of a function, $\devi{}{}$, that gives us a
+We now finish with a definition of a function, $\deviO{}{}$, that gives us a
 measure of the degree of divergence between two trees.
 \begin{definition}\label{defdeviation}
   The degree of deviation between two trees, \tnode{u} and \tnode{v} is given  by the expression

@@ -37,7 +37,7 @@
 looks to see if there are any rules for aggregating, then it acts appropriately.
 
 Clearly, there may be some deep knowledge required in terms of how representations work to effect some 
-changes, we hope not too many.
+changes ... we hope not too much.
 
 "
 ;-- fundamental monitor class methods
@@ -71,7 +71,9 @@ changes, we hope not too many.
 				dt)
 				)
 
-
+"do-assessment is analogous to the log-data methods in classes like <plant>, <plant-array>  and the like.
+ It's role is to assess/accumulate the appropriate state information an agent at a time.
+"
 
 ;--- manage-configuration -- equivalent to emit-page
 (model-method (<monitor>) (manage-configuration self)
@@ -129,7 +131,7 @@ changes, we hope not too many.
 				  ;; and interdependencies.
 
 				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
-				  
+
 				  #t)
 
 ;--- pass-resolution --  equivalent of page-epilogue
@@ -142,7 +144,25 @@ changes, we hope not too many.
 				  #t)
 
 
+;-- Agent monitors -- collects data regarding the state of an agent's appropriateness
+
+(model-method (<agent> <agent-monitor>) (do-assessment self monitor)
+				  (let ((assessment ((slot-ref monitor 'assessment-function) self))
+						  )
+					 (slot-set! monitor 'aggregate-data (cons assessment (slot-ref monitor 'aggregate-data)))
+					 )
+				  )
+
+
+
 ;-- Niche monitors -- These create and store trees representing the possible configurations and their strengths/weaknesses
+
+;-- Domain monitors -- collects data regarding the state of the representation of a domain (such as a study area)
+
+
+
+
+
 
 ;--- Generic infrastructure 
   
