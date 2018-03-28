@@ -224,7 +224,7 @@
 	)
   )
 
-;---- (list-intersection a b) intersection of lists a and b
+;---- (list-intersection a b) A ∩ B
 (define (list-intersection A B)
   (if (not (pair? A)) (set! A (list A)))
   (if (not (pair? B)) (set! A (list B)))
@@ -233,8 +233,8 @@
 		  '()
 		  f)))
 
-;---- (list-intersection* a b) intersection 
-(define (list-intersection* . args )
+;---- (list-intersection* a b) intersection A₁ ∩ A₂ ∩ ...
+(define (list-intersection* . args ) 
   (case (length args)
 	 ((0) '())
 	 ((1) (car args))

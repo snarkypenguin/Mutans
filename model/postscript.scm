@@ -1068,7 +1068,7 @@
 
 
 (define (make-graph-paper filename gridsize)
-  (let* ((ps (make-postscript filename '())))
+  (let* ((ps (make-postscript filename '(Helvetica))))
     (graph-paper ps gridsize)
     (ps 'showpage)
     (ps 'close)

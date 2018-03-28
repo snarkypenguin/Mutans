@@ -85,19 +85,19 @@ changes ... we hope not too much.
 				  (pass-preparation self (unique (append (slot-ref self 'target-list) (slot-ref self 'specific-agents))) '())
 
 
-					 (let ((proc (lambda (ila)
-										(kdebug '(monitor-* introspection-trace) " ==> processing "
-												  (cnc ila) " "  (procedure? ila) kind)
+				  (let ((proc (lambda (ila)
+									 (kdebug '(monitor-* introspection-trace) " ==> processing "
+												(cnc ila) " "  (procedure? ila) kind)
 
-										(kdebug '(chaintrack) "about to call do-assessement" (my-list self))
-										(do-assessment ila self kind (my 'variables))
-										(kdebug '(chaintrack) "back from do-assessment")
-										(kdebug '(monitor-* introspection-trace) " <== PROCESSED "
-												  (cnc ila) " "  (procedure? ila))
-										#f
-										)))
-						(for-each proc (my-list self))
-						)
+									 (kdebug '(chaintrack) "about to call do-assessement" (my-list self))
+									 (do-assessment ila self kind (my 'variables))
+									 (kdebug '(chaintrack) "back from do-assessment")
+									 (kdebug '(monitor-* introspection-trace) " <== PROCESSED "
+												(cnc ila) " "  (procedure? ila))
+									 #f
+									 )))
+					 (for-each proc (my-list self))
+					 )
 
 				  ;; pass resolution *may* be subclass specific.
 				  ;;    The default calls (resolve-agent ...) for each of the members of flagged-agents
@@ -135,7 +135,8 @@ changes ... we hope not too much.
 				  #t)
 
 ;--- pass-resolution --  equivalent of page-epilogue
-(model-method (<monitor> <list>) (pass-resolution self )  
+
+(model-method (<monitor> <list>) (pass-resolution self)  
 				  (for-each
 					(lambda (subject)
 					  (resolve-assessment self subject-list args) ;; 

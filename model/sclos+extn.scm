@@ -204,14 +204,14 @@ exploration."
 						 replaced-by ;; There is no "replaces" ... if there were, there would be no way of garbage-collecting things (circular lists...)
 						 may-run                                ;; as it is, maintenace closures need to be carefully constructed to make sure that they
 						 queue-state agent-state                ;; are free from references -- use of list-copy for things like perimeters is essential.
-						 current-class-depth
-						 note
+						 current-class-depth                    ;; agent-state is specifically restricted to values associated with its interaction with 
+						 note                                   ;; the runqueue: (dead terminated ready-for-prep active suspended ...)
 						 kernel
 						 subjective-time priority jiggle 
 						 dt
 						 migration-test timestep-schedule counter
-						 state-flags
-						 agent-epsilon
+						 state-flags                            ;; Agents may read and write to other agent's state flags to pass information about 
+						 agent-epsilon                          ;; representation changes, or other "ensemble-level" data (such as alarm pheromones).
 						 default-font
 						 default-size
 						 default-colour

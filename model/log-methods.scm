@@ -23,7 +23,7 @@
 
 
 (warning "I really need to separate the logging from the file handling.  
-bAt the moment we have the <logfile> branch and the <log-data> branch; this
+At the moment we have the <logfile> branch and the <log-data> branch; this
 needs to change: the creation of a logging agent needs to have a 
 file-handling class (logfile, snapshot, or output?) --- everything is 
 routed through these, and page-preamble and emit-page (called for each timestep)
@@ -50,7 +50,7 @@ to use.  "
 agent list.  The page-preamble may open a file and write some
 preliminary stuff, or it may just assume that the file is open already
 and do nothing at all.  Similarly the page-epilogue does things like
-close pages and emit 'showpage' for postscript stuff.
+close pages and emit 'showpage' for postscript output.
 "
 
 (define map:linewidth 0.2) ;; useful width as a default

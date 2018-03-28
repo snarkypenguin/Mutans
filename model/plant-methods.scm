@@ -599,11 +599,11 @@
 			  ;; this handles "whole of agent" bits, like perimeters
 			  (cond
 				((eq? format 'ps)
-				 (dnl* "PSing match")
+				 ;(dnl* "PSing match")
 				 (plot-plant self logger file))
 				((member format '(text))
 				 ;; This handles fields
-				 (dnl* "Not PSing around")
+				 ;(dnl* "Not PSing around")
 				 (for-each
 				  (lambda (field)
 					 ;;(dnl* "   fielding" field)
@@ -869,13 +869,32 @@
 				  )
 
 
+
 (model-method (<plant-array>) (resolve-assessment self assessment-list)
 				  "An assessment is one of the following:
                   #t or a self assessment in the form of some sort of 'error value' [0 would not necessarily be 
                   treated the same way as #t]
-               a list of alien assessments -- each of the members of the list consists of the entity with the
-               problem with the current representation, an indication of what sort of problem it is, and 
-               how severe the problem is (an indication of the magnitude of the error induced).
+
+               a list of alien assessments -- each of the members of the list consists of lists comprised of 
+               the entities with problems, their current representations, an indication of what sort of problem 
+               they suffer from, and how severe the problem is (an indication of the magnitude of the error induced).
+               
+					The 'self' object must necessarily be a member of one of these lists, and it may peruse the 
+               other members to address any impact their states may have on the potentially changing representation.
+               
+               The first thing the agent does is check its status-flags to see if it is in a 'resolved' state, or if
+               there is an entry indicating that there is an agent it should migrate to.  If action has already been 
+               taken on its behalf; if so, it quiently returns, other wise it will continue in order to address the 
+               flagged condition itself.  Resolution may be a matter of migrating to more aggregated form, converting
+               an aggregrated form into a less aggregated form, moving to a higher/lower fidelity representation or 
+               simply indicating in its own status-flags slot that it is currently unable to change.
+
+               An example in this context might be that a plant (the first in the list) may be passed a list of 
+               eighty plants (including itself) which have been marked as numerous enough to warrant an array-like 
+               approach.  The plant in question then triggers the code in the resolve assessment then creates a 
+               plant-array if one doesn't exist, and populates it with the appropriate members of the assessment-list.
+               These members then have their states changed to indicate that they have been subsumed.
+
                Problems are described as lists of the form '(error-type desired-rep-type appropriate-scale)
                where an error type might be things like 'spatial-representation, 'too-few,  'too-many
                and 'time-step-too-short, timestep-too-long ...; desired-rep-type would typically be either 
@@ -883,14 +902,23 @@
                a slot-variable, or a more generic tag); an indicated scale is typically a number or list of 
                numbers.
               "
-				  (cond
-					((null? assessment-list) #t ;; Just keep going
+				  (let ((my-status-flags (slot-ref self 'status-flags))
+						  (my-assessment-record (assq self (assessment-list)))
+						  )
+					 (cond
+					  ((null? assessment-list) #t ;; Just keep going
+						#t ;; indicates that all is good here, 
+						)
+					  ((not (pair? assessment-list))
+						(error 'bad-assessment-list assessment-list)
+					  )
+					  ((member 'unable-to-change-representation my-status-flags)
+						'frozen-representation
+						)
+					  
+					  )
 					 )
-					((not (pair? assessment-list))
-					 (error 'bad-assessment-list assessment-list))
-					)
 				  )
-(HERE)
 
 (model-method% (<plant-array> <log> <symbol> <list>) (log-data self logger format targets)
 		;;(dnl* "****"  (cnc logger) (cnc self) (name self) format  (symbol? format) (eq? format 'ps))
