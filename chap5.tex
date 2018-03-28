@@ -32,9 +32,9 @@ strategy evaluation (MSE) dealing with anthropogenic effects on
 marine ecosystems.  The principle behind MSE and adaptive management
 is that candidate strategies for managing the effects of human
 activity are explored in simulation.\footnote{This is effectively
-  impossible to do in the real world, since the application of a
-  strategy has a high likelihood of changing the baseline for other
-  candidates in the trial.} Adaptive strategies actively monitor
+impossible to do in the real world, since the application of a
+strategy has a high likelihood of changing the baseline for other
+candidates in the trial.} Adaptive strategies actively monitor
 conditions in their domain and change management strategies to suit
 the observed conditions and dynamics of the
 system. \citep{walters1976,smith1993,polacheck1999,sainsbury2000,keith2011}
@@ -99,19 +99,25 @@ usually be the case.
 Large, complex models have problems which are not relevant to smaller
 exploratory models; these problems include issues associated with the
 communication between (instances of) submodels, the sequencing of
-events within the system, consistency in the treatment of temporal scales,
-spatial scales, and units of measurement. A number of well known
-principles from the domain of computer science can be employed to
-reduce some of these issues -- well defined calling conventions may
-help with cross-submodel communication, data encapsulation can limit
-the errors associated with different or incompatible physical units,
-and processing submodels in a manner analogous to a multitasking
-operating system can address sequencing issues.
+events within the system, consistency in the treatment of temporal
+scales, spatial scales, and units of measurement. A number of well
+known principles from the domain of computer science can be employed
+to reduce some of these issues -- well defined calling conventions may
+help with cross-submodel communication, data encapsulation can reduce
+the likelihood of errors associated with different or incompatible
+physical units, and processing submodels in a manner analogous to a
+real-time multitasking operating system can address sequencing issues.
+
+These approaches help, but they do not address the issues of
+suitability which can arise when cooperating models actually require
+features which their partners are unable to provide, or the basic
+dynamics within a representation is unsuited to either its own state or
+the state of other components that it depends on.
 
 \subsection{Interactions}
 As new submodels are incorporated into a system, a common paradigm is
-to write accessor and mutator\footnote{Also commonly know
-as \textit{getter} and \textit{getter} function} functions for the new
+to write accessor and mutator\footnote{They are also commonly called
+\textit{getter} and \textit{getter} functions.} functions for the new
 model so it can obtain and modify data associated with other
 components in a larger system; similarly, accessors and mutators are
 incorporated in other submodels as appropriate to handle state
@@ -136,7 +142,7 @@ or modify state variables in the submodel.
 Largely insisting that communication between arbitrary agents is
 mediated by calls through the kernel of the example implementation has
 a number of significant benefits: it reduces the total amount of code
-one needs to include a new submodel, it makes the task of
+needed to include a new submodel, it makes the task of
 parallelisation or of rigging a model for distributed computation much
 easier, and it provides a well exercised mechanism for an agent to
 obtain or modify data in another instance of a submodel.
@@ -172,12 +178,12 @@ other agents.  In these studies, some submodels were treated as
 ``always synchronous,'' such as bathymetry, or ``nearly always
 synchronous'' such as coral reefs.
 
-Clearly it should be the case that the flow of time for each
-participant in the model should be monotonic. We should be able to
-prioritise some agents so that they routinely run before others (such
-as the \textit{monitor} agents mentioned below), and within a
-time-slot and priority group we ought to be able to introduce a
-randomness in their insertion order.  This randomness ensures that no
+Clearly it should be the case that the flow of time is monotonic for
+each participant in the model. We should be able to prioritise some
+agents so that they routinely run before others (such as
+the \textit{monitor} agents mentioned below) and within a time-slot
+and priority group we ought to be able to introduce a randomness in
+their insertion order.  Introducing this randomness ensures that no
 individual agent is able to have a systematic advantage as a result of
 when it was first inserted into the queue relative to others.
 
@@ -213,7 +219,7 @@ representations is not optimal. While it may be true that transitions
 may engender artifacts akin to the ``ringing'' which is associated
 with sharp transitions in continuous systems, the deliberate
 transition gives us a chance to mitigate these effects.  Far worse is
-to represent a system by a submodel which is inappropriate (such as
+to represent a system by a submodel which is inappropriate, such as
 an analytic representation for a very low number of members, or a very
 large population by individuals\footnote{It is quite likely that
 conditioning an individual-based model of an organisms accurately
@@ -271,7 +277,7 @@ indicating transition points within the model as a whole.
 \section{Example implementation}
 
 \ReModel\footnote{The printing styles associated with the code in the
-example implementation are noted in Appendix \ref{appixa},
+example implementation are noted in the appendix.
 Table \ref{printstyles}.} is based on the the description of the
 example in Chapter \Cthree. In the example, the domain consists of
 nine cells containing tree-like plants. These trees are a critical
@@ -385,25 +391,24 @@ according to the services they provide.
 A simple example of a closure might look like so:
 \begin{verbatim}
 ;; The closure will be called like (@ 'tick dt) 
-(define @         ;; this line defines a variable or function
-  (let ((TBT 0)   ;; this reads "let the variable TBT take the value 0, and 
-                  ;;              the variable depuration-rate take                  
-                  ;;              the value 0.0001
-        ;; tributyltin 
-        (depuration-rate 0.0001))
-      (lambda (action #!rest x) ;; "lambda" constructs a function
-       (cond ;; select the first true condition -- e.g. 
-             ;; (eqv? action 'reset), and execute the rest of the
-             ;; contents of the parenthetic block, then exit
-        ((eqv? action 'reset) (set! TBT 0))
-        ((eqv? action 'value) TBT)
-        ((and (eq? action 'tick) (= (length x) 1) 
-           (number? (car x)))
-         (set! TBT 
-           (* TBT (- 1 (exp (* depuration-rate (cadr x)))))))
-       (else 'ignored) ;; if none of the conditions are true
-      )))))
-
+(define @       ;; this line defines a variable or function
+  (let ((TBT 0) ;; this reads "let the variable TBT take the value 0, and 
+		          ;; the variable depuration-rate take                  
+		          ;; the value 0.0001
+		          ;; tributyltin 
+		  (depuration-rate 0.0001))
+	 (lambda (action #!rest x) ;; "lambda" constructs a function
+		(cond ;; select the first true condition -- e.g. 
+		 ;; (eqv? action 'reset), and execute the rest of the
+		 ;; contents of the parenthetic block, then exit
+		 ((eqv? action 'reset) (set! TBT 0))
+		 ((eqv? action 'value) TBT)
+		 ((and (eq? action 'tick) (= (length x) 1) 
+				 (number? (car x)))
+		  (set! TBT 
+				  (* TBT (- 1 (exp (* depuration-rate (cadr x)))))))
+		 (else 'ignored) ;; if none of the conditions are true
+		 ))))
 \end{verbatim}
 This example maintains a contaminant level in the absence of contact
 with the contaminant, TBT.  Should the representation of the
@@ -451,7 +456,7 @@ and the system as a whole. The macros are also able to detect and
 respond to some sorts of oversights or inconsistencies in the
 construction of methods or model-bodies.  There are a number of
 approaches to constructing macros or macro-like syntax in \Scheme
-... unlike many language families, many members of the \Lisp family
+\ldots unlike many language families, many members of the \Lisp family
 may have their syntax extended, and there are a number of methods
 available to do this.  Definitions of classes and methods use the most
 primitive mechanism of syntactic extension, \sdefmac, which is
@@ -526,39 +531,39 @@ ability to poll other agents at regular intervals.
 
 \begin{table}[H]
 \begin{center}
-  \caption{Fundamental classes in the \ReModel -- \fname{framework-classes.scm}\label{classtableI}}
-  \begin{tabular}{l L{7cm}}
-    \toprule 
-    \textbf{Classname} & \textbf{role} \cr
-    \midrule
-    \mclass{agent} & The agent class provides the fundamental
-    components for a model to run within the framework, such as
-    essential state variables and common methods \cr
-    \hline & \cr
-    \mclass{projection} & This class is derived from \mclass{object};
-    it adds methods and state variables to allow mapping between an
-    agent's native coordinate system and the common coordinate system.
-    It extensively used by the routines that output
-    graphical data\footnote{See Appendix \ref{appix},
-  Tables \ref{timestepo},\ref{timesteptf} and \ref{timestepfo}.} -- mapping each agent from its domain to the domain
-    of the output page or image.\cr
-    \hline & \cr
-    \mclass{introspection-agent} & The methods which allow
-    \mclass{monitor} and \mclass{log-introspection} agents to operate is provided by
-    this class -- it forms the basis for agents which poll other agents \cr
-    \hline & \cr
-    \mclass{plottable} & Children of this class can be plotted in
-    map-like output. The attributes of this class include a ``glyph''
-    a location, an orientation, a preferred font, colour, glyph size
-    (which may be scaled by the value of a slot) and an additional
-    magnification which can be used to adjust the scale.
-    This is the class that provides location and orientation to the
-    animal and plant classes.\cr
-    \hline & \cr
-    \mclass{environment} & An agent's basic spatial context is provided by
-    this class's bounding box and a link to an explicit representation\cr
-    \bottomrule
-  \end{tabular}
+\caption{Fundamental classes in the \ReModel -- \fname{framework-classes.scm}\label{classtableI}}
+\begin{tabular}{l L{7cm}}
+\toprule 
+\textbf{Classname} & \textbf{role} \cr
+\midrule
+\mclass{agent} & The agent class provides the fundamental
+components for a model to run within the framework, such as
+essential state variables and common methods \cr
+\hline & \cr
+\mclass{projection} & This class is derived from \mclass{object};
+it adds methods and state variables to allow mapping between an
+agent's native coordinate system and the common coordinate system.
+It extensively used by the routines that output
+graphical data\footnote{See tables 1, 2 and 3 in the appendix.},
+ -- mapping each agent from its domain to the domain
+of the output page or image.\cr
+\hline & \cr
+\mclass{introspection-agent} & The methods which allow
+\mclass{monitor} and \mclass{log-introspection} agents to operate is provided by
+this class -- it forms the basis for agents which poll other agents \cr
+\hline & \cr
+\mclass{plottable} & Children of this class can be plotted in
+map-like output. The attributes of this class include a ``glyph''
+a location, an orientation, a preferred font, colour, glyph size
+(which may be scaled by the value of a slot) and an additional
+magnification which can be used to adjust the scale.
+This is the class that provides location and orientation to the
+animal and plant classes.\cr
+\hline & \cr
+\mclass{environment} & An agent's basic spatial context is provided by
+this class's bounding box and a link to an explicit representation\cr
+\bottomrule
+\end{tabular}
 \end{center}
 \end{table}
 The classes in Table \ref{classtableI} provide the basic mechanisms
@@ -568,39 +573,39 @@ the internal and external representations of agent's spatial domains.
 
 \begin{table}[H]
 \begin{center}
-  \caption{More fundamental classes -- \fname{framework-classes.scm}\label{classtableII}}
-  \begin{tabular}{l L{7cm}}
-    \toprule 
-    \textbf{Classname} & \textbf{role} \cr
-    \midrule
-    \mclass{object} & This is the ``primal'' class for all of the
-      different agent classes, and the more complex data structures
-        like polygons  \cr
-    \hline & \cr
-    \mclass{array} & Arrays are used to construct a collection of
-    lists which often act as the basis for a model representation
-    between a fully defined individual-based representation and an
-    analytic representation.  Lacks the potential temporal sensitivity
-    of an individual-based representation, but able to maintain many
-    i-state variables (\textit{sensu}\/\cite{caswell1992individual})\cr
-    \hline & \cr
-    \mclass{diffeq-system} & Agents derived from this class run a
-    Runge-Kutta4 algorithm for a system of differential
-    equations. Class members don't maintain variables as such, they are passed
-    ``getters'' and ``setters'' which obtain state variable values from
-    other agents (such as \mservice agents) and subsequently
-    set new values in those agents.\cr
-    \hline & \cr
-    \mclass{proxy} & Proxies represent some ``element'' (like a row in an
-    \mclass{array} agent) when engaging in individual-to-individual
-    interactions.\cr
-    \hline & \cr
-    \mclass{model-maintenance} & Instances of this class aren't
-    really agents in the usual sense. They provide the support for 
-    maintaining state variables for representations which are not
-    currently active (such as in \Ctwo).\cr
-    \bottomrule
-  \end{tabular}
+\caption{More fundamental classes -- \fname{framework-classes.scm}\label{classtableII}}
+\begin{tabular}{l L{7cm}}
+\toprule 
+\textbf{Classname} & \textbf{role} \cr
+\midrule
+\mclass{object} & This is the ``primal'' class for all of the
+different agent classes, and the more complex data structures
+like polygons  \cr
+\hline & \cr
+\mclass{array} & Arrays are used to construct a collection of
+lists which often act as the basis for a model representation
+between a fully defined individual-based representation and an
+analytic representation.  Lacks the potential temporal sensitivity
+of an individual-based representation, but able to maintain many
+i-state variables (\textit{sensu}\/\cite{caswell1992individual})\cr
+\hline & \cr
+\mclass{diffeq-system} & Agents derived from this class run a
+Runge-Kutta4 algorithm for a system of differential
+equations. Class members don't maintain variables as such, they are passed
+``getters'' and ``setters'' which obtain state variable values from
+other agents (such as \mservice agents) and subsequently
+set new values in those agents.\cr
+\hline & \cr
+\mclass{proxy} & Proxies represent some ``element'' (like a row in an
+\mclass{array} agent) when engaging in individual-to-individual
+interactions.\cr
+\hline & \cr
+\mclass{model-maintenance} & Instances of this class aren't
+really agents in the usual sense. They provide the support for 
+maintaining state variables for representations which are not
+currently active (such as in \Ctwo).\cr
+\bottomrule
+\end{tabular}
 \end{center}
 \end{table}
 
@@ -648,20 +653,20 @@ field sampling quite straightforward.
 
 \begin{table}[H]
 \begin{center}
-  \caption{Introspection classes in \ReModel -- \fname{introspection-classes.scm}\label{classtableIIa}}
-  \begin{tabular}{l L{7cm}}
-    \toprule
-    \textbf{Classname} & \textbf{role} \cr
-    \midrule
-    \mclass{log-introspection} & The fundamental mechanics that
-      underpin the regular polling of other agents in the system\cr
-    \hline & \cr
-    \mclass{logger} & {provides the basic structure for generating model output}\cr
-    \hline & \cr
-    \mclass{monitor} & {provides the machinery for assessing the state
-      of the system and effecting changes in its configuration}\cr
-    \bottomrule
-  \end{tabular}
+\caption{Introspection classes in \ReModel -- \fname{introspection-classes.scm}\label{classtableIIa}}
+\begin{tabular}{l L{7cm}}
+\toprule
+\textbf{Classname} & \textbf{role} \cr
+\midrule
+\mclass{log-introspection} & The fundamental mechanics that
+underpin the regular polling of other agents in the system\cr
+\hline & \cr
+\mclass{logger} & {provides the basic structure for generating model output}\cr
+\hline & \cr
+\mclass{monitor} & {provides the machinery for assessing the state
+of the system and effecting changes in its configuration}\cr
+\bottomrule
+\end{tabular}
 \end{center}
 \end{table}
 The introspection classes are defined in the files
@@ -697,10 +702,10 @@ with a predator in a location and avoid the area.
 \midrule
 \mclass{tracked-agent} & Agents derived from this class automatically
 maintain a time-stamped history of where they have been. This data can
-    be extracted for analysis or plotting.\cr
-    \hline & \cr
+be extracted for analysis or plotting.\cr
+\hline & \cr
 \mclass{thing} & This adds mass to a \mclass{tracked-agent}.\cr
-    \hline & \cr
+\hline & \cr
 \mclass{living-thing} & This class adds age and mortality, also aware of the
 environmental context in which it lives. \cr
 \mclass{plant} & The general structure for plants is provide here.
@@ -773,7 +778,7 @@ agents.  It is possible for the ecoservice to access data in other
 agents, and to have implicit growth or decay associated with its
 value.  Instances are able to store the (time value) pairs in a
 history list.\cr
-    \hline & \cr
+\hline & \cr
 \mclass{population-system} & This is a refined version of
 the \mclass{ecoservice} which primarily provides a simple ``biomass''
 agent.\cr
@@ -804,12 +809,12 @@ are assumed to be uniformly available, a ``notepad'' which can be
 interrogated for state information, and it may also have ``caretaker''
 routines defined in parameter files which get executed every time the
 patch gets a time step.\cr
-    \hline & \cr
+\hline & \cr
 \mclass{dynamic-patch} & Patches  in this class may have a system of
 differential equations which stand in the place of the simpler --
 possibly simplistic -- dynamics possible using only the ecoservice
 mechanisms.\cr
-    \hline & \cr
+\hline & \cr
 \mclass{landscape} & An instance of this class maintains a list of
 patches and a terrain function which provides an altitude ordinate to
 the locations in the geographic domain; in aquatic/marine models, this
@@ -866,36 +871,45 @@ like look like the '\fname{<example-plant>}' file below:
 \begin{verbatim}
 'Parameters
 (kdebug '(loading-parameters 
-          taxon-parameters "B.ex-longevity" "*.ex-*") 
+          taxon-parameters "B.ex-longevity" "*.ex-*"))
 
 (define B.ex-longevity (* 37 years))
 (define B.ex-mass-max (* 150 kg))
-(define B.ex-mass  (rk4 (lambda (t y) ;; make the d.e.
-       (* 5e-7 (- 1 (/ y B.ex-mass-max)))) 0
-   B.ex-longevity (* 4 weeks) 0.1)) ;; stepsize initial-val
+(define B.ex-mass
+  (rk4 (lambda (t y) ;; make the d.e.
+			(* 5e-7 (- 1 (/ y B.ex-mass-max)))) 0
+			B.ex-longevity (* 4 weeks) 0.1))
+;; stepsize initial-val
 
 (define <example-plant>-parameters
   (list (list 'cell '<uninitialized>)
-        (list 'peak-mass 12)
-                 ;; this will seed trees in the
-                 ;; 4km x 4km square around
-                 ;; the origin
-        (list 'location 
-          '($ (random-location (list -2000 -2000) (list 2000 2000))))
-        (list 'mass '(\$ (nrnd 4 1 0.01 12)))
-        (list 'height '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))
-        (list 'fruiting-mass (* 8 kg))
-        (list 'fruiting-prob (/ 0.1 week)) ;; 10% per week
-    (list 'fruiting-rate (* 7 (/ 1 kg))) ;; N / (kg week)
-    (list 'mort-prob (/ 0.1 year))
-    (list 'seeds-per-fruit '(\$ (+ 4 (urnd 8))))
-    (list 'mass-at-age B.ex-mass)
-    (list 'references  '(J. Muppet Botany, S.Chef et. al. v2,1995))
+		  (list 'peak-mass 12)
+		  ;; this will seed trees in the
+		  ;; 4km x 4km square around
+		  ;; the origin
+		  (list 'location 
+				  '($ (random-location
+						 (list -2000 -2000) (list 2000 2000))))
+		  (list 'mass
+				  '(\$ (nrnd 4 1 0.01 12)))
+		  (list 'height
+				  '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))
+		  (list 'fruiting-mass (* 8 kg))
+		  (list 'fruiting-prob
+				  (/ 0.1 week)) ;; 10 percent per week
+		  (list 'fruiting-rate
+				  (* 7 (/ 1 kg))) ;; N / (kg week)
+		  (list 'mort-prob (/ 0.1 year))
+		  (list 'seeds-per-fruit '(\$ (+ 4 (urnd 8))))
+		  (list 'mass-at-age B.ex-mass)
+		  (list 'references
+				  '(J. Muppet Botany, S.Chef et. al. v2,1995))
+		  )
   )
-)
 (set! global-parameter-alist 
-   (cons (cons <example-plant> <example-plant>-parameters) 
-         global-parameter-alist))
+		(cons (cons <example-plant>
+						<example-plant>-parameters) 
+				global-parameter-alist))
 \end{verbatim}
 
 The \symb{'Parameter} line which is the first entry in the file is
@@ -907,7 +921,7 @@ symbols should (but are not required to) correspond to the state
 variables in the agent. Note that even though this file is associated
 with \mclass{example-plant}, it is not restricted to setting state
 variables defined in \mclass{example-plant} -- it is \emph{both reasonable
-  and common} to set variables associated with parent classes, such as
+and common} to set variables associated with parent classes, such as
 the plant's \sttvar{location} in the example above.
 
 The last three lines of the file add the definitions to the list of
@@ -929,7 +943,8 @@ which accesses parameters recognises that parameters of the form
 accessed and passed back, so the line
 
 \begin{verbatim}
-   (list 'height '(\$ (* kg (min 12 (+ 12 (nrnd 10))))))),
+(list 'height 
+   '(\$ (* kg (min 12 (+ 12 (nrnd 10)))))),
 \end{verbatim}
 
 will return a value greater than twelve, with a distribution of twelve
@@ -958,7 +973,7 @@ corresponds to the execution queue in a simple multitasking operating
 system. The agents are created by a call to a routine in
 \fname{sclos+extn.scm} that looks like
 \begin{verbatim}
-    (create <landscape> taxon 'name "domain" ...)
+(create <landscape> taxon 'name "domain" \ldots)
 \end{verbatim}
 where the ellipsis indicates additional state variable
 assignments which supercede any previously set values from the
@@ -967,7 +982,7 @@ would usually require some additional code to add agents to
 encompassing entities (such as including trees in the landscape) this
 would often be a part of the code which creates the
 agents\footnote{See the file \fname{specific-model.scm}, or spawning
-  code in \fname{animal-methods.scm} for an illustration of this.},
+code in \fname{animal-methods.scm} for an illustration of this.},
 or would be effected in the class-method \method{initialise-instance}
 which is called as a part of the process that prepares an agent to be
 run; generally, initialisation of an agent would be accomplished using
@@ -1006,26 +1021,26 @@ conditions.
 
 There are two golden rules to \Syntax{model-methods}
 \begin{description}
-  \item[Only define each generic method once:] Redeclaring a
-    generic-method or \Syntax{define}-ing a method
-    (\Syntax{define} \method{hunt} (\method{generic-method})) destroys
-    any previously declared \method{hunt} methods, generic or
-    otherwise! To this end, all declarations of generic methods must
-    be made in the \fname{framework-declarations.scm} file, which
-    should contain the declarations of the all generic methods used by
-    the model, apart from a very special few declared in \fname{sclos+extn.scm}.
-    Related to this is the problem of defining a method
-    before you have a generic-method declared -- the macros
-    in \fname{framework} should catch this.
-    \item[Don't construct methods that match the same argument lists:]
-    Generally, \SCLOS is very good at getting the right method for the
-    job, but there are situations where it can be confusing for it.
-    If you have a situation where there are several possible desired
-    code paths for essentially similar arguments, it is clearer to
-    have an explicit selection made within the body of a single
-    method, and that way is much easier to debug.
+\item[Only define each generic method once:] Redeclaring a
+generic-method or \Syntax{define}-ing a method
+(\Syntax{define} \method{hunt} (\method{generic-method})) destroys
+any previously declared \method{hunt} methods, generic or
+otherwise! To this end, all declarations of generic methods must
+be made in the \fname{framework-declarations.scm} file, which
+should contain the declarations of the all generic methods used by
+the model, apart from a very special few declared in \fname{sclos+extn.scm}.
+Related to this is the problem of defining a method
+before you have a generic-method declared -- the macros
+in \fname{framework} should catch this.
+\item[Don't construct methods that match the same argument lists:]
+Generally, \SCLOS is very good at getting the right method for the
+job, but there are situations where it can be confusing for it.
+If you have a situation where there are several possible desired
+code paths for essentially similar arguments, it is clearer to
+have an explicit selection made within the body of a single
+method, and that way is much easier to debug.
 \end{description}
- 
+
 Model bodies are special methods which are only called by either the
 kernel or by the subsidiary execution lists embedded in agents. There
 is no provision for an agent to directly call model bodies.  Each
@@ -1048,14 +1063,14 @@ The most important routines in maintaining an orderly flow of control
 from one agent to the next are
 \begin{itemize}
 \item[\method{run-agent}] which manages the interactions between the
-  agent and the \variable{runqueue} and constructs the procedure that the agent uses
-  to communicate with the kernel.
+agent and the \variable{runqueue} and constructs the procedure that the agent uses
+to communicate with the kernel.
 
 \item[\method{run}] calculates the upper limit on the amount of time the
-  agent will run, then runs the body of the model (declared in
-  a \Syntax{model-body} block), next it runs any nested agents and
-  finally attends to the maintenance of any data from superceded
-  representations.
+agent will run, then runs the body of the model (declared in
+a \Syntax{model-body} block), next it runs any nested agents and
+finally attends to the maintenance of any data from superceded
+representations.
 \end{itemize}
 
 The sorted queue of agents is maintained by the system; the agent at
@@ -1117,8 +1132,8 @@ merely ascertaining the presence of another agent, to predation, or
 extracting state information (such as mass, location or the price of a
 room).  A typical call to the kernel would look like
 \begin{verbatim}
-   (set! target (kernel 'locate (apply *provides-*? (my 'requires))))
-   (set! vtargets (kernel 'providers? (my 'requires)))
+(set! target (kernel 'locate (apply *provides-*? (my 'requires))))
+(set! vtargets (kernel 'providers? (my 'requires)))
 \end{verbatim}
 Both \variable{targets} and \variable{vtargets} should have the same
 values.  There are a number of predicates defined
@@ -1162,32 +1177,32 @@ cache a limited amount of information in this regard.
 The basic calls which return the locations associated with agents look
 like
 \begin{verbatim}
-...
-   (let* ((prey (kernel 'locate 
-                  (apply *provides-*? (my 'food-list))))
-          (cover  (look-for self (my 'prey-hides)) ) 
-                  ;; another way of querying
-                  ;; plants that can hide my prey
-          (preylocations 
-            (map (lambda (x) 
-                   (query x self 'location 
-                           (my 'search-radius))) 
-                 (append prey cover)))
-         )
-         ...
+ (let* ((prey (kernel 'locate 
+  (apply *provides-*? (my 'food-list))))
+  (cover  (look-for self (my 'prey-hides)) )
+  ;; another way of querying
+  ;; plants that can hide my prey
+  (preylocations 
+    (map (lambda (x) 
+    (query x self 'location 
+    (my 'search-radius))) 
+    (append prey cover)))
+ )
+ ;; body of processing code using prey, cover and 
+ ;; preylocations
+ ...
 )
-...
 \end{verbatim}
 In this example, the first of the three clauses obtains a list of
 candidate prey with a call to the kernel\footnote{In this case
-  \symb{locate} returns all possible candidates irrespective of
-  location, but insists that the targets are
-  contemporaneous. \symb{locate*}, in contrast, does not enforce
-  temporal consistency. Both are able to filter the results based on
-  location, class or the role targets play in the simulation.}  The
+\symb{locate} returns all possible candidates irrespective of
+location, but insists that the targets are
+contemporaneous. \symb{locate*}, in contrast, does not enforce
+temporal consistency. Both are able to filter the results based on
+location, class or the role targets play in the simulation.}  The
 next searches for potential hiding places with the \method{look-for*}
 call. This call does not enforce synchrony\footnote{The alternative
-  \method{look-for} does enforce synchrony.}, and the last actually
+\method{look-for} does enforce synchrony.}, and the last actually
 extracts targets' locations for subsequent use.
 
 Once an agent is aware of another agent, it will typically interact
@@ -1363,17 +1378,17 @@ over the role played by the model maintenance function.
 A typical closure definition might look like
 \begin{verbatim}
 (update-closure <plant>-B.exemplarii:14 
-    '(age mass taxon location)
-    (list ;; initialise with these values
-       (slot-ref self 'age)
-       (slot-ref self 'mass)
-       (slot-ref self 'taxon)
-       (slot-ref self 'location))
-    (list ;; 
-       (lambda (t dt a m t l) (set! age (+ age dt)))
-       (lambda (t dt a m t l) (set! mass (mass-at-age (+ age dt))))
-       #f
-       #f))
+  '(age mass taxon location)
+  (list ;; initialise with these values
+    (slot-ref self 'age)
+    (slot-ref self 'mass)
+    (slot-ref self 'taxon)
+    (slot-ref self 'location))
+  (list ;; 
+    (lambda (t dt a m t l) (set! age (+ age dt)))
+      (lambda (t dt a m t l) (set! mass (mass-at-age (+ age dt))))
+      #f
+      #f))
 
 \end{verbatim}
 In this example the state-variables \variable{age} and \variable{mass}
@@ -1441,48 +1456,48 @@ defined at the beginning of \Cfour.
 
 \begin{verbatim}\label{tree1}
 (taxon : 0 {
-     (fruit : 2792746.800173795 
-      {(fruit + eqn-based + <ecoservice> : 625055.9572307098 
-          {(gridcell-1,2:fruit : 21  {})})
-         (fruit + eqn-based + <ecoservice> : 132324.34236008758 
-          {(gridcell-1,1:fruit : 19  {})})
-         (fruit + eqn-based + <ecoservice> : 362001.18511443434 
-          {(gridcell-1,0:fruit : 17  {})})
-         (fruit + eqn-based + <ecoservice> : 696015.3639367699 
-          {(gridcell-0,2:fruit : 15  {})})
-         (fruit + eqn-based + <ecoservice> : 462154.55908067356 
-          {(gridcell-0,1:fruit : 13  {})})
-         (fruit + eqn-based + <ecoservice> : 515195.3924511202 
-          {(gridcell-0,0:fruit : 11  {})})
-         }
-     )
-     (seeds : 4950004.701824954 
-      {(seeds + eqn-based + <ecoservice> : 825000.4339876496 
-          {(gridcell-1,2:seeds : 20  {})})
-         (seeds + eqn-based + <ecoservice> : 825000.6790376918 
-          {(gridcell-1,1:seeds : 18  {})})
-         (seeds + eqn-based + <ecoservice> : 824999.6759855568 
-          {(gridcell-1,0:seeds : 16  {})})
-         (seeds + eqn-based + <ecoservice> : 825001.7606296955 
-          {(gridcell-0,2:seeds : 14  {})})
-         (seeds + eqn-based + <ecoservice> : 825000.96499662 
-          {(gridcell-0,1:seeds : 12  {})})
-         (seeds + eqn-based + <ecoservice> : 825001.1871877399 
-          {(gridcell-0,0:seeds : 10  {})}
-         )}
-     )
-     (B.exemplarii : 6 
-      {(super-individual + B.exemplarii + <plant-array> : 3 
-          {(B.exemplarii_1 : 6  {})})
-         (individual + B.exemplarii + <example-plant> : 1 
-          {(B.exemplarii_4 : 9  {})})
-         (individual + B.exemplarii + <example-plant> : 1 
-          {(B.exemplarii_3 : 8  {})})
-         (individual + B.exemplarii + <example-plant> : 1 
-          {(B.exemplarii_2 : 7  {})})
-         }
-     )}
- )
+  (fruit : 2792746.800173795 
+    {(fruit + eqn-based + <ecoservice> : 625055.9572307098 
+      {(gridcell-1,2:fruit : 21  {})})
+     (fruit + eqn-based + <ecoservice> : 132324.34236008758 
+      {(gridcell-1,1:fruit : 19  {})})
+    (fruit + eqn-based + <ecoservice> : 362001.18511443434 
+     {(gridcell-1,0:fruit : 17  {})})
+      (fruit + eqn-based + <ecoservice> : 696015.3639367699 
+    {(gridcell-0,2:fruit : 15  {})})
+     (fruit + eqn-based + <ecoservice> : 462154.55908067356 
+    {(gridcell-0,1:fruit : 13  {})})
+     (fruit + eqn-based + <ecoservice> : 515195.3924511202 
+    {(gridcell-0,0:fruit : 11  {})})
+     }
+  )
+  (seeds : 4950004.701824954 
+    {(seeds + eqn-based + <ecoservice> : 825000.4339876496 
+      {(gridcell-1,2:seeds : 20  {})})
+       (seeds + eqn-based + <ecoservice> : 825000.6790376918 
+      {(gridcell-1,1:seeds : 18  {})})
+       (seeds + eqn-based + <ecoservice> : 824999.6759855568 
+      {(gridcell-1,0:seeds : 16  {})})
+       (seeds + eqn-based + <ecoservice> : 825001.7606296955 
+      {(gridcell-0,2:seeds : 14  {})})
+       (seeds + eqn-based + <ecoservice> : 825000.96499662 
+      {(gridcell-0,1:seeds : 12  {})})
+       (seeds + eqn-based + <ecoservice> : 825001.1871877399 
+      {(gridcell-0,0:seeds : 10  {})}
+       )}
+  )
+  (B.exemplarii : 6 
+    {(super-individual + B.exemplarii + <plant-array> : 3 
+      {(B.exemplarii_1 : 6  {})})
+     (individual + B.exemplarii + <example-plant> : 1 
+      {(B.exemplarii_4 : 9  {})})
+     (individual + B.exemplarii + <example-plant> : 1 
+      {(B.exemplarii_3 : 8  {})})
+     (individual + B.exemplarii + <example-plant> : 1 
+      {(B.exemplarii_2 : 7  {})})
+    }
+  )}
+)
 \end{verbatim}
 
 Analogous trees can be constructed which can be used in a similar way
@@ -1492,32 +1507,31 @@ example using grid cells might look like so:
 
 \begin{verbatim}\label{tree2}
 (taxon : 0 {
-     (gridcell-1,1 : 1044
-      {(gridcell-2,1 : 37 {})}
-      {(gridcell-2,2 : 637 {})}
-      {(gridcell-1,2 : 937 {})}
-     )
+  (gridcell-1,1 : 1044
+   {(gridcell-2,1 : 37 {})}
+   {(gridcell-2,2 : 637 {})}
+   {(gridcell-1,2 : 937 {})}
+  )
 
-     (gridcell-2,1 : 37
-      {(gridcell-1,1 : 1044 {})}
-      {(gridcell-2,2 : 637 {})}
-      {(gridcell-1,2 : 937 {})}
-     )
+  (gridcell-2,1 : 37
+   {(gridcell-1,1 : 1044 {})}
+   {(gridcell-2,2 : 637 {})}
+   {(gridcell-1,2 : 937 {})}
+  )
 
-     (gridcell-1,2 : 1044
-      {(gridcell-2,1 : 37 {})}
-      {(gridcell-2,2 : 637 {})}
-      {(gridcell-1,1 : 1044 {})}
-     )
+  (gridcell-1,2 : 1044
+   {(gridcell-2,1 : 37 {})}
+   {(gridcell-2,2 : 637 {})}
+   {(gridcell-1,1 : 1044 {})}
+  )
 
-     (gridcell-2,2 : 637
-      {(gridcell-2,1 : 37 {})}
-      {(gridcell-1,1 : 1044 {})}
-      {(gridcell-1,2 : 937 {})}
-     )
-
-     }
- )
+  (gridcell-2,2 : 637
+   {(gridcell-2,1 : 37 {})}
+   {(gridcell-1,1 : 1044 {})}
+   {(gridcell-1,2 : 937 {})}
+  )
+ }
+)
 \end{verbatim}
 
 Like the status trees in the first example, these trees can be
@@ -1603,7 +1617,7 @@ on the size of prey which is available imposed by the gape of the
 predator. This type of constraint is not all that uncommon in species
 which are lone predators.
 
-We can map population histograms onto piecewise linear functions with
+We can map population histograms onto piece-wise linear functions with
 the property that the partial integrals of the the linear functions
 correspond to the partial sums of histograms at each boundary
 in the histogram.  If populations are functions, then we can evaluate
@@ -1611,17 +1625,17 @@ the consequences on the population.
 
 Let us consider the following ``known'' attributes in a system
 \begin{table}{ht}
-  \begin{center}
-  \caption{Symbols\label{symbls}}
-    \begin{tabular}{ll}
-      $m_a (l)$ & the member distribution with respect to size of each agent of interest\cr
-      $G_{i,j} (l, w)$ & the gape filter for predator $i$ with respect to prey \(j\)\cr
-      $T (a)$ & returns the taxon or type number of agent $a$\cr
-      $M_a$ & the total number of members for agent $a$\cr
-      $M^{\ast}_i (w)$ & the sum of all the distributions of agents with a type $i$\cr
-      $\bar{M}_i = \int_0^{\infty} M^{\ast}_i (w) d w$ & the total number of entities of type $i$\cr
-    \end{tabular}
-  \end{center}
+\begin{center}
+\caption{Symbols\label{symbls}}
+\begin{tabular}{ll}
+$m_a (l)$ & the member distribution with respect to size of each agent of interest\cr
+$G_{i,j} (l, w)$ & the gape filter for predator $i$ with respect to prey \(j\)\cr
+$T (a)$ & returns the taxon or type number of agent $a$\cr
+$M_a$ & the total number of members for agent $a$\cr
+$M^{\ast}_i (w)$ & the sum of all the distributions of agents with a type $i$\cr
+$\bar{M}_i = \int_0^{\infty} M^{\ast}_i (w) d w$ & the total number of entities of type $i$\cr
+\end{tabular}
+\end{center}
 \end{table}
 
 \subsubsection{Calculating mortality}
@@ -1685,7 +1699,7 @@ Alternatively, we can calculate a consumption-by-size distribution and define
 the function $\omega_{i,j} (w)$, the raw number of kills for a length $w$ on a
 consumption-by-size basis, by
 \[ \omega_{i,j} (w) = \bar{M}_i \mathfrak{F} (e_{i,j} (w) / A_j, p_{i,j})
-   \Delta t. \]
+\Delta t. \]
 Thus the impact on the prey population (at least those of length $w$) is
 \[ \omega_j^{\ast} (w) = \sum_i \omega_{i,j} (w) \]
 and for the whole population it is
@@ -1720,10 +1734,10 @@ population it represents.
 
 For the agent-by-agent update we have
 \[ \delta m_a (w) = \Omega^{\ast}_{T (a)}  \frac{m_a (w)}{M^{\ast}_{T (a)}
-   (w)} \]
+(w)} \]
 and for the age-by-age update we have
 \[ \delta m_a (w) = \omega^{\ast}_{T (a)} (w)  \frac{m_a (w)}{M^{\ast}_{T (a)}
-   (w)} . \]
+(w)} . \]
 The new distribution
 \[ n_a (w) = m_a (w) - \delta m_a (w) . \]
 In these steps, places where there are no members of size $w$ should be dealt
@@ -1762,11 +1776,10 @@ and the code to produce the output is much less likely to interfere
 with the model itself, since the output routines are quite distinct
 from the submodels they may query.  With this approach, an output only
 needs to know is how to obtain data from an agent, and how to generate
-appropriate output (see
-Appendix \ref{appixb}). In this way, the \method{log-data} routines are
-able to be applied to a number of quite different models, and their
-output is consistent irrespective of the underlying model generating
-the data.
+appropriate output (see tables 1, 2 and 3 in the appendix). In this way,
+the \method{log-data} routines are able to be applied to a number of
+quite different models, and their output is consistent irrespective of
+the underlying model generating the data.
 
 The debugging messages provided by the \method{kdebug} call and its
 kin can be constructed to emit messages according to arbitrary flags

@@ -1,3 +1,39 @@
-  35  287 1835
-		
-	
+Simulation models are often comprised of a number of interacting
+submodels of distinct components or processes.  Conventional models
+typically represent these elements using a form which persists
+throughout the simulation, such as numerical (equation based) models,
+collections of discrete individuals, or "static" data sets.  Here, we
+consider an alternative which allows the submodels representing the
+components of a model to change in response to local and global
+conditions in the model's state.
+
+Since the performance of different representations (submodels) for a
+component may depend on their state relative to the state space of the
+component they represent, we may select more efficient representations
+for the constituents of the model to optimise its performance with
+respect to some objective, or we may select for representations which
+benefit other components.
+
+We construct a ring-like structure with trees as its elements.  The
+trees are used to represent the loci of model components in their
+state spaces with respect to known-good and known-bad
+configurations. The strategy proposed is to define objective functions
+over the elements of this ring which reflect the utility of submodels
+with respect to the state of the model and its components.
+
+This work can be readily applied to modelling ecosystems,
+environmental impacts, epidemics, of contagion, and some genres of
+computer games.  In principle, the approach may be of benefit in
+domains such as disaster scenario modelling, predictive or control
+systems for vehicles, immersive reality software.
+
+The thesis incorporates two published papers demonstrating the utility
+of the approach. Chapter 4 then describes the tree-based metric space
+used for managing the configuration of models, followed by a chapter
+which describes a detailed reference model which provides a framework
+for the theoretical approach.
+
+The implementation of the reference model discussed in Chapter 5 is
+available under the AGPL v3 on
+
+\URL{https://github.com/snarkypenguin/remodel.git}

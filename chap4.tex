@@ -62,6 +62,25 @@ subsets with a corresponding family of additive operators (one to
 each subset). Each subset is closed under its addition, and there is a
 multiplicative operator which is defined over the whole set.
 
+\section{Notes this construction relative to that of \Cthree}
+In the development of the reference model based on the work
+in \Cthree, the order of the ordinates which comprise a node proved to
+be a frequent source of overhead and coding errors -- almost all
+operations are on the value of a node, yet the first ordinate was the
+label.  While it is true that ``wrapper'' functions could readily make
+the order of the elements in the nodes irrelevant, this would come at
+a cost and it seemed that fixing the problem outright would lead to
+less confusion overall: in this chapter and in the reference model the
+order of the elements is
+\textit{value}, then \textit{label}, and finally \textit{Children}.
+
+A number of functions from \Cthree, specifically
+$\mask$, $\nmask$, $\supp$, and $\fund$, are likely to be useful in the
+construction of trees associated with representing or selecting
+configurations. While they have not yet been used in the reference
+model or used in this chapter, they are presented here as an aid to
+further application. 
+
 \section{Conventions and preliminary definitions}
 
 Generally, we will use lower case, boldfaced symbols to denote a node
@@ -240,7 +259,8 @@ conform to some ``template'' tree.  It is easy to see that
 $\overlap(\node{u},\node{v})$ is precisely
 $\Tcard{\shadow(\node{u},\node{v})}$.
 
-\begin{definition}\label{useful-set-functions}
+
+\begin{notation}\label{useful-set-functions}
   We will define a few useful notations for sets derived from sets of
   nodes in $\DOMstar$. Take \(\set{U}\) and \(\set{V}\) to be such
   sets and let
@@ -253,90 +273,546 @@ $\Tcard{\shadow(\node{u},\node{v})}$.
       \intertext{and}
       a \set{U} &= \{a \node{u}: \forall \node{u} \in \set{U}\} \notag
   \end{align*}
-\end{definition}
+\end{notation}
 
-\begin{definition}\label{useful-node-functions}
+\begin{notation}\label{useful-node-functions}
   For convenience, we define analogues of several of the above
   relations for nodes to implicitly refer to the children of
   those nodes.
 
   Let \tnode{u} and \tnode{v} be arbitrary nodes in $\DOMstar$.  Then we
   define the following
-  \subsubsection{Notation}
   \begin{align*}
     \nlabels{u} &\equiv \nlabels{\child{u}}\\
     \restrictedto{u}{v} &\equiv \restrictedto{\child{u}}{\child{v}}\\
     \nrestrictedto{u}{v} &\equiv \nrestrictedto{\child{u}}{\child{v}}
   %% \node{r} \oplus \node{s} &= \child{r} \oplus \child{s}
   \end{align*}
+\end{notation}
+
+
+\begin{definition}\label{from-c3}
+  The following functions are defined in \Cthree, and are included
+  here for the sake of completeness.
+ 
+  The support of a tree is the number of nodes which have a non-zero
+  value; so,
+  \begin{align*}
+    \supp(\node{u}) = \begin{cases}
+      0 + \sum_{\node{e}\in\extn{u}} \supp(\node{e}) & \text{ if } \nv{u} = 0 \\
+      1 + \sum_{\node{e}\in\extn{u}} \supp(\node{e}) & \otherwise.
+    \end{cases}
+  \end{align*}
+
+  Related is the fundamental support of a tree, which only counts nodes
+  which have no zero valued nodes in the nodes which like between them
+  and the root node.  
+  \begin{align*}
+    \fund(\node{u}) = \begin{cases}
+      0 & \text{ if } \nv{u} = 0 \\
+      1 + \sum_{\node{e}\in\extn{u}} \fund(\node{e}) & \otherwise.
+    \end{cases}
+  \end{align*}
+  Clearly the support of a tree, $\supp{\node{u}}$,  must lie in the
+  domain $[0,\Tcard{\node{u}}-1]$, since the root node must have a
+  value of zero, and $\fund(\node{u}) \le \supp(\node{u})$.
+
+
+%----- Define mask and nmask
+
+\begin{definition}\label{Mask}
+  We define the functions $\mask$ and $\nmask$ that set the values
+  associated with particular nodes in a tree to $v\in\FIELD$.  Specifically,
+  if $\mc{L} \subset \SDOM$, then
+  \begin{equation}
+    \mask(\node{u},\mc{L},v) = \begin{cases}
+     (v, \nlabel{u}, \{\mask(\node{f},\mc{L},v):  \node{f}\in\extn{u}\}) & \text{ if } \nlabel{u} \in \mc{L} \\
+      (\nv{u}, \nlabel{u}, \{\mask(\node{f},\mc{L},v): \node{f}\in\extn{u}\}) & \text{otherwise}
+    \end{cases}
+  \end{equation}
+  and
+  \begin{equation}
+    \nmask(\node{u},\mc{L},v) = \begin{cases}
+     (v, \nlabel{u}, \{\nmask(\node{f},\mc{L},v):  \node{f}\in\extn{u}\}) & \text{ if } \nlabel{u} \not\in \mc{L} \\
+     (\nv{u}, \nlabel{u}, \{\nmask(\node{f},\mc{L},v): \node{f}\in\extn{u}\}) & \text{otherwise.}
+    \end{cases}
+  \end{equation}
+  $\mask(\node{u},\mc{L},0)$ would return a tree similar to \tnode{u},
+  but all its nodes that have labels in $\mc{L}$ would have values of zero.
+
+  We also define several functions which prune or select a child from
+  a tree's extension set. This function returns only the part of
+  \tnode{u} which overlaps \tnode{p},
+  \begin{equation}
+    \excise(\node{u},\node{p}) = \begin{cases}
+      (\nv{u}, \nlabel{u}, \{\excise(\node{f},\node{g}): \node{f}\in\extn{u} \mand \node{g}\in\node{p} \mand \nlabel{f} = \nlabel{g}\} \setminus \{\nulltree\}) & \text{ if } \nlabel{u} = \mc{L} \\
+      \nulltree & \text{ if }  \nlabel{u} \neq \nlabel{p} \\
+      (\nv{u}, \nlabel{u}, \emptyset) & \text{otherwise,}
+    \end{cases}
+  \end{equation}
+  and this one either returns an appropriately labelled child from the extension set (a
+  branch), or \tnulltree.
+  \begin{equation}
+    \child(\node{u}, \mc{l}) = \begin{cases}
+      \node{f} & \text{ if } \nlabel{f} = \mc{l} \mand \node{f} \in  \extn{u} \\
+      \nulltree & \text{otherwise.}
+    \end{cases}
+  \end{equation}
+
+%%%% This is really wrong: relabel would introduce multiple nodes with
+%%%% the same labels into an extn set.
+  %%
+  %% We also define a relabelling function $\relabel$, where the label of
+  %% a node is replace with another, $\mc{l}$, if the nodes label is a member of a
+  %% set of labels, $\mc{L}$
+  %% \begin{equation}
+  %%   \relabel(\node{u},\mc{L},\mc{l}) = \begin{cases}
+  %%    (\mc{l}, v, \{\relabel(\node{f},\mc{L},\mc{l}):  \node{f}\in\extn{u}\}) & \text{ if } \nlabel{u} \in \mc{L} \\
+  %%     (\nlabel{u}, \nv{u}, \{\relabel(\node{f},\mc{L},\mc{l}): \node{f}\in\extn{u}\}) & \text{otherwise,}
+
+  %%   \end{cases}
+  %% \end{equation}
+\end{definition}
+
+%--- define deviation
+
+We now finish with a definition of a function, $\deviO{}{}$, that gives us a
+measure of the degree of divergence between two trees.
+\begin{definition}\label{Defdeviation}
+  The degree of deviation between two trees, \tnode{u} and \tnode{v} is given  by the expression
+  \begin{equation}
+    \devi{\node{u}}{\node{v}} = \begin{cases}
+      \Tcard{u} + \Tcard{v} - 2\overlap(\node{u},\node{v}) + \nabs{\node{u} - \node{v}}&\text{if }\node{u} \mand \node{v} \text{ are compatible} \\
+      \Tcard{u} + \Tcard{v} & \text{ otherwise.}
+    \end{cases}
+  \end{equation}
+  
+  The rationale behind this definition is that if trees \tnode{u} and \tnode{v} are identical, then
+  $\devi{\node{u}}{\node{v}}$ will be zero. We also want nodes that aren't common to both trees to
+  count as differences.
+\end{definition}
+%%%\end{document}
 \end{definition}
 
 
-\begin{remark}\label{distribution}
-  Scalar multiplication distributes with respect to addition in
-  $\FIELD$.  This property is clearly true when \(\node{u}
-  = \zerotree\), since \((a+b)\zerotree = \zerotree =
-  a\zerotree+b\zerotree\).
 
-  To show that this is generally true, we first consider simple nodes:
+Some of these functions are not used in this chapter, but are
+presented because they may come into play in constructing software
+components used to assess and trigger changes in model configuration. 
+
+\section{Scalar Multiplication and addition}
+
+The aim of this work is to be able to compare trees in a robust way
+and to manipulate them as though they were vectors: trees which form
+a vector space,  or -- better -- a metric space, which can be compared and
+clustered. We will start by defining scalar multiplication of the trees in
+$\DOMstar$, and then we will define a few useful mappings which will help
+keep the expressions simple. Our aim, in this section, is to define
+addition, and to show that the defined scalar multiplication and
+addition make this a vector space. When there is no risk of ambiguity,
+we will use the same symbol to refer to both the set and
+a vector space based on that set.
+
+\subsection{Scalar multiplication}
+\begin{definition}
+  For all \(a \in \PLY{A}\) and \(\node{u} \in \DOMstar\), we
+  define\marginnote{\(a \node{u}\)}
   \begin{align*}
-   (a + b)\node{u} &= (a + b) (\nv{u}, \nlabel{u}, \emptyset) \\
-   &= ((a + b)\nv{u}, \nlabel{u}, \emptyset) \\
-   &= (a\nv{u}, \nlabel{u}, \emptyset) + (b  \nv{u}, \nlabel{u}, \emptyset) \\
-   &= a \node{u} + b \node{u}.
+      a \node{u} = \begin{cases}
+        \zerotree  & \text{ if } a = 0 \mor \node{u} = \zerotree \\
+        (a \nv{u}, \nlabel{u}, a\child{u}) & \text{ otherwise }
+      \end{cases}
   \end{align*}
+  where $a\set{A}$ indicates the element-wise product.  Since the
+  elements of $\FIELD$ are a subset of $\PLY{A}$ this also defines scalar
+  multiplication of trees by elements of $\FIELD$.
+\end{definition}
 
-  Nodes with a depth of two are slightly more complicated, 
-  \begin{align*}
-     (a + b)\node{u} &= (a + b) (\nv{u}, \nlabel{u}, (a + b)\child{u}) \\
-     &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{(a + b)\node{e}:\node{e}\in\child{u}\}) \\
-     \intertext{but \(\child{u}\) is composed of simple nodes, so,}
-     &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
-     &= (a\nv{u} + b  \nv{u}, \nlabel{u}, a\child{u}) + (b  \nv{u}, \nlabel{u}, b\child{u}) \\
-     &= a \node{u} + b \node{u}.
- \end{align*}
- %% a \node{e} + b \node{e} = (a + b) \node{e} because nodes in the
- %% children only contribute (add to something non-zero) if they
- %% have the same label, and there are no oddities that appear in
- %% one addend and not the other.(modulo the scalars)
+\subsection{Addition}
+Now we define the addition of two trees,
+\begin{definition}\label{treeaddition}
+  For compatible nodes \tnode{u} and \(\node{v} \in \DOMstar\),\marginnote{\(\node{u}+\node{v}\)} 
+  \begin{align}
+      \node{u} + \node{v} = \begin{cases}
+        \node{u} &\text{ if } \node{v} = \zerotree\notag\\
+        \node{v} &\text{ if } \node{u} = \zerotree\notag\\
+        \Bigl(\nv{u} + \nv{v}, \nlabel{u}, 
+        \bigl(\nrestrictedto{u}{v}\cup\nrestrictedto{v}{u} & {} \\
+        \quad\cup\{\node{r}+\node{s}:\node{r}\in\restrictedto{u}{v}\mand\node{s}\in\restrictedto{v}{u}\mand\nlabel{r}=\nlabel{s}\}\bigr)\setminus \{\zerotree\}\Bigr) & \text{ otherwise}
+      \end{cases}
+  \end{align}
+\end{definition}
 
- Now suppose the property holds for nodes with a depth of \(n\).
- Then we consider node \(\node{u}\) with a depth of \(n+1\):
- \begin{align*}
-     (a + b)\node{u} &= (a + b) (\nv{u}, \nlabel{u}, \child{u}) \\
-     &= ((a + b)\nv{u}, \nlabel{u}, (a + b)\child{u}), \\
-     &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
-   \intertext{since \(\depth(\node{e}) = n\)}
-     &= a \node{u} + b \node{u}.
- \end{align*}
- %% Suppose there is an element \(\node{v} \in \child{u}\)\ where
- %% this is not the case. It cannot be the case that \((a + b)\nv{v}
- %% \neq a\nv{v} + b  \nv{v}\)\ since all three addends are in $\FIELD$,
- %% so there is some must be some node in \tchild{v}, say \tnode{g},
- %% for which \((a + b)\node{g} \neq a \node{g}+b \node{g}\). This
- %% process continues till we reach a simple node (as we must) with
- %% an empty children, so we must conclude that the assumption
- %% is false; there can be no element in the an children for
- %% which \((a+b)\node{e} \neq a \node{e}+b \node{e}\).
- 
- %% So 
- %% \begin{align*}\label{Dsmf4}
- %%     (a + b)\node{u} &= (a\nv{u} + b  \nv{u}, \nlabel{u}, 
- %%     \{(a\nv{e} + b  \nv{e}, \nlabel{e}, \{a \node{e} + b \node{e}):
- %%     \node{e} \in \child{u}\}) \\
- %%     &= a \node{u} + b \node{u} \\
- %% \end{align*}
- %%  (a + b)\node{u} &= (a\nv{u} + b  \nv{u}, \nlabel{u},
- %%    \{(a\nv{e} + b  \nv{e}, \nlabel{e}, a\child{e} + b\child{e}): \node{e} \in \child{u}\}), \\
- %% The justification for splitting the sum of the terms from the children rests on the observation that we may
- %% deal with the simple nodes by appealing to the first part of this section of the proof. The non-simple nodes, can
- %% be expanded and dealt with using the same strategy used for \tnode{u}, and the fact that we are dealing with
- %% finite, trees means that along any branch we must eventually exaust the supply of non-simple nodes,
- %% leaving us with simple terminal nodes which are of the form \(a \node{u} + b \node{u}\). In this way the elements of
- %% very non-simple node's children *********
+\begin{definition}[Notation]
+  We will use the following notation as a more concise representation
+  of the addition of two sets, such as the sets of children in
+  Eq. \ref{treeaddition}, by \begin{align*} \set{B}\stplus\set{C}
+  = \childO{B}{C}{r}{s}{+}.  \end{align*}
+\end{definition}
 
- By induction, the property must hold for all \(n >= 0\)
-\end{remark}
+
+\section{Properties of a vector space}
+In this section we prove that the defined elements and operations give
+us a vector space.  
+
+\begin{proposition}\label{vspace} $\DOM$, with scalar multiplication
+  and tree addition is a vector space.
+  \begin{proof}
+    We will assume that  \(\node{p}, \node{q}, \node{u},\node{v},\node{w} \in \DOM\)\ and \(a, b \in  \FIELD\).
+
+    %%%%%% Delete the vspace if you remove margin notes
+    %%\vspace{28pt}
+    \begin{description} 
+    \item[Additive identity element]\label{additiveidentity}
+
+      This is explicit in the definition of addition between elements
+      of $\DOM$.
+
+    \item[Inverse elements with respect to addition]
+
+      The element \(\zerotree\) is its own inverse, since \(\zerotree
+      + \zerotree = \zerotree\) by definition.
+
+      So, we consider the case of $\node{u}$, where \(\depth(\node{u})
+      = 1\), then
+      \begin{align*}
+          \node{u} + -\node{u} &=  \Node{\nv{u}}{\nlabel{u}}{\emptyset} + \Node{-1\nv{u}}{\nlabel{u}}{\emptyset} \\
+          &= (\nv{u} + -\nv{u}, \nlabel{u}, \emptyset) \\
+          &= \zerotree
+      \end{align*}
+      so for any simple node, \(\node{u}\), \(-\node{u}\)\ is its
+      inverse.
+
+      Let \tnode{v} be a non-null node which is not simple, but has
+      simple c, that is to say \(\depth(\node{v}) = 2\).  Then 
+      \begin{align*}
+          \node{v} + -\node{v} &= (\nv{v} - \nv{v}, \nlabel{v}, \lbrace \node{e} + -\node{e}: \forall \node{e} \in \child{v}\rbrace \setminus\{\zerotree\}) \\
+          %&= (0, \nlabel{v}, \{\zerotree\} \setminus\{\zerotree\} \\
+          &= (0, \nlabel{v}, \emptyset) \\
+          &= \zerotree
+      \end{align*}
+      since the simple leaf nodes are all added to their own additive
+      inverse.
+
+      So, we can generalise to trees with a depth
+      greater than two. Assuming that the proposition holds for
+      elements of $\DOM$ with depth \(n\), we consider an element, \tnode{u},
+      where \(\depth(\node{u}) = n+1\) added to the element
+      \(-\node{u}\).
+      \begin{align*}
+          \node{u} + -\node{u} &= (0, \nlabel{u}, \lbrace \node{e} + -\node{e}: \forall \node{e} \in \child{u}\rbrace)
+      \end{align*}
+
+      Since the child nodes of the root node of \tnode{u} are, by
+      assumption, added to their additive inverses, they then become
+      \begin{align*}
+          &= (\nv{v} + -\nv{v}, \nlabel{v}, \emptyset) \\
+          &= \zerotree
+      \end{align*}
+      for each \(\node{v}\in\child{u}\) and, by induction, our inverse
+      holds for all members of $\DOM$.
+
+    \item[Multiplicative identity element]\label{multiplicativeidentity}
+
+      First observe that \(1\/\zerotree = (1\cdot0,0,\emptyset) = \zerotree\).
+
+      Now consider an arbitrary  non-null tree in $\DOM$, \tnode{u};
+      \tnode{u} is either simple, or it has child nodes. In the
+      case of a simple \tnode{u}, it is obvious that \(1 \in
+      \FIELD\) acts as an identity.
+      \begin{align*}
+          \node{u} &= (\nv{u}, \nlabel{u}, \emptyset) \\
+          &= (1 \nv{u}, \nlabel{u}, \emptyset) \\
+          &= 1 (\nv{u}, \nlabel{u},\emptyset) \\
+          &= 1 \node{u}
+      \end{align*}
+
+      Thus, for all leaf nodes on \tnode{u}, 1 is the identity for
+      scalar multiplication. Now we take \tnode{u} to be some
+      non-simple node,
+      \begin{align*}
+          \node{u} &= (\nv{u}, \nlabel{u},\child{u}) \\
+          &= (1 \nv{u}, \nlabel{u}, 1 \child{u}) \\
+          &= (1 \nv{u}, \nlabel{u}, \lbrace (1 \nv{e}, \nlabel{e}, \child{e}): \forall \node{e} \in \child{u} \rbrace),
+      \end{align*}
+      and, if the children are all simple nodes,
+      \begin{align*}
+          &= 1 (\nv{u}, \nlabel{u}, \child{u}) \\
+          &= 1 \node{u}.
+      \end{align*}
+      so it is the case that 1 is the scalar multiplicative identity for nodes which
+      have a depths of less than three. 
+      
+      Now suppose that \(1\) is the identity for scalar multiplication
+      of all members of $\DOM$ with a depth of \(n\) or less for some
+      natural number \(n\), and we consider \tnode{v} which has a
+      depth of \(n+1\). Then
+      \begin{align*}
+          \node{v} &= (\nv{v}, \nlabel{v}, \child{v}) \\
+          &=  (1 \nv{v}, \nlabel{v}, 1\child{v})
+      \end{align*}.
+
+      But each of the elements in the set \(1\child{v}\) either has a
+      depth of \(n\) or less and so the the children of \(1 \node{v}\)
+      is merely \tchild{v}, and so \(1 \node{v} = \node{v}\).
+
+      By induction, we can demonstrate that \(1\) is the 
+      identity for scalar multiplication of nodes of arbitrary (finite) depth.
+
+
+    \item[Commutativity]\label{additivecommutativity}
+
+      Let us consider compatible nodes \tnode{u} and \tnode{v}.
+
+      The commutativity of addition involving \tzerotree is
+      guaranteed by the definition of addition, so we first address
+      the case where both addends are simple.
+
+      Take \tnode{u} and \tnode{v} to be simple nodes; then
+      \begin{align*}
+          \node{u} + \node{v} &= (\nv{u}, \nlabel{u}, \emptyset) + (\nv{v}, \nlabel{v}, \emptyset) \notag\\
+          &= (\nv{u} + \nv{v}, \nlabel{u}, \emptyset) \notag\\
+          &= (\nv{v} + \nv{u}, \nlabel{u}, \emptyset) \notag\\
+          &= \node{v} + \node{u}.
+      \end{align*}
+
+      Now suppose that there is some number \(n\) for which
+      \(\depth(\node{u}) \leq n \mand \depth(\node{v}) \leq n
+      \implies \node{u} + \node{v} = \node{v} + \node{u}\).
+
+      Then if we take \tnode{u} and \tnode{v} to be nodes with depths
+      of \(n+1\) or less,
+      \begin{align*}
+          \node{u} + \node{v} &= (\nv{u}, \nlabel{u}, \child{u}) + (\nv{v}, \nlabel{v}, \child{v}) \notag\\
+          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \restrictedto{u}{v} \mand \node{s} \in \restrictedto{v}{u}\mand\nlabel{r} = \nlabel{s}\} \notag\\
+          & \qquad \qquad \qquad \qquad \cup \{\node{r}: \node{r} \in \child{u}\mand\nlabel{r} \notin \nlabels{v}\} \cup \{\node{s}: \child{s} \in \node{v}\mand\nlabel{s} \notin \nlabels{u}\}\bigr) \setminus \{\zerotree\}\Bigr) \notag\\
+          &= \Bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+          & \qquad \qquad \qquad \qquad         \cup \nrestrictedto{\node{u}}{v} \cup \nrestrictedto{v}{u}\bigr) \setminus \{\zerotree\}
+      \end{align*}
+          
+      So,
+      \begin{align*}
+          \node{u} + \node{v} &= \Bigl(\nv{v} + \nv{u}, \nlabel{u}, \bigl(\{\node{r}+\node{s}: \node{r} \in \child{u} \mand \nlabel{r} \in \nlabels{v} \mand \node{s} \in \child{v}\mand\nlabel{s} \in \nlabels{u}\} \notag\\
+          & \qquad \qquad \qquad \qquad         \cup \nrestrictedto{\node{u}}{v} \cup \nrestrictedto{v}{u}\bigr) \setminus \{\zerotree\}
+      \end{align*}
+
+      since addition in $\DOM$ is commutative. If we can demonstrate
+      that the expression for the children is independent of
+      order, then it must be the case that sum of the addends,
+      \tnode{u} and \tnode{v}, must also be order independent.
+      
+      The set \(\{\node{r}+\node{s}:\node{r}\in\child{u}\mand\nlabel{r}\in\nlabels{v}\mand\node{s}\in\child{v}\mand\nlabel{s}\in\nlabels{u}\}\) must be
+      order independent since each of the candidate \tnode{r} and \tnode{s} addends must have a depth of \(n\) or less. Since set union is
+      commutative, the order of \(\nrestrictedto{u}{v}\) and \(\nrestrictedto{v}{u}\) doesn't affect the result, thus, addition must be commutative
+      for all \(\node{u} \text{ where } \depth({\node{u}}) \leq n+1\).  By induction, this must be true for all \(n \geq 0\).
+
+    \item[Associativity]\label{additiveassociativity}
+
+      Let us consider compatible nodes \(\node{u}, \node{v}\) and
+      \(\node{w}\) in $\DOM$. 
+
+      First consider the situation where the depths of \(\node{u},
+      \node{v}\) and \(\node{w}\) are all less than or equal to
+      one. If they all have a depth of zero, the sum is trivially the
+      null tree. Similarly, if any have depths of one or less is the
+      zero tree, we also get a trivial result. So we take all of
+      \tnode{u}, \tnode{v}, and \tnode{w} to be simple. Then
+      \begin{align*}
+          (\node{u}+\node{v})+\node{w} &= ((\nv{u}, \nlabel{u}, \emptyset) + (\nv{v}, \nlabel{u}, \emptyset)) + (\nv{w}, \nlabel{u}, \emptyset) \\
+          &= (\nv{u} + \nv{v}, \nlabel{u}, \emptyset) + (\nv{w}, \nlabel{u}, \emptyset) \\
+          &= ((\nv{u} + \nv{v}) + \nv{w}, \nlabel{u}, \emptyset) \\
+          &= (\nv{u} + (\nv{v}) + \nv{w}), \nlabel{u}, \emptyset) \\
+          &= \node{u} + (\node{v} + \node{w}).
+      \end{align*}
+      
+      Let us consider the case where these may be non-simple
+      trees. Suppose there is an integer \(n\) such that associativity
+      holds for any three trees \(\node{u}, \node{v} \mand \node{w}\),
+      whose depth is less than or equal to \(n\), that is if
+      \(\depth(\node{u}) \leq n, \depth(\node{v}) \leq n \mand
+      \depth(\node{w}) \leq n\),
+      then it must be the case that
+      \[(\node{u} + \node{v}) + \node{w} = \node{u} + (\node{v} + \node{w}).\]
+
+      Now suppose one or more of these trees has a depth of
+      \(n+1\).
+      
+      % Just the set
+      %% \bigl\{\nrestrictedto{u}{v} \cup \nrestrictedto{v}{u} \\
+      %% &\qquad\quad \cup \hspace{2pt} \{\node{r} + \node{s}:  \node{r} \in \restrictedto{u}{v}\mand \node{s} \in \restrictedto{v}{u} \} \bigr\} \setminus \{\zerotree\}
+
+      \begin{align*}
+          (\node{u}+\node{v})+\node{w} &= (\Node{\nv{u}}{\nlabel{u}}{\child{u}} + \Node{\nv{v}}{\nlabel{u}}{\child{v}}) + \Node{\nv{w}}{\nlabel{u}}{\child{w}} \\
+          &= \Node{\nv{u} + \nv{v}}{\nlabel{u}}{\child{u}\stplus\child{v}} + \Node{\nv{w}}{\nlabel{u}}{\child{w}}
+      \end{align*}
+
+      Recall that 
+      \begin{align*}
+          \child{u}\stplus\child{v} &= \childO{u}{v}{p}{q}{+}\\
+          \intertext{so, letting}
+          \set{B} &= \child{u}\stplus\child{v} \\
+          \intertext{we get}
+          (\node{u}+\node{v})+\node{w} &=\NNNode{(\nv{u} + \nv{v}) + \nv{w}}{\nlabel{u}}{\bigl(\nsrestrictedto{B}{w}\cup\nrestrictedto{w}{B} \cup \set{B}\stplus\child{w}\bigr)\setminus\{\zerotree\}} \\
+          &=\NNNode{\nv{u} + (\nv{v} + \nv{w})}{\nlabel{u}}{\bigl(\nsrestrictedto{B}{w}\cup\nrestrictedto{w}{B}\cup \set{B}\stplus\child{w}\bigr)\setminus\{\zerotree\}} \\
+          \intertext{since addition in $\DOM$ is associative for nodes
+          with a depth of $n$ or less}
+      \end{align*}
+
+      Notice that the elements of all the sets which comprise the children, those in \(\set{B}\) and in \tchild{w},
+      must have a depth of \(n\) or less; any addition which occurs amongst the elements of these sets must be
+      associative by our inductive assumption. Hence
+      \begin{align*}
+          (\node{u}+\node{v})+\node{w} = \node{u}+(\node{v}+\node{w}).
+      \end{align*}
+
+
+    \item[Compatibility of scalar multiplication and multiplication in $\FIELD$]\label{additivecompatibility}
+
+      Observe first that \(a \zerotree = \zerotree, \forall a \in
+      \FIELD\). We also dispose with the case of simple nodes:
+      \begin{align*}
+          a(b \node{u}) &= (a(b \nv{u}), \nlabel{u}, \emptyset) \\
+          &= (a b \nv{u}, \nlabel{u}, \emptyset) \\
+          &= ((a b) \nv{u}, \nlabel{u}, \emptyset) \\
+          &= (a b) \node{u};
+      \end{align*}
+
+      So assuming that multiplication is compatible with nodes with
+      depths of \(n\) or less, we consider \tnode{u}, where \(\depth(\node{u})
+      = n+1\),
+      \begin{align*}
+        a (b \node{u}) &= a (b  \nv{u}, \nlabel{u}, b\child{u}) \\
+        \intertext{since \(\depth(\node{e}) \leq n \forall \node{e}\in \child{u}\), multiplication of these elements is compatible, and }
+          &= (a b\/ \nv{u}, \nlabel{u}, a(b\child{u})) \\
+          \intertext{becomes}
+          &= ((a b) \nv{u}, \nlabel{u}, (a b)\child{u}) \\
+          &= (a b) \node{u}
+      \end{align*}
+
+      Thus the scalar and field multiplication operators are compatible.
+
+      
+    \item[Distribution of scalar multiplication with respect to vector addition]\label{additivedistributivity}
+
+      Let us consider compatible trees, \tnode{u} and \tnode{v}.
+      
+      First, note that \[\forall \node{u} \in \DOM, a(\zerotree + \node{u}) = a \node{u} = a\zerotree + a \node{u},\]
+      and that \[\forall \node{u},\node{v}\in\DOM, 0 (\node{u} + \node{v}) = \zerotree = 0 \node{u} + 0 \node{v}.\]
+
+      The property holds for simple nodes, 
+      \begin{align*}
+        a(\node{u} + \node{v}) &= a (\Node{\nv{u}}{\nlabel{u}}{\emptyset} + \Node{\nv{v}}{\nlabel{v}}{\emptyset})\\ 
+        &= a \Node{\nv{u} + \nv{v}}{\nlabel{u}}{\emptyset} \\
+        &= \Node{a(\nv{u} + \nv{v})}{\nlabel{u}}{\emptyset} \\
+        &= \Node{a\nv{u} + a\nv{v}}{\nlabel{u}}{\emptyset} \\
+        &= \Node{a\nv{u}}{\nlabel{u}}{\emptyset} + \Node{a\nv{v}}{\nlabel{u}}{\emptyset} \\
+        &= a \node{u} + a \node{v}
+      \end{align*}.
+
+      So, suppose that the equation \(a ( \node{p} + \node{q}) =
+      a \node{p} + a \node{q}\) holds for all compatible nodes \tnode{p} and
+      \tnode{q} such that \(depth(\node{p}) \leq k\), and
+      \(\depth(\node{q}) \leq j\).
+
+      Take \(n = \min(j, k)\), \(a\in\FIELD\), and nodes \tnode{u} and \tnode{v} such that
+      \(\depth(\node{u}) = n+1\), and \(\depth(\node{v}) = n+1\).
+      Note that \(n\) must be greater than zero since the property holds for simple
+      nodes.  Then
+      \begin{align*}
+        a(\node{u} + \node{v}) &= a (\Node{\nv{u}}{\nlabel{u}}{\child{u}} + \Node{\nv{v}}{\nlabel{v}}{\child{v}}\\ 
+        &= a \bigl(\nv{u} + \nv{v}, \nlabel{u}, \bigl\{\nrestrictedto{u}{v} \cup \nrestrictedto{v}{u} \\
+        &\qquad \cup \hspace{2pt} \{\node{r} + \node{s}:  \node{r} \in \restrictedto{u}{v}\mand \node{s} \in \restrictedto{v}{u} \} \bigr\} \setminus \{\zerotree\} \bigr) \\
+        &= \Bigl(a (\nv{u} + \nv{v}), \nlabel{u}, 
+        \bigl\{\{a \node{e}: \node{e} \in \nrestrictedto{u}{v}\} \cup \{a \node{e}: \node{e} \in \nrestrictedto{v}{u}\} \\
+        &\qquad \cup \hspace{2pt} \{a (\node{r} + \node{s}):  \node{r} \in \restrictedto{u}{v}\mand \node{s} \in \restrictedto{v}{u} \} \bigr\} \setminus \{\zerotree\} \bigr)\Bigr) \\
+        &= \Bigl(a \nv{u} + a \nv{v}, \nlabel{u},  
+        \bigl\{\{a \node{e}: \node{e} \in \nrestrictedto{u}{v}\} \cup \{a \node{e}: \node{e} \in \nrestrictedto{v}{u}\} \\
+        &\qquad \cup \hspace{2pt} \{a (\node{r} + \node{s}):  \node{r} \in \restrictedto{u}{v}\mand \node{s} \in \restrictedto{v}{u} \} \bigr\} \setminus \{\zerotree\} \bigr)\Bigr)
+      \end{align*}.
+
+      Notice that the component sets of the set of children to \(\node{u} +
+      \node{v}\), namely \(\{a \node{e}: \node{e} \in
+      \nrestrictedto{u}{v}\}\),  
+      \(\{a \node{e}: \node{e} \in
+      \nrestrictedto{v}{u}\}\) and \(\{a (\node{r} + \node{s}):
+      \node{r} \in \restrictedto{u}{v}\mand \node{s} \in
+      \restrictedto{v}{u} \}\) can only contain nodes with a depth of
+      \(n\) or less; Thus, we can proceed inductively, increasing
+      the least upper bound, \(\min(j, k)\), for the set of trees
+      that cooperate with distribution of scalar multiplication over
+      vector addition, to any value we wish.
+
+    \item[Distribution of scalar multiplication with respect to
+      addition in $\FIELD$ ]\label{distribution}
+
+      The property is clearly true when \(\node{u} = \zerotree\),
+      since \((a+b)\zerotree = \zerotree = a\zerotree+b\zerotree\).
+
+      We first consider simple nodes:
+      \begin{align*}
+        (a + b)\node{u} &= (a + b) ((a + b)\nv{u}, \nlabel{u}, \emptyset) \\
+        &= ((a + b)\nv{u}, \nlabel{u}, \emptyset) \\
+        &= (a\nv{u}, \nlabel{u}, \emptyset) + (b  \nv{u}, \nlabel{u}, \emptyset) \\
+        &= a \node{u} + b \node{u}.
+      \end{align*}
+
+      Nodes with a depth of two are slightly more complicated, 
+      \begin{align*}
+          (a + b)\node{u} &= (a + b) ((a + b)\nv{u}, \nlabel{u}, (a + b)\child{u}) \\
+          &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{(a + b)\node{e}:\node{e}\in\child{u}\}) \\
+          \intertext{but \(\child{u}\) is composed of simple nodes, so,}
+          &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
+          &= (a\nv{u} + b  \nv{u}, \nlabel{u}, a\child{u}) + (b  \nv{u}, \nlabel{u}, b\child{u}) \\
+          &= a \node{u} + b \node{u}.
+      \end{align*}
+      %% a \node{e} + b \node{e} = (a + b) \node{e} because nodes in the
+      %% children only contribute (add to something non-zero) if they
+      %% have the same label, and there are no oddities that appear in
+      %% one addend and not the other.(modulo the scalars)
+
+      
+      Now suppose the property holds for nodes with a depth of \(n\).
+      Then we consider node \(\node{u}\) with a depth of \(n+1\):
+      \begin{align*}
+          (a + b)\node{u} &= (a + b) (\nv{u}, \nlabel{u}, \child{u}) \\
+          &= ((a + b)\nv{u}, \nlabel{u}, (a + b)\child{u}), \\
+          &= (a\nv{u} + b  \nv{u}, \nlabel{u}, \{a \node{e} + b \node{e}:\node{e}\in\child{u}\}) \\
+        \intertext{since \(\depth(\node{e}) = n\)}
+          &= a \node{u} + b \node{u}.
+      \end{align*}
+
+      %% Suppose there is an element \(\node{v} \in \child{u}\)\ where
+      %% this is not the case. It cannot be the case that \((a + b)\nv{v}
+      %% \neq a\nv{v} + b  \nv{v}\)\ since all three addends are in $\FIELD$,
+      %% so there is some must be some node in \tchild{v}, say \tnode{g},
+      %% for which \((a + b)\node{g} \neq a \node{g}+b \node{g}\). This
+      %% process continues till we reach a simple node (as we must) with
+      %% an empty children, so we must conclude that the assumption
+      %% is false; there can be no element in the an children for
+      %% which \((a+b)\node{e} \neq a \node{e}+b \node{e}\).
+      
+      %% So 
+      %% \begin{align*}\label{Dsmf4}
+      %%     (a + b)\node{u} &= (a\nv{u} + b  \nv{u}, \nlabel{u}, 
+      %%     \{(a\nv{e} + b  \nv{e}, \nlabel{e}, \{a \node{e} + b \node{e}):
+      %%     \node{e} \in \child{u}\}) \\
+      %%     &= a \node{u} + b \node{u} \\
+      %% \end{align*}
+
+      %%    (a + b)\node{u} &= (a\nv{u} + b  \nv{u}, \nlabel{u},
+      %%    \{(a\nv{e} + b  \nv{e}, \nlabel{e}, a\child{e} + b\child{e}): \node{e} \in \child{u}\}), \\
+
+
+      %% The justification for splitting the sum of the terms from the children rests on the observation that we may
+      %% deal with the simple nodes by appealing to the first part of this section of the proof. The non-simple nodes, can
+      %% be expanded and dealt with using the same strategy used for \tnode{u}, and the fact that we are dealing with
+      %% finite, trees means that along any branch we must eventually exaust the supply of non-simple nodes,
+      %% leaving us with simple terminal nodes which are of the form \(a \node{u} + b \node{u}\). In this way the elements of
+      %% very non-simple node's children *********
+    \end{description}
+    By induction, the property must hold for all \(n >= 0\)
+  \end{proof}
+\end{proposition}
 
 \section{Seminorms, norms and metrics} %
 
@@ -694,31 +1170,37 @@ Multiplication of trees in $\DOMR$ is associative.
     
  
 
-
-
 \section{Discussion}
 
 This set of metric spaces arose from attempts to capture the nuanced
 associations in survey questions like \textsl{``Thinking about the
-  weather forecast, how would you rate the chances of your favourite
-  sporting team in the coming match?''\/}.  Of course there is no
+weather forecast, how would you rate the chances of your favourite
+sporting team in the coming match?''\/}.  Of course there is no
 guarantee that the answers provided in a survey are consistent, and it
 may be that the respondent truly holds conflicting opinions; the trees
 were conceived to be able to incorporate conflicting data into
 simulation models. Initially, the trees were no more than data
-structures with a rough and ready distance function, but as the
-work became more coherent, the underlying mathematical structure began
-to emerge, and the realisation that the trees might be useful for
-representing more than survey responses came about. The basic
+structures with a rough and ready distance function, but as the work
+became more coherent, a potential underlying mathematical structure
+began to emerge, and the realisation that the trees might be useful
+for representing more than survey responses came about. The basic
 heuristic comparisons used in exploring the survey data were replaced
 with a better behaved metric based on the tree norm.
+
+The notion of compatibility is mathematically awkward in a fashion
+somewhat similar to the compatibility requirements in adding and
+multiplying matrices. While the early formulation formed a non-unitary
+ring, exploration suggested that restricting the operations on the
+basis of compatibility may increase the trees's usefulness in a way
+that might be applicable to the assessment and control of the
+configuration of models comprised of an ensemble of submodels.
 
 The loosely defined structure was defined and converted into a vector
 space so that I could then construct model-spaces from a set of basis
 elements corresponding to submodels. Extending this structure to the
 assessment of configurations required a metric space.
 
-In principle, we can treat each distinct symbol in a label as a 
+In principle, we could treat each distinct symbol in a label as a 
 length in an axis orthogonal to each of the other symbols.  This
 interpretation makes a heuristic ``distance'' function between trees
 quite simple.  This avenue has not yet been explored; the trees used
@@ -726,24 +1208,25 @@ in the example model discussed in Chapters \ref{adaptiveselection}
 and \ref{explicitmodel} largely makes use of the simple functions for
 cardinality, overlap and shadow.
 
-
-
-
-In the example model developed later, the states of the model as a
-whole, subdomains of the model and the components within the model are
-represented by representative trees.  There is also a set of trees
-which are identified by known-good configurations, and the
-mechanism which handles switching within the model uses the metric in
-its assessment.  Like the model in \Ctwo, the
-approach is relatively simple, but the hope is that, having established
-the ring-like properties, more advanced clustering and
+In \Cthree the model developed is concerned with demonstrating the
+adaptive selection of models using abstracted representations of the
+model's components and of the model's configuration. These
+representations are in the form of trees in $\DOMR$ with particular
+forms. In the reference model based on this example, the states of the
+model as a whole, subdomains of the model and the components within
+the model are represented by representative trees.  A combination of
+experimentation and technical knowledge will allow us to build a set
+of trees which are identified by known-good and known-bad
+configurations, and the mechanism which handles switching within the
+model uses the metric in its assessment.  Like the model in \Ctwo, the
+approach is relatively simple, but the hope is that, having
+established the ring-like properties, more advanced clustering and
 discrimination techniques can be brought to bear.
 
-In \Cthree the model developed is concerned with
-demonstrating the adaptive selection of models using abstracted
-representations of the model's components and of the model's
-configuration. These representations are in the form of trees in
-$\DOMR$ with particular forms.
+
+
+
+
 
 
 %% In this context, the difference between a conditional assessment and
