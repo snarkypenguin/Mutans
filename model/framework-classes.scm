@@ -247,7 +247,7 @@ direction"
 (define-class <proxy> ;; the proxy shares data and data-names with the array, but ONLY has access to one element
   (inherits-from <agent>)
   (state-variables super getter setter @setter @getter)
-  ;; setter and getter are "simple" @setter and @getter do more dereferencing
+  ;; setter and getter are "simple",  @setter and @getter do more dereferencing
 )
 
 ;;; (define-class <mem-agent>

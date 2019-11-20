@@ -56,6 +56,10 @@
 
 (define restricted-kernel-access #f)
 
+;; restricted-kernel-access blocks access to the kernel when the agent is not
+;; currently running.  This is mainly for debugging in restricted
+;; subsets of a model, since it blocks submodels from communicating
+;; with each other.
 ;; assesses the current representation of *this* agent
 
 (model-method (<agent>) (number-represented self) 1)
@@ -75,15 +79,6 @@
 (model-method (<agent> <symbol>) (has-data? self sym)
 				  (or (and (object? self)
 							  (has-slot? self sym))))
-
-
-;; restricted-kernel-access blocks access to the kernel when the agent is not
-;; currently running.  This is mainly for debugging in restricted
-;; subsets of a model, since it blocks submodels from communicating
-;; with each other.
-
-;; This routine does the running since "run" has fixed up the ticks
-;; It looks like (run-model-body me t dt) in code
 
 (define (my-map-color self #!rest classdepth)
   (if (not classdepth)
@@ -1093,8 +1088,13 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 ;;;  )
 
 
-;--- Fundamental "run" routine -- accepts anything, but fails if it's inappropriate
 
+;--- Fundamental "run" routine -- accepts anything, but fails if it's inappropriate
+;; This routine does the running since "run" has fixed up the ticks
+;; It looks like (run-model-body me t dt) in code
+;;
+;; NOTE: "run" for agents is handled by run-model-body.  
+;;
 (model-method (<class>) (run self pt pstop pkernel)
 				  (if (not (isa? self <agent>))
 						(begin (display "Attempt to (run ...) a non-agent\n")
@@ -1104,7 +1104,7 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 
 (model-method (<proxy>) (run self pt pstop pkernel)
 				  (display "Attempt to (run ...) a <proxy>\n")
-				  (error "+++Vegetable Underflow Error+++"  
+				  (error "+++Dunderflow Error+++"  
 							(slot-ref self 'name)))
 
 (model-method (<object>) (run self pt pstop pkernel)
