@@ -20,6 +20,7 @@
 
 (define model-timing-data '())
 
+;; Generate a breakdown of where time is spent in the model
 (define (timing-report #!optional flag)
   (let ((ref (case flag
 				  ((#f all cpu) cadr)

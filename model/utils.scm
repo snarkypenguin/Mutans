@@ -23,6 +23,74 @@
     along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
 "
 
+"Discussion:
+
+This provides a number of basic utilities:
+
+(seq n) generates a list '(0 ... n)
+
+(evens lst) and (evens* lst) return the members of the list that have
+    even indicies;
+
+(odds lst) and (odds* lst) returns the odd members. These aren't
+    really used.
+
+(dotted-pair? c) is a predicate that tests for a cons
+(undot lstlike) converts a list with a dotted tail to a proper list
+
+(append! lst bit) is an in-place append ... the bit on the end is
+    appended to lst
+
+(insert! lst bit) is analogous, but the bit goes at the front
+
+(partition-set selector set) partitions a set into bins determined by
+    the selector function
+
+The functions scaleT, scaleTS, scaled-time and scaled-time-ratio all
+serve to make 'times' a little more readable.
+
+(object-type ob) returns the type of whatever 'ob' is.
+
+(list-intersection a b) returns the element which are common to the lists
+(list-intersection* a....) takes more than two lists
+
+(random-list-ref lst class-weights) return a random element from a weighted distribution (unused)
+
+(list-nth* lst n) returns the nth element from each sublist of lst
+
+(list-transpose lst) turns rows of the list into columns
+
+(dump-data lst . file) dumps data to screen or file
+
+(andf c... ) & (orf c...) are function versions of 'and' and 'or'
+
+(random-location minv #!optional maxv) returns an x-y pair in minv x maxv
+
+(nrandom mean . its) returns a very dodgey 'normally distributed' random number. 
+    use nrnd and its kin in preference.
+
+(simple-general-sigmoid x y) returns a sigmoidal value  
+
+(general-biomass-growth-rate x peak width scale y) 
+
+(dP/dt P dt r K) Growth equation
+
+(n-arity-from-2-arity op identity) returns a function of an arbitrary 
+    number of elements over a function like + or *
+
+(axiom-of-choice selector lst) selector is a function which takes the
+whole list, lst, and returns a predicate which is used in a filter
+call over lst.  Examples are the definitions of minima and maxima
+which return the (possibly multiple) minima and maxima
+
+
+
+
+
+"
+
+
+
 ;-  Variables/constants both public and static
 
 ;--    Static data
@@ -241,26 +309,6 @@
 	 ((2) (list-intersection (car args) (cadr args)))
 	 (else (list-intersection (car args) (apply list-intersection* (cdr args))))))
 
-;---- (list-intersection? op a b) intersection of lists a and b
-(define (list-intersection? op selector A B)
-  (if (not (pair? A)) (set! A (list A)))
-  (if (not (pair? B)) (set! A (list B)))
-  (let ((f (filter (lambda (x) (op (selector x) (map selector B))) A))
-		  (g (filter (lambda (x) (op (selector x) (map selector A))) B)))
-	 (union+ f g)))
-
-;---- (list-intersection* a b) intersection of lists 
-(define (list-intersection?* op selector . args )
-  (let ((li?* (lambda x (apply list-intersection?* (cons op (cons selector x))))))
-	 (case (length args)
-		((0) '())
-		((1) (car args))
-		((2) (list-intersection? op selector (car args) (cadr args)))
-		(else (list-intersection? op selector (car args) (apply li?* (cdr args)))))))
-
-
-
-
 ;; Selects a random member of a list when each element has a given weighting
 (define (random-list-ref lst class-weights)
   (define (partial-sums lst)
@@ -298,6 +346,8 @@
 	 (map list x)) 
 	(else (abort "list-transpose failure"))))
 
+
+;; dumps a "2d" list to a file with lists separated by newlines
 (define (dump-data lst . file)
   (set! file (if (null? file) (current-output-port) (car file)))
   (for-each 
@@ -353,7 +403,7 @@
 ;;			 (newline))))
 
 
-
+;; These are loci with time x, y and z ordinates
 ;; surjections onto subspaces for lists representing vectors
 (define (txyz->xy x) (list-head (cdr x) 2))
 (define (txyz->xyz x) (cdr x))
@@ -406,14 +456,13 @@
 
 
 
-
 (define (general-biomass-growth-rate x peak width scale y) 
   (* scale 
 	  (- 
 		(simple-general-sigmoid (+ (- x peak) width) y)
 		(simple-general-sigmoid (- (- x peak) width) y))))
 
-(define (dP/dt P dt r K) (* r P (- 1.0 (/ P K))))0
+(define (dP/dt P dt r K) (* r P (- 1.0 (/ P K))))
 
 
 (define (aborts . args)
@@ -432,7 +481,7 @@
 (define (nested-list? l)
   (and (pair? l) (pair? (car l)) (null? (cdr l))))
 
-(define (n-arity-from-2-arity op identity)
+(define (n-arity-from-2-arity op identity) ;; ((n-arity-from-2-arity + 0) 1 2 3 4 5 6)) -> 21
   (lambda args
 	 (if (not (list? args)) (error "bad list to generalised operator" args))
 	 (let loop ((a args)
@@ -464,12 +513,6 @@
    lst))
 
 
-;; (make-tuples '((0 1 2 3 4 ... n) (10 11 ... (+10 n))) => ((0 10) (1 11) ...(n n))
-;;(define (make-tuples f)
-;;  (map (lambda (x y) (list x y)) (car f) (cadr f)))
-
-(define (make-tuples f)  ;;; This version is much better.   
-  (apply map (lambda x x) f))
 
 ;; return the cross product of two lists (state spaces)
 (define (cross2 a b)
@@ -478,25 +521,7 @@
 														  (list x y)) b)) a)))
   )
 
-;; *** this is wonky ***
 ;; return the cross product of n lists (state spaces)  
-(define (cross__ . args)
-  (define (cross2 a b)
-	 (apply append (map (lambda (x) (map (lambda (y) 
-														(if (list? y)
-															 (cons x y)
-															 (list x y))) b)) a)))
-  (cond
-	((not (list? args)) (error "bad argument" args))
-	((null? args) '())
-	((= (length args) 1)
-	 (car args))
-	((= (length args) 2)
-	 (apply cross2 args))
-	(#t (cross__ (car args) (apply cross__ (cdr args))))))
-
-
-
 (define (cross* . args)
   (define (cross2 a b)
 	 (apply append (map (lambda (x) (map (lambda (y) 
@@ -527,6 +552,7 @@
   (generate-iteration-list lst))
 
 
+;; rotates elements in a list 
 (define (rotate-list direction l)
   (case direction
 	 ((R r right cw clockwise) (append (cdr l) (cons (car l) '())))
@@ -1246,6 +1272,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
  ;; (strcspn str set) returns index of first char in set
  ;;
 
+;; Analogous to the stdc function of the same name
  (define (strspn str set)
    (let loop ((s str))
      (if (zero? (string-length s))
@@ -1260,6 +1287,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
              (loop (substring s 1 (string-length s)))
              (- (string-length str) (string-length s))))))
 
+;; Analogous to the stdc function of the same name
  (define (strcspn str set)
    (let loop ((s str))
      (if (zero? (string-length s))
@@ -1276,6 +1304,7 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
 
 
+;; returns the next token in the string
 ;; This silently collapses multiple instances of either spaces or the indicated separator
  (define (collapsing-strtok str . separator)
    (if (null? separator)
@@ -1294,7 +1323,8 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
                        (substring sstr (strspn sstr separator) (string-length sstr)))))))
    )
 
-;; This does not collapse multiple instances of either spaces or the indicated separator 
+;; returns the next token in the string
+;; This does *not* collapse multiple instances of either spaces or the indicated separator 
  (define (strtok str . separator)
    (if (null? separator)
        (set! separator " ")
@@ -1316,7 +1346,6 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
 
 
 ;; reconstructs the string either with spaces or the indicated separator
-
  (define (reconstruct-string strarray . separator)
    (if (null? separator)
        (set! separator " ")
