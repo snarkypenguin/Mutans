@@ -3,7 +3,7 @@
 
 
 (load "loadem.scm")
-(include "framework")
+(include "remodel")
 
 ;- Inheritance and chaining test rig
 

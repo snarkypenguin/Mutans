@@ -1,4 +1,3 @@
-(include "framework")
 ; -*- mode: scheme; -*-
 ;-  Identification and Changes
 
@@ -31,6 +30,7 @@
 "
 
 ;-  Code 
+(include "remodel")
 
 
 (define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state queue-state)))

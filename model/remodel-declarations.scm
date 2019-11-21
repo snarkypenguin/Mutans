@@ -1,4 +1,4 @@
-(include "framework")
+(include "remodel")
 ;-  Identification and Changes
 
 "
@@ -30,9 +30,9 @@
 
 
 ;--
-;	framework-declarations.scm -- Written by Randall Gray 
+;	remodel-declarations.scm -- Written by Randall Gray 
 
-; These need to be loaded before the framework methods are loaded
+; These need to be loaded before the remodel methods are loaded
 
 
 ;--- basic wrangling -- ALL classes

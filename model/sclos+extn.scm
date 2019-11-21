@@ -49,7 +49,7 @@
 
 ;-  Code 
 
-(include "framework")
+(include "remodel")
 ;; sclos.scm is included after the definition of (abstract-register ...) and a few 
 ;; instances of registers.
 
@@ -82,7 +82,7 @@
 
 ;-- include a bunch of things in the class register
 
-(load "registers.scm")
+(load "abstract-register.scm")
 
 ;; Finally register sclos classes and the basic extensions
 
@@ -245,7 +245,7 @@ exploration."
 (model-method <agent> (s/n self) (slot-ref self 's/n))
 
 (declare-method adaptable? "indicate if the agent has an alternative representation")
-(model-method (<agent>) (adaptable? self) #f)
+(model-method (<agent>) (adaptable? self))
 
 (define (classes-of-supers x)
   (if (class? x)
@@ -538,7 +538,7 @@ handles mixed lists.  Whether that is a good idea is a matter of practicality ve
 		 (else (abort "Bad state variable list for" (cnc self) "#" (length arguments) "|" arguments ))))
   )
 
-;; These need to act before framework-classes.
+;; These need to act before remodel-classes.
 (add-method initialise (make-method (list <object>)
 												(lambda (call-next-method self #!rest initargs)
 												  
@@ -1046,7 +1046,7 @@ the corpus.
 
 ;--- (apply-initialisation instance key)  loads parameters from the global-parameter list
 "Arguably, this whole initialisation thing might be considered part of the 'model' and sit 
-in one of the framework classes.  I have put  it here since object initialisation is really
+in one of the remodel classes.  I have put  it here since object initialisation is really
 a pretty fundamental part of an object oriented approach to anything, and the initialisation
 of entities within the model isn't really an issue w.r.t. the model at all."
 

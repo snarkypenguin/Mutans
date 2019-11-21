@@ -3,7 +3,7 @@
 (load "sort.scm")
 ;(load "sclos-exp.scm")
 (include "sclos+extn.scm")
-(include "framework")
+(include "remodel")
 
 (define initialise (make-generic))
 

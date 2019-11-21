@@ -77,11 +77,11 @@ adding things with (add-kdebug-msg-tag tag) or (add-kdebug-msg-tags lst).
 Look in wildcard.scm for a more complete description of the matching possible.
 
 
-Messages associated with the framework:
+Messages associated with the remodel framework:
   'trace-bodies                    Entry and departure of model bodies is logged
   'track-init                      Tracks initialisation process
   'track-subjective-times          Tracks the subjective times of agents
-  'passing-control-to-model        Tracks the interface between framework and model
+  'passing-control-to-model        Tracks the interface between the remodel framework and model
   'prep                            Follows the preparation of agents for a run
   'running                         Things associated with a running system
   'run-agent                       Tracks dynamics associated with the run-agent routine

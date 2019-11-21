@@ -18,7 +18,7 @@
 ;--    Public data 
 
 ;-  Code 
-(include "framework") ;; This provides a number of useful bits
+(include "remodel") ;; This provides a number of useful bits
 
 ;- =================  Define the model domain now =======================
 ;========================================================================

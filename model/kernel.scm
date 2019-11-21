@@ -68,7 +68,7 @@
 ;; sorting records with "reccmp"
 ;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
 
-(include "framework")
+(include "remodel")
 
 (definition-comment 'lookit-running-names
   "This is a flag used when debugging; if true the name of the running agent is"
@@ -1220,7 +1220,7 @@ X	polygon (arg) versus versus polygon (agent)                           PP
 
 (definition-comment 'run-agent
 "Dispatches a call to the agent through the 'run' routine (found at
-the end of the 'framework-methods.scm' file). It also handles special
+the end of the 'remodel-methods.scm' file). It also handles special
 requests from the agent like mutation and spawning.  The handling of
 an agent's time step is done in 'run' rather than here; this routine
 is more concerned with constructing the scaffolding for communication 
@@ -1428,7 +1428,7 @@ code to suppress the error)
 
 								  ;; If the thing queued is actually an agent, run the agent
 								  ((isa? process <agent>) ;; equivalent to (member <agent> (class-cpl (class-of process)))
-									(let ((r (run process t stop kernel))) ;; (run ...) is in framework-methods.scm [search for 'AGENTS RUN HERE']
+									(let ((r (run process t stop kernel))) ;; (run ...) is in remodel-methods.scm [search for 'AGENTS RUN HERE']
 									  ;; (dnl* " + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
 									  ;; (dnl* "run returned " r)
 									  (kdebug 'run-agent "Return from (run...):" (cnc r) r)

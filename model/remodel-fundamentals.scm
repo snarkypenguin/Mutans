@@ -2,10 +2,10 @@
 ;-  Identification and Changes
 
 ;--
-;	framework-fundamentals.scm -- Written by Randall Gray 
+;	remodel-fundamentals.scm -- Written by Randall Gray 
 ;	Initial coding: 
 ;		Date: 2016.11.07
-;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/framework-fundamentals.scm
+;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/remodel-fundamentals.scm
 ;
 ;	History:
 ;

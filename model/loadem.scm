@@ -58,7 +58,7 @@ having multiple instances of functions or classes.
 ;; and model-body macros to include argument checking code in some
 ;; calls like (set-my ...) and (my ...).
 
-;; framework-flags.scm contains flags which only have effect during the
+;; remodel-flags.scm contains flags which only have effect during the
 ;; initial parsing of the code.
 
 
@@ -83,12 +83,12 @@ having multiple instances of functions or classes.
 ;;        agent-register -- keeps track of the active agents (submodels) in the system
 
 
-"The framework file defines a number of macros that help keep the model on its tracks.  There are a number of macros
+"The remodel file defines a number of macros that help keep the model on its tracks.  There are a number of macros
 which are there to help maintain robustness in the system [such as (assert test ...message...)], but there are also other
 that are useful for finding bottlenecks [such as (timing-block tag . body-to-be-timed), for example], and all of the 'syntax' 
 for defining agents, objects, update-closures, new registers, classes, methods, model-methods, and model-bodies
 "
-(include "framework") ;; must be *included* before sclos+extn.scm and
+(include "remodel") ;; must be *included* before sclos+extn.scm and
 							 ;; all files that make use of sclos: it defines
 							 ;; macros that everything else needs
 
@@ -104,11 +104,11 @@ for defining agents, objects, update-closures, new registers, classes, methods, 
 ;(load "support.o1")
 
 (for-each load (map sym->scm '(basic-population))) ;; Assumes logistic growth, predation, mortality.  Good for grass ;-)
-(for-each load (map sym->scm '(framework-declarations framework framework-classes))) ;; this provides very simple 'behaviours' and interactions
+(for-each load (map sym->scm '(remodel-declarations remodel remodel-classes))) ;; this provides very simple 'behaviours' and interactions
 (for-each load (map sym->scm '(introspection-classes monitor-classes log-classes))) ;; classes which probe the state of other agents
 (for-each load (map sym->scm '(landscape-classes plant-classes animal-classes))) ;; main players
-(for-each load (map sym->scm '(framework-wrappers framework-methods)))  ;; provides methods for things common to all participants 
-;; We want to load a single declarations file....(for-each load (map sym->scm '(framework-wrappers declarations framework-methods)))
+(for-each load (map sym->scm '(remodel-wrappers remodel-methods)))  ;; provides methods for things common to all participants 
+;; We want to load a single declarations file....(for-each load (map sym->scm '(remodel-wrappers declarations remodel-methods)))
 
 (for-each load (map sym->scm '(introspection-methods monitor-methods log-methods)))
 ;; the introspection methods have special abilities to probe other

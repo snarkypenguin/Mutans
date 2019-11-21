@@ -1,4 +1,4 @@
-(include "framework")
+(include "remodel")
 (declare-method add! "add!")
 (declare-method add-fruit "adjusts the number of fruit in a cell")
 (declare-method add-patch! "add a patch to a habitat")

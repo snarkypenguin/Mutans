@@ -2,10 +2,10 @@
 ;-  Identification and Changes
 
 ;--
-;	framework-wrappers.scm -- Written by Randall Gray 
+;	remodel-wrappers.scm -- Written by Randall Gray 
 ;	Initial coding: 
 ;		Date: 2016.10.29
-;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/framework-wrappers.scm
+;		Location: zero.grayrabble.org:/home/randall/Thesis/Example-Model/model/remodel-wrappers.scm
 ;
 ;;; This code provides a few convenience functions
 
@@ -29,7 +29,7 @@
 "
 
 
-(include "framework")
+(include "remodel")
 
 ;;; (define (set-state-variables self args) ;;;
 ;;;   ;; args should be null or a list of the form ('tag value ...), ;;;

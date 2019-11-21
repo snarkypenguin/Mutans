@@ -1,5 +1,4 @@
 ; -*- mode: scheme; -*-
-(include "framework")
 
 ;-  Identification and Changes
 
@@ -37,7 +36,7 @@
 
 ;-  Included files 
 
-(include "framework")
+(include "remodel")
 
 ;-  Variables/constants both public and static
 

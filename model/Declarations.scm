@@ -1,4 +1,4 @@
-(include "framework")
+(include "remodel")
 
 		
 (declare-method add! "add!")
@@ -54,6 +54,7 @@
 (declare-method remove-service! "remove-service!")
 (declare-method rep "returns the representation object")
 (declare-method reproduce "create offspring")
+(declare-method resolve-assessment "create offspring")
 (declare-method rvalue "returns the r value (sharpness or exponent) of an ecoservice's growth model")
 (declare-method scale "returns the scale vector or the scale associated with a nominated ordinate")
 (declare-method scale! "scale!")

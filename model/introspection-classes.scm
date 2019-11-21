@@ -47,7 +47,7 @@
 ;--    Public data 
 
 ;-  Code 
-(include "framework")
+(include "remodel")
 
 (define-class <introspection> (inherits-from <agent>)
   (state-variables introspection-targets ;; agents if the selector is false, otherwise classes, strings or lists

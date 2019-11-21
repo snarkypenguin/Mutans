@@ -48,7 +48,7 @@
 ;--    Public data 
 
 ;-  Code 
-(include "framework")
+(include "remodel")
 
 (define-class <diffeq-system>
   (inherits-from <agent>)

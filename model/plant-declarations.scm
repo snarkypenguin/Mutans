@@ -1,4 +1,4 @@
-(include "framework")
+(include "remodel")
 ; -*- mode: scheme; -*-
 ;-  Identification and Changes
 
@@ -22,10 +22,12 @@
 ;-  Code 
 
 ;; Individual-based plants
+
 (declare-method radius "returns the radius of the plant")
 (declare-method fruit-count "returns the number of fruit produced by an agent")
 (declare-method add-fruit "adjusts the number of fruit in a cell")
 (declare-method growth-rate "rate dependent on water stress and current mass")
+(declare-method resolve-assessment "deal with potential changes in representation")
 
 		
 ;-  The End 

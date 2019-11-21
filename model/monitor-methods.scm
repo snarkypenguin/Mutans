@@ -30,7 +30,7 @@
 ;
 
 ;-  Code
-(include "framework")
+(include "remodel")
 
 "First just get it polling the correct set of agents each pass, then we worry about aggregating and such"
 "The monitor collects a list of agents for polling, polls them for the important state information, then 
@@ -130,7 +130,10 @@ changes ... we hope not too much.
 				  ;; primarily used to construct a tree to represent the configuration's suitability 
 				  ;; and interdependencies.
 
+				  ;; This should mainly be a self assessement by the subject 
+
 				  (kdebug "Processing" (slot-ref subject 'name) "at" t "+" dt)
+				  (self-assess subject self args)
 
 				  #t)
 
@@ -145,6 +148,8 @@ changes ... we hope not too much.
 				  #t)
 
 
+;-- Generic infrastructure 
+  
 ;-- Agent monitors -- collects data regarding the state of an agent's appropriateness
 
 (model-method (<agent> <agent-monitor>) (do-assessment self monitor)
@@ -153,6 +158,23 @@ changes ... we hope not too much.
 					 (slot-set! monitor 'aggregate-data (cons assessment (slot-ref monitor 'aggregate-data)))
 					 )
 				  )
+
+
+(declare-method self-assessment "self assess suitability in a context")
+(model-method (self-assessment <agent> <monitor> <list>) (self-assessment self monitor list-of-others)
+				  (if (not (adaptable? self)) ;; #t indicates that a change is *essential*, #f means that change is impossible
+						#f
+						(let ()
+						  #f)
+						  
+						)
+				  )
+									 
+
+(declare-method resolve-assessment "act on a monitor's assessment")
+(model-method (<agent>) (adaptable? self))
+
+
 
 
 
@@ -165,8 +187,6 @@ changes ... we hope not too much.
 
 
 
-;--- Generic infrastructure 
-  
 
 ;-  The End 
 

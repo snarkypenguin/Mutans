@@ -1,4 +1,4 @@
-(include "framework")
+(include "remodel")
 ;- Identification and Changes
 
 "
@@ -31,8 +31,8 @@
 ;; This is the order things must happen in   ;;
 ;; any file defining methods or model bodies ;;
 ;;---------------------------------------------
-;; (include "%framework.scm")
-;; (load-model-framework)
+;; (include "%remodel.scm")
+;; (load-model-remodel)
 ;;---------------------------------------------
 
 
@@ -726,7 +726,7 @@ commonly viewed as just a simple extension of sclos.
 straightforward scaling) or vectors (for more complex mappings, like LL->xy).
 
 The default list of projections and the following functions (amongst
-others) are defined in framework.scm:
+others) are defined in remodel.scm:
 
 (composite-prj_src->dst self src dest)
 -- returns a projection that applies dest after src
@@ -1081,7 +1081,7 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 ;;; ;--- Helper classes (wart classes) 
 
 ;;; (object-initialisation-method <object> "this is done in sclos+extra", but somewhat differently
-;;;  (initargs) ;; <object> is the most primitive of the framework classes,  there are no default intitialisation args
+;;;  (initargs) ;; <object> is the most primitive of the remodel classes,  there are no default intitialisation args
 ;;;  '(no-default-values) 				      ;; and the "make" initialisation args are called initargs
 ;;;  ;; Body:
 ;;;  (set-state-variables self initargs) ;; we now set-state-variables the slot values passed in args

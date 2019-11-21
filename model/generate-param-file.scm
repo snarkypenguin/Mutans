@@ -10,7 +10,7 @@
 
 (define paramdir "params/")
 (define input-files '("animal-classes.scm" "diffeq-classes.scm"
-							 "framework-classes.scm" "introspection-classes.scm"
+							 "remodel-classes.scm" "introspection-classes.scm"
 							 "landscape-classes.scm" "log-classes.scm"
 							 "model-classes.scm" "monitor-classes.scm"
 							 "plant-classes.scm"))
