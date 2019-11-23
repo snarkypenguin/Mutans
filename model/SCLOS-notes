@@ -1,0 +1,6 @@
+sclos-canon.scm is the canonical version.
+SCLOS.SCM renames "last" on lines c. 82 to "lastcar", and adjusts lines c. 931 appropriately.
+          It also removes a redundant space inin the definition of <input-port> c. line 1175
+
+sclos+extn.scm implements the top level machinery to support the agent-based structure of the modelling
+framework.
