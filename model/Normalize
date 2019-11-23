@@ -15,13 +15,13 @@
 	
 
 ;; ALL files in the code base must be included here for normali[sz]e to know about them
-(define code-base '("framework" "animal-classes.scm"
+(define code-base '("remodel-framework" "remodel" "animal-classes.scm"
 "animal-declarations.scm" "animal-methods.scm" "animal-notes.scm"
 "basic-population.scm" "constants.scm" "declarations.scm"
 "diffeq-classes.scm" "diffeq-declarations.scm" "diffeq-methods.scm"
-"domain.scm" "framework-classes.scm" "framework-declarations.scm"
-"framework-flags.scm" "framework-methods.scm" "framework.scm"
-"framework-wrappers.scm" "generate-param-file.scm" "integrate.scm"
+"domain.scm" "remodel-classes.scm" "remodel-declarations.scm"
+"remodel-flags.scm" "remodel-methods.scm" "remodel.scm"
+"remodel-wrappers.scm" "generate-param-file.scm" "integrate.scm"
 "introspection-classes.scm" "introspection-methods.scm" "kdebug.scm"
 "kernel.scm" "landscape-classes.scm" "landscape-declarations.scm"
 "landscape-methods.scm" "landscape-notes.scm" "loadem.scm"

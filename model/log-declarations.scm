@@ -1,4 +1,4 @@
-(include "remodel")
+(include "remodel-framework")
 ;-  Identification and Changes
 
 ;***** When you add things to this file (or any other *-declarations.scm file)

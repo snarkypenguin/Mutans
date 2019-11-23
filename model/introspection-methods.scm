@@ -46,7 +46,7 @@
 ;--    Public data 
 
 ;-  Code 
-(include "remodel")
+(include "remodel-framework")
 
 ;; (agent-initialisation-method
 ;;  <introspection> (args) (no-default-variables)

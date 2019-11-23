@@ -29,7 +29,7 @@
 
 
 ;; This loads the framework
-;;(include "framework") ;; this is for the time-probe macros
+;;(include "remodel-framework") ;; this is for the time-probe macros
 
 (load "loadem.scm")
 

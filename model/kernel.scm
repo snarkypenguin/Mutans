@@ -68,7 +68,7 @@
 ;; sorting records with "reccmp"
 ;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
 
-(include "remodel")
+(include "remodel-framework")
 
 (definition-comment 'lookit-running-names
   "This is a flag used when debugging; if true the name of the running agent is"

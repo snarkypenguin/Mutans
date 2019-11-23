@@ -1,4 +1,4 @@
-(include "remodel")
+(include "remodel-framework")
 ;- Identification and Changes
 
 "
@@ -1311,7 +1311,6 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 ;;; 				  )
 
 
-;; NOTE: the 
 
 ;; Allows the kernel to make queries -- we do not want the kernel to be
 ;; able to be accidentally "run" like an agent, hence the independent class

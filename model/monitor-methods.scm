@@ -30,7 +30,7 @@
 ;
 
 ;-  Code
-(include "remodel")
+(include "remodel-framework")
 
 "First just get it polling the correct set of agents each pass, then we worry about aggregating and such"
 "The monitor collects a list of agents for polling, polls them for the important state information, then 

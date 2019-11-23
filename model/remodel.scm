@@ -2,10 +2,10 @@
 ;-  Identification and Changes
 
 ;--
-;  framework.scm -- Written by Randall Gray 
+;  remodel.scm -- Written by Randall Gray 
 ;  Initial coding: 
 ;     Date: 2016.07.26
-;     Location: zero:/home/randall/Thesis/Example-Model/model/framework.scm
+;     Location: remodel.scm
 ;
 ;  History:
 ;
@@ -30,7 +30,7 @@
 "
 
 ;-  Code 
-(include "remodel")
+(include "remodel-framework")
 
 
 (define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state queue-state)))

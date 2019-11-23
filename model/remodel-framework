@@ -2,7 +2,7 @@
 ;-  Identification and Changes
 
 ;--
-;	framework -- Written by Randall Gray 
+;	Remodel -- Written by Randall Gray 
 ;	Initial coding: 
 ;		Date: 2012.11.12
 ;
@@ -76,7 +76,8 @@
 
 
 
-
+;; This macro is gambit-c specific.  Other implementations may have
+;; other ways of testing whether a symbol is bound or not.
 (define-macro (define-unbound sig #!rest body)
   (let* ((name (if (pair? sig) (car sig) sig))
 			(ok (##unbound? (##global-var-ref (##make-global-var name))))
@@ -146,7 +147,7 @@
 ;; This should be true if you want UNFINISHED-BUSINESS reported.
 (define UNFINISHED #f) 
 (define monitor-inits #f)
-(include "framework-flags.scm")
+(include "remodel-flags.scm")
 
 ;-  Code 
 

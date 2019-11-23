@@ -88,7 +88,7 @@ which are there to help maintain robustness in the system [such as (assert test 
 that are useful for finding bottlenecks [such as (timing-block tag . body-to-be-timed), for example], and all of the 'syntax' 
 for defining agents, objects, update-closures, new registers, classes, methods, model-methods, and model-bodies
 "
-(include "remodel") ;; must be *included* before sclos+extn.scm and
+(include "remodel-framework") ;; must be *included* before sclos+extn.scm and
 							 ;; all files that make use of sclos: it defines
 							 ;; macros that everything else needs
 
@@ -99,9 +99,13 @@ for defining agents, objects, update-closures, new registers, classes, methods, 
 
 (for-each load (map sym->scm '(units constants maths integrate matrix papersizes postscript glyphs)))
 ;; load the basic utilities postscript should (logically) come after
-;; the mathematical files ... it uses matrices and such
+;; the mathematical files ... it uses matrices and such.  
+;; Since the above are bodies of code used in other projects as well,
+;; we also load the Remodel specific file below which defines things
+;; that are project specific.
+;;(load "support.o1")
 
-;(load "support.o1")
+(load "remodel.scm") 
 
 (for-each load (map sym->scm '(basic-population))) ;; Assumes logistic growth, predation, mortality.  Good for grass ;-)
 (for-each load (map sym->scm '(remodel-declarations remodel remodel-classes))) ;; this provides very simple 'behaviours' and interactions

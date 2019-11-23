@@ -1,4 +1,4 @@
-framework
+remodel
 	= support-lib
 	  + utils.scm
 	  + units.scm
@@ -13,12 +13,12 @@ framework
 	  + postscript.scm
 		 + utils.scm
 	= sclos.scm
-	= framework-controls.scm
-	= framework-classes.scm
+	= remodel-controls.scm
+	= remodel-classes.scm
 	  + log-classes.scm
-	= framework-declarations.scm
+	= remodel-declarations.scm
 	  + log-declarations.scm
-	= framework-methods.scm
+	= remodel-methods.scm
 	  + log-methods.scm	
 	+ kernel.scm
 	  + postscript.scm

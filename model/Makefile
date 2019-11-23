@@ -24,15 +24,15 @@ CXXFLAGS = -g
 
 # These *must not* be put into the rewrite group else they get overwritten.  YOU HAVE BEEN WARNED!
 
-SCLOS = preamble.scm sort.scm utils.scm wildmatch.scm timer.scm sclos+extn.scm framework-declarations.scm framework.scm 'a*list.scm' 
+SCLOS = preamble.scm sort.scm utils.scm wildmatch.scm timer.scm sclos+extn.scm remodel-declarations.scm remodel.scm 'a*list.scm' 
 KERNEL = kdebug.scm kernel.scm
 #DECLARATIONS = landscape-declarations.scm diffeq-declarations.scm animal-declarations.scm plant-declarations.scm monitor-declarations.scm log-declarations.scm
-DECS = declarations.scm #framework-declarations.scm $(DECLARATIONS)
+DECS = declarations.scm #remodel-declarations.scm $(DECLARATIONS)
 
 # BEGIN REWRITE GROUP
 SUPPORT = units.scm constants.scm maths.scm integrate.scm matrix.scm papersizes.scm postscript.scm glyphs.scm oak.scm
-CLASSDECS = framework-classes.scm introspection-classes.scm monitor-classes.scm log-classes.scm diffeq-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
-CHASSIS = framework-wrappers.scm framework-methods.scm declarations.scm
+CLASSDECS = remodel-classes.scm introspection-classes.scm monitor-classes.scm log-classes.scm diffeq-classes.scm landscape-classes.scm plant-classes.scm animal-classes.scm 
+CHASSIS = remodel-wrappers.scm remodel-methods.scm declarations.scm
 INTROSPECTION =  introspection-methods.scm monitor-methods.scm log-methods.scm assessment-methods.scm
 DIFFEQ = basic-population.scm diffeq-methods.scm
 LANDSCAPE =  landscape-methods.scm
@@ -57,8 +57,8 @@ check: checks linecount-nc
 declarations.scm: $(DECLARATIONS) 
 	touch declarations.scm 
 	mv declarations.scm .declarations.scm;
-	echo '(include "framework")' > declarations.scm
-	cat $(DECLARATIONS) .declarations.scm | sort -k2 | uniq | egrep -v 'include "framework"' | egrep -v -e '^;'  >> declarations.scm
+	echo '(include "remodel-framework")' > declarations.scm
+	cat $(DECLARATIONS) .declarations.scm | sort -k2 | uniq | egrep -v 'include "remodel"' | egrep -v -e '^;'  >> declarations.scm
 	@echo ';;; Local Variables:' >> declarations.scm 
 	@echo ';;; mode: scheme' >> declarations.scm
 	@echo ';;; outline-regexp: ";-+"' >> declarations.scm
@@ -164,7 +164,7 @@ animal.o1: animal.o1.o
 	$(CC) -shared $(ANIMAL:.scm=.o) animal.o1.o -o animal.o1
 
 
-framework.o1: sclos.o1.o support.o1.o chassis.o1.o classdecs.o1.o mon-log.o1.o diffeq.o1.o landscape.o1.o plant.o1.o animal.o1.o kernel.o1.o
+remodel.o1: sclos.o1.o support.o1.o chassis.o1.o classdecs.o1.o mon-log.o1.o diffeq.o1.o landscape.o1.o plant.o1.o animal.o1.o kernel.o1.o
 	$(CC) -shared $(KERNEL:.scm=.o) 
 
 clean:

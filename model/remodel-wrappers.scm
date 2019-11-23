@@ -29,7 +29,7 @@
 "
 
 
-(include "remodel")
+(include "remodel-framework")
 
 ;;; (define (set-state-variables self args) ;;;
 ;;;   ;; args should be null or a list of the form ('tag value ...), ;;;

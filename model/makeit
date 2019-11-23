@@ -2,7 +2,7 @@
 
 gsc-script -track-scheme 
 sclos.scm
-framework.scm
+remodel.scm
 support-lib.scm
 utils.scm
 units.scm
@@ -13,11 +13,11 @@ matrix.scm
 
 postscript.scm
 basic-population.scm
-framework-controls.scm
-framework-classes.scm
-framework-declarations.scm
+remodel-controls.scm
+remodel-classes.scm
+remodel-declarations.scm
 
-framework-methods.scm
+remodel-methods.scm
 log.scm
 log-classes.scm
 log-declarations.scm

@@ -49,7 +49,7 @@
 
 ;-  Code 
 
-(include "remodel")
+(include "remodel-framework")
 ;; sclos.scm is included after the definition of (abstract-register ...) and a few 
 ;; instances of registers.
 

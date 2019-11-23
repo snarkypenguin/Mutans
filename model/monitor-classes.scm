@@ -28,7 +28,7 @@
 "
 
 ;-  Code 
-(include "remodel")
+(include "remodel-framework")
 
 ;; Monitors are derived from introspection since they really need to
 ;; be able to assess things in a temporally consistent way. The
