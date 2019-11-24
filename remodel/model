@@ -6,7 +6,7 @@
 ;; Omit the following or adjust them for local conditions, they are
 ;; needed for SLIB
 
-(setenv "GAMBIT_IMPLEMENTATION_PATH" "/usr/lib/gambit-c/")
+(setenv "GAMBIT_IMPLEMENTATION_PATH" "/usr/local/Gambit")
 (setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/")
 
 ;; SLIB can be a bit of a devil to set up.  You need to run something like
@@ -31,7 +31,7 @@
 ;; This loads the framework
 ;;(include "remodel-framework") ;; this is for the time-probe macros
 
-(load "loadem.scm")
+(include "remodel.scm")
 
 
 ;; Mention if slib is loaded

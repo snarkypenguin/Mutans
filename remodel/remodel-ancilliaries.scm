@@ -2,35 +2,33 @@
 ;-  Identification and Changes
 
 ;--
-;  remodel.scm -- Written by Randall Gray 
-;  Initial coding: 
-;     Date: 2016.07.26
-;     Location: remodel.scm
+;	remodel-ancilliaries.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2019.11.24
+;		Location: ponder:/home/randall/Remodel/remodel/remodel-ancilliaries.scm
 ;
-;  History:
+;	History:
 ;
-;  This has the "defined" bits, not just the macros.
-"
-    Copyright 2017 Randall Gray
 
-    This file is part of Remodel.
+;-  Copyright 
 
-    Remodel is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+;
+;   (C) 2019 Randall Gray
+;   All rights reserved
+;
 
-    Remodel is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+;-  Discussion 
 
-    You should have received a copy of the GNU General Public License
-    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"The functions and definitions in this file sort of sit between the
+'libraries' that I use in all sorts of other programs and the
+class-based code in Remodel. They also are part of a cohort that is
+likely to be extended model-to-model -- things like age-at-mass,
+growth functions and spatial domains and mappings are likely to have
+model-specific versions.
 "
 
-;-  Code 
-(include "remodel-framework")
+(include "remodel-framework")  ;; Just in case...
+
 
 
 (define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state queue-state)))
@@ -728,12 +726,10 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 ;-  The End 
 
 
-;; Local Variables: 
-;; comment-end: "" ;;
-;; comment-start: ";; " ;;
-;; mode: scheme ;;
-;; outline-regexp: ";-+" ;;
-;; comment-column: 0 ;;
-;; End:
-
-
+;;; Local Variables: 
+;;; comment-end: ""
+;;; comment-start: "; "
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column: 0
+;;; End:

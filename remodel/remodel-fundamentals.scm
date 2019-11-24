@@ -10,9 +10,13 @@
 ;     Date: 2016.07.26
 ;     Location: remodel.scm
 ;
+;  Precis: Provides some "schemey" extensions, some general functions used by a number of classes,
+;          defines some of the global variables that are mostly used in debugging and development,
+;          routines for mapping between different domain spaces (such as postscript "print-space",
+;          and various geographic domains, and a few other bits.
+
 ;  History:
 ;
-;  This has the "defined" bits, not just the macros.
 "
     Copyright 2017 Randall Gray
 
@@ -32,7 +36,6 @@
     along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
 "
 
-;; sclos.scm *must* be loaded before this file
 
 ;-  Discussion 
 "This file is included by remodel.scm -- which is the primary 'load' point.
@@ -121,8 +124,6 @@ Then
 (define adjust-grey #t) ;; used by agents feeding loggers for generating graphical output
 (define logger-tags '())
 (define (no-default-variables) '()) ;; used to indicate that there are no defaults 
-
-
 
 
 ;- Basic schemey routines.
