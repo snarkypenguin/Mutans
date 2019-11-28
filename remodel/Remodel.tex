@@ -1,0 +1,197 @@
+% -*- outline-regexp: "%--* ";  -*-
+\documentclass[a4]{article}
+%- Packages
+%% Unicode...
+% \usepackage{ucs}
+% \usepackage[utf8x]{inputenc}
+% \usepackage{textcomp}
+
+\usepackage{url,lineno}
+
+%-- Mathematics
+\usepackage{mathtools}
+% \usepackage{accents}
+\usepackage{amsmath}
+% \usepackage{amsthm}
+% \usepackage{amssymb}
+% \usepackage{mathtools}
+% \usepackage{enumitem}
+\usepackage{natbib}
+\usepackage{lmodern}
+
+%-- Algorithms
+\usepackage{algorithm}
+% \usepackage[defblank]{paralist}
+%% \usepackage{algorithmicx}
+\usepackage{algpseudocode}
+
+%-- Lists
+\usepackage[ampersand]{easylist}
+
+%-- Fonts
+\usepackage[T1]{fontenc}
+\usepackage{calligra}
+\usepackage{chancery}
+
+
+%- Flags, such as \linenumbers
+%%% Uncomment to use
+% \linenumbers
+
+
+%- Fonts
+\def\origrm{rmdefault}
+\renewcommand{\rmdefault}{origrm}
+
+\newcommand{\resetfonts}[0]{\fontencoding{\encodingdefault}\fontfamily{\familydefault}\fontseries{\seriesdefault}\fontshape{\shapedefault}\selectfont}
+\def\calli#1{{\calligra #1}}
+\def\chanc#1{{\renewcommand{\rmdefault}{pzc}\rm #1 \renewcommand{\rmdefault}{origrm}}}
+
+%- Maths alphabets
+\DeclareMathAlphabet{\mathsfsl}{OT1}{cmss}{m}{sl}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+
+%- Maths operators
+
+%- Load extra configuration before the newcommands 
+% \message{Loading Manifest ==========================================}
+% \input{manifest.tex}
+% \message{Finished Manifest =========================================}
+
+%- Environments
+
+\newenvironment{indented}{\begin{adjustwidth}{24pt}{}}{\end{adjustwidth}}
+
+%% declares the character degreesC (U+2103) to map to the \textcelsius function
+%% \DeclareUnicodeCharacter{"2103}{\textcelsius}
+
+% Newcommands
+\newcommand{\mt}[1]{\mathtt{#1}}
+\newcommand{\mB}[1]{\mathbb{#1}}
+\newcommand{\mb}[1]{\mathbf{#1}}
+\newcommand{\mf}[1]{\mathfrak{#1}}
+\newcommand{\mc}[1]{\mathpzc{#1}}
+% \newcommand{\mc}[1]{\mathcal{#1}}
+
+\newcommand{\filename}[1]{\texttt{#1}}
+\newcommand{\statevariable}[1]{\textit{#1}}
+\newcommand{\rclass}[1]{\textsf{<#1>}}
+\newcommand{\method}[1]{\textbf{\textit{#1}}}
+
+\newcommand{\landscape}[0]{\rclass{landscape}}
+\newcommand{\environment}[0]{\rclass{environment}}
+\newcommand{\ecoservice}[0]{\rclass{ecoservice}}
+\newcommand{\patch}[0]{\rclass{patch}}
+\newcommand{\patches}[0]{{\patch}es}
+\newcommand{\dynamicpatch}[0]{\rclass{dynamic-patch}}
+\newcommand{\dynamicpatches}[0]{{\dynamicpatch}es}
+\newcommand{\diffeqsystem}[0]{\rclass{diffeq-system}}
+\newcommand{\populationsystem}[0]{\rclass{population-system}}
+\newcommand{\polygonshape}[0]{\rclass{polygonshape}}
+\newcommand{\circleshape}[0]{\rclass{circleshape}}
+
+\newcommand{\extset}[0]{\method{extset!}
+\newcommand{\extget}[0]{\method{extget}
+
+
+\begin{document}
+\title[Remodel]{}
+
+% Some useful definitions...
+
+
+\section{Discussion of the model structure}
+
+\subsection{Landscape classes}
+The classes which represent the ``landscape'' of the model are
+ultimately related to the \environment class described in
+\filename{remode-classes.scm}. These classes would generally be
+responsible for representing physical componenets, such as the
+terrain, groundwater and surface water, but they may also be used to
+represent elements that might be referred to with mass-nouns, such as
+grass, forest or foliage.  
+
+This class maintains the physical boundaries of the environment
+(minimum and maximum values for spatial ordinates, a default spot
+height, an inner radius and an outer radius which can be used to speed
+``presence'' checks, and a ``representation'' which isi usually
+something like a polygon, a DEM or some similar object.
+
+The \landscape code consists mainly of a few classes.  Strictly
+speaking, a \landscape can include the terrain, and various
+\textit{attributes} which are characterised by numbers which can
+increase or decrease. The \textit{attributes} are usually encapsulated
+in \patches which are spatially anchored regions which (properly)
+should not overlap significantly.  There is ready support for
+rectangular and hexagonal regions that cover the the domain of the
+\landscape in a tesselation, though there are also circular
+representations which may be appropriate in simulations where complete
+coverage is not required -- these patch shapes obviously don't
+tesselate!  A terrain function is also supplied when creating a
+landscape. This function typically expects a locus and returns an
+altitude relative to the datum  the model.
+
+The attributes mentioned above are implemented as members of the
+\ecoservice class.  This is a class which basically maintains some
+``value'' associated with the patch, such as the biomass of grass, or
+the number of pademelons. It is able to act either as an agent
+maintaining the state of some environmental component or as a proxy
+for a set of other agents which should be treated as a group (perhaps
+a population of rabbits) using \extset and \extget calls. The
+water-table in a patch may be modelled using an ecoservice: its
+internal recharge model will cause the amount of available water to
+increase as a function of its natural recharge rate, while flora in
+the patch and local industry which extracts water will reduce the
+available water with appropriate calls to secure the water they need.
+Ecoservices keep track of the patches for which they are relevant and
+\textit{vis-a-versa}. Externally modelled components that are treated
+as ecoservices would be polled at the beginning of the ecoservice's
+slice of time in order to set the numeric \statevariable{value} slot
+in the \ecoservice agent, and at the end of the update step the
+corresponding values for the agents polled would be adjusted
+appropriately. 
+
+\patches maintain a list of their ecoservices, their spatial location
+and footprint, an optional ``caretaker'' function which is called at
+each timestep, a variable (\textit{notepad} containing a list which
+can be used for any cross-tick storage, and a list of the patch's
+neighbours. Neigbours in the list are represented by lists of the form
+'\textit{(neighbour-patchagent number | symbol \#!optional extras)}';
+the \textit{extras} component is not required and currently not used
+in any of the submodels.  The numeric second argument represents the
+``length'' of the boundary between the agent and its neighbour (which
+can be used to mediate the exchange between them).
+
+\dynamicpatches are derived from both \patch and \diffeqsystem and
+allows the patch to behave as an ensemble which is governed by a
+system of differential equations. Interactions between neigbouring
+sources and sinks for the ecoservices represented in the system are
+supported and worked into the dynamics of a timestep.
+
+There are also simple geometric classes that correspond to ``regions''
+such as \polygonshape and \circleshape; while squares and hexagons
+feature as tiles in a landscape, they are simply instances of
+\polygonshape.
+
+\subsubsection{Constructing landscapes}
+
+The declaration
+
+\begin{verbatim}
+  (define HeronIs 
+     (make <landscape>
+        'mname "Heron Island" 
+        'default-value (* 0.5 meters)
+        heron-dem-func
+
+        
+
+
+
+
+
+
+
+
+
+\end{document}
