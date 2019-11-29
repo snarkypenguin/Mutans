@@ -86,13 +86,13 @@
 
 
 (dnl "Defining Rob")
-(define Rob (create <F0> "testcase5" 'Crivens! 'needs-parent-initialisers (list <agent> <F0>)))
+(define Rob (make-agent <F0> "testcase5" 'Crivens! 'needs-parent-initialisers (list <agent> <F0>)))
 (dnl "Defining Hamish")
-(define Hamish (create <E0> "testcase3" "Nae King nor Quin!"))
+(define Hamish (make-agent <E0> "testcase3" "Nae King nor Quin!"))
 (dnl "Defining Callan")
-(define Callan (create <C0> "testcase1" "Gie orf!"))
+(define Callan (make-agent <C0> "testcase1" "Gie orf!"))
 (dnl "Defining Dimo")
-(define Dimo (create <D0> "testcase3" "Ho YEZ!"))
+(define Dimo (make-agent <D0> "testcase3" "Ho YEZ!"))
 
 (display "Rob Hamish Callan Dimo\n")
 

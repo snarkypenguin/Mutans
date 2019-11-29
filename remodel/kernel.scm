@@ -66,7 +66,7 @@
 
 ;; (q-insert Q rec reccmp) inserts the record "rec" into the queue "Q"
 ;; sorting records with "reccmp"
-;;; Call: (set! rq (q-insert rq (make <whatever> ...) Qcmp))
+;;; Call: (set! rq (q-insert rq (make-agent <whatever> ...) Qcmp))
 
 (include "remodel-framework")
 

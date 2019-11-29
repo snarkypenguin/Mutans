@@ -58,6 +58,11 @@
 ;(set! newline fake-newline)
 ;(set! ednl fake-ednl)
 
+(define definition-comments '()) ;; collects comments from the code
+
+
+(define %%%-time-register-%%% '()) ;; this records all the calls defined with define%, model-method% or model-body%
+
 (define warn <uninitialised>)
 (define (warning-log #!rest args)
   (if (eqv? warn <uninitialised>)

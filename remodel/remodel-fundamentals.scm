@@ -64,7 +64,6 @@ Then
 
 (define definition-comments '()) ;; collects comments from the code
 
-
 (define time-field-width 8)
 (define ps-default-margin 10) ;; implicitly mm NOTE
 

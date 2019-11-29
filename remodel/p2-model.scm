@@ -80,7 +80,7 @@
 
 (define _terrain_ (plane 0 0.11 0.11))
 
-(define habitat (make-habitat> "Kunlun" (list (list 0 0 300) (append A4domain (list 900)))
+(define habitat (make-landscape "Kunlun" (list (list 0 0 300) (append A4domain (list 900)))
 										 (lambda (x y) (abs (+  (* (- 120 x) (- x 60) (+ x 10))
 																 (* (- y 120) (- (* y x) 560) (+ y 80))
 																 )

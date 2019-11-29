@@ -77,6 +77,7 @@
 \newcommand{\statevariable}[1]{\textit{#1}}
 \newcommand{\rclass}[1]{\textsf{<#1>}}
 \newcommand{\method}[1]{\textbf{\textit{#1}}}
+\newcommand{\Function}[1]{\textbf{\slfamily{#1}}}
 
 \newcommand{\landscape}[0]{\rclass{landscape}}
 \newcommand{\environment}[0]{\rclass{environment}}
@@ -98,6 +99,18 @@
 \title[Remodel]{}
 
 % Some useful definitions...
+
+\section{Overview}
+
+\section{Extended \SCLOS}
+
+\SCLOS is an object system closely modelled on the Common Lisp Object
+System; this modelling framework uses \SCLOS with extensions to
+make it possible to keep track of each object and agent created, and
+guarantee that they have a unique identifier.  
+
+
+    
 
 
 \section{Discussion of the model structure}
@@ -152,15 +165,22 @@ corresponding values for the agents polled would be adjusted
 appropriately. 
 
 \patches maintain a list of their ecoservices, their spatial location
-and footprint, an optional ``caretaker'' function which is called at
-each timestep, a variable (\textit{notepad} containing a list which
-can be used for any cross-tick storage, and a list of the patch's
-neighbours. Neigbours in the list are represented by lists of the form
-'\textit{(neighbour-patchagent number | symbol \#!optional extras)}';
-the \textit{extras} component is not required and currently not used
-in any of the submodels.  The numeric second argument represents the
-``length'' of the boundary between the agent and its neighbour (which
-can be used to mediate the exchange between them).
+and footprint, a variable (\textit{notepad} containing a list which
+can be used for any cross-tick storage, a list of the patch's
+neighbours, and an optional ``caretaker'' function which is called at
+each timestep. Neighbours in the list are represented by lists of the
+form '\textit{(neighbour-patchagent number | symbol \#!optional
+  extras)}'; the \textit{extras} component is not required and
+currently not used in any of the submodels.  The numeric second
+argument represents the ``length'' of the boundary between the agent
+and its neighbour (which can be used to mediate the exchange between
+them).
+
+The footprints of the patches are represented either with \circle or
+\polygon objects, and the ecoservices are treated as being
+equally accessible over the whole region covered by the
+footprint, whether they are implemented withing the ecoservices or are
+external agents accessed through the \ecoservice agent.
 
 \dynamicpatches are derived from both \patch and \diffeqsystem and
 allows the patch to behave as an ensemble which is governed by a
@@ -176,17 +196,29 @@ feature as tiles in a landscape, they are simply instances of
 \subsubsection{Constructing landscapes}
 
 The declaration
-
 \begin{verbatim}
   (define HeronIs 
      (make <landscape>
-        'mname "Heron Island" 
+        'name "Heron Island" 
         'default-value (* 0.5 meters)
-        heron-dem-func
+        'minv (0 0 -5) 'maxv '(0 1000 122)
+        'terrain-function heronDEM
+        'patch-list (list southwest-heron southeast-heron
+                northwest-heron north-heron northeast-heron)
+     ))
+\end{verbatim}
+could also be expressed using the function \Function{make-landscape}
+like so:
+\begin{verbatim}
+   (define HeronIs (make-landscape "Heron Island" 0.5 domain heronDEM 
+      (list southwest-heron southeast-heron northwest-heron north-heron northeast-heron)
+      )
+\end{verbatim}
 
-        
-
-
+Both forms are provided because the first is more useful when the
+construction of the object is generated from a general configuration
+rather than hard coded.  There are similar constructors
+for some of the other major classes.
 
 
 

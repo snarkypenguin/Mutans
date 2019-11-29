@@ -31,6 +31,12 @@
 
 ;-  Code 
 
+"This file *does not* load a model, it only loads the infrastructure."
+
+(load "preamble.scm") ;; Loaded before everything else
+
+(load 'verbose)
+
 (define (sym->scm x) (let ((fn (string-append (symbol->string x) ".scm")))
 							  ;;(display fn)(newline)
 							  fn))
@@ -62,7 +68,7 @@
 (define all-classes-in-load-order
   (append
 	(map sym->scm '(basic-population)) ;; Assumes logistic growth, predation, mortality.  Good for grass ;-)
-	(map sym->scm '(remodel-declarations remodel remodel-classes)) ;; this provides very simple 'behaviours' and interactions
+	(map sym->scm '(remodel-declarations remodel-classes)) ;; this provides very simple 'behaviours' and interactions
 	(map sym->scm '(introspection-classes monitor-classes log-classes)) ;; classes which probe the state of other agents
 	(map sym->scm '(landscape-classes plant-classes animal-classes)) ;; main players
 	(map sym->scm '(remodel-wrappers remodel-methods))  ;; provides methods for things common to all participants 

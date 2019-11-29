@@ -29,7 +29,25 @@ model-specific versions.
 
 (include "remodel-framework")  ;; Just in case...
 
-
+(define (type-of x)
+  (cond
+	((null? x) 'null)
+	((list? x) 'list)
+	((class? x) (class-register 'type x))
+	((instance? x) (class-register 'type (class-of x)))
+	((zero? x) 0)
+	((integer? x) 'integer)
+	((rational? x) 'rational)
+	((and (number? x) (not (complex? x))) 'real)
+	((and (number? x) (complex? x)) 'complex)
+	((string? x) 'string)
+	((character? x) 'character)
+	((symbol? x) 'symbol)
+	((boolean? x) 'boolean)
+	((port? x) 'port)
+	((procedure? x) 'procedure)
+	((continuation? x) 'continuation)
+	((vector? x) 'vector)))
 
 (define (lookit-q a) (map (lambda (x) (x a)) (list taxon cnc subjective-time agent-state queue-state)))
 
@@ -156,9 +174,6 @@ model-specific versions.
 		  (let ((nlst (cons (apply f (list-head lst N)) (list (APPLY f (list-tail lst N))))))
 			 (APPLY  f nlst)))))
 
-;; this records all the calls defined with define%, model-method% or model-body%
-(define %%%-time-register-%%% '()) 
-
 (define time-field-width 8)
 (define ps-default-margin 10) ;; implicitly mm NOTE
 
@@ -270,10 +285,6 @@ model-specific versions.
 			 (pp lst)
 			 (abort 'uninitialised-slots lst)))
 	 ))
-
-
-
-(define definition-comments '()) ;; collects comments from the code
 
 
 ;; ;; basic projection -- scales both axes independently
@@ -602,27 +613,6 @@ The linear-map function constructs a linear mapping from a domain to a codomain
 (define adjust-grey #t) ;; used by agents feeding loggers for generating graphical output
 (define logger-tags '())
 (define (no-default-variables) '()) ;; used to indicate that there are no defaults 
-
-
-(define (type-of x)
-  (cond
-	((null? x) 'null)
-	((list? x) 'list)
-	((class? x) (class-register 'type x))
-	((instance? x) (class-register 'type (class-of x)))
-	((zero? x) 0)
-	((integer? x) 'integer)
-	((rational? x) 'rational)
-	((and (number? x) (not (complex? x))) 'real)
-	((and (number? x) (complex? x)) 'complex)
-	((string? x) 'string)
-	((character? x) 'character)
-	((symbol? x) 'symbol)
-	((boolean? x) 'boolean)
-	((port? x) 'port)
-	((procedure? x) 'procedure)
-	((continuation? x) 'continuation)
-	((vector? x) 'vector)))
 
 
 ;; Useful for growing things...

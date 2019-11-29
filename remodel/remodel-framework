@@ -856,7 +856,7 @@ will not have access to the kernel.
 																				(not (slot-ref self 'agent-body-ran)) ;; this ensures that the update only happens once per timestep
 																				(or (my 'no-model-body)
 																					 (eq? ,myclass (class-of self)) ;; this restricts the block to executing in the 'outermost'
-																					 ))                             ;; model body (that of the the first argument in the (create ...) call)
+																					 ))                             ;; model body (that of the the first argument in the (make-agent ...) call)
 																		 (begin
 																			;; DO NOT CHANGE THE SUBJECTIVE TIME -- it is handled in the "run" method in framework-methods.  If
 																			;; times are not being adjusted, it indicates that there is a break in the chaining back through parent model-bodies

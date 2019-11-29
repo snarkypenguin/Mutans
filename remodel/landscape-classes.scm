@@ -27,35 +27,28 @@
 ;-- Environmental things
 
 (define-class <ecoservice>
-  (inherits-from <agent>)
+  (inherits-from <service-agent>)
   (state-variables
-	running-externally ;; #t/#f
-	external-rep-list ;; used to point to external represetations (usually IBM/ABM)
-	;; The external representation list
-	ext-get  ;; the method or function to use to get data from a member of the external-rep-list
-	ext-set! ;; analogous to ext-get, but for setting the value of the member
-	name ;; Used in output
-	sym ;; symbol (possibly used in updates by other agents
 	patch ;; spatial agent associated with the ecoservice
-	value ;; current value of the ecoservice
 	capacity ;; maximum value of the ecoservice
 	r        ;; recovery rate parameter -- sharpness of  
 	         ;; transition in growth curve(sigmoid),
 	         ;; increase per unit of time (linear)
-	
-	delta-T-max ;; largest stepsize the ecoservice can accept
 	do-growth   ;; #t/#f 
 	growth-model ;; routine to effect growth of the form (f
 	;; t dt currentvalue)
-	history      ;; maintains  ((t value) ...)
 	))
 
-
-(Comment "An <ecoservice> typically stands for biogenic parts of the
-system (ground water), or a pool of plant/animal biomass.  In
-practice, it is any kind of quantity we might want to track -- numbers
-of pamphlet at kiosks, the number of unit length needles 
-touch parallel lines on an infinite xy-plane, each with integer x values....
+(Comment "Since the modellilng approach arose in the simulation of
+parts of an ecosystem, an <ecoservice> typically stands for biogenic
+components (ground water), or a pools of biomass.  In practice, these
+agents could represent any kind of quantity that is important to the
+system being simulated such as numbers of pamphlet at kiosks, the
+amount of free primary and secondary storage available for network
+nodes or the total number of available passenger seats on flights
+between cities, though using <service-agent> is likely to be more
+appropriate.  An optional ``caretaker'' function which is called at
+each timestep may also be specified.
 
 The update function is of the form (lambda (self t dt) ...)  where the
 args are specific things passed (like location, rainfall) and any
@@ -64,7 +57,7 @@ special growth functions 'sigmoidal and 'linear can be specified by
 passing the appropriate symbol.
 
 A typical construction of an ecoservice might look like
-(create <ecoservice> ecosrvtaxon
+(make-agent <ecoservice> ecosrvtaxon
   'patch P 
   'value 42000 
   'capacity +inf.0 
@@ -88,25 +81,25 @@ A typical construction of an ecoservice might look like
 
 
 (define-class <population-system>
-  (inherits-from <ecoservice>)
+ (inherits-from <ecoservice>)
   (state-variables
 	patch ;; spatial agent associated with the ecoservice
-	value ;; current value of the ecoservice
+ 	value ;; current value of the ecoservice
 	capacity ;; maximum value of the ecoservice
 	r        ;; recovery rate parameter (sharpness of
-	;; sigmoidal growth)
-	delta-T-max ;; largest stepsize the ecoservice can
-	;; accept
-	do-growth   ;; #t/#f 
-	growth-model ;; routine to effect growth of the form 
-	;;   (f t dt currentvalue)
-	history      ;; maintains  ((t value) ...)
-	))
+ 	         ;; sigmoidal growth)
+ 	delta-T-max ;; largest stepsize the ecoservice can
+	            ;; accept
+ 	do-growth ;; #t/#f 
+ 	growth-model ;; routine to effect growth of the form 
+	             ;;   (f t dt currentvalue)
+ 	history      ;; maintains  ((t value) ...)
+ 	))
 
 
 (define-class <polygon> (inherits-from <plottable>)  ;; not an agent
   (state-variables perimeter is-relative radius area)
-  )
+ )
 
 (define-class <circle> (inherits-from  <plottable>)  ;; not an agent
   (state-variables perimeter radius area)
@@ -134,7 +127,7 @@ A typical construction of an ecoservice might look like
 
 (Comment "A patch is a geographic region with a list of ecological
 services.  The representation (rep) is a spatial thingie.
-
+the state
 Adding a caretaker to a <patch> adds the ability to do
 processing of some sort at each timestep.")
 
@@ -161,14 +154,14 @@ differential equations which stand in the place of the simpler
 representation of patches with ecoservices.
 
 A straightforward instantiation of a <dynamic-patch> might look like
-  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 
+  (define P (make-agent <dynamic-patch> ptax 'location loc 'radius radius 
                   'representation 'patch 
                   'do-growth #f 'do-dynamics #t
                   'population-definitions 
 						  (list (list \"plants\" 'plant dplant/dt) 
                          ... (list \"spiders\" spider dspider/dt)) ))
 or 
-  (define P (create <dynamic-patch> ptax 'location loc 'radius radius 
+  (define P (make-agent <dynamic-patch> ptax 'location loc 'radius radius 
           'representation 'patch 
           'do-growth #f 'do-dynamics #t
           'population-names 

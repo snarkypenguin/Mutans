@@ -1012,9 +1012,7 @@ the corpus.
 	(#t #f)))
 
 ;--- (define (make-object class #!rest initargs)
-(define (make-object class #!rest initargs)
-  ;;(dnl "**** entering make-object ****")
-  (error "You need to use (create- <object-class-of-some-sort>)" class initargs)
+(define (make-object% class #!rest initargs)
   (let ((instance (if #f
 							 (allocate-instance class)
 							 (apply make (cons class (initargs))))))
@@ -1029,8 +1027,7 @@ the corpus.
 
 ;--- (define (make-agent class . initargs)
 
-(define (make-agent class #!rest initargs)
-  (error "You need to use (create <agent-class-of-some-sort>)" class initargs)
+(define (make-agent% class #!rest initargs)
   (let ((instance (apply make-object (cons class initargs))))
 	 (if use-agent-register (agent-register 'add instance class))
 	 (if (or (eqv? (slot-ref instance 'name) <uninitialised>)
@@ -1217,9 +1214,9 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 (define last-object-classes-used #f)
 
 
-;; Both create and create- make <objects> and things derived from <object>
+;; Both create and create-object make <objects> and things derived from <object>
 ;; This version does not apply a taxon specific initialisation
-(define (create- class #!rest statevars)
+(define (make-object class #!rest statevars)
   (let ((kdebug (if #t kdebug dnl*))
 		  )
 	 (if (and (= (length statevars) 1) (list? (car statevars)))
@@ -1257,7 +1254,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 			)
 		 (append (reverse the-classes) (list (class-of instance)))) ;; run from most general to most specific
 
-		(set-state-variables instance statevars) ;; these come from the create call...
+		(set-state-variables instance statevars) ;; these come from the make call...
 		(if (kdebug? 'initialisation) (dumpslots instance))
 		instance
 		))
@@ -1266,10 +1263,14 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 
 ;; We define things this way so that each agent gets a unique serial number
 ;; which may be useful for making identifiers unique.
-(define create
+(define make-agent
   (let* ((S/N 0)
 			(CREATE
-			 (lambda (class taxon #!rest statevars) 
+			 (lambda (class #!optional (taxon 'fail) #!rest statevars)
+				(if (not (member <agent> (parent-classes class)))
+					 (error "Use make-object to create <objects> that are not <agents>" class taxon))
+				(if (eq? taxon 'fail)
+					 (error "Missing 'taxon' string in attempt to make an agent" class))
 				(if (and (= (length statevars) 1) (list? (car statevars)))
 					 (set! statevars (car statevars)))
 				(if (not (string? taxon))
@@ -1279,7 +1280,7 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 						(dnl* "and this is treated as a fatal error." class taxon)
 						(abort)))
 
-				(let* ((instance (create- class statevars))
+				(let* ((instance (make-object class statevars))
 						 )
 				  (slot-set! instance 's/n S/N)
 				  (set! S/N (+ S/N 1))
@@ -1311,7 +1312,8 @@ of entities within the model isn't really an issue w.r.t. the model at all."
 				  ;;(initialise instance) This is done in the prep-agent routine.
 				  instance
 				  )
-				)))
+				))
+			)
 	 CREATE))
 
 ;-  The End 

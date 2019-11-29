@@ -78,7 +78,7 @@
 
 (model-body% <simple-metabolism>
 				  ;;	(no-parent-body)
-				  (if (<= (my 'counter) 0) ;; counter is initialised in (create ...) and updated in (run-agent ...)
+				  (if (<= (my 'counter) 0) ;; counter is initialised in (make-agent ...) and updated in (run-agent ...)
 						'ok
 						)
 
@@ -942,7 +942,7 @@ with the following differences:
 ;; 			 (let ((males (kernel 'location  (my 'location) (lambda (x) (and (isa? x <acarn>) (eq? (slot-ref x 'sex) 'male))) (my 'search-radius)))
 ;; 					 )
 ;; 				(if (pair? males)
-;; 					 (set-my! offspring (create <acarn> (my 'taxon)
+;; 					 (set-my! offspring (make-agent <acarn> (my 'taxon)
 ;;                                            'age (my 'age-at-instantiation)
 ;; 														 'mass (magnitude ((my 'mass-at-age) 0))
 ;; 														 'sex (if (odd? (random-integer 3)) 'male 'female)
@@ -961,7 +961,7 @@ with the following differences:
 (model-body% <acarn>
   (let ((parent-returns (call-parents <example-animal>)))
 ;;	 (dnl* (cnc self) "model-body")
-	 ;;; (if (<= (my 'counter) 0) ;; counter is initialised in (create ...) and updated in (run-agent ...)
+	 ;;; (if (<= (my 'counter) 0) ;; counter is initialised in (make-agent ...) and updated in (run-agent ...)
 	 ;;; 	  (begin
 	 ;;; 		 ))
 	 
@@ -1030,7 +1030,7 @@ with the following differences:
 							current-interest prey-list
 							)
 				 )
-  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-animal> (my 'taxon))))
+  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (make-agent <example-animal> (my 'taxon))))
   )
 
 ;-  The End 

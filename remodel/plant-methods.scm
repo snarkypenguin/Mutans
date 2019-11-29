@@ -1178,7 +1178,7 @@ g					The 'self' object must necessarily be a member of one of these lists, and 
 
   (slot-set! self 'data-names '(state mass peak-mass age location leaf-area forage-damage water-stress domain last-reproduced))
 
-  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (create <example-plant> (my 'taxon))))
+  (if (uninitialised? (slot-ref self 'test-subject)) (slot-set! self 'test-subject (make-agent <example-plant> (my 'taxon))))
   (if (uninitialised? (slot-ref self 'lai)) (slot-set! self 'lai (numeric-parameter-lookup <> (my 'taxon) 'lai)))
   )
 

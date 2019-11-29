@@ -156,18 +156,18 @@
 
 ;----- (dump) ;; This dumps all the slots from agent up.  
 
-;(model-method <agent> (dump% self)
+;(model-method <agent> (dump% self maxtick)
 ;				  (dump% self 0))
 
-(model-method (<object>) (dump% self count)
+(model-method (<object>) (dump% self spaces) ;; spaces indecates the indentation
 				  (set! count (cond
-									((number? count) count)
-									((not (pair? count)) 0)
+									((number? count) spaces)
+									((not (pair? spaces)) 0)
 									(#t (car count))))
 				  (let* ((slots (class-slots-of self))
 							(vals  (map (lambda (x) (slot-ref self x)) slots)))
 					 (for-each (lambda (x y)
-									 (display (make-string count #\space))
+									 (display (make-string spaces #\space))
 									 (display "[")
 									 (display x) (display ": ")
 									 (display y)(display "]")(newline))
@@ -955,6 +955,9 @@ bounding box (ll ur). This mapping fits the o-domain by contraction.
 				  )
 
 
+
+
+
 (define (local->model self location)
   (let ((p (slot-ref self 'local->model)))
 	 (if (and (pair? p) (procedure? (cdr p)))
@@ -1568,7 +1571,7 @@ subsidiary-agent list.  Use ACTIVE or INACTIVE ")
 		  (loci (map (lambda (x) (list (random-integer n)(random-integer n))) (seq n)))
 		  (values (map (lambda (x) (+ n (random-integer n))) (seq n)))
 		  )
-	 (create <general-array> "" 'data-names '(radius location value) 'data (map (lambda (r l v) (list r l v)) radii loci values))
+	 (make-agent <general-array> "" 'data-names '(radius location value) 'data (map (lambda (r l v) (list r l v)) radii loci values))
 	 ))
 
 (model-method% (<general-array> <symbol>) (has-data? self k) ;; returns the data-name symbol if there is a data element, #t if it is a slot and # if neither
@@ -2389,9 +2392,9 @@ A typical defns list would be like
 			 (map
 			  (lambda (ix)
 				 (if (member 'domain data-names)
-					  (create (slot-ref A 'proxy-class) (slot-ref A 'taxon) 'domain patch-list
+					  (make-agent (slot-ref A 'proxy-class) (slot-ref A 'taxon) 'domain patch-list
 								 'super A 'ix ix 'record (list-ref (slot-ref A 'data) ix) 'data-names data-names)
-					  (create (slot-ref A 'proxy-class) (slot-ref A 'taxon)
+					  (make-agent (slot-ref A 'proxy-class) (slot-ref A 'taxon)
 								 'super A 'ix ix 'record (list-ref (slot-ref A 'data) ix) 'data-names data-names)
 				 ))
 			  (seq (length data)))
@@ -2953,6 +2956,268 @@ A typical defns list would be like
 ;;				(call-all-parents)
 				'ok
 				)
+
+
+;; --- <service-agents>
+
+;; (define sa (make-agent <service-agent> 'name "Wally" 'value 42 'sym 'blargh 'delta-T-max 240))
+(define (make-service-agent printname symbol val max-dt #!optional extern-get extern-set! external-agents)
+  (make-agent <service-agent> 'name printname 'sym symbol 'value val 'delta-T-max max-dt 'ext-get! extern-get 'ext-set! extern-set! 'external-rep-list external-agents)
+  )
+
+
+(model-method (<service-agent>) (symbol self) ;; service-agents can *only* provide their single service
+				  (slot-ref self 'sym))
+
+(model-method (<service-agent>) (provides? self sym)
+				  (service? self sym))
+
+(model-method (<service-agent> <symbol>) (service? self sym)
+				  (or (eqv? (my 'sym) sym) (eqv? (my 'name) sym)))
+
+(model-method (<service-agent> <pair>) (service? self symlist)
+				  (or (member (my 'sym) symlist) (member (my 'name) symlist)))
+
+(model-method (<service-agent>) (value self)
+				  (if (not (and (slot-ref self 'running-externally)
+									 (pair? (slot-ref self 'external-rep-list))
+									 (slot-ref self 'ext-get)))
+						(my 'value)
+						(let ((accumulator 0))
+						  (apply + 
+									(map
+									 (lambda (x)
+										((slot-ref self 'ext-get) x)
+										)
+									 (slot-ref self 'external-rep-list))
+						  ))
+						)
+				  )
+(model-method (<service-agent>) (set-value! self val)
+				  (set-my! 'value val)
+				  (let ((asa (my 'active-subsidiary-agents)))
+					 (if (pair? asa) 
+						  (let ((L (length asa)))
+							 (for-each
+							  (lambda (a)
+								 (UNFINISHED-BUSINESS "This is primitive and clunky")
+								 (slot-set! a 'value  (/ val L))) 
+							  asa))
+						  ))
+				  )
+
+
+(model-method (<service-agent> <log> <symbol>) (log-data self logger format targets)
+				  (dnl* "(model-method (<service-agent> <log> <symbol>) (log-data self logger format targets)")
+				  (let ((kdebug (if #t kdebug dnl*))
+						  ;;(f (if (pair? args) (car args) #f))
+						  ;;(p (if (and (pair? args)
+						  ;;			  (pair? (cdr args)))
+						  ;;		(cadr args)
+						  ;;		#f))
+						  )
+					 (kdebug '(log-horrible-screaming service-agent log-service-agent) (cnc self) (cnc format) (cnc (my 'name)))
+					 (if (or (my 'always-log) (and (member format '(ps)) (my 'always-plot)) (emit-and-record-if-absent logger self (my 'subjective-time)))
+						  (let ((file (slot-ref logger 'file)))
+							 (kdebug '(log-* log-service-agent)
+										"[" (my 'name) ":" (cnc self) "]"
+										"in log-data")
+							 (let ((leading-entry #f))
+								(for-each
+								 (lambda (field)
+									(kdebug '(log-* log-service-agent) "[" (my 'name) ":"
+											  (cnc self) "]" "checking" field)
+									(if (has-slot? self field)
+										 (let ((r (slot-ref self field)))
+
+											(case format
+											  ((ps)
+												(file 'push-font (my 'default-font) (my 'default-size))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "["))
+												(file 'show (string-append " "
+																					(if (string? r)
+																						 r
+																						 (object->string r)) " "))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "]"))
+												(file 'pop-font)
+												)
+;								 ((dump)
+;								  (with-output-to-port file
+;										(lambda ()
+;										  (dump self))))
+
+											  
+											  ;;; ((text table dump)
+											  ;;; 	(let ((S (with-output-to-string '()
+											  ;;; 											  (lambda ()
+											  ;;; 												 (let ((show-field-name
+											  ;;; 														  (slot-ref logger 'show-field-name))
+											  ;;; 														 (missing-val
+											  ;;; 														  (slot-ref logger 'missing-val))
+											  ;;; 														 )
+											  ;;; 													(if show-field-name
+											  ;;; 														 (begin
+											  ;;; 															(if leading-entry 
+											  ;;; 																 (display " ")
+											  ;;; 																 (set! leading-entry #t))
+											  ;;; 															(display field)))
+																								
+											  ;;; 													(let ((val (if (eqv? field 'name) 
+											  ;;; 																		(if (slot-ref self 'patch)
+											  ;;; 																			 (string-append
+											  ;;; 																			  (slot-ref
+											  ;;; 																				(slot-ref self 'patch) 
+											  ;;; 																				'name) ":" (name self))
+											  ;;; 																			 (name self))
+											  ;;; 																		(if (has-slot? self field)
+											  ;;; 																			 (slot-ref self field)
+											  ;;; 																			 (slot-ref logger
+											  ;;; 																						  'missing-val)))))
+											  ;;; 													  (if leading-entry 
+											  ;;; 															(display " " file)
+											  ;;; 															(set! leading-entry #t))
+											  ;;; 													  (display val))
+											  ;;; 													)
+											  ;;; 												 )
+											  ;;; 											  )))
+												  
+											  ;;; 	  (display S file)))
+											  ((text table dump)
+												(let ((show-field-name
+														 (slot-ref logger 'show-field-name))
+														(missing-val
+														 (slot-ref logger 'missing-val))
+														)
+												  (if show-field-name
+														(begin
+														  (if leading-entry 
+																(file 'show " ")
+																(set! leading-entry #t))
+														  (file 'show field)))
+												  
+												  (if (and (my 'always-log) (< t (my 'subjective-time)))
+														(file 'show "["))
+												  (let ((val (if (eqv? field 'name) 
+																	  (if (slot-ref self 'patch)
+																			(string-append
+																			 (slot-ref
+																			  (slot-ref self 'patch) 
+																			  'name) ":" (name self))
+																			(name self))
+																	  (if (has-slot? self field)
+																			(slot-ref self field)
+																			(slot-ref logger
+																						 'missing-val)))))
+													 (if leading-entry 
+														  (file 'show " ")
+														  (set! leading-entry #t))
+													 (file 'show val))
+												(if (and (my 'always-log) (< t (my 'subjective-time)))
+													 (file 'show "]"))
+												  
+												  )
+												)
+											  
+											  (else
+												(kdebug '(log-* log-service-agent)
+														  "[" (my 'name) ":" (cnc self) "]"
+														  "Ignoring " field " because I don't have it")
+												'ignore-unhandled-format)))
+										 (begin
+											(kdebug '(log-* log-service-agent)
+													  "[" (my 'name) ":" (cnc self) "]"
+													  "no service" field)
+											#f)))
+								 (uniq (if #t
+											  targets
+											  (filter (not-member (slot-ref logger 'dont-log))
+														 targets)))
+								 )
+								(file 'newline)
+								)
+							 )
+						  )
+					 )
+				  )
+
+
+(model-method <service-agent> (dump% self count)
+				  (display (make-string count #\space))
+				  (display "<service-agent>\n")
+
+				  (let* ((slots (class-slots-of self))
+							(vals  (map (lambda (x) (slot-ref self x)) slots)))
+					 (for-each (lambda (x y) 
+									 (display (make-string (+ 2 count) #\space))
+									 (display x)
+									 (display ": ")
+									 (display y)
+									 (newline))
+								  slots vals)))
+
+
+(model-method <service-agent> (number-represented self)
+				  (slot-ref self 'value))
+
+;---- query & set
+
+(define (ext-get-func self)
+  (lambda (other)
+	 (cond
+	  ((eqv? (slot-ref other 'sym) (slot-ref self 'sym)) (value other))
+	  (#f 0)
+	  (#t (error "bad request to external service-agent agent"))))
+  )
+
+(define (ext-set!-func self v)
+  (lambda (other)
+	 (cond
+	  ((eqv? (slot-ref other 'sym) (slot-ref self 'sym)) (set-value! other v))
+	  (#f 0)
+	  (#t (error "bad request to external service-agent agent"))))
+  )
+
+(define (ext-add!-func self v)
+  (lambda (other)
+	 (cond
+	  ((eqv? (slot-ref other 'sym) (slot-ref self 'sym)) (add! other v))
+	  (#f 0)
+	  (#t (error "bad request to external service-agent agent"))))
+  )
+
+(model-method (<service-agent>) (add! self val)
+				  (let ((v (my 'value))
+						  (asa (my 'active-subsidiary-agents)))
+					 (if (number? v)
+						  (begin
+							 (set-my! 'value (+ v val) )
+							 (if (pair? asa) 
+								  (let ((L (length asa)))
+									 (for-each
+									  (lambda (a)
+										 (slot-set! a 'value  (+ (slot-ref a 'value) (/ val L))) )
+									  asa))
+								  ))
+						  (abort "service-agent:add!: value is not a number")
+						  )))
+
+
+(model-body% <service-agent>
+						(kdebug '(model-bodies ecoservice-running) (cnc self) (my 'name)  "@"  t)
+						(let ((h (slot-ref self 'history)))
+						  (if h
+								(slot-set! self 'history
+											  (cons (cons t (my 'value)) h)))
+						  )
+						
+						;;(dnl* (my 'name) (my 'sym) (my 'value))
+
+						(call-all-parents) ;; chain to <agent>
+						;;(parent-body)
+						dt
+						)
 
 
 ;---- environment methods

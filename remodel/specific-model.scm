@@ -375,7 +375,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 				 '())
 				((onetree)
 				 (list
-				  (create <example-plant> ptax
+				  (make-agent <example-plant> ptax
 							 'age (* 36 years)
 							 'age-at-instantiation (* 36 years)
 							 'location domain-centre
@@ -389,7 +389,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 						 (n (inexact->exact (truncate (/ (length Loci) 2)))))
 					(dnl* "Making" k "trees:" n "as <plant-array> vectors," (- k n) "as <plants>")
 					(cons 
-					 (create <plant-array> ptax
+					 (make-agent <plant-array> ptax
 						'provides '(vegetation)
 									
 						;; this *should* come from the parameter file
@@ -410,14 +410,14 @@ on for a chain with a lenght equal to the number of cells we are using.
 													area damage 0.0 (cadr loc) 0)))
 									  (list-tail Loci n)))
 					 (map (lambda (x) ;; x marks the spot
-							  (create <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x)
+							  (make-agent <example-plant> ptax 'location (car x) 'domain (cadr x) 'domain (cadr x)
 										 'plot-scale PLOT-SCALE)
 							  ) ;; mass is set using the mass-at-age function in the agent-prep stage
 							(list-head Loci n))
 					 ))
 				 )
 				((array)
-				 (list (create <plant-array> ptax
+				 (list (make-agent <plant-array> ptax
 									'provides '(vegetation)
 									
 									;; this *should* come from the parameter file
@@ -435,7 +435,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 				
 				(else
 				 (map (lambda (x) ;; x marks the spot
-						  (let ((p (create <example-plant> ptax 'location (car x)
+						  (let ((p (make-agent <example-plant> ptax 'location (car x)
 												 'domain (cadr x) 'domain (cadr x)
 												 'plot-scale PLOT-SCALE)
 									  ))
@@ -537,7 +537,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-jherb
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
+			 (let ((a (make-agent <jherb> "juvenile-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
 							 'plot-scale PLOT-SCALE
 									))
 					 )
@@ -554,7 +554,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-aherb
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
+			 (let ((a (make-agent <aherb> "adult-herbivore" 'name (serial-number "herbivore") 'sex (if (odd? (random-integer 5)) 'male 'female)
 							 'plot-scale PLOT-SCALE
 									))
 					 )
@@ -572,7 +572,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 	(if use-acarn
 		 (for-each
 		  (lambda (i)
-			 (let ((a (create <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)
+			 (let ((a (make-agent <acarn> "carnivore" 'name (serial-number "carnivore") 'sex (if (odd? (random-integer 3)) 'male 'female)
 							 'plot-scale PLOT-SCALE
 									))
 					 )
@@ -608,7 +608,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define sdlog
   (if #t
-		(let ((sdlog (create <log-data> "service-logger" 'filename "service-data" 'format 'text
+		(let ((sdlog (make-agent <log-data> "service-logger" 'filename "service-data" 'format 'text
 									;;'file (current-output-port)
 									;; Recall: internally time---end for example---is in seconds.
 									;;		 'timestep-schedule (map (lambda (x) (* x day)) (seq (+ 1 (/ end day)))) 
@@ -623,7 +623,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define adlog
   (if (and #t (or use-jherb use-aherb use-acarn))
-		(let ((adlog (create <log-data> "animal-logger" 'filename "animal-data" 'format 'text
+		(let ((adlog (make-agent <log-data> "animal-logger" 'filename "animal-data" 'format 'text
 									'dt (* 4 hours)
 									'variables (list 'subjective-time 'name 'agent-state 'age 'mass 'location 'direction 'sated-time 'period-of-hunger)
 									'introspection-targets (list <animal>))))
@@ -635,7 +635,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 
 (define tdlog
   (if (and #t use-plants)
-		(let ((tdlog (create <log-data> "tree-logger" 'filename "tree-data"
+		(let ((tdlog (make-agent <log-data> "tree-logger" 'filename "tree-data"
 									;;'file (current-output-port)
 									;; Recall: internally time---end for example---is in seconds.
 									;;			 'timestep-schedule (map (lambda (x) (* x day)) (seq (+ 1 (/ end week))))
@@ -654,7 +654,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 		;;                                       model  page  margin                           
 		(let ((mapping (map:domain-to-postscript Domain isoA4 10))) ;; NOTE page dimensions are *always* specified in mm.
 		  (let ((pslog
-					(create <log-map> "map-maker" 'filename "domain-map.ps" 'format 'ps
+					(make-agent <log-map> "map-maker" 'filename "domain-map.ps" 'format 'ps
 							  ;; Recall: internally time---end for example---is in seconds.
 							  ;;			 'timestep-schedule (map (lambda (x) (* x 4 weeks)) (seq (+ 1 (/ end (* 4 weeks)))))
 							  'model->local mapping

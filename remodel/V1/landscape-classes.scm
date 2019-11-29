@@ -3,6 +3,14 @@
 ;--
 ;	landscape-classes.scm -- Written by Randall Gray 
 
+;-- Reminders:
+"
+Calls to make-class take two lists and are of the form
+
+  (make-class direct-parent-class-list class-slot-name-list)
+
+"
+
 ;-  Code 
 
 ;-- Environmental things

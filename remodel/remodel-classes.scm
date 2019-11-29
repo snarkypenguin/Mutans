@@ -130,8 +130,23 @@ direction"
 
 ;***************   Remember, <agent> is defined in sclos+extn.scm   ***************
 
-
-
+(define-class <service-agent>
+  (inherits-from <agent>)
+  (state-variables
+	running-externally ;; #t/#f
+	external-rep-list ;; used to point to external represetations (usually IBM/ABM)
+	;; The external representation list for external agents that comprise the service
+	;; -- this is often #f for things like "grass" or "water" since the ecoservice is
+	;;    modelled entirely within this agent
+	ext-get  ;; the method or function to use to get data from a member of the external-rep-list
+	ext-set! ;; analogous to ext-get, but for setting the value of the member
+	name ;; Used in output
+	sym ;; symbol (possibly used in updates by other agents
+	value ;; current value of the ecoservice
+	delta-T-max ;; largest stepsize the ecoservice can accept
+	history      ;; maintains  ((t value) ...)
+	))
+					  
 
 
 
