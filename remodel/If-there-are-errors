@@ -1,0 +1,46 @@
+First, check that the interpreter is loading correctly.
+
+Make sure that all of the listed dependencies are accessible and where Remodel is
+looking for them -- SLIB is probably the most fractious in that it isn't part of
+the Remodel package. I load it like so:
+
+-------------------------------------  .gambini  -------------------------------------
+;; -*- mode: scheme; -*-
+(define *scheme-version* "gambit")
+(define *initial-directory* (current-directory))
+(define **getenv** getenv)
+
+;; This macro is gambit specific
+(define-macro (defined? sym)
+  (let ((sym (if (and (list? sym) (symbol? (cadr sym))
+							 (cadr sym))
+					  (cadr sym)
+					  sym)))
+	 `(let ((handler (lambda (exc)
+							 (if (unbound-global-exception? exc)
+								  #f  ;;; (unbound-global-exception-variable exc)
+								  #t)))
+			  )
+		 (if (not #t) ;; we want #f to be "defined"
+			  #t
+			  (with-exception-handler handler (lambda () ,sym)))))
+	 )
+
+
+(load "/etc/scheme.rc")
+(define getenv **getenv**)
+
+(require 'srfi-1)
+
+(current-directory *initial-directory*) ;; revert any directory changes occurring in scheme.rc
+
+(define (make-sequence gen m Mx . step)
+  (set! step (if (null? step) 1 (car step)))
+  (if (< (* step Mx) (* step m)) 
+      '() 
+      (cons (gen m) (make-sequence gen (+ m step) Mx step))))
+
+--------------------------------------------------------------------------------------
+
+The defined? macro is important too, but it is likely to vary with scheme implementations.
+
