@@ -51,9 +51,29 @@
 
 ;-  Code 
 
+;--- Remember the primitives
+
+(define default-implementation-arithmetic-operator 
+  (let ((originals (list (cons '+ +) (cons '- -) (cons '* *) (cons '/ /)))
+		  )
+	 (lambda (sym)
+		(let ((r (assoc sym originals)))
+		  (if r (cdr r) #f)))))
+
 
 ;; For constants that do not fit in the maths.scm or units.scm files.
 ;; Note: uninitialised and <uninitialised> are defined in preamble.scm.
+
+;;Format            Total bits 	Significand bits   Exponent bits  Smallest number    Largest number
+;;Single precision          32 	23 + 1 sign             8 	        ~ 1.2*10^-38       ~ 3.4*10^38
+;;Double precision          64 	52 + 1 sign            11          ~ 2.2*10^-308 	   ~ 1.8*10^308
+
+(define min32bitdouble 1.2e-38)
+(define max32bitdouble 3.4e38)
+(define max64bitdouble 1.8e8)
+(define min64bitdouble 2.2e-308)
+
+
 
 ;-  The End 
 

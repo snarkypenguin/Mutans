@@ -63,6 +63,24 @@
 			(q (/ (- (F (+ x eps)) (F (- x eps))) (* 2 eps))))
 	 q))
 				
+(define (d/dx F a b ss)
+  (if (> a b)
+		(d/dx F b a ss)
+		(begin
+		  (set! ss (/ ss 12))
+		  (let* ((indices (seq (inexact->exact (truncate (+ 1 (/ (- b a) ss))))))
+					(ordinates (map (lambda (x)
+										(+ a (* x ss))
+										)
+										 indices))
+					(d (map (lambda (x) (derivative F x)) ordinates))
+					)
+			 (pwl (map list ordinates d))))))
+								 
+
+
+
+
 
 
 (define (inner-adaptive-integrate f a b eps estimate fa fc fb k)
@@ -102,16 +120,16 @@
 ;;(integrate% function lowerbound upperbound tolerance ignored-stepsize #!optional maxdepth)
 ;;(integrate* function lowerbound upperbound tolerance stepsize #!optional maxdepth)
 
-(define (integrate f a b eps . k)
+(define (integrate f a b eps . k) ;; calls the adaptive integrate code
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (adaptive-integrate f a b eps k)
   )
 
-(define (integrate% f a b eps ignore-ss . k)
+(define (integrate% f a b eps ignore-ss . k) ;; identical to (integrate f a b eps . k), but requires an ignored step size
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate f a b eps k))
 
-(define (integrate* f a b eps ss . k)
+(define (integrate* f a b eps ss . k) ;; requires a step size
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (if (zero? ss) 
 		(integrate f a b eps k)
@@ -132,20 +150,20 @@
 
 ;; a is the lower left corner of a rectangular domain, b is the upper right corner
 
-(define (integrate2d func a b eps . k)
+(define (integrate2d func a b eps . k) ;; no stepsize specified
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate (lambda (x) (integrate (lambda (y) (func (list x y))) (cadr a) (cadr b) eps)) (car a) (car b) eps))
 
-(define (integrate2d* func a b eps ss . k)
+(define (integrate2d* func a b eps ss . k) ;; requires a step size
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate* (lambda (x) (integrate* (lambda (y) (func (list x y))) (cadr a) (cadr b) eps ss k)) (car a) (car b) eps ss k))
 
 
-(define (integrate2d% f a b eps ignore-ss . k)
+(define (integrate2d% f a b eps ignore-ss . k) ;; requires step size, but ignores it and uses adaptive integration
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate2d f a b eps k))
 
-(define (integrate2d%* f a b eps ss . k)
+(define (integrate2d%* f a b eps ss . k) ;; uses adaptive integration on the first ord, second uses step size
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate% (lambda (x) 
 					 (integrate* 
@@ -155,7 +173,7 @@
   )
 
 
-(define (integrate2d*% f a b eps ss . k)
+(define (integrate2d*% f a b eps ss . k) ;; uses adaptive integration on the first uses step size, second ord
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate* (lambda (x) 
 					 (integrate%
@@ -165,7 +183,7 @@
   )
 
 
-(define (integrate2d** f a b eps ss . k)
+(define (integrate2d** f a b eps ss . k) ;; uses adaptive integration.
   (set! k (if (null? k) MAX-DEPTH (if (pair? k) (car k) k)))
   (integrate* (lambda (x) 
 					 (integrate* 

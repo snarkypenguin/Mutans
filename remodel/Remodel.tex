@@ -94,6 +94,10 @@
 \newcommand{\extset}[0]{\method{extset!}
 \newcommand{\extget}[0]{\method{extget}
 
+\newcommand{\make}[0]{\Function{make}}
+\newcommand{\makeagent}[0]{\Function{make-agent}}
+\newcommand{\makeobject}[0]{\Function{make-object}}
+
 
 \begin{document}
 \title[Remodel]{}
@@ -105,9 +109,22 @@
 \section{Extended \SCLOS}
 
 \SCLOS is an object system closely modelled on the Common Lisp Object
-System; this modelling framework uses \SCLOS with extensions to
-make it possible to keep track of each object and agent created, and
-guarantee that they have a unique identifier.  
+System (\CLOS); \Remodel uses \SCLOS with extensions: agents are a
+special kind of object, and require a significant amount of
+infrastructure that objects do not need, such as the ability to run
+the agent's ``model body'' which simulates its activity through a
+timestep. Where \SCLOS provides the \make function, \Remodel also
+provides \makeagent and \makeobject. The extensions provide features
+which a simple \SCLOS object does not have, such as unique object
+identifiers, infrastructure which allows agents to run, communicate
+with each other and with the kernel, and to migrate to different
+representations. \Remodel will raise an error if code tries to make an
+agent using \makeobject or to make an object using \makeagent.  It
+should be noted that calls to the bare \Function{make} are \emph{not}
+trapped or tested, and that \Function{make} should really only be used
+in constructor functions which have been written with these issues in
+mind. 
+
 
 
     

@@ -27,7 +27,7 @@ growth functions and spatial domains and mappings are likely to have
 model-specific versions.
 "
 
-(include "remodel-framework")  ;; Just in case...
+(include "remodel-framework")  ;; the macros that articulate the classes 
 
 (define (type-of x)
   (cond
@@ -174,11 +174,9 @@ model-specific versions.
 		  (let ((nlst (cons (apply f (list-head lst N)) (list (APPLY f (list-tail lst N))))))
 			 (APPLY  f nlst)))))
 
-(define time-field-width 8)
-(define ps-default-margin 10) ;; implicitly mm NOTE
 
-(define support-dir "./")
 
+;; Just makes a note in the code without actually making code ... flag should be something meaningful
 (define (Note flag #!rest args)
   (void))
 
@@ -196,11 +194,15 @@ model-specific versions.
 		#t
 		(and (pair? lst) (eq? (car lst)) (alternates? q p (cdr lst)))))
 
+
+";; This is probably unnecessary ... most schemes will have make-list as a std function
 (define (make-list k #!rest v)
   (cond
 	((zero? k) '())
 	((negative? k) (error "Negative length in make-list" k ))
 	(else (cons (car v) (make-list (- k 1) (car v))))))
+"
+
 
 ;; (define (make-circle-perimeter location radius #!optional divisions)
 ;;   (if (not (number? divisions)) (set! divisions 120))
@@ -326,10 +328,10 @@ model-specific versions.
   ;; to a vector function.
   (list
 	(cons 'I  (lambda (x) x)) ;; The identity mapping
-	;;	(cons 'km->ps (mapf km->ps)) ;; defined above
-	;;	(cons 'ps->km (mapf ps->km)) ;; defined above
-	;;	(cons 'm->ps (mapf m->ps)) ;; defined above
-	;;	(cons 'ps->m (mapf ps->m)) ;; defined above
+	(cons 'km->ps (mapf km->ps)) ;; defined above
+	(cons 'ps->km (mapf ps->km)) ;; defined above
+	(cons 'm->ps (mapf m->ps)) ;; defined above
+	(cons 'ps->m (mapf ps->m)) ;; defined above
 	;;	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
 	;;	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
 	;;	(cons 'm->mm (mapf (lambda (x) (* x 1000))))

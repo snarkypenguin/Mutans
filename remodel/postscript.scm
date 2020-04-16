@@ -192,9 +192,9 @@
 
 
 ;; (define p '((a b c d) (e f g h i j) (k l m)))
-;; (list-set* p '(1 0) '(tst))
+;; (list-set*! p '(1 0) '(tst))
 ;; p  => ((a b c d) ((tst) f g h i j) (k l m))
-(define (ps-list-set* lst ix vv)
+(define (ps-list-set*! lst ix vv)
   (cond
    ((number? ix)
     (list-set! lst ix vv))
@@ -210,7 +210,7 @@
 				(list-set! tv (car (reverse ix)) vv))
 			 (if (= (length tv) (length vv))
 				  ;; it's ok, do it
-				  (ps-list-set* (map (lambda (x) (ps-list-ref* x (car ix)) lst) (cdr ix)) vv)
+				  (ps-list-set*! (map (lambda (x) (ps-list-ref* x (car ix)) lst) (cdr ix)) vv)
 				  (abort "The value list does not have the indicated number of elements"))))
     )))
 

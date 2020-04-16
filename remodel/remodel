@@ -1,13 +1,46 @@
 ; -*- mode: scheme; -*-
-;--
-; Test model configuration
-;-  Code 
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+;; This is the file you load into your scheme interpreter (gambit, usually) to
+;; run a Remodel simulation.  The structure is as follows
+
+
+
+;; First, the "default" definitions.  This mostly includes things that govern
+;; the locations of things, format for output (such as isoA4 vs Letter) and the like.
+;; It may include other things too -- this is scheme, after all.
+;; It *does not/should not* include debugging flags
+
+(load "remodel-defaults.scm") 
+
+
+;; This defines/sets debugging flags and infrastructure.
+
+(load "debugging-flags.scm")
+
 
 ;; Omit the following or adjust them for local conditions, they are
 ;; needed for SLIB
 
-(setenv "GAMBIT_IMPLEMENTATION_PATH" "/usr/local/Gambit")
-(setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/")
+;; (setenv "GAMBIT_IMPLEMENTATION_PATH" "/usr/local/Gambit")
+;; (setenv "SCHEME_LIBRARY_PATH" "/usr/share/slib/")
 
 ;; SLIB can be a bit of a devil to set up.  You need to run something like
 ;;
@@ -21,20 +54,106 @@
 ;; are.
 
 
-;; comment this out if you want "predictable" rng sequences
-(random-source-randomize! default-random-source)
 
-;(dump wally)(newline)
-;(aborts "Incomplete initialisation is making things fail when it runs")
+;-- --------------- Load parameters from the parameters directory -------
 
 
-;; This loads the framework
-;;(include "remodel-framework") ;; this is for the time-probe macros
-
-(include "remodel.scm")
 
 
-;; Mention if slib is loaded
+
+
+;; Loaded before everything else -- this provides some additional infra 
+(load "preamble.scm") 
+
+(load 'verbose) ;; comment this out to make it quieter
+
+(define (sym->scm x) (let ((fn (string-append (symbol->string x) ".scm")))
+							  ;;(display fn)(newline)
+							  fn))
+
+(define slib-gambit.init "/usr/share/slib/gambit.init")
+(define SLIB #f)
+
+(include "remodel-framework")  ; Probably not necessary, but here as an example
+
+;;; This is chock full of macros.  Macros need to be *included* in basically every file
+;;; Gambit's define-macro only creates syntax rewriters that apply to the module (file)
+;;; *currently* being processed.  The reason we use these macros  is that we can build in 
+;;; the extra bits that support the agents and keep things consistent.
+
+
+(define all-support-files-in-load-order
+  (append
+	;; basic libraries
+	;;;;(map sym->scm '(sort wildmatch utils timer tree-ring kdebug model-flags sclos abstract-register))
+	(map sym->scm '(utils constants units paper-sizes maths matrix integrate postscript glyphs sort))
+	;; This loads the extensions to the class system that provide less arcane access
+	(map sym->scm '(sclos+extn model-flags))
+	;; final bits of infrastructure: 
+	;; load the basic utilities postscript should (logically) come after
+	;; the mathematical files ... it uses matrices and such.  
+	;; Since the above are bodies of code used in other projects as well,
+	;; we also load the Remodel specific file below which defines things
+	;; that are project specific.
+	(map sym->scm '(tree-ring abstract-register model-flags))
+
+	;;(load "support.o1")
+	))
+
+
+
+(define all-classes-in-load-order
+  (append
+	(map sym 
+
+	(map sym->scm '(basic-population)) ;; Assumes logistic growth, predation, mortality.  Good for grass ;-)
+	(map sym->scm '(remodel-declarations remodel-classes)) ;; this provides very simple 'behaviours' and interactions
+	(map sym->scm '(introspection-classes monitor-classes log-classes)) ;; classes which probe the state of other agents
+	(map sym->scm '(landscape-classes plant-classes animal-classes)) ;; main players
+	(map sym->scm '(remodel-wrappers remodel-methods))  ;; provides methods for things common to all participants 
+	
+	;; We want to load a single declarations file....(for-each load (map sym->scm '(remodel-wrappers declarations remodel-methods)))
+
+	(map sym->scm '(introspection-methods monitor-methods log-methods))
+	;; the introspection methods have special abilities to probe other
+	;; agents at particular times
+
+	(map sym->scm '(landscape-methods oak plant-methods animal-methods))
+	;; These implement the flora and fauna
+
+	(map sym->scm '(assessment-methods))
+	;; Assessement agents look at how things are configured with respect to the state
+	;; of the pertinent agents and the system as a whole, they may be able to trigger changes of representation.
+
+	))
+
+(map load all-support-files-in-load-order)
+(map load all-classes-in-load-order)
+
+;; The kernel always comes after the agent classes, precedence breaks
+;; if you try and load it too early.
+
+(load "kernel.scm") ;(load "kernel.o1")
+" The kernel manages the multiplexing of the active agents in the
+system. This is accomplished using a priority queue.  The kernel code
+keeps track of 'live' agents, agents which have been 'terminated' and
+agents which are 'dead' but not terminated.  The distinction between
+'dead' and 'terminated' is that 'dead' things might still play a role
+in the simulation as habitat or food.  'terminated' agents are removed
+at the earliest opportunity.
+
+The kernel provides communication channels between agents -- most
+inter-agent communication happens (or may happen) through a call to
+the kernel.  It also is responsible for introducing new agents --
+usually created by other agents by reproduction -- and the mechanisms
+which support migration between representations.
+"
+
+(load "model-flags.scm") ;; Flags for kdebug/kdebug? messages/code and other global flags
+(load "parameters.scm") ;; code to handle the parameter files 
+
+
+;; Mention if slib is loaded -- slib is fantastic, get it if you don't have it!
 (if SLIB (dnl* "*** SLIB is present ***"))
 
 
@@ -88,8 +207,6 @@
 (add-kdebug-msg-tag 'log-data)
 (add-kdebug-msg-tag 'chaintrack)
 
-
-
 ;(define kdebug? (lambda x #f)) ;; This shorts it out as rapidly as possible.
 ;(define kdebug kdebug?)        ;; We might later convert it to a macro that just "disappears"
 
@@ -114,28 +231,15 @@
 ;(debugkdebug #f)
 
 
-;; This needs to be done before we start loading agent into things,
-;; else they may set up their filenames incorrectly
-(set! time-field-width 8)
-;; defaults to 8, needs to be 12 to accomodate 3000 years from t = 0sec
-
-
 ;-- --------------- Load parameters from the parameters directory -------
 
 ;; This should be the first thing in a model configuration file after
-;; the framework is loaded.
+;; the framework is loaded, and a few order-dependent things are set.
 (load-parameter-set "parameters") ;; params is the directory which
 											 ;; contains the parameter files
 
 ;-- Global data ---------------------------------------------------------
 ;========================================================================
-
-(set! default-margins 10) ;; this is for "map" output and is always in mm
-
-
-(define missing-value 0+1e-347i)
-;; things arrived at by mortality are 
-;; likely to be inexact
 
 ;-- Set kernel flags ----------------------------------------------------
 
@@ -154,10 +258,10 @@
 ;(add-kdebug-msg-tag 'log-*)
 
 
+
+
 ;-- load the specific model configuration ------------------------------------------------
 
-"The following code takes the list of registered submodels and loads any files they may be 
-dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
 
 (define startinittime #f)
 (define endinittime #f)
@@ -167,8 +271,15 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (define endqueuetime #f)
 (define finished #f)
 
-(set! startinittime (process-times))
-(load "specific-model.scm")
+;; (process-times) returns elapsed time, this lets us see how long initialisation takes
+(set! startinittime (process-times)) 
+
+"The following code takes the list of registered submodels and loads any files they may be 
+dependent on.  Loggers must be loaded after the other submodels, so we take two passes."
+
+
+(load "model-configuration.scm") ;; The actual model (rather than the supporting framework)
+                            ;; is loaded here
 ;;(load "sm.scm")
 
 (set! endinittime (process-times))
@@ -179,7 +290,6 @@ dependent on.  Loggers must be loaded after the other submodels, so we take two 
 (define final-Q 'not-run-yet)
 
 (random-source-randomize! default-random-source)
-
 
 (define (doit q #!rest n)
   (set! Dunnit (lambda () (shutdown-agents q)))

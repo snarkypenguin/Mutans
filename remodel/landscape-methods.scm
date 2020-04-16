@@ -1660,20 +1660,19 @@ via their containing patch.
 
 
 ;; Returns a list of lists, where the inner lists correspond to the rows in the grid.
-(define (make-grid cell-class taxon name cell-type n m domain #!rest extras)
+;; (make-grid <patch> "swamp" "Sodden Lodden" <polygon> 12 36 '((0 0 0) (2400 7200))  HeronIs-DEM)
+(define (make-grid cell-class taxon name cell-type n m domain #!optional (terrain #f) (statevars '()))
   (let* ((ll (car domain))
 			(ur (cadr domain))
-			(nscale (/ (apply - (map car ur ll)) (* 1.0 n)))
-			(mscale (/ (apply - (map cadr ur ll)) (* 1.0 n)))
+			(nscale (/ (apply - (map car domain)) (* 1.0 n)))
+			(mscale (/ (apply - (map cadr domain)) (* 1.0 n)))
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
-			(terrain (if (pair? extras) (car extras)))
-			(statevars (if (pair? extras) (cdr extras)))
 			)
 	 (if #f
 		  (begin
-			 (dnl* "Making a" n 'x m "grid with a bbox" ll ur)
+			 (dnl* "Making a" n 'x m "grid with a bbox" domain)
 			 (dnl* "stepsizes" nscale mscale)))
 
 	 ;; The flag 'is-relative is set to false in the construction of the grid cells.
@@ -1742,7 +1741,8 @@ via their containing patch.
 	 )
   )
 
-(define (make-hex cell-class taxon name cell-type n m domain #!rest extras) 
+;; (make-grid <patch> "swamp" "Sodden Lodden" <polygon> 12 36 '((0 0 0) (2400 7200))  HeronIs-DEM)
+(define (make-hex cell-class taxon name cell-type n m domain  #!optional (terrain #f) (statevars '()))
   (let* ((ll (car domain))
 			(ur (cadr domain))
 			(nscale (/ (- (car ur) (car ll)) (* 1.0 n)))
@@ -1750,8 +1750,6 @@ via their containing patch.
 			(radius (min nscale mscale))
 			(patch-list '())
 			(M (make-list* n m))
-			(terrain (if (pair? extras) (car extras)))
-			(statevars (if (pair? extras) (cdr extras)))
 			)
 	 (if #f
 		  (begin
@@ -2055,8 +2053,7 @@ args can be  an update map or an update map and update equations
 ;;			 (filter (lambda (x) (and (contains? x loc) arg) ) (my 'patch-list)))
 
 ;; This is a wrapper for (make-agent <landscape>, ymmv.
-(define (make-landscape name default-ht domain terrain-function 
-							 patch-type patch-data ;; patch-type would usually be a patch class, such as <patch> or <dynamic-patch>
+(define (make-landscape name default-ht domain terrain-function patch-type patch-data ;; patch-type would usually be a patch class, such as <patch> or <dynamic-patch>
 							 )
   (let* ((PL (map (lambda (x) (apply make-patch (list patch-type (apply random-location domain) (map (lambda (y) (* 0.25 x)) (apply min (map - maxv minv))) x))) patch-data))
 			(H (make-agent <landscape> 'name name 'default-value default-ht 'minv (car domain) 'maxv (cadr domain) 'terrain-function terrain-function 

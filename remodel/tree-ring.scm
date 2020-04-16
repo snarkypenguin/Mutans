@@ -2680,8 +2680,8 @@ a root (the node which is (uniquely) the child of no other node in the set).
 	 L
   ))
 
-;----  (partition-set* r u) 
-(define (partition-set* r u)
+;----  (partition-set*! r u) 
+(define (partition-set*! r u)
 ;;  (dnl "U: " u)
   (cond
 	((null? u) u)
@@ -2695,7 +2695,7 @@ a root (the node which is (uniquely) the child of no other node in the set).
 				  (set! rin (cdr rin)) ;; skip the doubled first entry
 				  'bad-karma)
 
-			 (cons rin (partition-set* r rout))))))
+			 (cons rin (partition-set*! r rout))))))
   )
 
 ;----  (normalise-tree t) 

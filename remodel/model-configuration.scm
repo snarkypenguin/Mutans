@@ -18,7 +18,7 @@
 ;--    Public data 
 
 ;-  Code 
-(include "remodel-framework") ;; This provides a number of useful bits
+(include "remodel-framework") ;; This provides a number of useful bits ... it *needs* to be here
 
 ;- =================  Define the model domain now =======================
 ;========================================================================
@@ -42,8 +42,9 @@
 ;; (add-kdebug-msg-tag '<thing>-model-body)
 ;; (add-kdebug-msg-tag '<tracked-agent>)
 
+;; Debugging flags and tags
 (kdebug-production! #f) ;; suppress debugging messages
-(kdebug-wildcards! #t)
+(kdebug-wildcards! #t)  ;; allow the use of wildcards for catching debugging
 (add-kdebug-msg-tag '*log*)
 (add-kdebug-msg-tag '*page*)
 (add-kdebug-msg-tag '*emit*)
@@ -74,10 +75,6 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 ;; rotated
 
 
-; (map (lambda (x) ((mapf (slot-ref pslog 'model->local)) x)) (map perimeter patchlist))
-
-(define PLOT-SCALE 10)
-
 
 ;-- generate output mappings (must happen after the model domain is set
 ;;  using set-model-domain
@@ -87,7 +84,7 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define start 0) ;; day zero
 ;(define end (* 5.1 days))
 ;(define end (* 41 days))
-(define end (* 15 days)) ;; of christmas y'know
+(define end (* 15 days))  
 ;(define end (* 12 days)) ;; of christmas y'know
 ;(define end (* 29 days)) 
 ;(define end (* 51 days)) ;; 
@@ -103,6 +100,11 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 ;(disable-timers)
 
+; (map (lambda (x) ((mapf (slot-ref pslog 'model->local)) x)) (map perimeter patchlist))
+
+
+(define PLOT-SCALE 10)
+(define PLOT-MARGIN 10)
 
 
 ;--  the venue and cast....
@@ -110,11 +112,6 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 
 (define N 2) ;; Number cells along the "east-west" axis
 (define M 3) ;; Number cells along the "north-south" axis
-
-(define use-plants #t)
-(define use-jherb #t)
-(define use-aherb #t)
-(define use-acarn #f)
 
 (define patch-carrying-capacity  25)
 ;; after this many trees in a patch, the reproductive potential is attenuated
@@ -132,7 +129,11 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define bigtrees #t)
 (define treescale 1)
 
-'(wasteland onetree trees array array+trees)
+;; Trees can be configured with one of the following symbols
+;;
+;;                                 '(wasteland onetree trees array array+trees)
+
+
 ;(define tree-configuration 'wasteland)
 ;(define tree-configuration 'bush)
 ;(define tree-configuration 'array)
@@ -143,6 +144,11 @@ and the state variable is assigned a value returned by an (eval ..), like so:
 (define clusters-per-chain (* treescale 1))
 (define trees-per-cluster (* treescale 1))
 
+
+(define use-plants #t)
+(define use-jherb #t)
+(define use-aherb #t)
+(define use-acarn #f)
 
 (dnl "The set") ;-------------------------------------------------------------------
 
@@ -652,7 +658,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 (define pslog
   (if (and #t (or use-plants use-jherb use-aherb use-acarn))
 		;;                                       model  page  margin                           
-		(let ((mapping (map:domain-to-postscript Domain isoA4 10))) ;; NOTE page dimensions are *always* specified in mm.
+		(let ((mapping (map:domain-to-postscript Domain isoA4 PLOT-MARGIN))) ;; NOTE page dimensions are *always* specified in mm.
 		  (let ((pslog
 					(make-agent <log-map> "map-maker" 'filename "domain-map.ps" 'format 'ps
 							  ;; Recall: internally time---end for example---is in seconds.
@@ -666,8 +672,7 @@ on for a chain with a lenght equal to the number of cells we are using.
 							  (list <patch> <plant-array> <plant> <aherb> <jherb> <acarn>)
 							  ;(append (list <patch> <example-plant> <aherb> <jherb>) patchlist)
 							  )))
-			 (set! Q (q-insert Q pslog Qcmp)) ;; these will go in earlier than the others 
-			 pslog
+			 (set! Q (q-insert Q pslog Qcmp)) ;; these will go in earlier than the others 			 pslog
 			 ))
 		)          ;;; *is-class? creates a predicate function, there are also
                  ;;; *is-taxon? *has-slot?

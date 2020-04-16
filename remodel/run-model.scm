@@ -31,7 +31,7 @@
 
 ;-  Code 
 
-(load "remodel.scm")        ;; load the modelling framework
+(load "remodel")        ;; load the modelling framework
 (include "remodel.config")  ;; configure any debugging/informational flags & functions
 (include "model.config")    ;; configure the model (define spatial and temporal domains, create agents (monitors, loggers, ecosystems....)
 (Doit Q)                    ;; run it

@@ -1,0 +1,175 @@
+Running a Remodel program would usually start by configuring a mode
+
+
+To load the model 
+
+   % gsi -e remodel
+
+where the file model _has_no_ ".scm".  The file "model.scm" contains
+convenience functions which aren't properly part of the model framework, but
+are useful --- this is where you would put extra code for looking at the
+state of the particular model you are playing with, code for generating a
+set of runs or other things to do with dealing with "runs" and
+model-specific extras.  "model.scm" is included by "model"
+
+
+When it is ready to go but you think you need a lot of heap space
+
+%  gsi -:m4000000 -e model
+
+
+Discussion
+==========
+
+
+The file "remodel" loads all the code and initialises the system -- there
+are a number of configuration variables that govern library loading
+(such as SLIB) and output format in the file.  This is also where you
+indicate things like debugging flags.  Generally, it is a *really*
+good idea to make sure that SLIB is loaded as part of the init sequence; I
+have mine loaded in the .gambini file, even before my other initialisation.
+(See "If-there-are-errors")
+
+The lines
+    
+   (load-parameter-set "parameters") ;; params is the directory which
+											    ;; contains the parameter files
+
+make Remodel load the parameterisation files for the different types of
+entities modelled.  In the directory, there are two types of files, which
+are obvious from their names. Quite a lot of them have names bracketted by
+angle-brackets, like "<simple-animal>": these correspond to classes and can
+be used to initialise default values for class attributes (variables or
+functions).  The line at the end of the file incorporates the data for the
+class into the global list, so it can be used when things are created, and
+it can work out how things are related -- a <cow< is both an <animal> and a
+<mammal>, but a <komodo-dragon> isn't a <mammal> even though it is an
+<animal>.
+
+The files like "adult-herbivore" work in a similar manner, and are also
+entered into the global-parameter-list.  The difference here is that these
+files correspond to taxonomic groups rather than classes.  The parameter
+assignments of a taxonomic file will always override a class default.
+
+  NOTE: it is possible to incorporate code in the parameter files!
+  Parameters can be functions!  Things like metabolic functions can be best
+  expressed as functions, rather than having to construct an artificial
+  function that takes a selection parameter.  This approach means that the
+  complete set of pertinent data is in the entity's parameter files (with
+  units!). 
+
+
+After the parameters are loaded, there are a few timing variables declared
+and then the file "specific-model.scm" is loaded.  This is where you
+populate your domain with entities.  
+
+The first step (apart from loading remodel-framework) is to define the
+domain.  This basically just establishes a three dimensional box within
+which the action happens, though a little additional data is collected, such
+as the default output target (isoA4 in the example model).
+
+We then define the start time and the finish time --- "start" and "end"
+appropriately. 
+
+In the example model we define PLOT-SCALE, a variable only used in
+specific-model.scm, which is used to scale the size of objects when plotting
+(in this case increasing them by a factor of 10). Search for PLOT-SCALE to
+see what it does.
+
+From this point we are getting more technical -- actually starting to create
+agents in the model.  We first define a few governing constants (how many
+"cells" we are going to clump them in, carrying capacity, taxon, etc).
+
+Then we come to creating our first agent: patchgrid.  The call
+
+   (define patchgrid
+      (let* ((grid (make-grid <patch> "ch3cell" "gridcell"
+					  'area ;; area is the representation
+					  N M ;; array 
+					  Domain ;; geographic ll and ur
+					  (lambda (x y) ;; vertical displacement function
+						 (let ((x (/ x 10))
+								 (y (/ y 10)))
+							(* 10 (sqrt (+ (* x x) (* y y))))))
+					  'dt (* 1 days)
+					  'caretaker
+ 					  (lambda (self t dt)
+						 ;; The number of seeds is attenuated by the ecoservice;
+						 ;; here, we potentially germinate some....
+						 
+                   ....
+			 grid))
+
+creates a grid of <patch> agents which we assign to a variable, patchlist,
+with
+
+    (define patchlist (patch-list-from-cover patchgrid))
+
+It then inserts each of the patches (which are still associated with patchgrid)
+into the runqueue, Q, with
+
+    (for-each ;; Insert each patch into the queue
+      (lambda (p)
+         (set! Q (q-insert Q p Qcmp)))
+       patchlist)
+
+The next part of the file deals with populating the landscape with trees.
+The function make-daisy-chain places trees at locations which are related to
+each other by a random walk with step sizes drawn from a Poisson RNG.  There
+are several options for how we actually represent the trees: they can be
+distinct agents (each tree represented in the runqueue), an array of trees
+(one agent in the queue that deals with processing the trees), or a mix of
+these options.  The "unspecified" default is to seed <example-plants>
+randomly, but to *not* signal that they provide vegetation (they are
+inedible).
+
+After plants are loaded, the example model constructs ecoservice agents to
+provide fruit and viable seeds.  Fruit will ultimately rot or be eaten, and
+seeds will only germinate if they have gone through a herbivore.
+
+At this point, the population of juvenile and adult herbivores, and
+carnivores are created (according to the flags use-jherb, use-aherb and
+use-carn).  Each is created with a random location, and some notion of their
+age & mass -- though the age and mass are not necessarily well randomised.
+As they are created, they are added to the runqueue.
+
+The final section in the specific-model is the initialisation of a set of
+logging agents -- this is where the data comes from.  We construct several
+<log-data> agents, each associated with a different kind of entity within
+the model. The agent that tracks the number of seeds (sdlog) is instructed
+to run every five days with "'dt (* 5 days)" and it is given a list of
+introspection targets to log, in this case the agents in the list
+"patchlist".  The "adlog" agent, by contrast, is specified using the class
+of the agents, namely <animal> which catches both kinds of herbivores and
+the carnivores.  "tdlog" logs plants that match either <plant> or <plant-array>.
+
+"pslog" is somewhat different -- rather than the simple text output of the
+previous loggers, pslog generates postscript snapshots, possibly with
+tracking through time.  Note that we have to specify mappings to go from the
+model-domain to the postscript "image-space" and that this is generated
+using the call "(map:domain-to-postscript Domain isoA4 PLOT-SCALE)". Also
+not that PLOT-SCALE is used here too.  As an  aside, if we plotted at a 1:1
+mapping (the mapping functions returned the value you passed them), the
+trees and animals would be plotted at a scale of 1m:1pt, ... there are
+72pt/inch, so a tree with a canopy whose diameter is 1m would occupy about
+three pixels on an A4 page.
+
+Now that it is loaded, we can run
+
+	 (Doit Q) ; which will run from the value of 'start' to 'end'
+or
+    (doit Q n) ; which will run for n weeks
+
+When it has finished you need to run
+
+    (shutdown-agents Q)
+
+in order to finish any processing and close files.  Failing to shutdown
+may leave parts of the last bits of logging unflushed -- the model
+is structured this way so that we can run for a short time, and then
+continue on without interruption.
+
+
+
+
+

@@ -589,7 +589,7 @@ which return the (possibly multiple) minima and maxima
 			  (Noblst (copy-list oblst))
 			  )
 		(map-*-ix (lambda (ob ix)
-						(list-set* Noblst ix (F ob ix)))
+						(list-set*! Noblst ix (F ob ix)))
 					 oblst itl)
 		Noblst))
 
@@ -1007,9 +1007,9 @@ which return the (possibly multiple) minima and maxima
 
 
 ;; (define p '((a b c d) (e f g h i j) (k l m)))
-;; (list-set* p '(1 0) '(tst))
+;; (list-set*! p '(1 0) '(tst))
 ;; p  => ((a b c d) ((tst) f g h i j) (k l m))
-(define (list-set* lst ix vv)
+(define (list-set*! lst ix vv)
   (cond
 	((number? ix)
 	 (list-set! lst ix vv))
@@ -1025,7 +1025,7 @@ which return the (possibly multiple) minima and maxima
 				(list-set! tv (car (reverse ix)) vv))
 			 (if (= (length tv) (length vv))
 				  ;; it's ok, do it
-				  (list-set* (map (lambda (x) (list-ref* x (car ix)) lst) (cdr ix)) vv)
+				  (list-set*! (map (lambda (x) (list-ref* x (car ix)) lst) (cdr ix)) vv)
 				  (abort "The value list does not have the indicated number of elements"))))
 	 )))
 
@@ -1506,6 +1506,64 @@ linearly related to the distance_decay (a distance_decay of 2 gives us a proport
   (if (< (* step Mx) (* step m)) 
       '() 
       (cons (gen m) (make-sequence gen (+ m step) Mx step))))
+
+
+
+;; Useful for manipulating input data from strings/files
+
+(define (capture-string-from thunk)
+  (let ((sp (open-output-string)))
+    (call-with-output-port sp thunk)
+    (let ((result (get-output-string sp)))
+      (close-port sp) ;; **** chibi needs a close-port
+      result)))
+
+ (define (load-lines-from-port f)
+   (let loop ((line (read-line f))
+              (file '())
+              )
+     (if (eof-object? line)
+         file
+         (loop (read-line f) (append file (list line)))
+         )))
+
+
+(define (capture-lines-from thunk)
+  (let ((sp (open-output-string)))
+    (call-with-output-port sp thunk)
+    (let ((result (load-lines-from-port sp)))
+      (close-port sp) ;; **** chibi needs a close-port
+      result)))
+
+ (define (load-list-from-port f)
+   (let loop ((line (read-line f))
+              (port '())
+              )
+     (if (not (eof-object? line))
+         (loop (read-line f) (append port (list (collapsing-strtok line " \t"))))
+         port)))
+
+(define (capture-list-from thunk)
+  (let ((sp (open-output-string)))
+    (call-with-output-port sp thunk)
+    (let ((result (load-list-from-port sp)))
+      (close-port sp) ;; **** chibi needs a close-port
+      result)))
+
+ (define (load-flat-list-from-port f)
+   (let loop ((line (read-line f))
+              (port '())
+              )
+     (if (not (eof-object? line))
+         (loop (read-line f) (append port (collapsing-strtok line " \t")))
+         port)))
+
+(define (capture-flat-list-from thunk)
+  (let ((sp (open-output-string)))
+    (call-with-output-port sp thunk)
+    (let ((result (load-flat-list-from-port sp)))
+      (close-port sp) ;; **** chibi needs a close-port
+      result)))
 
 
 ;-  The End ;;; ;;; 

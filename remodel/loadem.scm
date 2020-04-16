@@ -38,12 +38,14 @@ the total time loading, and to keep the model's symbol-tables from
 having multiple instances of functions or classes.
 "
 
+(display "###### LOADEM ######")
+
+
 (define (sym->scm x) (let ((fn (string-append (symbol->string x) ".scm")))
 							  ;;(display fn)(newline)
 							  fn))
 
 (define slib-gambit.init "/usr/share/slib/gambit.init")
-(define SLIB #f)
 
 ;; the preamble has to come first so that the registers that keep track
 ;; of classes and methods (to prevent shadowing) are present from the
@@ -65,7 +67,8 @@ having multiple instances of functions or classes.
 ;; Haven't implemented a* to Remodel yet ... not really sure if it is all that useful in this context anyway.
 ;;(for-each load (map sym->scm '(sort wildmatch utils a*list timer tree-ring kdebug model-flags sclos registers)))
 
-(for-each load (map sym->scm '(sort wildmatch utils timer tree-ring kdebug model-flags sclos abstract-register)))
+;(for-each load (map sym->scm '(sort wildmatch utils timer tree-ring kdebug model-flags sclos abstract-register)))
+(for-each load (map sym->scm '(sort wildmatch utils timer tree-ring kdebug))) 
 
 ;; Sort provides routines for sorting lists
 ;; wildmatch provides predicates for matching wildcard strings
@@ -128,6 +131,8 @@ for defining agents, objects, update-closures, new registers, classes, methods, 
 ;; The kernel always comes after the agent classes, precedence breaks
 ;; if you try and load it too early.
 
+(load "remodel-ancilliaries") ;; extra bits
+
 (load "kernel.scm")
 ;(load "kernel.o1")
 " The kernel manages the multiplexing of the active agents in the
@@ -149,15 +154,7 @@ which support migration between representations.
 
 (load "parameters.scm") ;; code to handle the parameter files 
 
-;; This comes last ... things go awry otherwise?  We use slib for generating output and data plotting
-(if (file-exists? slib-gambit.init)
-	 (begin
-		(load slib-gambit.init)
-		(require 'printf) ;; for controlling output precision
-		(require 'charplot) ;; for rough, ascii plotting within the interpreter.
-		(set! SLIB #t)
-		))
-			 
+
 
 ;-  The End 
 

@@ -75,6 +75,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(include "remodel-flags.scm")
+
 
 ;; This macro is gambit-c specific.  Other implementations may have
 ;; other ways of testing whether a symbol is bound or not.
@@ -141,14 +143,6 @@
 			 (while-loop-call ,condition)
 			 ))))
 		  
-
-
-
-;; This should be true if you want UNFINISHED-BUSINESS reported.
-(define UNFINISHED #f) 
-(define monitor-inits #f)
-(include "remodel-flags.scm")
-
 ;-  Code 
 
 ;; See also Kiczales, Gregor; Jim des Rivieres; Daniel G. Bobrow (July
@@ -157,12 +151,12 @@
 
 ;; This prefixes the scheme (error...) call with a routine that spits
 ;; out the current file being loaded.
-(define (Error #!rest args)
+(define-macro (Error #!rest args)
   `(let ()
-	 (display "In ")
-	 (display (load 'now-loading))
-	 (display ": ")
-	 (error ,@args)))
+	  (display "In ")
+	  (display (load 'now-loading))
+	  (display ": ")
+	  (error ,@args)))
 
 
 (define-macro (define% formals #!rest body)
