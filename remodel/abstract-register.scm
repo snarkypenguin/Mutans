@@ -1,9 +1,63 @@
 ; -*- mode: scheme; -*-
+;-  Identification and Changes
+
+;--
+;	registers.scm -- Written by Randall Gray 
+;	Initial coding: 
+;		Date: 2017.07.20
+;		Location: zero:/home/randall/Thesis/model/registers.scm
+;
+;	History:
+;
+
+;-  Copyright 
+
+;
+;   (C) 2017 Randall Gray
+;
+
+"
+    Copyright 2017 Randall Gray
+
+    This file is part of Remodel.
+
+    Remodel is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Remodel is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+;-  Discussion 
+
+;-  Configuration stuff 
+
+;-  Included files 
+
+;-  Variables/constants both public and static
+
+;--    Static data
+
+;--    Public data 
+
+;-  Code 
+
+;-- Define abstract-register ... routine to create registers
 
 ;; Registers to associate  classes, methods and objects with their name.
 (define (abstract-register thingtype thingname . unique-names)
   (letrec ((register '())
-  			  (bind-string-to-closure (lambda x x))
+  			  (bind-string-to-closure (lambda x
+												 (with-output-to-string
+													'() (lambda () (display x)))))
+
 			  )
 	 (lambda args
 		(if (null? args)
@@ -13,13 +67,13 @@
 
 				(if (and #f opts) (dnl* "TOME:" unique-names cmd opts (assq (car opts) register)))
 
-				(if (and  unique-names (eq? cmd 'add) opts (assq (car opts) register))
+				(if (and  unique-names (eqv? cmd 'add) opts (assq (car opts) register))
 					 (dnl* unique-names "Attempting to re-register a " thingtype "/" thingname ":" args)
 					 )
 				(cond
 				 ((not (symbol? cmd))
 				  (abort "+++DIVISION BY DRIED FROG IN THE CARD CATALOG+++" cmd))
-				 ((eq? cmd 'help)
+				 ((eqv? cmd 'help)
 				  (dnl* "'help")
 				  (dnl* "passing no arguments or 'get returns a copy of the register")
 				  (dnl* "'reg returns the register")
@@ -34,8 +88,8 @@
 				  (dnl* "'rec?" thingname thingtype "or the print string")
 				  )
 
-				 ((eq? cmd 'reg) register)
-				 ((eq? cmd 'get)
+				 ((eqv? cmd 'reg) register)
+				 ((eqv? cmd 'get)
 				  (list-copy register)
 				  )
 
@@ -43,11 +97,11 @@
 				  (set! register '()))
 
 
-				 ((eq? cmd 'dump)
+				 ((eqv? cmd 'dump)
 				  (for-each pp register)
 				  )
 
-				 ((eq? cmd 'add-unique)
+				 ((eqv? cmd 'add-unique)
 				  (bind-string-to-closure (car opts))
 				  (if (not (assq (car opts) register))
 						(set! register ;; save things as lists
@@ -55,7 +109,7 @@
 				  (car opts)
 				  )
 
-				 ((eq? cmd 'add)
+				 ((eqv? cmd 'add)
 				  (bind-string-to-closure (car opts))
 				  (set! register ;; save things as lists
 						  (acons (car opts) (cdr opts) register))
@@ -92,7 +146,6 @@
 
 				 (else
 				  (dnl* "Called a " thingtype "/" thingname "register with " cmd )
-				  
 				  (pp (cdr args))
 				  (display "... Didn't really work, was that a real command?\n")
 				  (error "\n\n+++BANANA UNDERFLOW ERROR+++\n" args))
@@ -103,7 +156,7 @@
 	 )
   )
 
-
+;-- define class-register generic-method-register method-register object-register and agent-register
 
 ;; classes ought to be unique
 (define class-register (abstract-register "class" "class-name" #t))
@@ -113,3 +166,14 @@
 (define method-register (abstract-register "method" "method-name"))
 (define object-register (abstract-register "object" "object-name"))
 (define agent-register (abstract-register "agent" "agent-name"))
+
+;-  The End 
+
+
+;;; Local Variables: 
+;;; comment-end: ""
+;;; comment-start: "; "
+;;; mode: scheme
+;;; outline-regexp: ";-+"
+;;; comment-column: 0
+;;; End:
