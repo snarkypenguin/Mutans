@@ -195,13 +195,13 @@ model-specific versions.
 		(and (pair? lst) (eq? (car lst)) (alternates? q p (cdr lst)))))
 
 
-";; This is probably unnecessary ... most schemes will have make-list as a std function
-(define (make-list k #!rest v)
-  (cond
-	((zero? k) '())
-	((negative? k) (error "Negative length in make-list" k ))
-	(else (cons (car v) (make-list (- k 1) (car v))))))
-"
+;;; This is probably unnecessary ... most schemes will have make-list as a std function
+;;(define (make-list k #!rest v)
+;;  (cond
+;;	((zero? k) '())
+;;	((negative? k) (error "Negative length in make-list" k ))
+;;	(else (cons (car v) (make-list (- k 1) (car v))))))
+
 
 
 ;; (define (make-circle-perimeter location radius #!optional divisions)
@@ -309,18 +309,6 @@ model-specific versions.
 	 (list '(0 0) s))
 	(else (error "bad papersize" s))))
 
-;; (define (m->ps xy)
-;;   (rescale 2834.64646464646464646 x))
-
-;; (define (ps->m x)
-;;   (rescale (/ 1.0 2834.64646464646464646) x))
-
-;; (define (km->ps xy)
-;;   (rescale 2834646.46464646464646 x))
-
-;; (define (ps->km x)
-;;   (rescale (/ 1.0 2834646.46464646464646) x))
-
 
 (define *default-projections*
   ;; The projections must take whole vectors since we cannot (properly) map
@@ -328,12 +316,12 @@ model-specific versions.
   ;; to a vector function.
   (list
 	(cons 'I  (lambda (x) x)) ;; The identity mapping
-	(cons 'km->ps (mapf km->ps)) ;; defined above
-	(cons 'ps->km (mapf ps->km)) ;; defined above
-	(cons 'm->ps (mapf m->ps)) ;; defined above
-	(cons 'ps->m (mapf ps->m)) ;; defined above
-	;;	(cons 'mm->ps (mapf mm->points)) ;; defined in postscript.scm
-	;;	(cons 'ps->mm (mapf points->mm)) ;; defined in postscript.scm
+	(cons 'km->points (mapf km->points)) ;; defined above
+	(cons 'points->km (mapf points->km)) ;; defined above
+	(cons 'm->points (mapf m->points)) ;; defined above
+	(cons 'points->m (mapf points->m)) ;; defined above
+	;;	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
+	;;	(cons 'points->mm (mapf points->mm)) ;; defined in postscript.scm
 	;;	(cons 'm->mm (mapf (lambda (x) (* x 1000))))
 	;;	(cons 'mm->m (mapf (lambda (x) (/ x 1000))))
 	;;	(cons 'mm->points (mapf mm->points)) ;; defined in postscript.scm
@@ -370,8 +358,8 @@ model-specific versions.
 													 (<= (cadr ll) (cadr p))
 													 (<= (cadr p) (cadr ur)))))
 ;  (add-ps-projection	
-;	'model->ps
-;	'ps->model
+;	'model->points
+;	'points->model
 ;	(list ll ur)
 ;	(map mm->points (if (not pagesize) isoA4 pagesize))
 ;	default-margins)

@@ -150,15 +150,30 @@
 ;; (matrix-element-mapN + M1 ... ) generalises (matrix-element-map2 + M1 M2) 
 (define (matrix-element-mapN L #!rest M*)
   (cond
-	((not (and (or (eq? L #f) (procedure? L)) (matrix? M1) (matrix? M2))) (error "matrix-element-mapN requires a function and one or more matrices"))
+	((not (and (or (eq? L #f) (procedure? L)) (matrix? (car M*))))
+	 (error "(1) matrix-element-mapN requires a function and one or more matrices"))
 	((= (length M*) 1) 
 	 (matrix-element-map1 L (car M*)))
+	((not  (matrix? (cadr M*))) (error "(2) matrix-element-mapN requires a function and one or more matrices"))
 	((= (length M*) 2)
 	 (matrix-element-map2 L (car M*) (cadr M*)))
 	(#t (matrix-element-map2 L (car M*) (matrix-element-mapN L (cdr M*))))))
 
 ;---- (matrix-element-map L . matrix list)  applies an operation across a list of matrices
 (define matrix-element-map matrix-element-mapN)
+
+
+;---- This is here for relic code
+(define (@ op . args)
+  (let* ((dispatch (list (cons * *) (cons / /) (cons + +) (cons - -) (cons ^ ^)))
+			(func (assoc op dispatch))
+			)
+	 (if func
+		  (apply func args)
+		  (error "Unknown function in @ statement"))))
+		  
+	 
+
 
 
 ;; ;---- (@ op . args) wraps arithmetic operators so we may apply them to matrices

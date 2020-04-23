@@ -1,8 +1,8 @@
 #!/bin/xs
 
 # This copies the git repo over as well...
-cd /home/randall/Thesis/model
-rsync -auvH * randall@owl:/home/randall/model/
+cd /home/randall/Remodel/remodel
+rsync -auvH * randall@oct:/home/randall/Remodel/remodel
 
 rsync -auvH * rcg@sdf.org:./model/
 

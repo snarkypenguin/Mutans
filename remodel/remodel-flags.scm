@@ -21,20 +21,41 @@
 "
 
 
+;; Below are some "kernel" flags
+
+(define indicate-progress #f)  ;; If set to #f nothing is printed out
+										 ;; to indicate progress set to -1 (or
+										 ;; any negative number) to make it
+										 ;; chatter
 
 
+(define trap-model-bodies-with-bad-return-values #f) ;; This is a good
+																	  ;; idea in
+																	  ;; development
+																	  ;; and when
+																	  ;; things seem to
+																	  ;; be going off
+																	  ;; the rails
 
-
-(define trap-model-bodies-with-bad-return-values #f) ;; This is a good idea in development and when
-                                                     ;; things seem to be going off the rails
-
-(define use-agent-register #f) ;; enables or disables the agent register -- if the agent register is active
-                               ;; garbage collection of agents is stopped
+(define use-agent-register #f) ;; enables or disables the agent
+										 ;; register -- if the agent register is
+										 ;; active garbage collection of agents
+										 ;; is stopped
 
 (define use-proxies #f)        ;; enables or disables the use of the <proxy> class
 
-(define production-run #f)     ;; This indicates whether to include protective code in a number of fundamental
-                               ;; routines [like the (my 'variable) and (set-my! 'variable val) calls]
+(define production-run #f)     ;; This indicates whether to include
+										 ;; protective code in a number of
+										 ;; fundamental routines [like the (my
+										 ;; 'variable) and (set-my! 'variable
+										 ;; val) calls]
+
+(define display-Q-length #t)   ;; include the length of the queue in output
+
+
+(define indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
+(define kdebug-mode 'full/no-wildcards)
+(load "kdebug.scm")
 
 "
 The following flags control output during the model run.  These flags 
@@ -45,7 +66,8 @@ with an appropriate symbolic tag or list of symbolic tags, or by using
 the predicate kdebug? with a list of tags, such as 
 
     (if (kdebug? 'look!) (pp (inspect-object complex-list-structure)))
-    (if (kdebug? '(recast reorder)) (pp (refactor-object current-strategy complex-list-structure)))
+    (if (kdebug? '(recast reorder)) (pp (refactor-object current-strategy 
+                                                  complex-list-structure)))
 "
 ;(kdebug-message-state #t/#f) ; empty returns state, #t emits msgs, #f suppresses
 

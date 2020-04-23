@@ -459,13 +459,8 @@
   "time the agents used."
   )
 
-(define indicate-progress #f)
-;; If set to #f nothing is printed out to indicate progress
-;; set to -1 (or any negative number) to make it chatter
-(define display-Q-length #t)
 
-(define tracing-q 'not-yet-run)
-
+(define tracing-q 'not-yet-run) ;; State of the queue
 
 ;; This typically runs the agent at the head of the queue
 (define (queue t stop runqueue #!rest N)

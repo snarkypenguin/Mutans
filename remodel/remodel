@@ -17,23 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with Remodel.  If not, see <http://www.gnu.org/licenses/>.
 "
-
-;; This is the file you load into your scheme interpreter (gambit, usually) to
-;; run a Remodel simulation.  The structure is as follows
-
-
-
-;; First, the "default" definitions.  This mostly includes things that govern
-;; the locations of things, format for output (such as isoA4 vs Letter) and the like.
-;; It may include other things too -- this is scheme, after all.
-;; It *does not/should not* include debugging flags
-
-(load "remodel-defaults.scm") 
+;; I use emacs with the scheme-mode, so there are a number of comments
+;; that *mean things* to emacs, and make work on the code easier, such
+;; as syntax highlighting, integration with scheme implementations and
+;; probably a lot of things I haven't found out about.
 
 
-;; This defines/sets debugging flags and infrastructure.
+;; This is the file you load into your scheme interpreter (gambit,
+;; usually) to run a Remodel simulation.  Your model ought to be
+;; defined in a file with the name found in the variable
 
-(load "debugging-flags.scm")
+(define model-configuration "model-configuration.scm")
+
+;; and should have roughly the same sort of information found in the
+;; file "example-model.scm" which should be in the source directory.
+
 
 
 ;; Omit the following or adjust them for local conditions, they are
@@ -54,10 +52,7 @@
 ;; are.
 
 
-
 ;-- --------------- Load parameters from the parameters directory -------
-
-
 
 
 
@@ -65,7 +60,7 @@
 ;; Loaded before everything else -- this provides some additional infra 
 (load "preamble.scm") 
 
-(load 'verbose) ;; comment this out to make it quieter
+;(load 'verbose) ;; comment this out to make it quieter
 
 (define (sym->scm x) (let ((fn (string-append (symbol->string x) ".scm")))
 							  ;;(display fn)(newline)
@@ -86,16 +81,17 @@
   (append
 	;; basic libraries
 	;;;;(map sym->scm '(sort wildmatch utils timer tree-ring kdebug model-flags sclos abstract-register))
-	(map sym->scm '(utils constants units paper-sizes maths matrix integrate postscript glyphs sort))
+	(map sym->scm '(utils constants units maths   matrix integrate basic-population tree-ring ))
+	(map sym->scm '(papersizes postscript glyphs remodel-ancilliaries output-mappings sort))
 	;; This loads the extensions to the class system that provide less arcane access
-	(map sym->scm '(sclos+extn model-flags))
+	(map sym->scm '(sclos+extn wildmatch timer model-flags kdebug))
 	;; final bits of infrastructure: 
 	;; load the basic utilities postscript should (logically) come after
 	;; the mathematical files ... it uses matrices and such.  
 	;; Since the above are bodies of code used in other projects as well,
 	;; we also load the Remodel specific file below which defines things
 	;; that are project specific.
-	(map sym->scm '(tree-ring abstract-register model-flags))
+	(map sym->scm '(abstract-register model-flags))
 
 	;;(load "support.o1")
 	))
@@ -104,14 +100,13 @@
 
 (define all-classes-in-load-order
   (append
-	(map sym 
-
-	(map sym->scm '(basic-population)) ;; Assumes logistic growth, predation, mortality.  Good for grass ;-)
-	(map sym->scm '(remodel-declarations remodel-classes)) ;; this provides very simple 'behaviours' and interactions
+	(map sym->scm '(model-configuration remodel-declarations remodel-classes)) ;; this provides very simple 'behaviours' and interactions
 	(map sym->scm '(introspection-classes monitor-classes log-classes)) ;; classes which probe the state of other agents
 	(map sym->scm '(landscape-classes plant-classes animal-classes)) ;; main players
 	(map sym->scm '(remodel-wrappers remodel-methods))  ;; provides methods for things common to all participants 
 	
+	(map sym->scm '(remodel-defaults debugging-flags)) ;; these must come after the basic infrastructure is there.
+
 	;; We want to load a single declarations file....(for-each load (map sym->scm '(remodel-wrappers declarations remodel-methods)))
 
 	(map sym->scm '(introspection-methods monitor-methods log-methods))
@@ -127,7 +122,10 @@
 
 	))
 
+(dnl* "loading support:" all-support-files-in-load-order)
 (map load all-support-files-in-load-order)
+
+(dnl* "loading classes:" all-classes-in-load-order)
 (map load all-classes-in-load-order)
 
 ;; The kernel always comes after the agent classes, precedence breaks
@@ -149,7 +147,8 @@ usually created by other agents by reproduction -- and the mechanisms
 which support migration between representations.
 "
 
-(load "model-flags.scm") ;; Flags for kdebug/kdebug? messages/code and other global flags
+(load "remodel-flags.scm") ;; Kernel flags, kdebug/kdebug?
+									;; messages/code and other global flags
 (load "parameters.scm") ;; code to handle the parameter files 
 
 
@@ -161,10 +160,6 @@ which support migration between representations.
 
 ;(enable-timers)
 ;(disable-timers)
-
-(set! indicate-progress #t) ;; print an indication of how far the run has progressed.  Should be #t or #f
-
-(define kdebug-mode 'full/no-wildcards)
 
 (case 'full
   ((full)

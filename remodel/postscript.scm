@@ -120,13 +120,13 @@
 
 (define (gmap l x)
   (if (pair? x)
-      (map l  x)
-      (l x)))
+		(map l x)
+		(l x)))
 
 (define (rescale s x)
   (if (pair? s)
-      (gmap (lambda (t) (map * s t)) x)
-      (gmap (lambda (t) (* s t)) x))  )
+		(gmap (lambda (t) (map * s t)) x)
+		(gmap (lambda (t) (* s t)) x)) x)
 
 (define (inches->points x)
   (rescale 72.0 x))
@@ -147,7 +147,21 @@
 (define (inches->mm x)
   (rescale 24.5 x))
 
-(define pagesize '(595 841)) ;; in 1/72 inches...
+
+(define (m->points xy)
+  (rescale 2834.64646464646464646 x))
+
+(define (points->m x)
+  (rescale (/ 1.0 2834.64646464646464646) x))
+
+(define (km->points xy)
+  (rescale 2834646.46464646464646 x))
+
+(define (points->km x)
+  (rescale (/ 1.0 2834646.46464646464646) x))
+
+
+(define pagesize '(595 841)) ;; in points (1/72 inches)...
 
 (define (scaled-by-x x pagesize)
   (list x (* x (/ (cadr pagesize) (car pagesize)))))

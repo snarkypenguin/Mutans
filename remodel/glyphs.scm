@@ -80,9 +80,9 @@ things are at the origin, everything else plays nicely."
 
 ;; This rotation is implicitly around the origin of the glyph.
 (define (rotate-simple-glyph theta glyph)
-  (let ((R (2d-rotation-matrix theta)))
+  (let ((R (rotation-matrix-2d theta)))
 	 (map (lambda (p)
-							  (let ((v (@ * R (make-matrix (map list p)))))
+							  (let ((v (* R (make-matrix (map list p)))))
 								 ;; (pp (v))
 								 (map exact->inexact (apply append  (v)))))
 							glyph)

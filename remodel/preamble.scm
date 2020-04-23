@@ -35,7 +35,7 @@ is more recent than the file modification time of the file on the disk.
 ;; 															  body ...))))
 ;; 		  )
 ;; 		 )
-		
+
 ;; 	)))
 
 ;- Include files: remodel-framework
@@ -43,6 +43,15 @@ is more recent than the file modification time of the file on the disk.
 (include "remodel-framework")
 
 ;- Record warnings in a file called "warning.log" 
+
+;-- variables which represent uninitialised objects or classes ... NEVER ASSIGN TO THEM!
+
+;; These represent "uninitialised" things
+
+(define uninitialised (lambda args (abort 'uninitialised-function)))
+(define <uninitialised> '<uninitialised> )
+
+(define <nameless> '<nameless> )
 
 (define warn <uninitialised>)
 
@@ -81,14 +90,6 @@ is more recent than the file modification time of the file on the disk.
 (define stdin 'use:current-input-port)
 (define stdout 'use:current-output-port)
 (define stderr 'use:current-error-port)
-
-;-- variables which represent uninitialised objects or classes ... NEVER ASSIGN TO THEM!
-
-;; These represent "uninitialised" things
-(define uninitialised (lambda args (abort 'uninitialised-function)))
-(define <uninitialised> '<uninitialised> )
-
-(define <nameless> '<nameless> )
 
 ;-- Various registers 
 
@@ -159,202 +160,286 @@ gracefully continue with slib loaded during the interpreter's startup,
   smart-load recognises when a file has been loaded and avoids loading it twice.
 "
 
-(define smart-load
-  (let* ((oload load)
-			(verbose #f)
-         (always-print-loading #f)
-         (always-print-loaded #f)
-         (always-load #f)
-         (warn-loaded #t)
-         (loaded '())
-         (loading '())
-			(EQ? eqv?)
-			(MEMB memq)
-			(ASSQ assoc)
-         (prload (lambda (x y)
-                   (display (string-append "\n[" x " "))
-                   (display y)(display "]\n")))
-         )
-    (lambda (fn . args)
-      (if (not (null? fn))
-			 (let ((fmt (if (file-exists? fn)
-								 (file-info-last-modification-time (file-info fn))
-								 #f)
-							)
-					 (lfmt (let ((lfmt? (assoc fn loaded)))
-								(if lfmt? (cdr lfmt) #f)))
-					 )
-			 
-				(if (and (assoc fn loaded) (<= fmt lfmt))
-					 (if warn-loaded
-						  (dnl "[" fn " is already loaded]"))
-					 (cond
-					  ;; ((and (string? fn) (not (null? args)))
-					  ;;  (dnl "forced loading of " fn)
-					  ;;  (oload fn) ;; forces a load, doesn't record it
-					  ;;  )
+;; Like list-set! but for a-lists
+;; This is a mutator -- the list needs to exist first for it to work, though.
 
-					  ;; Load the file irrespective of whether it has been loaded before
-					  ((and (MEMB fn '(force force-load)) (not (null? args)))
-						(for-each
-						 (lambda (f)
-							(oload f)
-							(if verbose
-								 (begin (display f) (newline))))
-						 args)
-						)
+(define (sl-assoc key alist)
+  (if alist
+		(let ((r (assoc key alist)))
+		  (if (pair? r) (cdr r) r))
+		alist))
+		  
 
-					  ;; The next two substantially change the behaviour ------
-					  ((EQ? fn 'revert!)
-						(display "smart-load: Reverted to original load\n")
-						(set! load oload))
+(define sl-environment
+  (let* ((data
+			 `(
+				(oload . ,load)
+				(verbose . #f)
+				(always-print-loading . #f)
+				(always-print-loaded . #f)
+				(always-load . #f)
+				(warn-loaded . #t)
+				(loaded . ,(list))
+				(loading . ,(list))
+				(EQ? . ,eqv?)
+				(MEMB . ,memq)
+				(ASSQ . ,sl-assoc)
+				)))
+	 (let ((assoc-set! (lambda (alist key val)
+								(let loop ((l alist))
+								  (if (null? l) 
+										(append alist (cons (cons key val) '()))
+										(if (equal? (caar l) key)
+											 (set-cdr! (car l) val)
+											 (loop (cdr l))))))))
+		(lambda args
+		  (dnl* "sl environment called with" args)
+		  (cond
+			((null? args)
+			 (list-copy data)) ;; you cannot modify the list except through explicit calls
 
-					  ((or (EQ? fn 'flush!)(EQ? fn 'flush))
-						(display "smart-load: Flushed load list\n   ")
-						(display loaded)(newline)
-						(set! loaded '())
-						)
+			((and (member (car args) (map car data)) (null? (cdr args)))
+			 (cdr (assoc (car args) data)))
 
-					  ;; the next three return state information ---------------
-					  ((EQ? fn 'loaded-list)
-						(map car (reverse loaded)))
-
-					  ((EQ? fn 'loading-list)
-						loading)
-
-					  ((MEMB fn '(now-loading now-loading? current-file current-file?))
-						;;(prload "loaded" loaded)
-						(if (pair? loading) (car loading) #f)
-						)
+			((and (member (car args) (map car data)) (pair? (cdr args)))
+			 (assoc-set! data (car args) (cadr args)))
+			((eqv? (car args) 'flush)
+			 (set! data '()))
+			((eqv? (car args) 'set!) ;; Used like (sl-environment 'SET-ALIST!
+			 (set! data (cdr args)))       ;;             '((verbose . #f) ...)
+			(else (failure "bad call to sl-environment"))
+			)
+		  ))))
 
 
-					  ((MEMB fn '(prloaded? loaded loaded-list loaded-list?))
-						(prload "loaded" loaded))
-
-					  ((MEMB fn '(prloading? loaded loaded-list loaded-list?))
-						(prload "loading" loading)
-						)
-
-					  ;; Set/reset flags --------------------------------------
-					  ((EQ? fn 'warn-loaded)
-						(display "smart-load: Warning when files are already loaded\n")
-						(set! warn-loaded #t))
-
-					  ((EQ? fn '!warn-loaded)
-						(display "smart-load: Not warning when files are already loaded\n")
-						(set! warn-loaded #f))
-
-					  ;;--
-
-					  ((EQ? fn 'always-load)
-						(display "smart-load: Always loading.\n")
-						(set! always-load #t))
-
-					  ((EQ? fn '!always-load)
-						(display "smart-load: Only loading new files.\n")
-						(set! always-load #f))
-
-					  ;;--
-
-					  ((EQ? fn 'print-loaded)
-						(display "smart-load: Printing loaded files at each load.\n")
-						(set! always-print-loaded #t))
-
-					  ((EQ? fn '!print-loaded)
-						(display "smart-load: Not printing loaded files at each load.\n")
-						(set! always-print-loaded #f))
-
-					  ;;--
-
-					  ((EQ? fn 'print-loading)
-						(display "smart-load: Printing currently loading files at each load.\n")
-						(set! always-print-loading #t))
-
-					  ((EQ? fn 'assume-loaded!)
-						(let ((alf* (cdr args)))
-						  (for-each
-							(lambda (fn)
-							  (let ((fmt (if (file-exists? fn)
-												  (file-info-last-modification-time (file-info fn))
-												  #f)))
-								 (if fmt (begin
-											  ;; (oload fn) ;; if this were uncommented, it would force a load
-											  (set! loading (cons (cons fn fmt) loading)))))
-							  )
-							alf*)
-							))
-						
-					  ((EQ? fn '!print-loading)
-						(display "smart-load: Not printing currently loading files at each load.\n")
-						(set! always-print-loading #f))
-					  ;;--
-
-					  ((EQ? fn 'verbose)
-						(display "smart-load: Printing the filename after loading it.\n")
-						(set! verbose #t))
-
-					  ((EQ? fn '!verbose)
-						(display "smart-load: Don't print filename after loading it.\n")
-						(set! verbose #f))
-
-
-					  ;; Print help -----------------------------------------------
-					  ((EQ? fn 'help)
-						(display
-						 (string-append
-						  "This load routine suppresses loading a file more than once "
-						  "by default.\n"
-						  "The load procedure responds to a number of symbols:\n\n"
-						  "help           this help message\n"
-						  "verbose        always print the filename after it has loaded\n"
-						  "verbose!       do not print the filename after it has loaded\n"
-						  "revert!        revert to the original load procedure\n"
-						  "flush!         flushes the list of loaded files\n"
-						  "assume-loaded! takes a filename which is assumed to have been loaded\n"
-						  "list-loading   returns the list of active files\n"
-						  "now-loading?   returns the file currently being loaded\n"
-						  "loading\n"
-						  "list-loaded    returns the list of files already loaded\n"
-						  "loading?       prints the list of files that are currently "
-						  "loading\n"
-						  "loaded?        prints the list of loaded files\n"
-						  "warn-loaded    sets the flag that makes it warn about "
-						  "attempts to\n"
-						  "               load a file more that once\n"
-						  "!warn-loaded   turns off the warning\n"
-						  "always-load    (load...) will alway load the files "
-						  "indicated\n"
-						  "!alway-load    (load...) only loads files which have not been "
-						  "loaded\n"
-						  "print-loading  the list of loaded files is printed at each call "
-						  "to (load...)\n"
-						  "!print-loaded  turns off the previous flag\n"
-						  "print-loading  the list of loading files is printed at each call "
-						  "to (load...)\n"
-						  "!print-loading turns off the previous flag\n"
-						  "\n")))
-					  ((string? fn)
-						(set! loading (cons (cons fn fmt) loading))
-						(if always-print-loading (prload "loading" loading))
-						(if (or always-load (not (assoc fn loaded)) (< lfmt fmt) )
-							 (begin
-								(oload fn)
-								(if verbose
-									 (begin (display fn) (newline)))
-								
-								(set! loading (cdr loading))
-								(set! loaded (cons fn loaded))
-								(if always-print-loaded (prload "loaded" loaded))))
-						)
-					  (#t (error "bad argument to (load)" fn))
-					  )
-					 )
+(define smart-load-expression
+  '(lambda (fn . args)
+	  (let* ((slenv sl-environment)
+				(oload (slenv 'oload))
+				(verbose (slenv 'verbose))
+				(always-print-loading (slenv 'always-print-loading))
+				(always-print-loaded (slenv 'always-print-loaded))
+				(always-load (slenv 'always-load))
+				(warn-loaded (slenv 'warn-loaded))
+				(loaded (slenv 'loaded))
+				(loading (slenv 'loading))
+				(EQ? (slenv 'EQ?))
+				(MEMB (slenv 'MEMB))
+				(prload (lambda (x y)
+							 (display (string-append "\n[" x " "))
+							 (display y)(display "]\n")))
 				)
-          )))
-  )
+		 (dnl* "Calling smart-load with" fn "and" args)
+		 (cond
+		  ((eq? fn 'reload!)
+			(set! smart-load (eval smart-load-expression))
+			)
+		  ;; We are trying to load file
+		  ((and (string? fn) (file-exists? fn))
+			(let* ((fmodt (time->seconds (file-info-last-modification-time (file-info fn))))
+					 (lfmodt (let ((lfmodt?  (sl-assoc fn loaded)))
+								  (if (and lfmodt? (not (null? lfmodt))) (cdr lfmodt?) 0)))
+					 )
+			  (dnl "File:" fn "last saved at" fmodt
+			  (if (and (sl-assoc fn loaded) (<= fmodt (cdr lfmodt))) ;; if the file is already in the system....
+					(begin
+					  (if warn-loaded
+							(dnl "[" fn " is already loaded]"))
+					  
+					  (cond
+						;; ((and (string? fn) (not (null? args)))
+						;;  (dnl "forced loading of " fn)
+						;;  (oload fn) ;; forces a load, doesn't record it
+						;;  )
+						
+						;; Load the file irrespective of whether it has been loaded before
+						((and (MEMB fn '(force force-load)) (not (null? args)))
+						 (for-each
+						  (lambda (f)
+							 (oload f)
+							 (if verbose
+								  (begin (display f) (newline))))
+						  args)
+						 )
+						
+						((string? fn)
+						 (set! loading (cons (cons fn fmodt) loading))
+						 (if always-print-loading (prload "loading" loading))
+						 (if (or always-load (not (sl-assoc fn loaded)) (< lfmodt fmodt))
+							  (begin
+								 (oload fn)
+								 (if verbose
+									  (begin (display fn) (newline)))
+								 
+								 (set! loading (cdr loading))
+								 (set! loaded (cons (cons fn loaded) loaded))
+								 (if always-print-loaded (prload "loaded" loaded))))
+						 )
+						(#t (error "bad argument to (load)" fn))
+						)
+					  )
+					)
+			  )
+			))
+		  ;; The next two substantially change the behaviour ------
+		  ((EQ? fn 'revert!)
+			(display "smart-load: Reverted to original load\n")
+			(set! load oload))
 
-(define load smart-load) ;; supplant the standard load routine
-(load 'assume-loaded! "preamble.scm")
+		  ((or (EQ? fn 'flush!)(EQ? fn 'flush))
+			(display "smart-load: Flushed load list\n   ")
+			(display loaded)(newline)
+			(set! loaded '())
+			)
+
+		  ;; the next three return state information ---------------
+		  ((EQ? fn 'loaded-list)
+			(map car (reverse loaded)))
+
+		  ((EQ? fn 'loading-list)
+			loading)
+
+		  ((MEMB fn '(now-loading now-loading? current-file current-file?))
+			;;(prload "loaded" loaded)
+			(if (pair? loading) (car loading) #f)
+			)
+
+
+		  ((MEMB fn '(prloaded? loaded loaded-list loaded-list?))
+			(prload "loaded" loaded))
+
+		  ((MEMB fn '(prloading? loaded loaded-list loaded-list?))
+			(prload "loading" loading)
+			)
+
+		  ;; Set/reset flags --------------------------------------
+		  ((EQ? fn 'warn-loaded)
+			(display "smart-load: Warning when files are already loaded\n")
+			(set! warn-loaded #t))
+
+		  ((EQ? fn '!warn-loaded)
+			(display "smart-load: Not warning when files are already loaded\n")
+			(set! warn-loaded #f))
+
+		  ;;--
+
+		  ((EQ? fn 'always-load)
+			(display "smart-load: Always loading.\n")
+			(set! always-load #t))
+
+		  ((EQ? fn '!always-load)
+			(display "smart-load: Only loading new files.\n")
+			(set! always-load #f))
+
+		  ;;--
+
+		  ((EQ? fn 'print-loaded)
+			(display "smart-load: Printing loaded files at each load.\n")
+			(set! always-print-loaded #t))
+
+		  ((EQ? fn '!print-loaded)
+			(display "smart-load: Not printing loaded files a each load.\n")
+			(set! always-print-loaded #f))
+
+		  ;;--
+
+		  ((EQ? fn 'print-loading)
+			(display "smart-load: Printing currently loading files at each load.\n")
+			(set! always-print-loading #t))
+
+		  ((EQ? fn 'assume-loaded!)
+			(let ((alf* (cdr args)))
+			  (for-each
+				(lambda (fn)
+				  (let ((fmodt (if (and (string? fn) (file-exists? fn))
+										 (time->seconds (file-info-last-modification-time (file-info fn)))
+										 #f)))
+					 (if fmodt (begin
+									 ;; (oload fn) ;; if this were uncommented, it would force a load
+									 (set! loading (cons (cons fn fmodt) loading)))))
+				  )
+				alf*)
+			  ))
+		  
+		  ((EQ? fn '!print-loading)
+			(display "smart-load: Not printing currently loading files at each load.\n")
+			(set! always-print-loading #f))
+		  ;;--
+
+		  ((EQ? fn 'verbose)
+			(display "smart-load: Printing the filename after loading it.\n")
+			(set! verbose #t))
+
+		  ((EQ? fn '!verbose)
+			(display "smart-load: Don't print filename after loading it.\n")
+			(set! verbose #f))
+
+		  ((EQ? fn 'reload-smart-load!)
+			(display "smart-load: Don't print filename after loading it.\n")
+			(set! verbose #f))
+
+
+		  ;; Print help -----------------------------------------------
+		  ((EQ? fn 'help)
+			(display
+			 (string-append
+			  "This load routine suppresses loading a file more than once "
+			  "by default.\n"
+			  "The load procedure responds to a number of symbols:\n\n"
+			  "help           this help message\n"
+			  "verbose        always print the filename after it has loaded\n"
+			  "verbose!       do not print the filename after it has loaded\n"
+			  "revert!        revert to the original load procedure\n"
+			  "flush!         flushes the list of loaded files\n"
+			  "assume-loaded! takes a filename which is assumed to have been loaded\n"
+			  "list-loading   returns the list of active files\n"
+			  "now-loading?   returns the file currently being loaded\n"
+			  "loading\n"
+			  "list-loaded    returns the list of files already loaded\n"
+			  "loading?       prints the list of files that are currently "
+			  "loading\n"
+			  "loaded?        prints the list of loaded files\n"
+			  "warn-loaded    sets the flag that makes it warn about "
+			  "attempts to\n"
+			  "               load a file more that once\n"
+			  "!warn-loaded   turns off the warning\n"
+			  "always-load    (load...) will alway load the files "
+			  "indicated\n"
+			  "!alway-load    (load...) only loads files which have not been "
+			  "loaded\n"
+			  "print-loading  the list of loaded files is printed at each call "
+			  "to (load...)\n"
+			  "!print-loaded  turns off the previous flag\n"
+			  "print-loading  the list of loading files is printed at each call "
+			  "to (load...)\n"
+			  "!print-loading turns off the previous flag\n"
+			  "reload-smart-load!    to update the smart-load function when bug-fixing\n"
+			  "\n")))
+		  )
+
+		 ;; Set new values in the environment 
+		 (slenv 'oload oload)
+		 (slenv 'verbose verbose)
+		 (slenv 'always-print-loading always-print-loading)
+		 (slenv 'always-print-loaded  always-print-loaded )
+		 (slenv 'always-load always-load)
+		 (slenv 'warn-loaded warn-loaded)
+		 (slenv 'loaded loaded)
+		 (slenv 'loading loading)
+		 (slenv 'EQ? EQ?)
+		 (slenv 'MEMB MEMB)
+		 ))
+  ) ;; end of the definition of the expression for smart-load
+
+
+(define smart-load
+  (let ()
+	 (eval smart-load-expression)
+	 ))
+
+;(define load smart-load) ;; supplant the standard load routine
+
+;(load 'assume-loaded! "preamble.scm")
 
 
 ;; Makes gambit work with slib
@@ -393,17 +478,17 @@ gracefully continue with slib loaded during the interpreter's startup,
 (define (construct-symbol sym #!rest tagels)
   (if (string? sym) (set! sym (string->symbol sym)))
   (set! tagels (map (lambda (x) (if (string? x) (string->symbol x) x)) tagels))
-  	
+  
   (string->symbol
 	(apply string-append
 			 (map object->string
 					(cons sym
 							(let loop ((l '()) (t tagels))
-							(if (null? t)
-								 (reverse l)
-								 (loop (cons (car t)
-												 (cons '- l))
-										 (cdr t)))))))))
+							  (if (null? t)
+									(reverse l)
+									(loop (cons (car t)
+													(cons '- l))
+											(cdr t)))))))))
 
 
 (define (maybe-expand-path path . dir)
@@ -414,19 +499,19 @@ gracefully continue with slib loaded during the interpreter's startup,
 
 (define (dnl* . args)
   (if (not (null? args))
-      (let ((h (car args))
-            (t (cdr args)))
-        (display (car args))
-        (for-each (lambda (x) (display " ") (display x)) t)))
+		(let ((h (car args))
+				(t (cdr args)))
+		  (display (car args))
+		  (for-each (lambda (x) (display " ") (display x)) t)))
   (newline))
 
 
 (define (dnl . args)
   (if (not (null? args))
-      (let ((h (car args))
-            (t (cdr args)))
-        (display (car args))
-        (for-each (lambda (x) (display x)) t)))
+		(let ((h (car args))
+				(t (cdr args)))
+		  (display (car args))
+		  (for-each (lambda (x) (display x)) t)))
   (newline))
 
 (define ednl dnl)
@@ -551,10 +636,10 @@ gracefully continue with slib loaded during the interpreter's startup,
 
 (define (capture-string-from thunk)
   (let ((sp (open-output-string)))
-    (call-with-output-port sp thunk)
-    (let ((result (get-output-string sp)))
-      (close-port sp) ;; **** chibi needs a close-port
-      result)))
+	 (call-with-output-port sp thunk)
+	 (let ((result (get-output-string sp)))
+		(close-port sp) ;; **** chibi needs a close-port
+		result)))
 
 (define (load-lines-from-port f)
   (let loop ((line (read-line f))
@@ -568,10 +653,10 @@ gracefully continue with slib loaded during the interpreter's startup,
 
 (define (capture-lines-from thunk)
   (let ((sp (open-output-string)))
-    (call-with-output-port sp thunk)
-    (let ((result (load-lines-from-port sp)))
-      (close-port sp) ;; **** chibi needs a close-port
-      result)))
+	 (call-with-output-port sp thunk)
+	 (let ((result (load-lines-from-port sp)))
+		(close-port sp) ;; **** chibi needs a close-port
+		result)))
 
 (define (load-list-from-port f)
   (let loop ((line (read-line f))
@@ -584,10 +669,10 @@ gracefully continue with slib loaded during the interpreter's startup,
 
 (define (capture-list-from thunk)
   (let ((sp (open-output-string)))
-    (call-with-output-port sp thunk)
-    (let ((result (load-list-from-port sp)))
-      (close-port sp) ;; **** chibi needs a close-port
-      result)))
+	 (call-with-output-port sp thunk)
+	 (let ((result (load-list-from-port sp)))
+		(close-port sp) ;; **** chibi needs a close-port
+		result)))
 
 (define (load-flat-list-from-port f)
   (let loop ((line (read-line f))
@@ -599,10 +684,10 @@ gracefully continue with slib loaded during the interpreter's startup,
 
 (define (capture-flat-list-from thunk)
   (let ((sp (open-output-string)))
-    (call-with-output-port sp thunk)
-    (let ((result (load-flat-list-from-port sp)))
-      (close-port sp) ;; **** chibi needs a close-port
-      result)))
+	 (call-with-output-port sp thunk)
+	 (let ((result (load-flat-list-from-port sp)))
+		(close-port sp) ;; **** chibi needs a close-port
+		result)))
 
 ; Hard to map to gambit
 (define (load-list-from-pipe cmd-array . extras)
